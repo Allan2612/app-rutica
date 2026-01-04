@@ -1,7 +1,26 @@
 /**
+ * Opciones para generar el mapa
+ */
+export interface MapOptions {
+  draggable?: boolean;
+  showCoordinates?: boolean;
+  zoom?: number;
+}
+
+/**
  * Genera el HTML para el mapa interactivo Leaflet
  */
-export function generateMapHTML(latitude: number, longitude: number): string {
+export function generateMapHTML(
+  latitude: number,
+  longitude: number,
+  options: MapOptions = {}
+): string {
+  const {
+    draggable = true,
+    showCoordinates = true,
+    zoom = 15,
+  } = options;
+
   return `
 <!DOCTYPE html>
 <html>
@@ -12,6 +31,7 @@ export function generateMapHTML(latitude: number, longitude: number): string {
   <style>
     body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     #map { width: 100%; height: 100%; }
+    ${showCoordinates ? `
     .coordinates-display {
       position: absolute;
       bottom: 10px;
@@ -24,18 +44,21 @@ export function generateMapHTML(latitude: number, longitude: number): string {
       font-family: system-ui, -apple-system;
       z-index: 1000;
     }
+    ` : ''}
   </style>
 </head>
 <body>
   <div id="map"></div>
+  ${showCoordinates ? `
   <div class="coordinates-display">
     <div><b>Lat:</b> <span id="lat">${latitude.toFixed(6)}</span></div>
     <div><b>Lng:</b> <span id="lng">${longitude.toFixed(6)}</span></div>
   </div>
+  ` : ''}
 
   <script>
     // Inicializar mapa
-    const map = L.map('map').setView([${latitude}, ${longitude}], 15);
+    const map = L.map('map').setView([${latitude}, ${longitude}], ${zoom});
 
     // Agregar tiles de OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -43,16 +66,19 @@ export function generateMapHTML(latitude: number, longitude: number): string {
       maxZoom: 19
     }).addTo(map);
 
-    // Crear marcador ARRASTRABLE (draggable)
+    // Crear marcador ${draggable ? 'ARRASTRABLE (draggable)' : ''}
     const marker = L.marker([${latitude}, ${longitude}], {
-      draggable: true,
-      autoPan: true
+      draggable: ${draggable},
+      autoPan: ${draggable}
     }).addTo(map);
 
+    ${draggable ? `
     // Actualizar coordenadas cuando se mueve el marcador
     function updateCoordinates(lat, lng) {
+      ${showCoordinates ? `
       document.getElementById('lat').textContent = lat.toFixed(6);
       document.getElementById('lng').textContent = lng.toFixed(6);
+      ` : ''}
       
       // Enviar coordenadas a React Native (WebView) o al padre (iframe en web)
       const message = JSON.stringify({
@@ -83,6 +109,18 @@ export function generateMapHTML(latitude: number, longitude: number): string {
 
     // Agregar popup al marcador
     marker.bindPopup("<b>Ubicación del negocio</b><br>Arrastra este pin para cambiar").openPopup();
+    ` : `
+    // Marcador estático
+    marker.bindPopup("<b>Tu ubicación</b><br>Estás aquí").openPopup();
+    
+    // Agregar círculo de precisión (50m por defecto)
+    const circle = L.circle([${latitude}, ${longitude}], {
+      color: '#10b981',
+      fillColor: '#10b981',
+      fillOpacity: 0.2,
+      radius: 50
+    }).addTo(map);
+    `}
   </script>
 </body>
 </html>
