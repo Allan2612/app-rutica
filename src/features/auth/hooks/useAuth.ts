@@ -9,15 +9,52 @@ export function useAuth() {
   useEffect(() => {
     let isMounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (isMounted) {
-        setSession(data.session);
-        setIsLoading(false);
+    // Validar sesión inicial
+    const initSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error obteniendo sesión:', error);
+          if (isMounted) {
+            setSession(null);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        if (session) {
+          // Validar que el usuario realmente exista
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (userError || !user) {
+            console.log('Sesión inválida detectada, limpiando...');
+            await supabase.auth.signOut();
+            if (isMounted) {
+              setSession(null);
+              setIsLoading(false);
+            }
+            return;
+          }
+        }
+
+        if (isMounted) {
+          setSession(session);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error inicializando sesión:', error);
+        if (isMounted) {
+          setSession(null);
+          setIsLoading(false);
+        }
       }
-    });
+    };
+
+    initSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         if (isMounted) {
           setSession(session);
           setIsLoading(false);
