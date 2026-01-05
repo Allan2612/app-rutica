@@ -1,9 +1,5 @@
 import { Stack } from 'expo-router';
 
 export default function ProductsLayout() {
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="create_new" options={{ presentation: 'modal' }} />
-    </Stack>
-  );
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

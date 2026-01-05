@@ -37,16 +37,16 @@ export function useAuthUser(): AuthUser {
       // 2. Obtener perfil con rol
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role_PRF')
-        .eq('id_PRF', authUser.id)
+        .select('role_prf')
+        .eq('id_prf', authUser.id)
         .single();
 
       if (profileError) {
         console.error('[AUTH USER] Error cargando perfil:', profileError);
         setRole(null);
       } else {
-        setRole(profile?.role_PRF ?? null);
-        console.log('[AUTH USER] Rol cargado:', profile?.role_PRF);
+        setRole(profile?.role_prf ?? null);
+        console.log('[AUTH USER] Rol cargado:', profile?.role_prf);
       }
 
       setIsLoading(false);

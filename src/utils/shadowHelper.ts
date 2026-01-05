@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, ViewStyle } from 'react-native';
 
 /**
  * Genera estilos de sombra compatibles con web y nativo
@@ -10,7 +10,7 @@ export function getShadowStyle(config: {
   opacity?: number;
   radius?: number;
   elevation?: number;
-}) {
+}): ViewStyle {
   const {
     color = '#000',
     offsetX = 0,
@@ -21,20 +21,26 @@ export function getShadowStyle(config: {
   } = config;
 
   if (Platform.OS === 'web') {
-    // Para web, usar boxShadow
+    // Para web, usar boxShadow directamente sin shadow props
     const rgbaColor = hexToRgba(color, opacity);
     return {
       boxShadow: `${offsetX}px ${offsetY}px ${radius}px ${rgbaColor}`,
+    } as ViewStyle;
+  }
+
+  if (Platform.OS === 'android') {
+    // Para Android solo elevation
+    return {
+      elevation,
     };
   }
 
-  // Para iOS/Android usar las propiedades nativas
+  // Para iOS usar las propiedades nativas
   return {
     shadowColor: color,
     shadowOffset: { width: offsetX, height: offsetY },
     shadowOpacity: opacity,
     shadowRadius: radius,
-    elevation, // Para Android
   };
 }
 

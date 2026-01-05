@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '../../../styles/theme';
+import { getShadowStyle } from '../../../utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   container: {
@@ -60,11 +61,14 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     minWidth: 240,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 5,
+    ...getShadowStyle({
+      color: '#000',
+      offsetX: 0,
+      offsetY: 2,
+      opacity: 0.25,
+      radius: 8,
+      elevation: 5,
+    }),
   },
   menuHeader: {
     flexDirection: 'row',

@@ -1,30 +1,71 @@
 {
   "expo": {
-    "name": "app-rutica",
-    "slug": "app-rutica",
+    "name": "Rutica",
+    "slug": "rutica",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "rutica",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#10b981"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rutica.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Rutica necesita acceso a tu ubicación para mostrarte negocios y atracciones cercanas.",
+        "NSCameraUsageDescription": "Rutica necesita acceso a la cámara para subir fotos de tu negocio o productos.",
+        "NSPhotoLibraryUsageDescription": "Rutica necesita acceso a tus fotos para subir imágenes de tu negocio o productos."
+      }
     },
     "android": {
+      "package": "com.rutica.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#10b981"
       },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static",
+      "name": "Rutica - Descubre comercios y atracciones",
+      "shortName": "Rutica",
+      "description": "Descubre comercios, atracciones y promociones cerca de ti",
+      "themeColor": "#10b981",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Rutica necesita acceso a tu ubicación para mostrarte negocios y atracciones cercanas."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Rutica necesita acceso a tus fotos para subir imágenes de tu negocio o productos.",
+          "cameraPermission": "Rutica necesita acceso a la cámara para tomar fotos de tu negocio o productos."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }

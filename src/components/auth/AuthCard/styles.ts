@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { getShadowStyle } from '../../../utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   container: {
@@ -15,11 +16,14 @@ export const styles = StyleSheet.create({
     marginHorizontal: 16,
     width: '100%',
     maxWidth: 480,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 24,
-    elevation: 8,
+    ...getShadowStyle({
+      color: '#000',
+      offsetX: 0,
+      offsetY: 8,
+      opacity: 0.1,
+      radius: 24,
+      elevation: 8,
+    }),
   },
   title: {
     fontSize: 26,

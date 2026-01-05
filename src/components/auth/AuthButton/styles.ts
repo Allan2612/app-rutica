@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { getShadowStyle } from '../../../utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   button: {
@@ -9,11 +10,14 @@ export const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: '#10b981',
-    shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
+    ...getShadowStyle({
+      color: '#10b981',
+      offsetX: 0,
+      offsetY: 6,
+      opacity: 0.25,
+      radius: 12,
+      elevation: 6,
+    }),
   },
   secondary: {
     borderWidth: 2,
