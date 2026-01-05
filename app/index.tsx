@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, View, Text, Pressable } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, Text, Pressable, Image } from 'react-native';
 import { supabase } from '../src/lib/supabase/client';
 import { colors } from '../src/styles/theme';
 
@@ -54,7 +54,11 @@ export default function Index() {
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Logo */}
-        <Text style={styles.logo}>🗺️</Text>
+        <Image 
+          source={require('..//assets/logo.png')} 
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <Text style={styles.title}>Bienvenido a Rutica</Text>
         <Text style={styles.subtitle}>
           Descubre comercios, atracciones y promociones cerca de ti
@@ -96,7 +100,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    fontSize: 64,
+    width: 250,
+    height: 250,
     marginBottom: 16,
   },
   title: {

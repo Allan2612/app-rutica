@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { User, LogOut, Settings, UserCircle } from 'lucide-react-native';
-import { signOut } from '../../../features/auth/services/auth.service';
+import { signOut } from '../../../../features/auth/services/auth.service';
 import { styles } from './styles';
 
 interface UserMenuProps {

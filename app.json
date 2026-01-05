@@ -39,7 +39,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/logo.png",
       "bundler": "metro",
       "output": "static",
       "name": "Rutica - Descubre comercios y atracciones",
