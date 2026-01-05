@@ -1,1 +1,1 @@
-export { LocationSearchBar, type LocationSearchBarProps, type LocationSelection } from './LocationSearchBar';
+export { LocationSearchBar, type LocationSearchBarProps } from './LocationSearchBar';

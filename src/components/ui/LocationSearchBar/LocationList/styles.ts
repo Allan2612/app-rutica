@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '../../../../../styles/theme/colors';
-import { spacing } from '../../../../../styles/theme/spacing';
+import { colors } from '@/styles/theme/colors';
+import { spacing } from '@/styles/theme/spacing';
 
 export const styles = StyleSheet.create({
   container: {
-    maxHeight: 320,
+    maxHeight: 400,
   },
 
   emptyState: {

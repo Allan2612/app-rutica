@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { queryClient } from '../src/lib/react-query/client';
 import { useDeepLinkHandler } from '../src/hooks/useDeepLinkHandler';
+import { LocationProvider } from '../src/store';
 
 export default function RootLayout() {
   useDeepLinkHandler();
@@ -40,12 +41,14 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(app)" />
-      </Stack>
-      <Toast />
+      <LocationProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(app)" />
+        </Stack>
+        <Toast />
+      </LocationProvider>
     </QueryClientProvider>
   );
 }

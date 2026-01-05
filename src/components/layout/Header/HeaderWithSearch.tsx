@@ -2,7 +2,8 @@ import { memo, useCallback, useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, Image } from 'react-native';
 import { User, LogIn } from 'lucide-react-native';
 import { useAuthUser } from '../../../hooks/useAuthUser';
-import { LocationSearchBar, LocationSelection } from '../../ui';
+import { useLocation, LocationSelection } from '../../../hooks';
+import { LocationSearchBar } from '../../ui';
 import { UserMenu } from './UserMenu';
 import { styles } from './styles';
 
@@ -15,6 +16,7 @@ import { styles } from './styles';
  */
 export const HeaderWithSearch = memo(function HeaderWithSearch() {
   const { user, isLoading, isAuthenticated } = useAuthUser();
+  const { updateLocation, saveToDatabase } = useLocation();
   const [menuVisible, setMenuVisible] = useState(false);
 
   const handleUserPress = useCallback(() => {
@@ -25,10 +27,22 @@ export const HeaderWithSearch = memo(function HeaderWithSearch() {
     setMenuVisible(false);
   }, []);
 
-  const handleLocationChange = useCallback((selection: LocationSelection) => {
+  const handleLocationChange = useCallback(async (selection: LocationSelection) => {
     console.log('[HEADER] Ubicación seleccionada:', selection);
+    
+    // Actualizar store global
+    updateLocation({
+      province: selection.province,
+      canton: selection.canton,
+      district: selection.district,
+      coordinates: selection.coordinates,
+      address: selection.address,
+      searchText: selection.searchText,
+    });
 
-  }, []);
+    // TODO: Descomentar cuando esté lista la integración con BD
+    // await saveToDatabase();
+  }, [updateLocation]);
 
   return (
     <View style={styles.container}>
