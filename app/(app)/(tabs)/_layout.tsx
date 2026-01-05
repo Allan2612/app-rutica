@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { BadgePercent, Landmark, Map, Store, Wrench } from 'lucide-react-native';
-import { Header } from '../../../src/components/layout';
+import { HeaderWithSearch } from '../../../src/components/layout';
 import { useAuthUser } from '../../../src/hooks';
 
 export default function TabsLayout() {
@@ -12,7 +12,7 @@ export default function TabsLayout() {
       initialRouteName="businesses"
       screenOptions={{
         headerShown: true,
-        header: () => <Header />,
+        header: () => <HeaderWithSearch />,
         tabBarActiveTintColor: '#10b981',
         tabBarInactiveTintColor: '#999',
         tabBarStyle: {
