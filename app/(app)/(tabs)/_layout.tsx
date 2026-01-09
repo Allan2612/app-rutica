@@ -1,15 +1,14 @@
 import { Tabs } from 'expo-router';
-import { BadgePercent, Landmark, Map, Store, Wrench } from 'lucide-react-native';
+import { Home, Store, Landmark, Map, Wrench } from 'lucide-react-native';
 import { HeaderWithSearch } from '../../../src/components/layout';
 import { useAuthUser } from '../../../src/hooks';
 
 export default function TabsLayout() {
   const { role } = useAuthUser();
-  const showManage = role === 'seller';
 
   return (
     <Tabs
-      initialRouteName="businesses"
+      initialRouteName="home"
       screenOptions={{
         headerShown: true,
         header: () => <HeaderWithSearch />,
@@ -39,10 +38,10 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="promotions"
+        name="home"
         options={{
-          title: 'Promociones',
-          tabBarIcon: ({ color, size }) => <BadgePercent color={color} size={size} />,
+          title: 'Inicio',
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
 
@@ -54,16 +53,24 @@ export default function TabsLayout() {
         }}
       />
 
-      <Tabs.Screen name="products" options={{ href: null }} />
-
       <Tabs.Screen
-        name="manage"
+        name="promotions"
         options={{
-          href: showManage ? undefined : null,
-          title: 'Gestionar',
-          tabBarIcon: ({ color, size }) => <Wrench color={color} size={size} />,
+          href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="products"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen name="manage" options={{
+        title: 'Gestionar',
+        tabBarIcon: ({ color, size }) => <Wrench color={color} size={size} />,
+      }} />
     </Tabs>
   );
 }
