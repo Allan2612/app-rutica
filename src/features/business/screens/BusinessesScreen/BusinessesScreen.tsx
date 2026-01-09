@@ -1,7 +1,9 @@
-import { memo, useMemo, useState } from 'react';
-import { View, TextInput, ScrollView, Text, Pressable } from 'react-native';
+import { memo, useState } from 'react';
+import { ActivityIndicator, FlatList, Text, TextInput, View } from 'react-native';
+import { BusinessCard } from '@/components/business';
 import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
+import { useBusinesses } from '@/features/business/hooks/useBusinesses';
 import { colors } from '@/styles/theme/colors';
 import { styles } from './styles';
 
@@ -13,10 +15,17 @@ const BUSINESS_TABS: TabOption[] = [
 export const BusinessesScreen = memo(function BusinessesScreen() {
     const [activeTab, setActiveTab] = useState('commerces');
     const [searchText, setSearchText] = useState('');
-    const [showFilters, setShowFilters] = useState(true);
     const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
 
     const { data: categories = [], isLoading } = useBusinessCategories();
+    const {
+        data: businesses = [],
+        isLoading: isBusinessesLoading,
+    } = useBusinesses({
+        searchText,
+        categoryIds: selectedCategoryIds,
+        enabled: activeTab === 'commerces',
+    });
 
     const toggleCategory = (id: string) => {
         setSelectedCategoryIds((prev) =>
@@ -71,7 +80,53 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
             />
 
             {/* Contenido */}
-            <View style={styles.content} />
+            <View style={styles.content}>
+                {activeTab === 'commerces' ? (
+                    isBusinessesLoading ? (
+                        <View style={styles.loader}>
+                            <ActivityIndicator size="small" color={colors.primary[600]} />
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={businesses}
+                            keyExtractor={(item) => item.id}
+                            numColumns={3}
+                            columnWrapperStyle={styles.columnWrapper}
+                            contentContainerStyle={styles.listContent}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <View style={styles.cardWrapper}>
+                                    <BusinessCard
+                                        name={item.name}
+                                        description={item.description}
+                                        categoryName={item.categoryName}
+                                        locationLabel={item.locationLabel}
+                                        imageUrl={item.imageUrl ?? undefined}
+                                        logoUrl={item.logoUrl ?? undefined}
+                                        rating={item.rating}
+                                        reviewCount={item.reviewCount}
+                                    />
+                                </View>
+                            )}
+                            ListEmptyComponent={
+                                <View style={styles.emptyState}>
+                                    <Text style={styles.emptyTitle}>No hay comercios disponibles</Text>
+                                    <Text style={styles.emptySubtitle}>
+                                        Prueba ajustando la búsqueda o selecciona otra categoría.
+                                    </Text>
+                                </View>
+                            }
+                        />
+                    )
+                ) : (
+                    <View style={styles.placeholder}>
+                        <Text style={styles.placeholderTitle}>Explora las promociones pronto</Text>
+                        <Text style={styles.placeholderSubtitle}>
+                            Estamos preparando las mejores ofertas para ti.
+                        </Text>
+                    </View>
+                )}
+            </View>
         </View>
     );
 });

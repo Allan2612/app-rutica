@@ -1,5 +1,5 @@
 import { supabase } from '../../../lib/supabase/client';
-import { Business, BusinessWithRelations, Location } from '../../../types/entities';
+import { Business, BusinessWithRelations } from '../../../types/entities';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 
@@ -35,6 +35,34 @@ export interface CreateBusinessInput {
   // Images
   logoUri?: string;
   imageUris?: string[];
+}
+
+export interface BusinessListFilters {
+  searchText?: string;
+  categoryIds?: string[];
+}
+
+export interface BusinessListRecord {
+  id_bus: string;
+  name_bus: string;
+  description_bus: string | null;
+  category_id_bus: string | null;
+  moderation_status_bus: string;
+  is_active_bus: boolean;
+  business_categories?: {
+    id_bca: string;
+    name_bca: string;
+  } | null;
+  locations?: {
+    canton_loc: string | null;
+    district_loc: string | null;
+    province_loc: string | null;
+  } | null;
+  business_images?: {
+    bucket_bim: 'business-logos' | 'business-images';
+    path_bim: string;
+    sort_order_bim: number;
+  }[] | null;
 }
 
 export async function uploadImageToStorage(
@@ -217,6 +245,56 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   return business;
 }
 
+export async function getBusinessList(filters: BusinessListFilters = {}): Promise<BusinessListRecord[]> {
+  const { searchText, categoryIds } = filters;
+
+  console.log('[BUSINESS] getBusinessList called with filters:', { searchText, categoryIds });
+
+  let query = supabase
+    .from('businesses')
+    .select(`
+      id_bus,
+      name_bus,
+      description_bus,
+      category_id_bus,
+      moderation_status_bus,
+      is_active_bus,
+      business_categories ( id_bca, name_bca ),
+      locations ( canton_loc, district_loc, province_loc ),
+      business_images ( bucket_bim, path_bim, sort_order_bim )
+    `)
+    .neq('moderation_status_bus', 'rejected');
+
+  console.log('[BUSINESS] Applied base filters: moderation_status_bus != rejected');
+
+  if (categoryIds && categoryIds.length > 0) {
+    query = query.in('category_id_bus', categoryIds);
+    console.log('[BUSINESS] Applied category filter:', categoryIds);
+  }
+
+  if (searchText && searchText.trim().length > 0) {
+    const term = searchText.trim();
+    query = query.or(`name_bus.ilike.%${term}%,description_bus.ilike.%${term}%`);
+    console.log('[BUSINESS] Applied search filter:', term);
+  }
+
+  query = query.order('created_at_bus', { ascending: false });
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('[BUSINESS] getBusinessList ERROR:', error);
+    return [] as BusinessListRecord[];
+  }
+
+  console.log('[BUSINESS] getBusinessList SUCCESS. Records found:', data?.length ?? 0);
+  if (data && data.length > 0) {
+    console.log('[BUSINESS] First record:', JSON.stringify(data[0], null, 2));
+  }
+
+  return (data ?? []) as BusinessListRecord[];
+}
+
 export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
   const { data, error } = await supabase
     .from('businesses')
@@ -230,7 +308,7 @@ export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
       contact_phone_BUS,
       contact_email_BUS,
       website_BUS,
-      business_images ( bucket_BIM, path_BIM, sort_order_BIM ),
+      business_images ( bucket_bim, path_bim, sort_order_bim ),
       locations ( district_LOC, canton_LOC, province_LOC )
     `)
     .neq('moderation_status_BUS', 'rejected')

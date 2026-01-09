@@ -22,7 +22,7 @@ export const CategorySearchBar = memo(function CategorySearchBar({
     searchText,
     isLoading = false,
 }: CategorySearchBarProps) {
-    const [showFilters, setShowFilters] = useState(true);
+    const [showFilters, setShowFilters] = useState(false);
 
     return (
         <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 }}>
