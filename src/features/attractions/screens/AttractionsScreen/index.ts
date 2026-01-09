@@ -1,0 +1,1 @@
+export { AttractionsScreen } from './AttractionsScreen';
