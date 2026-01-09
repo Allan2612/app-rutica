@@ -1,5 +1,6 @@
 import { memo, useState, useCallback } from 'react';
-import { Alert, Text, View, TouchableOpacity } from 'react-native';
+import { Alert, Text, View, TouchableOpacity, Pressable } from 'react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { Link, router } from 'expo-router';
 import { AuthCard, AuthInput, AuthButton } from '../../../../components/auth';
 import { signUp } from '../../services/auth.service';
@@ -73,121 +74,132 @@ export const RegisterScreen = memo(function RegisterScreen() {
   }, [email, password, confirmPassword, name, phone, role]);
 
   return (
-    <AuthCard
-      title="Crear Cuenta"
-      footer={
-        <Text style={sharedStyles.footerTextSmall}>
-          Al registrarte, aceptas nuestros{' '}
-          <Text style={sharedStyles.footerLink}>Términos y Condiciones</Text>
-          {' y '}
-          <Text style={sharedStyles.footerLink}>Política de Privacidad</Text>
-        </Text>
-      }
-    >
-      {/* Tipo de cuenta */}
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Tipo de cuenta</Text>
-        <View style={styles.roleButtons}>
-          <TouchableOpacity
-            style={[
-              styles.roleButton,
-              role === 'buyer' && styles.roleButtonActive,
-            ]}
-            onPress={() => setRole('buyer')}
-          >
-            <Text style={styles.roleIcon}>👤</Text>
-            <Text
-              style={[
-                styles.roleTitle,
-                role === 'buyer' && styles.roleTextActive,
-              ]}
-            >
-              Comprador
-            </Text>
-            <Text style={styles.roleSubtitle}>Descubre y explora</Text>
-          </TouchableOpacity>
+    <View style={{ flex: 1 }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 }}>
+        <Pressable
+          onPress={() => router.replace('/(app)/(tabs)/manage')}
+          style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <ArrowLeft size={22} color="#11181C" />
+        </Pressable>
+      </View>
 
-          <TouchableOpacity
-            style={[
-              styles.roleButton,
-              role === 'seller' && styles.roleButtonActive,
-            ]}
-            onPress={() => setRole('seller')}
-          >
-            <Text style={styles.roleIcon}>🏪</Text>
-            <Text
+      <AuthCard
+        title="Crear Cuenta"
+        footer={
+          <Text style={sharedStyles.footerTextSmall}>
+            Al registrarte, aceptas nuestros{' '}
+            <Text style={sharedStyles.footerLink}>Términos y Condiciones</Text>
+            {' y '}
+            <Text style={sharedStyles.footerLink}>Política de Privacidad</Text>
+          </Text>
+        }
+      >
+        {/* Tipo de cuenta */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Tipo de cuenta</Text>
+          <View style={styles.roleButtons}>
+            <TouchableOpacity
               style={[
-                styles.roleTitle,
-                role === 'seller' && styles.roleTextActive,
+                styles.roleButton,
+                role === 'buyer' && styles.roleButtonActive,
               ]}
+              onPress={() => setRole('buyer')}
             >
-              Vendedor
-            </Text>
-            <Text style={styles.roleSubtitle}>Promociona tu negocio</Text>
-          </TouchableOpacity>
+              <Text style={styles.roleIcon}>👤</Text>
+              <Text
+                style={[
+                  styles.roleTitle,
+                  role === 'buyer' && styles.roleTextActive,
+                ]}
+              >
+                Comprador
+              </Text>
+              <Text style={styles.roleSubtitle}>Descubre y explora</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.roleButton,
+                role === 'seller' && styles.roleButtonActive,
+              ]}
+              onPress={() => setRole('seller')}
+            >
+              <Text style={styles.roleIcon}>🏪</Text>
+              <Text
+                style={[
+                  styles.roleTitle,
+                  role === 'seller' && styles.roleTextActive,
+                ]}
+              >
+                Vendedor
+              </Text>
+              <Text style={styles.roleSubtitle}>Promociona tu negocio</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      <AuthInput
-        label="Nombre completo"
-        placeholder="Tu nombre"
-        value={name}
-        onChangeText={setName}
-        editable={!loading}
-      />
+        <AuthInput
+          label="Nombre completo"
+          placeholder="Tu nombre"
+          value={name}
+          onChangeText={setName}
+          editable={!loading}
+        />
 
-      <AuthInput
-        label="Email"
-        placeholder="tu@email.com"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        editable={!loading}
-      />
+        <AuthInput
+          label="Email"
+          placeholder="tu@email.com"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          editable={!loading}
+        />
 
-      <AuthInput
-        label="Teléfono"
-        placeholder="+506 0000-0000"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
-        editable={!loading}
-      />
+        <AuthInput
+          label="Teléfono"
+          placeholder="+506 0000-0000"
+          keyboardType="phone-pad"
+          value={phone}
+          onChangeText={setPhone}
+          editable={!loading}
+        />
 
-      <AuthInput
-        label="Contraseña"
-        placeholder="••••••••"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        editable={!loading}
-      />
+        <AuthInput
+          label="Contraseña"
+          placeholder="••••••••"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          editable={!loading}
+        />
 
-      <AuthInput
-        label="Confirmar contraseña"
-        placeholder="••••••••"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        editable={!loading}
-      />
+        <AuthInput
+          label="Confirmar contraseña"
+          placeholder="••••••••"
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          editable={!loading}
+        />
 
-      <AuthButton
-        title={loading ? 'Creando cuenta...' : 'Crear Cuenta'}
-        loading={loading}
-        onPress={handleRegister}
-        style={sharedStyles.buttonSpacing}
-      />
+        <AuthButton
+          title={loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+          loading={loading}
+          onPress={handleRegister}
+          style={sharedStyles.buttonSpacing}
+        />
 
-      <View style={sharedStyles.section}>
-        <Text style={sharedStyles.linkText}>
-          ¿Ya tienes cuenta?{' '}
-          <Link href="/(auth)/login">
-            <Text style={sharedStyles.link}>Inicia sesión aquí</Text>
-          </Link>
-        </Text>
-      </View>
-    </AuthCard>
+        <View style={sharedStyles.section}>
+          <Text style={sharedStyles.linkText}>
+            ¿Ya tienes cuenta?{' '}
+            <Link href="/(auth)/login">
+              <Text style={sharedStyles.link}>Inicia sesión aquí</Text>
+            </Link>
+          </Text>
+        </View>
+      </AuthCard>
+    </View>
   );
 });
