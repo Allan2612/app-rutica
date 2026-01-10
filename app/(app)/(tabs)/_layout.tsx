@@ -1,15 +1,11 @@
 import { Tabs } from 'expo-router';
-import { BadgePercent, Landmark, Map, Store, Wrench } from 'lucide-react-native';
+import { Home, Landmark, Map, Store, Wrench } from 'lucide-react-native';
 import { HeaderWithSearch } from '../../../src/components/layout';
-import { useAuthUser } from '../../../src/hooks';
 
 export default function TabsLayout() {
-  const { role } = useAuthUser();
-  const showManage = role === 'seller';
-
   return (
     <Tabs
-      initialRouteName="businesses"
+      initialRouteName="home"
       screenOptions={{
         headerShown: true,
         header: () => <HeaderWithSearch />,
@@ -22,14 +18,16 @@ export default function TabsLayout() {
         },
       }}
     >
+      {/* Tab 1: Negocios (con subtabs de negocios y promociones) */}
       <Tabs.Screen
         name="businesses"
         options={{
-          title: 'Comercios',
+          title: 'Negocios',
           tabBarIcon: ({ color, size }) => <Store color={color} size={size} />,
         }}
       />
 
+      {/* Tab 2: Atracciones (tendrá subtabs de atracciones y eventos) */}
       <Tabs.Screen
         name="attractions"
         options={{
@@ -38,14 +36,16 @@ export default function TabsLayout() {
         }}
       />
 
+      {/* Tab 3: Home (Central) */}
       <Tabs.Screen
-        name="promotions"
+        name="home"
         options={{
-          title: 'Promociones',
-          tabBarIcon: ({ color, size }) => <BadgePercent color={color} size={size} />,
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
 
+      {/* Tab 4: Mapa */}
       <Tabs.Screen
         name="maps"
         options={{
@@ -54,16 +54,17 @@ export default function TabsLayout() {
         }}
       />
 
-      <Tabs.Screen name="products" options={{ href: null }} />
-
+      {/* Tab 5: Gestionar (Siempre visible) */}
       <Tabs.Screen
         name="manage"
         options={{
-          href: showManage ? undefined : null,
           title: 'Gestionar',
           tabBarIcon: ({ color, size }) => <Wrench color={color} size={size} />,
         }}
       />
+
+      {/* Hidden screens/stacks */}
+      <Tabs.Screen name="promotions" options={{ href: null }} />
     </Tabs>
   );
 }
