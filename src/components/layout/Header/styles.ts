@@ -30,10 +30,10 @@ export const styles = StyleSheet.create({
   },
   
   logoText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.primary[600],
+    fontSize: 30,
+    color: '#54de52',
     letterSpacing: -0.5,
+    // fontWeight eliminado para fuentes custom
   },
   
   userButton: {
