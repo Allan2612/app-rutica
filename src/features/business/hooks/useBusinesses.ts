@@ -11,6 +11,7 @@ export interface BusinessListItem {
     name: string;
     description: string | null;
     categoryName: string | null;
+    categoryId: string | null;
     locationLabel: string | null;
     imageUrl: string | null;
     logoUrl: string | null;
@@ -44,6 +45,7 @@ function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
         name: item.name_bus,
         description: item.description_bus,
         categoryName: item.business_categories?.name_bca ?? null,
+        categoryId: item.business_categories?.id_bca ?? null,
         locationLabel: locationParts.length ? locationParts.join(', ') : null,
         imageUrl,
         logoUrl,

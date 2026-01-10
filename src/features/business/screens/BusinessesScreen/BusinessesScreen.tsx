@@ -100,6 +100,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
                                         name={item.name}
                                         description={item.description}
                                         categoryName={item.categoryName}
+                                        categoryId={item.categoryId}
                                         locationLabel={item.locationLabel}
                                         imageUrl={item.imageUrl ?? undefined}
                                         logoUrl={item.logoUrl ?? undefined}

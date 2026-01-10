@@ -4,11 +4,13 @@ import { MapPin, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from './styles';
 import { colors } from '@/styles/theme/colors';
+import { getCategoryColorScheme } from '@/utils/categoryColors';
 
 export interface BusinessCardProps {
     name: string;
     description?: string | null;
     categoryName?: string | null;
+    categoryId?: string | null;
     locationLabel?: string | null;
     imageUrl?: string | null;
     logoUrl?: string | null;
@@ -21,6 +23,7 @@ export const BusinessCard = memo(function BusinessCard({
     name,
     description,
     categoryName,
+    categoryId = null,
     locationLabel,
     imageUrl,
     logoUrl,
@@ -28,6 +31,7 @@ export const BusinessCard = memo(function BusinessCard({
     reviewCount = 20,
     onPress,
 }: BusinessCardProps) {
+    const categoryColor = getCategoryColorScheme(categoryId);
     return (
         <Pressable style={styles.card} onPress={onPress} disabled={!onPress}>
             {imageUrl ? (
@@ -66,15 +70,22 @@ export const BusinessCard = memo(function BusinessCard({
 
                 <View style={styles.metaRow}>
                     {categoryName ? (
-                        <View style={styles.categoryChip}>
-                            <Text style={styles.categoryText}>{categoryName}</Text>
+                        <View
+                            style={[
+                                styles.categoryChip,
+                                { backgroundColor: categoryColor.backgroundColor },
+                            ]}
+                        >
+                            <Text style={[styles.categoryText, { color: categoryColor.textColor }]}>
+                                {categoryName}
+                            </Text>
                         </View>
                     ) : null}
                 </View>
 
                 {locationLabel ? (
                     <View style={styles.locationRow}>
-                        <MapPin size={16} color={colors.text.secondary} strokeWidth={1.75} />
+                        <MapPin size={16} color="#fff" strokeWidth={1.75} />
                         <Text style={styles.locationText} numberOfLines={1}>
                             {locationLabel}
                         </Text>

@@ -87,13 +87,11 @@ export const styles = StyleSheet.create({
         marginTop: 12,
     },
     categoryChip: {
-        backgroundColor: colors.primary[100],
         borderRadius: 12,
         paddingHorizontal: 12,
         paddingVertical: 6,
     },
     categoryText: {
-        color: colors.primary[700],
         fontSize: 12,
         fontWeight: '600',
     },
