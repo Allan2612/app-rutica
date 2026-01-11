@@ -1,8 +1,9 @@
 import { memo, useCallback, useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Image } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, LogIn } from 'lucide-react-native';
-import { useAuthUser } from '../../../hooks/useAuthUser';
+import { useAuthStore } from '../../../store';
 import { useLocation, LocationSelection } from '../../../hooks';
 import { LocationSearchBar } from '../../ui';
 import { UserMenu } from './UserMenu';
@@ -17,7 +18,7 @@ import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
  * <HeaderWithSearch />
  */
 export const HeaderWithSearch = memo(function HeaderWithSearch() {
-  const { user, isLoading, isAuthenticated } = useAuthUser();
+  const { user, isLoading, isAuthenticated } = useAuthStore();
   const { updateLocation, saveToDatabase } = useLocation();
   const [menuVisible, setMenuVisible] = useState(false);
   const [fontsLoaded] = useFonts({
@@ -59,7 +60,9 @@ export const HeaderWithSearch = memo(function HeaderWithSearch() {
           <Image
             source={require('../../../../assets/logo.png')}
             style={styles.logoImage}
-            resizeMode="contain"
+            contentFit="contain"
+            transition={200}
+            cachePolicy="memory-disk"
           />
           <Text style={fontsLoaded ? [styles.logoText, { fontFamily: 'Caveat_700Bold' }] : styles.logoText}>Rutica</Text>
         </View>

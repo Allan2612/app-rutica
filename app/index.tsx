@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, View, Text, Pressable, Image } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, Text, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { supabase } from '../src/lib/supabase/client';
 import { colors } from '../src/styles/theme';
 
@@ -57,7 +58,9 @@ export default function Index() {
         <Image 
           source={require('..//assets/logo.png')} 
           style={styles.logo}
-          resizeMode="contain"
+          contentFit="contain"
+          transition={200}
+          cachePolicy="memory-disk"
         />
         <Text style={styles.title}>Bienvenido a Rutica</Text>
         <Text style={styles.subtitle}>

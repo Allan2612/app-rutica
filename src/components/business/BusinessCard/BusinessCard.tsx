@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
-import { Image, Pressable, Text, View, ScrollView } from 'react-native';
+import { Pressable, Text, View, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import { styles } from './styles';
 import { BusinessImage } from '../../../types/entities';
 import { ModerationStatus } from '../../../types/enums';
@@ -58,7 +59,15 @@ export const BusinessCard = memo(function BusinessCard({
     >
       {/* Hero Image */}
       {heroImageUrl ? (
-        <Image source={{ uri: heroImageUrl }} style={styles.hero} />
+        <Image 
+          source={{ uri: heroImageUrl }} 
+          style={styles.hero}
+          contentFit="cover"
+          transition={300}
+          placeholder={require('../../../../assets/logo.png')}
+          placeholderContentFit="contain"
+          cachePolicy="memory-disk"
+        />
       ) : (
         <View style={[styles.hero, styles.heroPlaceholder]} />
       )}
@@ -66,7 +75,13 @@ export const BusinessCard = memo(function BusinessCard({
       {/* Logo + Header */}
       <View style={styles.headerContainer}>
         {logoUrl && (
-          <Image source={{ uri: logoUrl }} style={styles.logo} />
+          <Image 
+            source={{ uri: logoUrl }} 
+            style={styles.logo}
+            contentFit="cover"
+            transition={200}
+            cachePolicy="memory-disk"
+          />
         )}
         <View style={styles.headerContent}>
           <Text style={styles.name}>{name}</Text>
@@ -104,6 +119,9 @@ export const BusinessCard = memo(function BusinessCard({
               key={`${img.path_BIM}-${index}`}
               source={{ uri: img.url }}
               style={styles.galleryThumbnail}
+              contentFit="cover"
+              transition={200}
+              cachePolicy="memory-disk"
             />
           ))}
         </ScrollView>

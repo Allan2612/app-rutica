@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Image } from 'react-native';
+import { Image } from 'expo-image';
 import { styles } from './styles';
 
 export const AuthLogo = memo(function AuthLogo() {
@@ -7,7 +7,9 @@ export const AuthLogo = memo(function AuthLogo() {
     <Image
       source={require('../..//../../assets/logo.png')}
       style={styles.logo}
-      resizeMode="contain"
+      contentFit="contain"
+      transition={200}
+      cachePolicy="memory-disk"
     />
   );
 });

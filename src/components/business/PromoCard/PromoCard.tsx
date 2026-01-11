@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { styles } from './styles';
 
 export interface PromoCardProps {
@@ -22,7 +23,15 @@ export const PromoCard = memo(function PromoCard({
   return (
     <Pressable style={styles.card} onPress={onPress} disabled={!onPress}>
       {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+        <Image 
+          source={{ uri: imageUrl }} 
+          style={styles.image}
+          contentFit="cover"
+          transition={300}
+          placeholder={require('../../../../assets/logo.png')}
+          placeholderContentFit="contain"
+          cachePolicy="memory-disk"
+        />
       ) : (
         <View style={[styles.image, styles.imagePlaceholder]} />
       )}

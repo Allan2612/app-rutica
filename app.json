@@ -38,7 +38,6 @@
     "web": {
       "favicon": "./assets/logo.png",
       "bundler": "metro",
-      "output": "static",
       "name": "Rutica - Descubre comercios y atracciones",
       "shortName": "Rutica",
       "description": "Descubre comercios, atracciones y promociones cerca de ti",
