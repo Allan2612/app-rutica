@@ -1,5 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, LogIn } from 'lucide-react-native';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { useLocation, LocationSelection } from '../../../hooks';
@@ -51,7 +52,7 @@ export const HeaderWithSearch = memo(function HeaderWithSearch() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Fila 1: Logo + User Icon */}
       <View style={styles.topRow}>
         <View style={styles.logoContainer}>
@@ -98,6 +99,6 @@ export const HeaderWithSearch = memo(function HeaderWithSearch() {
         user={user}
         isAuthenticated={isAuthenticated}
       />
-    </View>
+    </SafeAreaView>
   );
 });
