@@ -1,3 +1,3 @@
-import { HomeScreen } from '../../../src/features/home/screens';
+import { HomeScreen } from '@/features/home/screens';
 
 export default HomeScreen;

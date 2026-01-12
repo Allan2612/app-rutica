@@ -1,112 +1,142 @@
 import { StyleSheet } from 'react-native';
-import { getShadowStyle } from '@/utils/shadowHelper';
+import { colors } from '@/styles/theme/colors';
 
 export const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    ...getShadowStyle({
-      color: '#0f172a',
-      offsetY: 4,
-      opacity: 0.06,
-      radius: 8,
-    }),
-  },
-  hero: {
-    width: '100%',
-    height: 140,
-    borderRadius: 12,
-    marginBottom: 10,
-    backgroundColor: '#dfe3e6',
-  },
-  heroPlaceholder: {
-    backgroundColor: '#e5e7eb',
-  },
-
-  /* Header with Logo */
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    marginRight: 12,
-    backgroundColor: '#f0f0f0',
-  },
-  headerContent: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
-    marginRight: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 4,
-    marginBottom: 8,
-  },
-
-  /* WhatsApp Contact */
-  whatsappContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E8F5E9',
-    borderLeftWidth: 3,
-    borderLeftColor: '#25D366',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  whatsappIcon: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  whatsappText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1B5E20',
-  },
-
-  /* Gallery */
-  galleryContainer: {
-    marginVertical: 8,
-    marginHorizontal: -16,
-    paddingHorizontal: 16,
-  },
-  galleryContent: {
-    gap: 8,
-  },
-  galleryThumbnail: {
-    width: 100,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-  },
-
-  location: {
-    color: '#6b7280',
-    fontSize: 12,
-    marginTop: 4,
-  },
+    card: {
+        backgroundColor: colors.background.primary,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: colors.border.medium,
+        overflow: 'hidden',
+        shadowColor: 'rgba(0,0,0,0.06)',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 1,
+        shadowRadius: 10,
+        elevation: 2,
+        marginBottom: 16,
+        flex: 1,
+        minHeight: 280,
+        justifyContent: 'flex-end',
+    },
+    heroFull: {
+        ...StyleSheet.absoluteFillObject,
+        width: '100%',
+        height: '100%',
+    },
+    hero: {
+        width: '100%',
+        height: 160,
+    },
+    heroWrapper: {
+        position: 'relative',
+    },
+    logoBadge: {
+        position: 'absolute',
+        top: 12,
+        left: 12,
+        width: 64,
+        height: 64,
+        borderRadius: 14,
+        overflow: 'hidden',
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: colors.border.medium,
+        shadowColor: 'rgba(0,0,0,0.08)',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 6,
+        elevation: 3,
+        zIndex: 10,
+    },
+    logoImage: {
+        width: '100%',
+        height: '100%',
+    },
+    heroPlaceholder: {
+        backgroundColor: colors.background.tertiary,
+    },
+    gradientOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        zIndex: 4,
+    },
+    content: {
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        zIndex: 8,
+        backgroundColor: 'transparent',
+        borderRadius: 0,
+    },
+    title: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#fff',
+    },
+    description: {
+        fontSize: 13,
+        lineHeight: 18,
+        color: 'rgba(255,255,255,0.9)',
+        marginTop: 6,
+    },
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 12,
+    },
+    categoryChip: {
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+    },
+    categoryText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    ratingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    ratingBadge: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        backgroundColor: 'rgba(255,255,255,0.92)',
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: colors.border.medium,
+        shadowColor: 'rgba(0,0,0,0.06)',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 1,
+        shadowRadius: 8,
+        elevation: 3,
+        zIndex: 10,
+    },
+    ratingValue: {
+        marginLeft: 6,
+        fontSize: 13,
+        fontWeight: '700',
+        color: colors.text.primary,
+    },
+    ratingCount: {
+        marginLeft: 4,
+        fontSize: 12,
+        color: colors.text.tertiary,
+    },
+    locationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 12,
+    },
+    locationText: {
+        marginLeft: 6,
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.9)',
+    },
 });

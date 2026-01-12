@@ -1,1 +1,1 @@
-export * from './BusinessesScreen';
+export { BusinessesScreen } from './BusinessesScreen';

@@ -1,3 +1,13 @@
-import { placeholderScreenStyles as styles } from '@/styles/placeholder-screen-styles';
+import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme/colors';
 
-export { styles };
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background.primary,
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+});

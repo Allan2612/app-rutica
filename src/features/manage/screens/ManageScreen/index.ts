@@ -1,1 +1,1 @@
-export * from './ManageScreen';
+export { ManageScreen } from './ManageScreen';

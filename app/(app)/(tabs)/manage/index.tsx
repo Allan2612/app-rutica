@@ -1,3 +1,3 @@
-import { ManageScreen } from '../../../../src/features/manage/screens';
+import { ManageScreen } from '@/features/manage/screens';
 
 export default ManageScreen;
