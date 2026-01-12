@@ -1,4 +1,4 @@
-import { ModerationStatus } from '../enums';
+import { ModerationStatus } from '@/types/enums';
 import { Location } from './location';
 import { Profile } from './profile';
 

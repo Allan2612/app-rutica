@@ -1,5 +1,5 @@
-import { supabase } from '../../../lib/supabase/client';
-import type { Profile, ProfileUpdate } from '../../../types/entities';
+import { supabase } from '@/lib/supabase/client';
+import type { Profile, ProfileUpdate } from '@/types/entities';
 
 /**
  * Obtiene el perfil del usuario actual

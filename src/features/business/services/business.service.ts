@@ -1,5 +1,5 @@
-import { supabase } from '../../../lib/supabase/client';
-import { Business, BusinessWithRelations, Location } from '../../../types/entities';
+import { supabase } from '@/lib/supabase/client';
+import { Business, BusinessWithRelations, Location } from '@/types/entities';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 
@@ -44,26 +44,17 @@ export async function uploadImageToStorage(
   fileName: string
 ): Promise<string> {
   try {
-    console.log(`📤 Iniciando carga de imagen: ${imageUri}`);
-    console.log(`📦 Bucket: ${bucket}`);
-    console.log(`🖥️ Platform: ${Platform.OS}`);
-
     let blob: Blob;
 
     // Detectar si es web (blob URI) o mobile (file URI)
     if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
-      console.log(`🌐 Modo WEB detectado - usando fetch directo`);
       const response = await fetch(imageUri);
       blob = await response.blob();
-      console.log(`✅ Blob obtenido del URI, tamaño: ${blob.size} bytes`);
     } else {
-      console.log(`📱 Modo MOBILE detectado - usando FileSystem`);
       // Leer archivo como base64 (mobile)
       const base64Data = await FileSystem.readAsStringAsync(imageUri, {
         encoding: 'base64',
       });
-
-      console.log(`✅ Archivo leído, tamaño base64: ${base64Data.length} caracteres`);
 
       // Crear Blob desde base64
       const byteCharacters = atob(base64Data);
@@ -74,14 +65,11 @@ export async function uploadImageToStorage(
       const byteArray = new Uint8Array(byteNumbers);
       const fileExt = fileName.split('.').pop() || 'jpg';
       blob = new Blob([byteArray], { type: `image/${fileExt}` });
-      console.log(`✅ Blob creado, tamaño: ${blob.size} bytes`);
     }
 
     // Obtener extensión
     const fileExt = fileName.split('.').pop() || 'jpg';
     const filePath = `${businessId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-    console.log(`📁 Ruta de destino: ${filePath}`);
 
     // Subir a Supabase
     const { data, error } = await supabase.storage
@@ -96,7 +84,6 @@ export async function uploadImageToStorage(
       throw error;
     }
 
-    console.log(`✅ Imagen subida exitosamente: ${filePath}`);
     return filePath;
   } catch (error) {
     console.error('❌ Error en uploadImageToStorage:', error);
@@ -170,21 +157,16 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
 
   if (businessError) throw businessError;
 
-  console.log(`📝 Negocio creado con ID: ${business.id_BUS}`);
-
   // 3️⃣ Subir logo si existe
   if (input.logoUri && business.id_BUS) {
     try {
-      console.log(`🏷️ Subiendo logo...`);
       const logoPath = await uploadImageToStorage(
         input.logoUri,
         'business-logos',
         business.id_BUS,
         'logo.png'
       );
-      console.log(`✅ Logo subido: ${logoPath}`);
       await saveBusinessImageReference(business.id_BUS, 'business-logos', logoPath, 0);
-      console.log(`✅ Referencia de logo guardada`);
     } catch (error) {
       console.error('❌ Error subiendo logo:', error);
       // No lanzar error si falla el logo, continuar
@@ -194,20 +176,15 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   // 4️⃣ Subir imágenes del negocio si existen
   if (input.imageUris && input.imageUris.length > 0 && business.id_BUS) {
     try {
-      console.log(`🖼️ Subiendo ${input.imageUris.length} imágenes del negocio...`);
       for (let i = 0; i < input.imageUris.length; i++) {
-        console.log(`  [${i + 1}/${input.imageUris.length}] Subiendo imagen...`);
         const imagePath = await uploadImageToStorage(
           input.imageUris[i],
           'business-images',
           business.id_BUS,
           `image-${i}.png`
         );
-        console.log(`  ✅ Imagen subida: ${imagePath}`);
         await saveBusinessImageReference(business.id_BUS, 'business-images', imagePath, i);
-        console.log(`  ✅ Referencia guardada`);
       }
-      console.log(`✅ Todas las imágenes subidas exitosamente`);
     } catch (error) {
       console.error('❌ Error subiendo imágenes del negocio:', error);
       // No lanzar error si fallan las imágenes, continuar

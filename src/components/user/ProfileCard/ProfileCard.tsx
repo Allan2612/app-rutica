@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import type { Profile } from '../../../types/entities';
+import type { Profile } from '@/types/entities';
 import { styles } from './styles';
 
 interface ProfileCardProps {

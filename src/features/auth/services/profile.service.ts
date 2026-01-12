@@ -1,6 +1,6 @@
-import { supabase } from '../../../lib/supabase/client';
-import { Profile } from '../../../types/entities';
-import { UserRole } from '../../../types/enums';
+import { supabase } from '@/lib/supabase/client';
+import { Profile } from '@/types/entities';
+import { UserRole } from '@/types/enums';
 
 export async function getMyProfile(): Promise<Profile> {
   const { data, error } = await supabase

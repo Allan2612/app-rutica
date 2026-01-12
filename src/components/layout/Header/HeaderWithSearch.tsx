@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { View } from 'react-native';
-import { useLocation, LocationSelection } from '../../../hooks';
-import { LocationSearchBar } from '../../ui';
+import { useLocation, LocationSelection } from '@/hooks';
+import { LocationSearchBar } from '@/components/ui';
 import { BaseHeader } from './BaseHeader';
 import { styles } from './styles';
 
@@ -16,7 +16,6 @@ export const HeaderWithSearch = memo(function HeaderWithSearch() {
   const { updateLocation } = useLocation();
 
   const handleLocationChange = useCallback(async (selection: LocationSelection) => {
-    console.log('[HEADER] Ubicación seleccionada:', selection);
     updateLocation({
       province: selection.province,
       canton: selection.canton,

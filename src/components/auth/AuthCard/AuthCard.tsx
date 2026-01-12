@@ -1,6 +1,6 @@
 import { memo, ReactNode } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { AuthLogo } from '../AuthLogo';
+import { AuthLogo } from '@/components/auth/AuthLogo';
 import { styles } from './styles';
 
 export interface AuthCardProps {

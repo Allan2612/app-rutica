@@ -1,12 +1,13 @@
 import { memo, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { useAuthStore } from '../../../store';
-import { useProfile } from '../hooks';
-import { ProfileCard, ProfileEditModal } from '../../../components/user';
-import { Screen } from '../../../components/layout';
-import { BaseHeader } from '../../../components/layout/Header';
+import { useAuthStore } from '@/store';
+import { useProfile } from '@/features/user/hooks';
+import { ProfileCard, ProfileEditModal } from '@/components/user';
+import { Screen } from '@/components/layout';
+import { BaseHeader } from '@/components/layout/Header';
 import styles from './styles';
+import { colors } from '@/styles/theme/colors';
 
 export default memo(function ProfileScreen() {
   const user = useAuthStore((state) => state.user);
@@ -30,7 +31,7 @@ export default memo(function ProfileScreen() {
       <Screen>
         <BaseHeader />
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#10b981" />
+          <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={styles.loadingText}>Cargando perfil...</Text>
         </View>
       </Screen>

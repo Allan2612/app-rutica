@@ -1,10 +1,10 @@
 import { memo, useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { AuthCard, AuthInput, AuthButton } from '../../../../components/auth';
-import { supabase } from '../../../../lib/supabase/client';
+import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
+import { supabase } from '@/lib/supabase/client';
 import Toast from 'react-native-toast-message';
-import { sharedStyles } from '../shared-styles';
+import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
   const [password, setPassword] = useState('');

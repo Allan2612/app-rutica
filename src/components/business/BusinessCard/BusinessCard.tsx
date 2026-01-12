@@ -2,10 +2,10 @@ import { memo, useMemo } from 'react';
 import { Pressable, Text, View, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import { styles } from './styles';
-import { BusinessImage } from '../../../types/entities';
-import { ModerationStatus } from '../../../types/enums';
-import { getImageUrl } from '../../../features/business/services/business.service';
-import { StatusBadge } from '../../ui/StatusBadge';
+import { BusinessImage } from '@/types/entities';
+import { ModerationStatus } from '@/types/enums';
+import { getImageUrl } from '@/features/business/services/business.service';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 export interface BusinessCardProps {
   name: string;

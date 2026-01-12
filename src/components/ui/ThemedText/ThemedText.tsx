@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Text, type TextProps } from 'react-native';
-import { useThemeColor } from '../../../hooks/use-theme-color';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { styles } from './styles';
 
 export type ThemedTextProps = TextProps & {

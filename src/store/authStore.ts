@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { supabase } from '../lib/supabase/client';
-import type { UserRole } from '../types/enums';
+import { supabase } from '@/lib/supabase/client';
+import type { UserRole } from '@/types/enums';
 import type { User } from '@supabase/supabase-js';
 
 /**
@@ -73,7 +73,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const state = get();
     // Evitar cargas múltiples simultáneas
     if (state.isLoading && state._initialized) {
-      console.log('[AUTH STORE] Ya hay una carga en proceso, saltando...');
       return;
     }
 
@@ -83,7 +82,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     );
 
     try {
-      console.log('[AUTH STORE] Cargando datos del usuario...');
       set({ isLoading: true });
 
       // 1. Obtener usuario autenticado con timeout
@@ -93,7 +91,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       ]);
 
       if (authError || !authUser) {
-        console.log('[AUTH STORE] No hay usuario autenticado', authError?.message || '');
         set({
           user: null,
           role: null,
@@ -102,8 +99,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         });
         return;
       }
-
-      console.log('[AUTH STORE] Usuario obtenido:', authUser.email);
 
       // 2. Obtener perfil con rol (con timeout)
       const { data: profile, error: profileError } = await Promise.race([
@@ -124,10 +119,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           isLoading: false,
         });
       } else {
-        console.log('[AUTH STORE] Usuario y perfil cargados:', {
-          email: authUser.email,
-          role: profile?.role_prf,
-        });
         set({
           user: authUser,
           role: profile?.role_prf ?? null,
@@ -152,7 +143,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    */
   signOut: async () => {
     try {
-      console.log('[AUTH STORE] Cerrando sesión...');
       await supabase.auth.signOut();
       set({
         user: null,
@@ -160,7 +150,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isAuthenticated: false,
         isLoading: false,
       });
-      console.log('[AUTH STORE] Sesión cerrada');
     } catch (error) {
       console.error('[AUTH STORE] Error al cerrar sesión:', error);
     }
@@ -175,11 +164,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     
     // Evitar múltiples inicializaciones
     if (state._initialized) {
-      console.log('[AUTH STORE] Ya está inicializado, saltando...');
       return;
     }
 
-    console.log('[AUTH STORE] Inicializando...');
     set({ _initialized: true });
 
     // Carga inicial
@@ -188,8 +175,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     // Listener de cambios de auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('[AUTH STORE] Auth change:', event);
-
         if (event === 'SIGNED_OUT') {
           set({
             user: null,
@@ -219,7 +204,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   cleanup: () => {
     const subscription = (get() as any)._subscription;
     if (subscription) {
-      console.log('[AUTH STORE] Limpiando subscription...');
       subscription.unsubscribe();
       delete (get() as any)._subscription;
     }

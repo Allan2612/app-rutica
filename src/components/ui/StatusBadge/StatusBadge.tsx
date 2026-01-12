@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
-import { ModerationStatus } from '../../../types/enums';
+import { ModerationStatus } from '@/types/enums';
 import { styles } from './styles';
 
 export interface StatusBadgeProps {

@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme/colors';
 
 export const styles = StyleSheet.create({
   inputGroup: {
@@ -8,7 +9,7 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text.primary,
     marginBottom: 8,
     letterSpacing: 0.2,
   },
@@ -20,15 +21,15 @@ export const styles = StyleSheet.create({
   roleButton: {
     flex: 1,
     borderWidth: 2,
-    borderColor: '#e5e5e5',
+    borderColor: colors.border.medium,
     borderRadius: 12,
     padding: 18,
     alignItems: 'center',
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.background.tertiary,
   },
   roleButtonActive: {
-    borderColor: '#10b981',
-    backgroundColor: '#f0fdf4',
+    borderColor: colors.primary[500],
+    backgroundColor: colors.primary[50],
   },
   roleIcon: {
     fontSize: 28,
@@ -37,15 +38,15 @@ export const styles = StyleSheet.create({
   roleTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text.primary,
     marginBottom: 4,
   },
   roleTextActive: {
-    color: '#10b981',
+    color: colors.primary[700],
   },
   roleSubtitle: {
     fontSize: 11,
-    color: '#666',
+    color: colors.text.secondary,
     textAlign: 'center',
   },
 });

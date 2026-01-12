@@ -102,7 +102,6 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
    * Establece una nueva ubicación completa
    */
   setLocation: (newLocation) => {
-    console.log('[LOCATION STORE] Ubicación actualizada:', newLocation);
     set({ location: newLocation });
   },
 
@@ -110,7 +109,6 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
    * Limpia toda la ubicación
    */
   clearLocation: () => {
-    console.log('[LOCATION STORE] Ubicación limpiada');
     set({ location: null });
   },
 
@@ -120,7 +118,6 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
   updatePartialLocation: (partial) => {
     const { location } = get();
     const updated = { ...location, ...partial } as LocationState;
-    console.log('[LOCATION STORE] Ubicación actualizada parcialmente:', updated);
     set({ location: updated });
   },
 }));

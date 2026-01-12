@@ -64,7 +64,6 @@ export function useLocationDetection(
       const { status } = await Location.requestForegroundPermissionsAsync();
       
       if (status !== 'granted') {
-        console.log('[LOCATION] Permiso denegado');
         setLoadingLocation(false);
         return null;
       }
@@ -120,7 +119,6 @@ export function useLocationDetection(
   // Detectar automáticamente solo la primera vez
   useEffect(() => {
     if (autoDetect && !hasLocation && !hasDetectedLocation.current) {
-      console.log('[LocationSearchBar] Detectando ubicación por primera vez...');
       hasDetectedLocation.current = true;
       getCurrentLocation();
     }

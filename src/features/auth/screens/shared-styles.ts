@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme/colors';
 
 /**
  * Estilos compartidos para todas las pantallas de autenticación
@@ -6,43 +7,43 @@ import { StyleSheet } from 'react-native';
 export const sharedStyles = StyleSheet.create({
   // Links y textos
   link: {
-    color: '#10b981',
+    color: colors.primary[500],
     fontWeight: '600',
     textDecorationLine: 'underline',
   },
   linkSmall: {
     fontSize: 12,
-    color: '#10b981',
+    color: colors.primary[500],
     textDecorationLine: 'underline',
   },
   linkText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.text.secondary,
     textAlign: 'center',
   },
   
   // Separadores
   separator: {
     height: 1,
-    backgroundColor: '#e5e5e5',
+    backgroundColor: colors.border.medium,
     marginVertical: 20,
   },
   
   // Footer
   footerText: {
     fontSize: 12,
-    color: '#999',
+    color: colors.text.tertiary,
     textAlign: 'center',
     lineHeight: 18,
   },
   footerTextSmall: {
     fontSize: 11,
-    color: '#999',
+    color: colors.text.tertiary,
     textAlign: 'center',
     lineHeight: 16,
   },
   footerLink: {
-    color: '#10b981',
+    color: colors.primary[500],
     textDecorationLine: 'underline',
   },
   
@@ -65,7 +66,7 @@ export const sharedStyles = StyleSheet.create({
   },
   backLinkText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.text.secondary,
     fontWeight: '500',
     textAlign: 'center',
   },

@@ -1,4 +1,4 @@
-import { generateMapHTML as generateMapHTMLBase } from '../../../components/ui/LocationPicker/mapTemplate';
+import { generateMapHTML as generateMapHTMLBase } from '@/components/ui/LocationPicker/mapTemplate';
 
 /**
  * Genera el HTML para el mapa de visualización (sin drag)

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '../../../../styles/theme';
-import { getShadowStyle } from '../../../../utils/shadowHelper';
+import { colors } from '@/styles/theme';
+import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   container: {

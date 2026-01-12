@@ -4,10 +4,11 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, LogIn } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useAuthStore } from '../../../../store';
-import { UserMenu } from '../UserMenu';
+import { useAuthStore } from '@/store';
+import { UserMenu } from '@/components/layout/Header/UserMenu';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { styles } from './styles';
+import { colors } from '@/styles/theme/colors';
 
 interface BaseHeaderProps {
   showBorder?: boolean;
@@ -58,14 +59,14 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator size="small" color="#10b981" />
+            <ActivityIndicator size="small" color={colors.primary[500]} />
           ) : isAuthenticated ? (
             <View style={styles.userIconAuthenticated}>
               <User color="#fff" size={20} />
             </View>
           ) : (
             <View style={styles.userIconGuest}>
-              <LogIn color="#666" size={20} />
+              <LogIn color={colors.text.secondary} size={20} />
             </View>
           )}
         </Pressable>

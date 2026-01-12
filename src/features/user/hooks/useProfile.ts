@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useAuthStore } from '../../../store';
-import { getCurrentProfile, updateUserProfile } from '../services';
-import type { Profile, ProfileUpdate } from '../../../types/entities';
+import { useAuthStore } from '@/store';
+import { getCurrentProfile, updateUserProfile } from '@/features/user/services/profile.service';
+import type { Profile, ProfileUpdate } from '@/types/entities';
 
 interface UseProfileReturn {
   profile: Profile | null;

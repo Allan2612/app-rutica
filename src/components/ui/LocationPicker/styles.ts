@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { getShadowStyle } from '../../../utils/shadowHelper';
+import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   container: {

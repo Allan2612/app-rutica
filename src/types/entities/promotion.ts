@@ -1,4 +1,4 @@
-import { PromoScope, DiscountType, PlacementType, ModerationStatus, PromoPaymentState } from '../enums';
+import { PromoScope, DiscountType, PlacementType, ModerationStatus, PromoPaymentState } from '@/types/enums';
 import { Business } from './business';
 import { Product, ProductCategory } from './product';
 import { Profile } from './profile';

@@ -1,5 +1,5 @@
-import { supabase } from '../../../lib/supabase/client';
-import { UserRole } from '../../../types/enums';
+import { supabase } from '@/lib/supabase/client';
+import { UserRole } from '@/types/enums';
 
 export interface SignUpInput {
   email: string;

@@ -1,4 +1,4 @@
-import { UserRole } from '../enums';
+import { UserRole } from '@/types/enums';
 
 export interface Profile {
   id_PRF: string;

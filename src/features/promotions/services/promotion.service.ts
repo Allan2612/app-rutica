@@ -1,6 +1,6 @@
-import { supabase } from '../../../lib/supabase/client';
-import { Promotion } from '../../../types/entities';
-import { PromoScope, DiscountType } from '../../../types/enums';
+import { supabase } from '@/lib/supabase/client';
+import { Promotion } from '@/types/entities';
+import { PromoScope, DiscountType } from '@/types/enums';
 
 export interface CreatePromotionInput {
   businessId: string;

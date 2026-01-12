@@ -1,10 +1,10 @@
 import { memo, useState, useCallback } from 'react';
 import { Alert, Text, View } from 'react-native';
 import { Link, router } from 'expo-router';
-import { AuthCard, AuthInput, AuthButton } from '../../../../components/auth';
-import { signIn } from '../../services/auth.service';
+import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
+import { signIn } from '@/features/auth/services/auth.service';
 import { styles } from './styles';
-import { sharedStyles } from '../shared-styles';
+import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const LoginScreen = memo(function LoginScreen() {
   const [email, setEmail] = useState('');

@@ -22,14 +22,10 @@ export function useUserLocation(): UseLocationResult {
     setError(null);
 
     try {
-      console.log('[LOCATION] Solicitando permisos...');
-
       let { status: currentStatus } = await Location.getForegroundPermissionsAsync();
-      console.log('[LOCATION] Estado actual:', currentStatus);
 
       if (currentStatus !== 'granted') {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        console.log('[LOCATION] Resultado solicitud:', status);
 
         if (status !== 'granted') {
           setError('Permiso de ubicación denegado');
@@ -38,12 +34,10 @@ export function useUserLocation(): UseLocationResult {
         }
       }
 
-      console.log('[LOCATION] Obteniendo posición...');
       const currentLocation = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       });
 
-      console.log('[LOCATION] Ubicación obtenida:', currentLocation.coords);
       setLocation(currentLocation);
       setLoading(false);
     } catch (err: any) {

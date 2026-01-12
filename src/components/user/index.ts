@@ -1,2 +1,2 @@
-export { ProfileCard } from './ProfileCard';
-export { ProfileEditModal } from './ProfileEditModal';
+export * from './ProfileCard';
+export * from './ProfileEditModal';

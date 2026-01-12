@@ -1,4 +1,4 @@
-import { getShadowStyle } from '../../utils/shadowHelper';
+import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const shadows = {
   none: {},

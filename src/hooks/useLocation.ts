@@ -44,8 +44,6 @@ export function useLocation() {
     }
 
     try {
-      console.log('[useLocation] Guardando ubicación en BD:', location);
-      
       // TODO: Implementar llamada a Supabase
       // const { data, error } = await supabase
       //   .from('user_locations')
@@ -75,8 +73,6 @@ export function useLocation() {
    */
   const loadFromDatabase = useCallback(async () => {
     try {
-      console.log('[useLocation] Cargando ubicación desde BD');
-      
       // TODO: Implementar llamada a Supabase
       // const { data, error } = await supabase
       //   .from('user_locations')

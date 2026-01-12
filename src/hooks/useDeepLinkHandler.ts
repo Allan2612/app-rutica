@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Linking } from 'react-native';
 import { router } from 'expo-router';
-import { supabase } from '../lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 /**
  * Hook para manejar deep links de recuperación de contraseña
@@ -52,7 +52,7 @@ export function useDeepLinkHandler() {
     });
 
     return () => {
-      console.log('[DEEP LINK HANDLER] Desmontado');
+
       subscription.remove();
     };
   }, []);

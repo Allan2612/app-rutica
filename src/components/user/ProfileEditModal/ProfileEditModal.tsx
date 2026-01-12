@@ -1,7 +1,7 @@
 import { memo, useState, useCallback } from 'react';
 import { View, Text, Modal, Pressable, Alert } from 'react-native';
-import { AuthInput } from '../../auth';
-import type { Profile, ProfileUpdate } from '../../../types/entities';
+import { AuthInput } from '@/components/auth';
+import type { Profile, ProfileUpdate } from '@/types/entities';
 import { styles } from './styles';
 
 interface ProfileEditModalProps {

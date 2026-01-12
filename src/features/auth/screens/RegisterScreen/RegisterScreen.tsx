@@ -1,11 +1,11 @@
 import { memo, useState, useCallback } from 'react';
 import { Alert, Text, View, TouchableOpacity } from 'react-native';
 import { Link, router } from 'expo-router';
-import { AuthCard, AuthInput, AuthButton } from '../../../../components/auth';
-import { signUp } from '../../services/auth.service';
-import type { UserRole } from '../../../../types/enums';
+import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
+import { signUp } from '@/features/auth/services/auth.service';
+import type { UserRole } from '@/types/enums';
 import { styles } from './styles';
-import { sharedStyles } from '../shared-styles';
+import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const RegisterScreen = memo(function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -17,8 +17,6 @@ export const RegisterScreen = memo(function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = useCallback(async () => {
-    console.log('[REGISTER] Intentando registro...');
-
     if (!email || !password || !name || !confirmPassword) {
       Alert.alert(
         'Campos incompletos',

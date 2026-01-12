@@ -1,9 +1,10 @@
 import { memo } from 'react';
 import { ActivityIndicator, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { useUserLocation } from '../../hooks';
-import { generateMapHTML, generateGoogleMapsURL } from '../../services';
+import { useUserLocation } from '@/features/maps/hooks';
+import { generateMapHTML, generateGoogleMapsURL } from '@/features/maps/services';
 import { styles } from './styles';
+import { colors } from '@/styles/theme/colors';
 
 export const MapScreen = memo(function MapScreen() {
   const { location, loading, error, retry } = useUserLocation();
@@ -11,7 +12,7 @@ export const MapScreen = memo(function MapScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#10b981" />
+        <ActivityIndicator size="large" color={colors.primary[500]} />
         <Text style={styles.loadingText}>Obteniendo ubicación...</Text>
       </View>
     );
@@ -73,7 +74,7 @@ export const MapScreen = memo(function MapScreen() {
         startInLoadingState={true}
         renderLoading={() => (
           <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color="#10b981" />
+            <ActivityIndicator size="large" color={colors.primary[500]} />
             <Text style={styles.loadingText}>Cargando mapa...</Text>
           </View>
         )}
