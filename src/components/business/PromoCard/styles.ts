@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   card: {
     borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: '#0f172a',
+    backgroundColor: colors.dark.background,
     marginBottom: 12,
   },
   image: {
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
     height: 160,
   },
   imagePlaceholder: {
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.border.medium,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -22,13 +23,13 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    backgroundColor: '#F97316',
+    backgroundColor: colors.warning,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 10,
   },
   badgeText: {
-    color: '#fff',
+    color: colors.text.inverse,
     fontWeight: '700',
     fontSize: 12,
   },
@@ -39,17 +40,17 @@ export const styles = StyleSheet.create({
     bottom: 12,
   },
   title: {
-    color: '#fff',
+    color: colors.text.inverse,
     fontSize: 16,
     fontWeight: '700',
   },
   business: {
-    color: '#e2e8f0',
+    color: colors.dark.icon,
     marginTop: 2,
     fontSize: 13,
   },
   description: {
-    color: '#cbd5e1',
+    color: colors.dark.icon,
     marginTop: 4,
     fontSize: 12,
   },

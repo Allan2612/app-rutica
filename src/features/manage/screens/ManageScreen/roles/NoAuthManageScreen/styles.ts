@@ -28,13 +28,13 @@ export const styles = StyleSheet.create({
     mainTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#fff',
+        color: colors.text.inverse,
         textAlign: 'center',
         marginBottom: spacing.sm,
     },
     subtitle: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text.inverse,
         textAlign: 'center',
         opacity: 0.9,
     },
@@ -50,14 +50,14 @@ export const styles = StyleSheet.create({
     },
     benefitCard: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
+        backgroundColor: colors.background.primary,
         borderRadius: 12,
         padding: spacing.lg,
         marginBottom: spacing.md,
         alignItems: 'flex-start',
         borderLeftWidth: 4,
         borderLeftColor: colors.primary[500],
-        shadowColor: '#000',
+        shadowColor: colors.dark.background,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
     },
     benefitDescription: {
         fontSize: 14,
-        color: '#6B7280',
+        color: colors.text.secondary,
         lineHeight: 20,
     },
     ctaSection: {
@@ -99,12 +99,12 @@ export const styles = StyleSheet.create({
     },
     primaryButtonText: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text.inverse,
         fontWeight: '600',
     },
     ctaSubtext: {
         fontSize: 13,
-        color: '#6B7280',
+        color: colors.text.secondary,
         textAlign: 'center',
     },
     infoSection: {
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
     },
     infoText: {
         fontSize: 16,
-        color: '#6B7280',
+        color: colors.text.secondary,
         textAlign: 'center',
     },
     loginLink: {

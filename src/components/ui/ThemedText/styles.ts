@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   default: {
@@ -22,6 +23,6 @@ export const styles = StyleSheet.create({
   link: {
     lineHeight: 30,
     fontSize: 16,
-    color: '#0a7ea4',
+    color: colors.light.tint,
   },
 });

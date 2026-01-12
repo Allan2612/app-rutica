@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   badge: {
@@ -28,12 +29,12 @@ export const styles = StyleSheet.create({
 
   // Status colors
   badge_pending: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.primary[50],
   },
   badge_approved: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: colors.primary[50],
   },
   badge_rejected: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: colors.primary[50],
   },
 });

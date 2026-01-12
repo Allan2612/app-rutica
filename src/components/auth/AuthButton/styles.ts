@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -9,9 +10,9 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
   primary: {
-    backgroundColor: '#10b981',
+    backgroundColor: colors.primary[500],
     ...getShadowStyle({
-      color: '#10b981',
+      color: colors.primary[500],
       offsetX: 0,
       offsetY: 6,
       opacity: 0.25,
@@ -21,8 +22,8 @@ export const styles = StyleSheet.create({
   },
   secondary: {
     borderWidth: 2,
-    borderColor: '#e5e5e5',
-    backgroundColor: '#fafafa',
+    borderColor: colors.border.medium,
+    backgroundColor: colors.background.secondary,
   },
   disabled: {
     opacity: 0.7,
@@ -33,9 +34,9 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   primaryText: {
-    color: '#fff',
+    color: colors.text.inverse,
   },
   secondaryText: {
-    color: '#666',
+    color: colors.text.secondary,
   },
 });

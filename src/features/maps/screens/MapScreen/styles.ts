@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonText: {
-    color: '#fff',
+    color: colors.text.inverse,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.dark.background,
       offsetY: 2,
       opacity: 0.25,
       radius: 3.84,
@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.dark.background,
       offsetY: 2,
       opacity: 0.25,
       radius: 3.84,

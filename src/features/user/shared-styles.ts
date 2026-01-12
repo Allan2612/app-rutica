@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme';
 
 const sharedStyles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.background.primary,
   },
   title: {
     fontSize: 24,

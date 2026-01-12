@@ -32,9 +32,9 @@ export const styles = StyleSheet.create({
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#10b981',
+    backgroundColor: colors.primary[500],
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: colors.primary[500],
     borderRadius: spacing.md,
   },
 
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
   },
 
   locationIcon: {
-    color: '#ffffff',
+    color: colors.text.inverse,
   },
 
   locationIconDisabled: {

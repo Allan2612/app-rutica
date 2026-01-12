@@ -5,7 +5,7 @@ import { styles } from './styles';
 export const AuthLogo = memo(function AuthLogo() {
   return (
     <Image
-      source={require('../..//../../assets/logo.png')}
+      source={require('../../../../assets/logo.png')}
       style={styles.logo}
       contentFit="contain"
       transition={200}

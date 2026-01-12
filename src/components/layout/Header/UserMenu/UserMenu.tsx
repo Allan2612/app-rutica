@@ -51,7 +51,7 @@ export const UserMenu = memo(function UserMenu({
       await signOut();
       router.replace('/');
     } catch (error) {
-      console.error('[LOGOUT] Error:', error);
+      // Error manejado por el store
     }
   }, [onClose, signOut]);
 

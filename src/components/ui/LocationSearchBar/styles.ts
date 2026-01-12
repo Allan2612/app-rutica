@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.medium,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.dark.background,
       offsetY: 4,
       opacity: 0.15,
       radius: 24,

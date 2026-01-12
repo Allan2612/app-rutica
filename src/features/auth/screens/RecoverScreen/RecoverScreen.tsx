@@ -34,7 +34,6 @@ export const RecoverScreen = memo(function RecoverScreen() {
       });
       setEmail('');
     } catch (error: any) {
-      console.error('[RECOVER] Error:', error);
       Alert.alert(
         'Error',
         error?.message ?? 'No se pudo enviar el correo de recuperación'

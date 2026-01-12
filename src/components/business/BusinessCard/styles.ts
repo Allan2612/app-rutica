@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
         height: 64,
         borderRadius: 14,
         overflow: 'hidden',
-        backgroundColor: '#fff',
+        backgroundColor: colors.background.primary,
         borderWidth: 1,
         borderColor: colors.border.medium,
         shadowColor: 'rgba(0,0,0,0.08)',
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#fff',
+        color: colors.text.inverse,
     },
     description: {
         fontSize: 13,

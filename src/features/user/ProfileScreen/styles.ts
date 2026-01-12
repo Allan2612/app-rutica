@@ -4,7 +4,7 @@ import { colors } from '@/styles/theme';
 export default StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.tertiary,
   },
   contentContainer: {
     padding: 16,
@@ -39,7 +39,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.tertiary,
   },
   loadingText: {
     marginTop: 16,
@@ -49,7 +49,7 @@ export default StyleSheet.create({
   errorTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ef4444',
+    color: colors.error,
     marginBottom: 8,
   },
   errorText: {

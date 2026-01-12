@@ -3,11 +3,11 @@ import { colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background.primary,
     borderRadius: 16,
     padding: 24,
     marginVertical: 12,
-    shadowColor: '#000',
+    shadowColor: colors.dark.background,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background.primary,
     borderWidth: 1,
     borderColor: colors.primary[500],
     paddingVertical: 12,
@@ -72,6 +72,6 @@ export const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: colors.text.inverse,
   },
 });

@@ -27,7 +27,6 @@ export const LoginScreen = memo(function LoginScreen() {
         router.replace('/(app)/(tabs)/home');
       }, 100);
     } catch (error: any) {
-      console.error('[LOGIN] Error:', error);
       Alert.alert(
         'Error al iniciar sesión',
         error?.message ?? 'Credenciales incorrectas'
