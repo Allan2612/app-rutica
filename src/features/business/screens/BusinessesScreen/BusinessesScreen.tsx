@@ -1,11 +1,11 @@
 import { memo, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, TextInput, View } from 'react-native';
-import { BusinessCard } from '@/components/business';
+import { ActivityIndicator, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses } from '@/features/business/hooks/useBusinesses';
 import { colors } from '@/styles/theme/colors';
-import { styles } from './styles';
+import { useBusinessesStyles } from './styles';
+import { BusinessesList } from '@/components/business/BusinessesList';
 
 const BUSINESS_TABS: TabOption[] = [
   { id: 'commerces', label: 'Comercios' },
@@ -16,6 +16,13 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   const [activeTab, setActiveTab] = useState('commerces');
   const [searchText, setSearchText] = useState('');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const { width } = useWindowDimensions();
+  const styles = useBusinessesStyles();
+  
+  // Calcular número de columnas según el ancho
+  const numColumns = width > 768 ? 3 : width > 600 ? 2 : 1;
+  // Key para forzar re-render al cambiar numColumns
+  const listKey = `businesses-${numColumns}-columns`;
 
   const { data: categories = [], isLoading } = useBusinessCategories();
   const {
@@ -84,36 +91,10 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
               <ActivityIndicator size="small" color={colors.primary[600]} />
             </View>
           ) : (
-            <FlatList
+            <BusinessesList
               data={businesses}
-              keyExtractor={(item) => item.id}
-              numColumns={3}
-              columnWrapperStyle={styles.columnWrapper}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <View style={styles.cardWrapper}>
-                  <BusinessCard
-                    name={item.name}
-                    description={item.description}
-                    categoryName={item.categoryName}
-                    categoryId={item.categoryId}
-                    locationLabel={item.locationLabel}
-                    imageUrl={item.imageUrl ?? undefined}
-                    logoUrl={item.logoUrl ?? undefined}
-                    rating={item.rating}
-                    reviewCount={item.reviewCount}
-                  />
-                </View>
-              )}
-              ListEmptyComponent={
-                <View style={styles.emptyState}>
-                  <Text style={styles.emptyTitle}>No hay comercios disponibles</Text>
-                  <Text style={styles.emptySubtitle}>
-                    Prueba ajustando la búsqueda o selecciona otra categoría.
-                  </Text>
-                </View>
-              }
+              numColumns={numColumns}
+              listKey={listKey}
             />
           )
         ) : (
