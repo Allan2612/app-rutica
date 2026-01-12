@@ -30,14 +30,17 @@ export const UserMenu = memo(function UserMenu({
 
   const handleProfile = useCallback(() => {
     onClose();
-    // TODO: Navegar a pantalla de perfil cuando exista
-    console.log('Ir a perfil');
+    router.push('/(app)/profile');
   }, [onClose]);
 
   const handleSettings = useCallback(() => {
     onClose();
-    // TODO: Navegar a configuración cuando exista
-    console.log('Ir a configuración');
+    router.push('/(app)/settings');
+  }, [onClose]);
+
+  const handleSupport = useCallback(() => {
+    onClose();
+    router.push('/(app)/support');
   }, [onClose]);
 
   const handleLogout = useCallback(async () => {
@@ -89,6 +92,11 @@ export const UserMenu = memo(function UserMenu({
               <Pressable style={styles.menuItem} onPress={handleSettings}>
                 <Settings color="#333" size={20} />
                 <Text style={styles.menuItemText}>Configuración</Text>
+              </Pressable>
+
+              <Pressable style={styles.menuItem} onPress={handleSupport}>
+                <UserCircle color="#10b981" size={20} />
+                <Text style={styles.menuItemText}>Soporte</Text>
               </Pressable>
 
               <View style={styles.menuDivider} />
