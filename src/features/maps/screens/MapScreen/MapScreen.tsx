@@ -87,3 +87,5 @@ export const MapScreen = memo(function MapScreen() {
     </View>
   );
 });
+
+export default MapScreen;

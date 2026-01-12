@@ -15,14 +15,20 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
   const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<LocationData> => {
     setIsLoading(true);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+      
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
         {
+          signal: controller.signal,
           headers: {
             'Accept-Language': 'es',
+            'User-Agent': 'RuticaApp/1.0 (Costa Rica Tourism)',
           },
         }
       );
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (data && data.address) {
@@ -37,8 +43,11 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
           address: data.display_name || '',
         };
       }
-    } catch (error) {
-      console.error('[GEOCODING] Error:', error);
+    } catch (error: any) {
+      const errorMessage = error?.name === 'AbortError' 
+        ? 'Timeout al obtener ubicación (> 8s)'
+        : error?.message || 'Error desconocido en geocodificación';
+      console.error('[GEOCODING] Error:', errorMessage);
     } finally {
       setIsLoading(false);
     }

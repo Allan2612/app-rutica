@@ -10,3 +10,5 @@ export const SettingsScreen = memo(function SettingsScreen() {
     </View>
   );
 });
+
+export default SettingsScreen;

@@ -57,10 +57,7 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-start',
         borderLeftWidth: 4,
         borderLeftColor: colors.primary[500],
-        shadowColor: colors.dark.background,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
+        boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
         elevation: 2,
     },
     benefitIcon: {
@@ -91,10 +88,7 @@ export const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         marginBottom: spacing.md,
-        shadowColor: colors.primary[500],
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        boxShadow: `0px 4px 8px ${colors.primary[500]}4D`,
         elevation: 4,
     },
     primaryButtonText: {

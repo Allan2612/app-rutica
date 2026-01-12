@@ -52,7 +52,8 @@ export function useLocationDetection(
         };
       }
     } catch (error) {
-      console.error('[GEOCODING] Error:', error);
+      // Geocoding puede fallar, no es crítico
+      return null;
     }
     return null;
   }, []);

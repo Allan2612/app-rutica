@@ -3,7 +3,7 @@ import { View, Text, TextInput, TextInputProps } from 'react-native';
 import { colors } from '@/styles/theme';
 import { styles } from './styles';
 
-export interface AuthInputProps extends TextInputProps {
+export interface AuthInputProps extends Omit<TextInputProps, 'style'> {
   label: string;
   headerRight?: ReactNode;
 }
@@ -21,7 +21,7 @@ export const AuthInput = memo(function AuthInput({
       </View>
       <TextInput
         style={styles.input}
-        placeholderTextColor={colors.neutral[500]}
+        placeholderTextColor={colors.text.tertiary}
         {...inputProps}
       />
     </View>

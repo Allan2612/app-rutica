@@ -10,3 +10,5 @@ export const LogoutScreen = memo(function LogoutScreen() {
     </View>
   );
 });
+
+export default LogoutScreen;
