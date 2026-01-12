@@ -1,5 +1,5 @@
 import { memo, useState, useCallback } from 'react';
-import { View } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { SearchButton } from './SearchButton';
 import { DropdownHeader } from './DropdownHeader';
 import { LocationList } from './LocationList';
@@ -35,7 +35,7 @@ export const LocationSearchBar = memo(function LocationSearchBar({
   } = useLocationDetection(autoDetectLocation, onLocationChange);
 
   // Hook para filtrado de ubicaciones
-  const { filteredProvinces, getCantons, getDistricts } = useLocationFilters(searchText);
+  const { filteredProvinces, getCantons, getDistricts, isLoading, hasError, hasData } = useLocationFilters(searchText);
 
   // Manejar clic en botón de ubicación
   const handleGetCurrentLocation = useCallback(async () => {
@@ -119,20 +119,42 @@ export const LocationSearchBar = memo(function LocationSearchBar({
             onClose={handleClose}
           />
 
+          {/* Estado de carga */}
+          {isLoading && (
+            <View style={[styles.messageContainer, { padding: 20 }]}>
+              <ActivityIndicator size="small" color="#10b981" />
+              <Text style={styles.messageText}>Cargando ubicaciones...</Text>
+            </View>
+          )}
+
+          {/* Error o sin datos - Mostrar "Sin ubicación" */}
+          {!isLoading && (hasError || !hasData) && (
+            <View style={[styles.messageContainer, { padding: 20 }]}>
+              <Text style={[styles.messageText, { fontSize: 16, fontWeight: '600' }]}>
+                📍 Sin ubicación
+              </Text>
+              <Text style={[styles.messageText, { fontSize: 12, color: '#6b7280', marginTop: 4 }]}>
+                No se pudieron cargar las ubicaciones
+              </Text>
+            </View>
+          )}
+
           {/* Lista de ubicaciones con jerarquía */}
-          <LocationList
-            provinces={filteredProvinces}
-            selectedProvince={selectedProvince}
-            selectedCanton={selectedCanton}
-            selectedDistrict={selectedDistrict}
-            expandedProvince={expandedProvince}
-            expandedCanton={expandedCanton}
-            onSelectProvince={handleSelectProvince}
-            onSelectCanton={handleSelectCanton}
-            onSelectDistrict={handleSelectDistrict}
-            getCantons={getCantons}
-            getDistricts={getDistricts}
-          />
+          {!isLoading && hasData && (
+            <LocationList
+              provinces={filteredProvinces}
+              selectedProvince={selectedProvince}
+              selectedCanton={selectedCanton}
+              selectedDistrict={selectedDistrict}
+              expandedProvince={expandedProvince}
+              expandedCanton={expandedCanton}
+              onSelectProvince={handleSelectProvince}
+              onSelectCanton={handleSelectCanton}
+              onSelectDistrict={handleSelectDistrict}
+              getCantons={getCantons}
+              getDistricts={getDistricts}
+            />
+          )}
         </View>
       )}
     </View>

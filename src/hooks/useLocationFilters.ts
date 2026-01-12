@@ -1,13 +1,24 @@
 import { useMemo, useCallback } from 'react';
-import { provinces, cantons, districts } from '@/data/costaRica';
+import { useLocationDataStore } from '@/store/locationDataStore';
 
 /**
  * Hook para manejar el filtrado y búsqueda de ubicaciones
  * Filtra provincias, cantones y distritos basándose en el texto de búsqueda
+ * Usa datos desde el store global (Supabase)
  */
 export function useLocationFilters(searchText: string) {
+  // Obtener datos del store global
+  const provinces = useLocationDataStore((state) => state.provinces);
+  const cantons = useLocationDataStore((state) => state.cantons);
+  const districts = useLocationDataStore((state) => state.districts);
+  const isLoading = useLocationDataStore((state) => state.isLoading);
+  const hasError = useLocationDataStore((state) => state.hasError);
+  
+  const hasData = provinces.length > 0 || cantons.length > 0 || districts.length > 0;
+
   // Filtrar provincias por búsqueda
   const filteredProvinces = useMemo(() => {
+    if (!hasData) return [];
     if (!searchText.trim()) return provinces;
     
     const search = searchText.toLowerCase();
@@ -37,10 +48,11 @@ export function useLocationFilters(searchText: string) {
     const uniqueProvinceNames = [...new Set(allProvinceNames)];
 
     return provinces.filter((p) => uniqueProvinceNames.includes(p.name));
-  }, [searchText]);
+  }, [searchText, provinces, cantons, districts, hasData]);
 
   // Obtener cantones filtrados
   const getCantons = useCallback((provinceName: string) => {
+    if (!hasData) return [];
     const provinceCant = cantons.filter((c) => c.province === provinceName);
     
     if (!searchText.trim()) return provinceCant;
@@ -66,21 +78,25 @@ export function useLocationFilters(searchText: string) {
     const uniqueCantonIds = [...new Set(allCantonIds)];
 
     return provinceCant.filter((c) => uniqueCantonIds.includes(c.id));
-  }, [searchText]);
+  }, [searchText, cantons, districts, hasData]);
 
   // Obtener distritos filtrados
   const getDistricts = useCallback((cantonName: string) => {
+    if (!hasData) return [];
     const cantonDist = districts.filter((d) => d.canton === cantonName);
     
     if (!searchText.trim()) return cantonDist;
     
     const search = searchText.toLowerCase();
     return cantonDist.filter((d) => d.name.toLowerCase().includes(search));
-  }, [searchText]);
+  }, [searchText, districts, hasData]);
 
   return {
     filteredProvinces,
     getCantons,
     getDistricts,
+    isLoading,
+    hasError,
+    hasData,
   };
 }

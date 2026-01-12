@@ -30,4 +30,18 @@ export const styles = StyleSheet.create({
       elevation: 8,
     }),
   },
+
+  // Contenedor de mensajes (loading, error)
+  messageContainer: {
+    padding: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  messageText: {
+    fontSize: 14,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+  },
 });

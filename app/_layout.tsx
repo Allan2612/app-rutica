@@ -6,17 +6,22 @@ import Toast from 'react-native-toast-message';
 import { queryClient } from '../src/lib/react-query/client';
 import { useDeepLinkHandler } from '../src/hooks/useDeepLinkHandler';
 import { useAuthStore } from '../src/store';
+import { useLocationDataStore } from '../src/store/locationDataStore';
 
 export default function RootLayout() {
   useDeepLinkHandler();
 
-  // Inicializar el store de autenticación
+  // Inicializar el store de autenticación y ubicaciones
   useEffect(() => {
     console.log('[ROOT LAYOUT] Montado');
     
     // Inicializar auth store (listener de Supabase)
     const { initialize, cleanup } = useAuthStore.getState();
     initialize();
+
+    // Cargar ubicaciones desde Supabase al iniciar
+    const { loadLocations } = useLocationDataStore.getState();
+    loadLocations();
     
     // Fallback de seguridad: Si después de 12 segundos sigue cargando, forzar false
     const safetyTimeout = setTimeout(() => {

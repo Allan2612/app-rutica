@@ -23,7 +23,7 @@ export const LoginScreen = memo(function LoginScreen() {
     try {
       await signIn({ email, password });
       console.log('[LOGIN] Login exitoso');
-      router.replace('/(app)/(tabs)/businesses');
+      router.replace('/(app)/(tabs)/home');
     } catch (error: any) {
       console.error('[LOGIN] Error:', error);
       Alert.alert(
@@ -37,7 +37,7 @@ export const LoginScreen = memo(function LoginScreen() {
 
   const handleContinueWithoutAccount = useCallback(() => {
     console.log('[LOGIN] Continuar sin cuenta');
-    router.replace('/(app)/(tabs)/businesses');
+    router.replace('/(app)/(tabs)/home');
   }, []);
 
   return (

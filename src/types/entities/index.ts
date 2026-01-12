@@ -2,7 +2,14 @@
 export type { Profile, ProfileInsert, ProfileUpdate } from './profile';
 
 // Location
-export type { Location, LocationInsert, LocationUpdate } from './location';
+export type { 
+  Location, 
+  LocationInsert, 
+  LocationUpdate,
+  Province,
+  Canton,
+  District,
+} from './location';
 
 // Business
 export type {

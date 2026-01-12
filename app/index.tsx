@@ -31,7 +31,7 @@ export default function Index() {
         }
 
         // Sesión válida, ir directamente a businesses
-        router.replace('/(app)/(tabs)/businesses');
+        router.replace('/(app)/(tabs)/home');
       }
       // Si no hay sesión, mostrar pantalla de bienvenida
     } catch (error) {
@@ -40,7 +40,7 @@ export default function Index() {
   };
 
   const handleExplore = () => {
-    router.replace('/(app)/(tabs)/businesses');
+    router.replace('/(app)/(tabs)/home');
   };
 
   const handleLogin = () => {
