@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '../../../styles/theme';
-import { spacing } from '../../../styles/theme';
+import { colors } from '@/styles/theme';
+import { spacing } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   searchRow: {

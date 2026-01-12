@@ -1,3 +1,3 @@
-import { RecoverScreen } from '../../src/features/auth/screens';
+import { RecoverScreen } from '@/features/auth/screens';
 
 export default RecoverScreen;

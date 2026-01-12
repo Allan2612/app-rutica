@@ -1,1 +1,1 @@
-export { NoAuthManageScreen } from '../NoAuthManageScreen/NoAuthManageScreen';
+export { NoAuthManageScreen } from './NoAuthManageScreen';

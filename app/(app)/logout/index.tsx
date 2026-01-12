@@ -1,2 +1,2 @@
-import LogoutScreen from '../../../src/features/user/LogoutScreen';
+import LogoutScreen from '@/features/user/LogoutScreen';
 export default LogoutScreen;

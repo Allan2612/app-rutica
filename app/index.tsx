@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
-import { useAuthStore } from '../src/store';
-import { colors } from '../src/styles/theme';
+import { useAuthStore } from '@/store';
+import { colors } from '@/styles/theme';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();

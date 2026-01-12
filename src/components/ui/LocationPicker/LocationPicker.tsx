@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
+import { colors } from '@/styles/theme';
 import { styles } from './styles';
 import { generateMapHTML } from './mapTemplate';
 import { useReverseGeocode } from './useReverseGeocode';
@@ -120,14 +121,14 @@ export const LocationPicker = memo(function LocationPicker({
 
       {loadingAddress && (
         <View style={styles.loadingAddressBar}>
-          <ActivityIndicator size="small" color="#10b981" />
+          <ActivityIndicator size="small" color={colors.primary} />
           <Text style={styles.loadingAddressText}>Obteniendo dirección...</Text>
         </View>
       )}
 
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#10b981" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
 

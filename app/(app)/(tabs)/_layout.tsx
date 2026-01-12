@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Home, Landmark, Map, Store, Wrench } from 'lucide-react-native';
-import { HeaderWithSearch } from '../../../src/components/layout';
+import { HeaderWithSearch } from '@/components/layout';
 
 export default function TabsLayout() {
   return (

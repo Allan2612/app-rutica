@@ -1,2 +1,2 @@
-import SupportScreen from '../../../src/features/user/SupportScreen';
+import SupportScreen from '@/features/user/SupportScreen';
 export default SupportScreen;

@@ -28,7 +28,6 @@ export function useAuth() {
           const { data: { user }, error: userError } = await supabase.auth.getUser();
           
           if (userError || !user) {
-            console.log('Sesión inválida detectada, limpiando...');
             await supabase.auth.signOut();
             if (isMounted) {
               setSession(null);

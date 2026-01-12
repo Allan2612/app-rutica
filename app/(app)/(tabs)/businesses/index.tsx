@@ -1,3 +1,3 @@
-import { BusinessesScreen } from '../../../../src/features/business/screens';
+import { BusinessesScreen } from '@/features/business/screens';
 
 export default BusinessesScreen;

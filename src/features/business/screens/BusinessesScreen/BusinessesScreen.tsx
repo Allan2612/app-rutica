@@ -54,9 +54,9 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
           <View
             style={{
               borderWidth: 1,
-              borderColor: '#d1d5db',
+              borderColor: colors.border.dark,
               borderRadius: 8,
-              backgroundColor: '#fff',
+              backgroundColor: colors.background.primary,
               paddingHorizontal: 12,
             }}
           >

@@ -57,17 +57,13 @@ function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
 export function useBusinesses({ enabled = true, ...filters }: BusinessListFilters & { enabled?: boolean } = {}) {
     const { searchText = '', categoryIds = [] } = filters;
 
-    console.log('[HOOK] useBusinesses mounted/updated:', { enabled, searchText, categoryIds });
-
     return useQuery({
         queryKey: ['businesses', { searchText, categoryIds }],
         queryFn: () => {
-            console.log('[HOOK] useBusinesses queryFn called');
             return getBusinessList({ searchText, categoryIds });
         },
         enabled,
         select: (rows) => {
-            console.log('[HOOK] useBusinesses select called with rows:', rows.length);
             return rows.map(mapBusinessToListItem);
         },
     });

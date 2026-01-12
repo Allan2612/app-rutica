@@ -1,2 +1,2 @@
-import ProfileScreen from '../../../src/features/user/ProfileScreen';
+import ProfileScreen from '@/features/user/ProfileScreen';
 export default ProfileScreen;

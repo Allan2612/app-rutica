@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { View, TextInput, Text } from 'react-native';
 import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
+import { colors } from '@/styles/theme';
 import { styles } from './styles';
 import { useAttractionCategories } from '@/features/attractions/hooks/useAttractionCategories';
 
@@ -43,9 +44,9 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
           <View
             style={{
               borderWidth: 1,
-              borderColor: '#d1d5db',
+              borderColor: colors.border.dark,
               borderRadius: 8,
-              backgroundColor: '#fff',
+              backgroundColor: colors.background.primary,
               paddingHorizontal: 12,
             }}
           >

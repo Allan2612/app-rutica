@@ -1,3 +1,3 @@
-import { AttractionsScreen } from '../../../src/features/attractions/screens';
+import { AttractionsScreen } from '@/features/attractions/screens';
 
 export default AttractionsScreen;

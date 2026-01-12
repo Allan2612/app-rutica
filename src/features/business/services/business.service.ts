@@ -225,8 +225,6 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
 export async function getBusinessList(filters: BusinessListFilters = {}): Promise<BusinessListRecord[]> {
   const { searchText, categoryIds } = filters;
 
-  console.log('[BUSINESS] getBusinessList called with filters:', { searchText, categoryIds });
-
   let query = supabase
     .from('businesses')
     .select(`
@@ -242,17 +240,13 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
     `)
     .neq('moderation_status_bus', 'rejected');
 
-  console.log('[BUSINESS] Applied base filters: moderation_status_bus != rejected');
-
   if (categoryIds && categoryIds.length > 0) {
     query = query.in('category_id_bus', categoryIds);
-    console.log('[BUSINESS] Applied category filter:', categoryIds);
   }
 
   if (searchText && searchText.trim().length > 0) {
     const term = searchText.trim();
     query = query.or(`name_bus.ilike.%${term}%,description_bus.ilike.%${term}%`);
-    console.log('[BUSINESS] Applied search filter:', term);
   }
 
   query = query.order('created_at_bus', { ascending: false });
@@ -262,11 +256,6 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
   if (error) {
     console.error('[BUSINESS] getBusinessList ERROR:', error);
     return [] as BusinessListRecord[];
-  }
-
-  console.log('[BUSINESS] getBusinessList SUCCESS. Records found:', data?.length ?? 0);
-  if (data && data.length > 0) {
-    console.log('[BUSINESS] First record:', JSON.stringify(data[0], null, 2));
   }
 
   return (data ?? []) as unknown as BusinessListRecord[];

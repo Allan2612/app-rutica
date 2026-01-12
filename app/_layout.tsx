@@ -3,10 +3,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { queryClient } from '../src/lib/react-query/client';
-import { useDeepLinkHandler } from '../src/hooks/useDeepLinkHandler';
-import { useAuthStore } from '../src/store';
-import { useLocationDataStore } from '../src/store/locationDataStore';
+import { queryClient } from '@/lib/react-query/client';
+import { useDeepLinkHandler } from '@/hooks/useDeepLinkHandler';
+import { useAuthStore } from '@/store';
+import { useLocationDataStore } from '@/store/locationDataStore';
 
 export default function RootLayout() {
   useDeepLinkHandler();

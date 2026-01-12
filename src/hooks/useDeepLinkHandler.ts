@@ -8,11 +8,9 @@ import { supabase } from '@/lib/supabase/client';
  */
 export function useDeepLinkHandler() {
   useEffect(() => {
-    console.log('[DEEP LINK HANDLER] Inicializado');
 
     const handleDeepLink = async (event: { url: string }) => {
       const url = event.url;
-      console.log('[DEEP LINK] URL recibida:', url);
 
       // Verificar si es un link de reset password
       if (url.includes('/reset-password') || url.includes('type=recovery')) {
@@ -24,7 +22,6 @@ export function useDeepLinkHandler() {
           const refreshToken = params.get('refresh_token');
 
           if (accessToken && refreshToken) {
-            console.log('[DEEP LINK] Tokens encontrados, estableciendo sesión');
             
             // Establecer la sesión con el token
             await supabase.auth.setSession({

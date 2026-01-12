@@ -35,4 +35,5 @@ export const styles = StyleSheet.create({
     right: 0,
     height: 2,
     backgroundColor: colors.text.primary,
+  },
 });
