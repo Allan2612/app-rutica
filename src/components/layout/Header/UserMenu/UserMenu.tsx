@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { User, LogOut, Settings, UserCircle } from 'lucide-react-native';
-import { signOut } from '../../../../features/auth/services/auth.service';
+import { useAuthStore } from '@/store';
 import { styles } from './styles';
 
 interface UserMenuProps {
@@ -18,6 +18,8 @@ export const UserMenu = memo(function UserMenu({
   user,
   isAuthenticated,
 }: UserMenuProps) {
+  const signOut = useAuthStore((state) => state.signOut);
+
   const handleLogin = useCallback(() => {
     onClose();
     router.push('/(auth)/login');
@@ -49,9 +51,9 @@ export const UserMenu = memo(function UserMenu({
       await signOut();
       router.replace('/');
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      console.error('[LOGOUT] Error:', error);
     }
-  }, [onClose]);
+  }, [onClose, signOut]);
 
   if (!visible) return null;
 

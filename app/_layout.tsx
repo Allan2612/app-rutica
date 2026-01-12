@@ -13,21 +13,19 @@ export default function RootLayout() {
 
   // Inicializar el store de autenticación y ubicaciones
   useEffect(() => {
-    console.log('[ROOT LAYOUT] Montado');
-    
-    // Inicializar auth store (listener de Supabase)
+    // Inicializar auth store
     const { initialize, cleanup } = useAuthStore.getState();
     initialize();
 
-    // Cargar ubicaciones desde Supabase al iniciar
+    // Cargar ubicaciones desde Supabase
     const { loadLocations } = useLocationDataStore.getState();
     loadLocations();
     
-    // Fallback de seguridad: Si después de 12 segundos sigue cargando, forzar false
+    // Timeout de seguridad
     const safetyTimeout = setTimeout(() => {
       const state = useAuthStore.getState();
       if (state.isLoading) {
-        console.warn('[ROOT LAYOUT] Timeout de seguridad: Forzando isLoading = false');
+        console.warn('[APP] Timeout: forzando isLoading = false');
         useAuthStore.setState({ isLoading: false });
       }
     }, 12000);
@@ -56,7 +54,6 @@ export default function RootLayout() {
     }
     
     return () => {
-      console.log('[ROOT LAYOUT] Desmontado');
       clearTimeout(safetyTimeout);
       cleanup();
     };

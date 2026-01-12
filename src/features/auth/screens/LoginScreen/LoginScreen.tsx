@@ -18,12 +18,14 @@ export const LoginScreen = memo(function LoginScreen() {
     }
 
     setLoading(true);
-    console.log('[LOGIN] Intentando login...');
 
     try {
       await signIn({ email, password });
-      console.log('[LOGIN] Login exitoso');
-      router.replace('/(app)/(tabs)/home');
+      
+      // El listener se encargará de cargar los datos
+      setTimeout(() => {
+        router.replace('/(app)/(tabs)/home');
+      }, 100);
     } catch (error: any) {
       console.error('[LOGIN] Error:', error);
       Alert.alert(

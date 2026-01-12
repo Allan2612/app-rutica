@@ -2,42 +2,27 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
-import { supabase } from '../src/lib/supabase/client';
+import { useAuthStore } from '../src/store';
 import { colors } from '../src/styles/theme';
 
 export default function Index() {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      // Solo verificar sesión, NO redirigir automáticamente
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        console.error('Error obteniendo sesión:', sessionError);
-        return;
-      }
-
-      if (session) {
-        // Validar que el usuario realmente exista
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError || !user) {
-          console.log('Sesión inválida, limpiando...');
-          await supabase.auth.signOut();
-          return;
-        }
-
-        // Sesión válida, ir directamente a businesses
-        router.replace('/(app)/(tabs)/home');
-      }
-      // Si no hay sesión, mostrar pantalla de bienvenida
-    } catch (error) {
-      console.error('Error checking auth:', error);
+    // Si ya está autenticado, redirigir a home
+    if (!isLoading && isAuthenticated) {
+      router.replace('/(app)/(tabs)/home');
     }
-  };
+  }, [isAuthenticated, isLoading]);
+
+  // Mostrar loading mientras se verifica la autenticación
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={colors.primary[500]} />
+      </View>
+    );
+  }
 
   const handleExplore = () => {
     router.replace('/(app)/(tabs)/home');

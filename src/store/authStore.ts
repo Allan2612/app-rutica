@@ -12,6 +12,7 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   _initialized: boolean;
+  _isLoadingData: boolean; // Flag interno para evitar cargas simultáneas
 }
 
 /**
@@ -54,6 +55,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isLoading: true,
   isAuthenticated: false,
   _initialized: false,
+  _isLoadingData: false,
 
   // Acciones
   setUser: (user) =>
@@ -71,36 +73,50 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    */
   loadUserData: async () => {
     const state = get();
+    
     // Evitar cargas múltiples simultáneas
-    if (state.isLoading && state._initialized) {
+    if (state._isLoadingData) {
       return;
     }
 
-    // Timeout de seguridad (10 segundos)
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout al cargar usuario')), 10000)
-    );
+    set({ isLoading: true, _isLoadingData: true });
 
     try {
-      set({ isLoading: true });
+      // 1. Verificar si hay una sesión válida
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      // 1. Obtener usuario autenticado con timeout
-      const { data: { user: authUser }, error: authError } = await Promise.race([
-        supabase.auth.getUser(),
-        timeoutPromise
-      ]);
-
-      if (authError || !authUser) {
+      if (!session || sessionError) {
         set({
           user: null,
           role: null,
           isAuthenticated: false,
           isLoading: false,
+          _isLoadingData: false,
         });
         return;
       }
 
-      // 2. Obtener perfil con rol (con timeout)
+      // 2. Validar usuario con el servidor
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout al cargar usuario')), 10000)
+      );
+
+      const { data: { user: authUser }, error: authError } = await Promise.race([
+        supabase.auth.getUser(),
+        timeoutPromise
+      ]).catch((err) => {
+        console.error('[AUTH] Error al validar usuario:', err);
+        return { data: { user: null }, error: err };
+      });
+
+      if (authError || !authUser) {
+        console.warn('[AUTH] Token inválido, cerrando sesión');
+        set({ _isLoadingData: false });
+        await get().signOut();
+        return;
+      }
+
+      // 3. Obtener perfil con rol
       const { data: profile, error: profileError } = await Promise.race([
         supabase
           .from('profiles')
@@ -108,32 +124,46 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           .eq('id_prf', authUser.id)
           .single(),
         timeoutPromise
-      ]);
+      ]).catch((err) => {
+        console.error('[AUTH] Error al cargar perfil:', err);
+        return { data: null, error: err };
+      });
 
       if (profileError) {
-        console.error('[AUTH STORE] Error cargando perfil:', profileError.message);
+        // Si el perfil no existe, desloguear
+        if (profileError.code === 'PGRST116') {
+          console.warn('[AUTH] Perfil no existe, cerrando sesión');
+          set({ _isLoadingData: false });
+          await get().signOut();
+          return;
+        }
+        
+        // Otros errores: mantener sesión sin rol
         set({
           user: authUser,
           role: null,
           isAuthenticated: true,
           isLoading: false,
+          _isLoadingData: false,
         });
       } else {
+        // Carga exitosa
         set({
           user: authUser,
           role: profile?.role_prf ?? null,
           isAuthenticated: true,
           isLoading: false,
+          _isLoadingData: false,
         });
       }
     } catch (error: any) {
-      console.error('[AUTH STORE] Error crítico:', error?.message || error);
-      // IMPORTANTE: Siempre poner isLoading en false
+      console.error('[AUTH] Error crítico:', error?.message || error);
       set({
         user: null,
         role: null,
         isAuthenticated: false,
         isLoading: false,
+        _isLoadingData: false,
       });
     }
   },
@@ -149,9 +179,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         role: null,
         isAuthenticated: false,
         isLoading: false,
+        _isLoadingData: false,
       });
     } catch (error) {
-      console.error('[AUTH STORE] Error al cerrar sesión:', error);
+      console.error('[AUTH] Error al cerrar sesión:', error);
+      // Limpiar estado local de todos modos
+      set({
+        user: null,
+        role: null,
+        isAuthenticated: false,
+        isLoading: false,
+        _isLoadingData: false,
+      });
     }
   },
 
@@ -169,10 +208,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     set({ _initialized: true });
 
-    // Carga inicial
-    get().loadUserData();
-
-    // Listener de cambios de auth
+    // Registrar listener antes de cargar datos (evita race conditions)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_OUT') {
@@ -181,11 +217,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             role: null,
             isAuthenticated: false,
             isLoading: false,
+            _isLoadingData: false,
           });
-        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          // Evitar cargas redundantes
+        } else if (event === 'SIGNED_IN') {
+          await get().loadUserData();
+        } else if (event === 'TOKEN_REFRESHED') {
           const currentState = get();
-          if (session?.user?.id !== currentState.user?.id) {
+          if (session?.user?.id && session.user.id !== currentState.user?.id) {
             await get().loadUserData();
           }
         } else if (event === 'USER_UPDATED') {
@@ -194,8 +232,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
     );
 
-    // Guardar subscription para cleanup
     (get() as any)._subscription = subscription;
+    get().loadUserData();
   },
 
   /**
@@ -207,6 +245,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       subscription.unsubscribe();
       delete (get() as any)._subscription;
     }
-    set({ _initialized: false });
+    set({ _initialized: false, _isLoadingData: false });
   },
 }));

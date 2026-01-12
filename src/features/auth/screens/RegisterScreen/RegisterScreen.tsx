@@ -51,7 +51,6 @@ export const RegisterScreen = memo(function RegisterScreen() {
         phone,
         role,
       });
-      console.log('[REGISTER] Registro exitoso');
 
       Alert.alert('Registro exitoso', 'Tu cuenta fue creada correctamente.', [
         {
