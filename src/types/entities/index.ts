@@ -1,5 +1,6 @@
 // Profile
 export type { Profile, ProfileInsert, ProfileUpdate } from './profile';
+export { getFullName } from './profile';
 
 // Location
 export type { 
@@ -71,3 +72,16 @@ export type {
   ProductReviewInsert,
   AttractionReviewInsert,
 } from './review';
+
+// Events
+export type {
+  Event,
+  EventWithRelations,
+  EventImage,
+  EventReview,
+  EventReviewWithRelations,
+  EventInsert,
+  EventImageInsert,
+  EventReviewInsert,
+  EventUpdate,
+} from './event';

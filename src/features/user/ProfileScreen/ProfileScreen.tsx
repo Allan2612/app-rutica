@@ -31,9 +31,11 @@ export default memo(function ProfileScreen() {
     return (
       <Screen>
         <BaseHeader />
-        <View style={styles.centerContainer}>
+        <View style={[styles.centerContainer, { backgroundColor: colors.background.secondary }]}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
-          <Text style={styles.loadingText}>Cargando perfil...</Text>
+          <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
+            Cargando perfil...
+          </Text>
         </View>
       </Screen>
     );
@@ -43,9 +45,9 @@ export default memo(function ProfileScreen() {
     return (
       <Screen>
         <BaseHeader />
-        <View style={styles.centerContainer}>
+        <View style={[styles.centerContainer, { backgroundColor: colors.background.secondary }]}>
           <Text style={styles.errorTitle}>Error</Text>
-          <Text style={styles.errorText}>
+          <Text style={[styles.errorText, { color: colors.text.secondary }]}>
             {error || 'No se pudo cargar el perfil'}
           </Text>
         </View>
@@ -57,12 +59,16 @@ export default memo(function ProfileScreen() {
     <Screen>
       <BaseHeader />
       <ScrollView 
-        style={styles.scrollContainer}
+        style={[styles.scrollContainer, { backgroundColor: colors.background.secondary }]}
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Mi Perfil</Text>
-          <Text style={styles.subtitle}>{user?.email}</Text>
+          <Text style={[styles.title, { color: colors.text.primary }]}>
+            Mi Perfil
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+            {user?.email}
+          </Text>
         </View>
 
         <View style={styles.cardWrapper}>

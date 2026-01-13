@@ -14,14 +14,16 @@ export const RegisterScreen = memo(function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName1, setLastName1] = useState('');
+  const [lastName2, setLastName2] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<UserRole>('buyer');
   const [loading, setLoading] = useState(false);
   const colors = useThemedColors();
 
   const handleRegister = useCallback(async () => {
-    if (!email || !password || !name || !confirmPassword) {
+    if (!email || !password || !firstName || !lastName1 || !confirmPassword) {
       Alert.alert(
         'Campos incompletos',
         'Por favor completa todos los campos obligatorios.'
@@ -51,7 +53,9 @@ export const RegisterScreen = memo(function RegisterScreen() {
       await signUp({
         email,
         password,
-        fullName: name,
+        firstName,
+        lastName1,
+        lastName2: lastName2 || undefined,
         phone,
         role,
       });
@@ -71,7 +75,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
     } finally {
       setLoading(false);
     }
-  }, [email, password, confirmPassword, name, phone, role]);
+  }, [email, password, confirmPassword, firstName, lastName1, lastName2, phone, role]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
@@ -152,10 +156,26 @@ export const RegisterScreen = memo(function RegisterScreen() {
         </View>
 
         <AuthInput
-          label="Nombre completo"
+          label="Nombre"
           placeholder="Tu nombre"
-          value={name}
-          onChangeText={setName}
+          value={firstName}
+          onChangeText={setFirstName}
+          editable={!loading}
+        />
+
+        <AuthInput
+          label="Primer apellido"
+          placeholder="Tu primer apellido"
+          value={lastName1}
+          onChangeText={setLastName1}
+          editable={!loading}
+        />
+
+        <AuthInput
+          label="Segundo apellido (opcional)"
+          placeholder="Tu segundo apellido"
+          value={lastName2}
+          onChangeText={setLastName2}
           editable={!loading}
         />
 

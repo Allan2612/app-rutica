@@ -1,7 +1,9 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import type { Profile } from '@/types/entities';
-import { styles } from './styles';
+import { getFullName } from '@/types/entities';
+import { useThemedColors } from '@/hooks';
+import styles from './styles';
 
 interface ProfileCardProps {
   profile: Profile;
@@ -20,47 +22,68 @@ export const ProfileCard = memo(function ProfileCard({
   onEdit,
   onBack,
 }: ProfileCardProps) {
+  const colors = useThemedColors();
   const translatedRole = roleTranslations[profile.role_PRF] || profile.role_PRF;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { 
+      backgroundColor: colors.background.primary,
+      borderColor: colors.border.light,
+    }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Información Personal</Text>
-        <Text style={styles.subtitle}>Tus datos personales</Text>
+        <Text style={[styles.title, { color: colors.text.primary }]}>
+          Información Personal
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+          Tus datos personales
+        </Text>
       </View>
 
       <View style={styles.content}>
         <View style={styles.field}>
-          <Text style={styles.label}>Nombre Completo</Text>
-          <Text style={styles.value}>{profile.full_name_PRF || 'Sin nombre'}</Text>
+          <Text style={[styles.label, { color: colors.text.tertiary }]}>Nombre Completo</Text>
+          <Text style={[styles.value, { color: colors.text.primary }]}>
+            {getFullName(profile) || 'Sin nombre'}
+          </Text>
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Número de Teléfono</Text>
-          <Text style={styles.value}>
+          <Text style={[styles.label, { color: colors.text.tertiary }]}>Número de Teléfono</Text>
+          <Text style={[styles.value, { color: colors.text.primary }]}>
             {profile.phone_number_PRF || 'Sin teléfono'}
           </Text>
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Rol</Text>
-          <Text style={styles.value}>{translatedRole}</Text>
+          <Text style={[styles.label, { color: colors.text.tertiary }]}>Rol</Text>
+          <Text style={[styles.value, { color: colors.text.primary }]}>{translatedRole}</Text>
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Estado</Text>
-          <Text style={styles.value}>
+          <Text style={[styles.label, { color: colors.text.tertiary }]}>Estado</Text>
+          <Text style={[styles.value, { 
+            color: profile.is_active_PRF ? colors.primary[500] : colors.text.secondary 
+          }]}>
             {profile.is_active_PRF ? 'Activo' : 'Inactivo'}
           </Text>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
-        <Pressable style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backButtonText}>Volver</Text>
+        <Pressable 
+          style={[styles.backButton, { 
+            backgroundColor: colors.background.tertiary,
+            borderColor: colors.border.medium,
+          }]} 
+          onPress={onBack}
+        >
+          <Text style={[styles.backButtonText, { color: colors.text.primary }]}>Volver</Text>
         </Pressable>
 
-        <Pressable style={styles.editButton} onPress={onEdit}>
+        <Pressable 
+          style={[styles.editButton, { backgroundColor: colors.primary[500] }]} 
+          onPress={onEdit}
+        >
           <Text style={styles.editButtonText}>Editar Perfil</Text>
         </Pressable>
       </View>

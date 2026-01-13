@@ -1,10 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, typography } from '@/styles/theme';
+import { spacing, typography } from '@/styles/theme';
 
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    backgroundColor: colors.background.tertiary,
   },
   contentContainer: {
     padding: spacing.md,
@@ -20,13 +19,11 @@ export default StyleSheet.create({
   title: {
     fontSize: typography.sizes['3xl'] - 2,
     fontWeight: typography.fontWeights.bold,
-    color: colors.text.primary,
     marginBottom: spacing.sm,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: typography.sizes.base,
-    color: colors.text.secondary,
     textAlign: 'center',
   },
   cardWrapper: {
@@ -38,23 +35,22 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.md + 4,
-    backgroundColor: colors.background.tertiary,
+    padding: spacing.lg,
   },
   loadingText: {
     marginTop: spacing.md,
     fontSize: typography.sizes.base,
-    color: colors.text.secondary,
   },
   errorTitle: {
     fontSize: typography.sizes.xl,
     fontWeight: typography.fontWeights.bold,
-    color: colors.error,
+    color: '#ef4444',
     marginBottom: spacing.sm,
   },
   errorText: {
     fontSize: typography.sizes.base,
-    color: colors.text.secondary,
     textAlign: 'center',
   },
 });
+
+export default styles;

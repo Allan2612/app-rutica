@@ -2,7 +2,8 @@ import { memo, useState, useCallback } from 'react';
 import { View, Text, Modal, Pressable, Alert } from 'react-native';
 import { AuthInput } from '@/components/auth';
 import type { Profile, ProfileUpdate } from '@/types/entities';
-import { styles } from './styles';
+import { useThemedColors } from '@/hooks';
+import styles from './styles';
 
 interface ProfileEditModalProps {
   visible: boolean;
@@ -17,20 +18,25 @@ export const ProfileEditModal = memo(function ProfileEditModal({
   onClose,
   onSave,
 }: ProfileEditModalProps) {
-  const [fullName, setFullName] = useState(profile.full_name_PRF || '');
+  const colors = useThemedColors();
+  const [firstName, setFirstName] = useState(profile.first_name_PRF || '');
+  const [lastName1, setLastName1] = useState(profile.last_name1_PRF || '');
+  const [lastName2, setLastName2] = useState(profile.last_name2_PRF || '');
   const [phoneNumber, setPhoneNumber] = useState(profile.phone_number_PRF || '');
   const [loading, setLoading] = useState(false);
 
   const handleSave = useCallback(async () => {
-    if (!fullName.trim()) {
-      Alert.alert('Error', 'El nombre no puede estar vacío');
+    if (!firstName.trim() || !lastName1.trim()) {
+      Alert.alert('Error', 'El nombre y primer apellido son obligatorios');
       return;
     }
 
     try {
       setLoading(true);
       await onSave({
-        full_name_PRF: fullName.trim(),
+        first_name_PRF: firstName.trim(),
+        last_name1_PRF: lastName1.trim(),
+        last_name2_PRF: lastName2.trim() || null,
         phone_number_PRF: phoneNumber.trim() || null,
       });
       Alert.alert('Éxito', 'Perfil actualizado correctamente');
@@ -40,23 +46,49 @@ export const ProfileEditModal = memo(function ProfileEditModal({
     } finally {
       setLoading(false);
     }
-  }, [fullName, phoneNumber, onSave, onClose]);
+  }, [firstName, lastName1, lastName2, phoneNumber, onSave, onClose]);
 
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.container} onPress={(e) => e.stopPropagation()}>
+        <Pressable 
+          style={[styles.container, { 
+            backgroundColor: colors.background.primary,
+            borderColor: colors.border.light,
+          }]} 
+          onPress={(e) => e.stopPropagation()}
+        >
           <View style={styles.header}>
-            <Text style={styles.title}>Editar Perfil</Text>
-            <Text style={styles.subtitle}>Actualiza tu información personal</Text>
+            <Text style={[styles.title, { color: colors.text.primary }]}>
+              Editar Perfil
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+              Actualiza tu información personal
+            </Text>
           </View>
 
           <View style={styles.form}>
             <AuthInput
-              label="Nombre Completo"
-              placeholder="Tu nombre completo"
-              value={fullName}
-              onChangeText={setFullName}
+              label="Nombre"
+              placeholder="Tu nombre"
+              value={firstName}
+              onChangeText={setFirstName}
+              editable={!loading}
+            />
+
+            <AuthInput
+              label="Primer Apellido"
+              placeholder="Tu primer apellido"
+              value={lastName1}
+              onChangeText={setLastName1}
+              editable={!loading}
+            />
+
+            <AuthInput
+              label="Segundo Apellido (opcional)"
+              placeholder="Tu segundo apellido"
+              value={lastName2}
+              onChangeText={setLastName2}
               editable={!loading}
             />
 
@@ -72,15 +104,24 @@ export const ProfileEditModal = memo(function ProfileEditModal({
 
           <View style={styles.buttons}>
             <Pressable
-              style={[styles.button, styles.buttonSecondary]}
+              style={[styles.button, { 
+                backgroundColor: colors.background.tertiary,
+                borderWidth: 1,
+                borderColor: colors.border.medium,
+              }]}
               onPress={onClose}
               disabled={loading}
             >
-              <Text style={styles.buttonTextSecondary}>Cancelar</Text>
+              <Text style={[styles.buttonTextSecondary, { color: colors.text.primary }]}>
+                Cancelar
+              </Text>
             </Pressable>
 
             <Pressable
-              style={[styles.button, styles.buttonPrimary]}
+              style={[styles.button, { 
+                backgroundColor: colors.primary[500],
+                opacity: loading ? 0.7 : 1,
+              }]}
               onPress={handleSave}
               disabled={loading}
             >

@@ -74,5 +74,7 @@ export const styles = StyleSheet.create({
   },
   menuItemTextDanger: {
     fontSize: typography.sizes.sm,
+    color: '#ef4444',
+    fontWeight: typography.fontWeights.medium,
   },
 });

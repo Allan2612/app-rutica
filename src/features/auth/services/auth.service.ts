@@ -4,38 +4,34 @@ import { UserRole } from '@/types/enums';
 export interface SignUpInput {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName1: string;
+  lastName2?: string;
   phone?: string;
   role: UserRole;
 }
 
 export async function signUp(input: SignUpInput) {
-  const { email, password, fullName, phone, role } = input;
+  const { email, password, firstName, lastName1, lastName2, phone, role } = input;
 
-  // 1. Crear usuario en auth
+  // Crear usuario en auth con metadata
+  // El trigger en Supabase creará automáticamente el perfil
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        first_name: firstName,
+        last_name1: lastName1,
+        last_name2: lastName2 || null,
+        phone: phone || null,
+        role: role,
+      },
+    },
   });
 
   if (error) throw error;
   if (!data.user) throw new Error('User not created');
-
-  // 2. Crear perfil manualmente
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .insert({
-      id_PRF: data.user.id,
-      full_name_PRF: fullName,
-      phone_number_PRF: phone || null,
-      role_PRF: role,
-      is_active_PRF: true,
-    });
-
-  if (profileError) {
-    console.error('Error creando perfil:', profileError);
-    throw new Error('Error al crear el perfil: ' + profileError.message);
-  }
 
   return data.user;
 }

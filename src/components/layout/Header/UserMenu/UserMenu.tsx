@@ -47,15 +47,10 @@ export const UserMenu = memo(function UserMenu({
     router.push('/(app)/support');
   }, [onClose]);
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = useCallback(() => {
     onClose();
-    try {
-      await signOut();
-      router.replace('/');
-    } catch (error) {
-      // Error manejado por el store
-    }
-  }, [onClose, signOut]);
+    router.push('/(app)/logout');
+  }, [onClose]);
 
   if (!visible) return null;
 
@@ -106,8 +101,8 @@ export const UserMenu = memo(function UserMenu({
               <View style={[styles.menuDivider, { backgroundColor: colors.border.light }]} />
 
               <Pressable style={styles.menuItemDanger} onPress={handleLogout}>
-                <LogOut color={colors.error[500]} size={20} />
-                <Text style={[styles.menuItemTextDanger, { color: colors.error[500] }]}>Cerrar sesión</Text>
+                <LogOut color="#ef4444" size={20} />
+                <Text style={styles.menuItemTextDanger}>Cerrar sesión</Text>
               </Pressable>
             </>
           ) : (
