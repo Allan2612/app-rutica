@@ -7,7 +7,6 @@ import { router } from 'expo-router';
 import { useAuthStore } from '@/store';
 import { useThemedColors } from '@/hooks';
 import { UserMenu } from '@/components/layout/Header/UserMenu';
-import { ThemeToggle } from '@/components/layout/Header/ThemeToggle';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { styles } from './styles';
 
@@ -62,8 +61,6 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
         </Pressable>
 
         <View style={styles.rightControls}>
-          <ThemeToggle />
-          
           <Pressable
             style={styles.userButton}
             onPress={handleUserPress}

@@ -16,12 +16,13 @@ interface UseProfileReturn {
  */
 export function useProfile(): UseProfileReturn {
   const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadProfile = useCallback(async () => {
-    if (!user?.id) {
+    if (!user?.id || !isAuthenticated) {
       setProfile(null);
       setIsLoading(false);
       return;
@@ -35,10 +36,11 @@ export function useProfile(): UseProfileReturn {
     } catch (err: any) {
       console.error('[useProfile] Error al cargar perfil:', err);
       setError(err.message || 'Error al cargar perfil');
+      setProfile(null);
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, isAuthenticated]);
 
   const updateProfile = useCallback(
     async (updates: ProfileUpdate) => {

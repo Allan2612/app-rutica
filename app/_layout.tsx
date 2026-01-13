@@ -14,19 +14,38 @@ export default function RootLayout() {
   // Inicializar el store de autenticación y ubicaciones
   useEffect(() => {
     // Inicializar auth store
-    const { initialize, cleanup } = useAuthStore.getState();
+    const { initialize, cleanup, resetLoadingFlag } = useAuthStore.getState();
     initialize();
 
     // Cargar ubicaciones desde Supabase
     const { loadLocations } = useLocationDataStore.getState();
     loadLocations();
     
+    // Listener para cuando la página vuelve a estar visible (cambio de tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // NO resetear inmediatamente - esperar a ver si la carga se completa
+        // Si después de 3 segundos sigue en _isLoadingData, ENTONCES resetear
+        setTimeout(() => {
+          const state = useAuthStore.getState();
+          if (state._isLoadingData) {
+            resetLoadingFlag();
+          }
+        }, 3000);
+      }
+    };
+    
+    // Solo en web
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+    
     // Timeout de seguridad
     const safetyTimeout = setTimeout(() => {
       const state = useAuthStore.getState();
       if (state.isLoading) {
         console.warn('[APP] Timeout: forzando isLoading = false');
-        useAuthStore.setState({ isLoading: false });
+        useAuthStore.setState({ isLoading: false, _isLoadingData: false });
       }
     }, 12000);
     
@@ -55,6 +74,9 @@ export default function RootLayout() {
     
     return () => {
       clearTimeout(safetyTimeout);
+      if (Platform.OS === 'web' && typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
       cleanup();
     };
   }, []);

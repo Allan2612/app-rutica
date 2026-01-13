@@ -26,6 +26,7 @@ interface AuthActions {
   signOut: () => Promise<void>;
   initialize: () => void;
   cleanup: () => void;
+  resetLoadingFlag: () => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -79,7 +80,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       return;
     }
 
-    set({ isLoading: true, _isLoadingData: true });
+    // Solo mostrar spinner si es la primera carga (no hay usuario)
+    const showSpinner = !state.user;
+    set({ isLoading: showSpinner, _isLoadingData: true });
 
     try {
       // 1. Verificar si hay una sesión válida
@@ -96,38 +99,27 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         return;
       }
 
-      // 2. Validar usuario con el servidor
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout al cargar usuario')), 10000)
-      );
+      // 2. Usar el usuario de la sesión directamente (más confiable)
+      const authUser = session.user;
 
-      const { data: { user: authUser }, error: authError } = await Promise.race([
-        supabase.auth.getUser(),
-        timeoutPromise
-      ]).catch((err) => {
-        console.error('[AUTH] Error al validar usuario:', err);
-        return { data: { user: null }, error: err };
-      });
-
-      if (authError || !authUser) {
-        console.warn('[AUTH] Token inválido, cerrando sesión');
-        set({ _isLoadingData: false });
-        await get().signOut();
+      if (!authUser) {
+        console.warn('[AUTH] No hay usuario en la sesión');
+        set({
+          user: null,
+          role: null,
+          isAuthenticated: false,
+          isLoading: false,
+          _isLoadingData: false,
+        });
         return;
       }
 
       // 3. Obtener perfil con rol
-      const { data: profile, error: profileError } = await Promise.race([
-        supabase
-          .from('profiles')
-          .select('role_prf')
-          .eq('id_prf', authUser.id)
-          .single(),
-        timeoutPromise
-      ]).catch((err) => {
-        console.error('[AUTH] Error al cargar perfil:', err);
-        return { data: null, error: err };
-      });
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role_prf')
+        .eq('id_prf', authUser.id)
+        .single();
 
       if (profileError) {
         // Si el perfil no existe, desloguear
@@ -138,6 +130,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           return;
         }
         
+        console.warn('[AUTH] Error al cargar perfil:', profileError);
         // Otros errores: mantener sesión sin rol
         set({
           user: authUser,
@@ -157,7 +150,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         });
       }
     } catch (error: any) {
-      console.error('[AUTH] Error crítico:', error?.message || error);
+      console.error('[AUTH] Error crítico al cargar datos:', error?.message || error);
+      // IMPORTANTE: Siempre resetear el flag en caso de error
       set({
         user: null,
         role: null,
@@ -205,7 +199,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     if (state._initialized) {
       return;
     }
-
     set({ _initialized: true });
 
     // Registrar listener antes de cargar datos (evita race conditions)
@@ -220,20 +213,50 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             _isLoadingData: false,
           });
         } else if (event === 'SIGNED_IN') {
-          await get().loadUserData();
+          // Solo cargar si NO tenemos usuario ya cargado
+          const currentState = get();
+          if (!currentState.user) {
+            await get().loadUserData();
+          }
         } else if (event === 'TOKEN_REFRESHED') {
+          // Solo refrescar si el usuario cambió, no mostrar spinner
           const currentState = get();
           if (session?.user?.id && session.user.id !== currentState.user?.id) {
             await get().loadUserData();
           }
+          // Si es el mismo usuario, solo actualizar el objeto user sin recargar todo
+          else if (session?.user && currentState.user) {
+            set({ user: session.user });
+          }
         } else if (event === 'USER_UPDATED') {
-          await get().loadUserData();
+          // Solo recargar si hay cambios reales en el usuario
+          const currentState = get();
+          if (session?.user && JSON.stringify(session.user) !== JSON.stringify(currentState.user)) {
+            await get().loadUserData();
+          }
+        } else if (event === 'INITIAL_SESSION') {
+          // Este evento ocurre al iniciar - cargar datos del usuario
+          if (session?.user) {
+            await get().loadUserData();
+          }
         }
       }
     );
 
     (get() as any)._subscription = subscription;
+    
+    // Cargar datos inicialmente
     get().loadUserData();
+  },
+
+  /**
+   * Resetea el flag de carga si se queda atorado
+   */
+  resetLoadingFlag: () => {
+    const state = get();
+    if (state._isLoadingData) {
+      set({ _isLoadingData: false, isLoading: false });
+    }
   },
 
   /**
