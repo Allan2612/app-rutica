@@ -2,12 +2,17 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
+import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { useAuthStore } from '@/store';
 import { useThemedColors } from '@/hooks';
+import { MapBackground } from '@/components/ui/MapBackground';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
   const themedColors = useThemedColors();
+  const [fontsLoaded] = useFonts({
+    Caveat_700Bold,
+  });
 
   useEffect(() => {
     // Si ya está autenticado, redirigir a home
@@ -39,6 +44,9 @@ export default function Index() {
 
   return (
     <View style={[styles.container, { backgroundColor: themedColors.background.primary }]}>
+      {/* Fondo animado estilo mapa */}
+      <MapBackground />
+      
       <View style={styles.content}>
         {/* Logo */}
         <Image 
@@ -48,7 +56,11 @@ export default function Index() {
           transition={200}
           cachePolicy="memory-disk"
         />
-        <Text style={[styles.title, { color: themedColors.text.primary }]}>Bienvenido a Rutica</Text>
+        <Text style={[
+              styles.title,
+              { color: themedColors.primary[500] },
+              fontsLoaded && { fontFamily: 'Caveat_700Bold' },
+            ]}>Bienvenido a Rutica</Text>
         <Text style={[styles.subtitle, { color: themedColors.text.secondary }]}>
           Descubre comercios, atracciones y promociones cerca de ti
         </Text>
@@ -93,8 +105,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 45,
     marginBottom: 8,
     textAlign: 'center',
   },
