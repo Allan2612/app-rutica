@@ -1,5 +1,5 @@
 const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorDark = '#58a6ff';
 
 export const colors = {
   // Light mode colors
@@ -12,13 +12,13 @@ export const colors = {
     tabIconSelected: tintColorLight,
   },
 
-  // Dark mode colors
+  // Dark mode colors (GitHub/VS Code inspired)
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#e6edf3',           // Texto principal claro
+    background: '#0d1117',     // Fondo principal muy oscuro
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: '#8b949e',
+    tabIconDefault: '#8b949e',
     tabIconSelected: tintColorDark,
   },
 

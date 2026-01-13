@@ -1,11 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, typography } from '@/styles/theme';
+import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'transparent',
     borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
   },
   scrollContent: {
     paddingHorizontal: spacing.md,
@@ -21,12 +19,7 @@ export const styles = StyleSheet.create({
   tabText: {
     fontSize: typography.sizes.base,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text.secondary,
     letterSpacing: 0.2,
-  },
-  tabTextActive: {
-    color: colors.text.primary,
-    fontWeight: typography.fontWeights.bold,
   },
   indicator: {
     position: 'absolute',
@@ -34,6 +27,5 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: colors.text.primary,
   },
 });

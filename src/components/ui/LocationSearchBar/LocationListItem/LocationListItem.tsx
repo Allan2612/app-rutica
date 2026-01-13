@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { View, Pressable, Text } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 export interface LocationListItemProps {
@@ -18,20 +19,26 @@ export const LocationListItem = memo(function LocationListItem({
   level,
   onPress,
 }: LocationListItemProps) {
+  const colors = useThemedColors();
   const showChevron = level !== 'district';
   
   const itemStyle = [
     styles.listItem,
-    level === 'canton' && styles.listItemNested,
-    level === 'district' && styles.listItemNestedDeep,
-    isSelected && styles.listItemSelected,
+    { borderBottomColor: colors.border.light },
+    level === 'canton' && [styles.listItemNested, { backgroundColor: colors.background.secondary }],
+    level === 'district' && [styles.listItemNestedDeep, { backgroundColor: colors.background.tertiary }],
+    isSelected && { backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] },
   ];
 
   const textStyle = [
     styles.listItemText,
+    { color: colors.text.primary },
     level === 'canton' && styles.listItemTextNested,
-    level === 'district' && styles.listItemTextNestedDeep,
-    isSelected && styles.listItemTextSelected,
+    level === 'district' && [styles.listItemTextNestedDeep, { color: colors.text.secondary }],
+    isSelected && { 
+      color: colors.isDark ? colors.primary[400] : colors.primary[700],
+      fontWeight: '600' as const
+    },
   ];
 
   return (
@@ -39,7 +46,7 @@ export const LocationListItem = memo(function LocationListItem({
       {showChevron ? (
         <View style={styles.listItemContent}>
           <ChevronRight
-            color="#666"
+            color={colors.text.tertiary}
             size={level === 'province' ? 16 : 14}
             style={{
               transform: [{ rotate: isExpanded ? '90deg' : '0deg' }],

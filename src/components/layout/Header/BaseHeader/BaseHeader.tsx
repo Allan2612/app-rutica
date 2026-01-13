@@ -5,10 +5,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, LogIn } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useAuthStore } from '@/store';
+import { useThemedColors } from '@/hooks';
 import { UserMenu } from '@/components/layout/Header/UserMenu';
+import { ThemeToggle } from '@/components/layout/Header/ThemeToggle';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { styles } from './styles';
-import { colors } from '@/styles/theme/colors';
 
 interface BaseHeaderProps {
   showBorder?: boolean;
@@ -16,6 +17,7 @@ interface BaseHeaderProps {
 
 export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHeaderProps) {
   const { user, isLoading, isAuthenticated } = useAuthStore();
+  const colors = useThemedColors();
   const [menuVisible, setMenuVisible] = useState(false);
   const [fontsLoaded] = useFonts({
     Caveat_700Bold,
@@ -38,7 +40,13 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
   }
 
   return (
-    <SafeAreaView style={[styles.container, !showBorder && styles.containerNoBorder]} edges={['top']}>
+    <SafeAreaView 
+      style={[
+        { backgroundColor: colors.background.primary, borderBottomWidth: 1, borderBottomColor: colors.border.light },
+        !showBorder && { borderBottomWidth: 0 }
+      ]} 
+      edges={['top']}
+    >
       <View style={styles.topRow}>
         <Pressable style={styles.logoContainer} onPress={handleLogoPress}>
           <Image
@@ -48,28 +56,32 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
             transition={200}
             cachePolicy="memory-disk"
           />
-          <Text style={fontsLoaded ? [styles.logoText, { fontFamily: 'Caveat_700Bold' }] : styles.logoText}>
+          <Text style={fontsLoaded ? [styles.logoText, { fontFamily: 'Caveat_700Bold', color: colors.primary[500] }] : [styles.logoText, { color: colors.primary[500] }]}>
             Rutica
           </Text>
         </Pressable>
 
-        <Pressable
-          style={styles.userButton}
-          onPress={handleUserPress}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={colors.primary[500]} />
-          ) : isAuthenticated ? (
-            <View style={styles.userIconAuthenticated}>
-              <User color="#fff" size={20} />
-            </View>
-          ) : (
-            <View style={styles.userIconGuest}>
-              <LogIn color={colors.text.secondary} size={20} />
-            </View>
-          )}
-        </Pressable>
+        <View style={styles.rightControls}>
+          <ThemeToggle />
+          
+          <Pressable
+            style={styles.userButton}
+            onPress={handleUserPress}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color={colors.primary[500]} />
+            ) : isAuthenticated ? (
+              <View style={[styles.userIconAuthenticated, { backgroundColor: colors.primary[500] }]}>
+                <User color="#fff" size={20} />
+              </View>
+            ) : (
+              <View style={[styles.userIconGuest, { backgroundColor: colors.background.tertiary }]}>
+                <LogIn color={colors.text.secondary} size={20} />
+              </View>
+            )}
+          </Pressable>
+        </View>
       </View>
 
       <UserMenu

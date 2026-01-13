@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { X } from 'lucide-react-native';
+import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 export interface DropdownHeaderProps {
@@ -14,22 +15,27 @@ export const DropdownHeader = memo(function DropdownHeader({
   onSearchChange, 
   onClose 
 }: DropdownHeaderProps) {
+  const colors = useThemedColors();
+  
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Seleccionar ubicación</Text>
+    <View style={[styles.container, { borderBottomColor: colors.border.medium }]}>
+      <Text style={[styles.title, { color: colors.text.primary }]}>Seleccionar ubicación</Text>
       
       <TouchableOpacity 
         onPress={onClose} 
         style={styles.closeButton}
         activeOpacity={0.7}
       >
-        <X size={24} color={styles.closeIcon.color} />
+        <X size={24} color={colors.text.primary} />
       </TouchableOpacity>
 
       <TextInput
-        style={styles.searchInput}
+        style={[styles.searchInput, { 
+          backgroundColor: colors.background.tertiary,
+          color: colors.text.primary,
+        }]}
         placeholder="Buscar provincia, cantón o distrito..."
-        placeholderTextColor={styles.placeholder.color}
+        placeholderTextColor={colors.text.tertiary}
         value={searchText}
         onChangeText={onSearchChange}
         autoFocus={false}

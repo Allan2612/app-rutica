@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { TouchableOpacity, Text, TouchableOpacityProps } from 'react-native';
+import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 export interface AuthButtonProps extends TouchableOpacityProps {
@@ -16,11 +17,16 @@ export const AuthButton = memo(function AuthButton({
   style,
   ...props
 }: AuthButtonProps) {
+  const colors = useThemedColors();
+  
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        variant === 'primary' ? styles.primary : styles.secondary,
+        variant === 'primary' ? { backgroundColor: colors.primary[500] } : [
+          styles.secondary,
+          { borderColor: colors.border.medium, backgroundColor: colors.background.secondary }
+        ],
         (loading || disabled) && styles.disabled,
         style,
       ]}
@@ -30,7 +36,7 @@ export const AuthButton = memo(function AuthButton({
       <Text
         style={[
           styles.text,
-          variant === 'primary' ? styles.primaryText : styles.secondaryText,
+          { color: variant === 'primary' ? colors.text.inverse : colors.text.secondary },
         ]}
       >
         {title}

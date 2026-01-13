@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     position: 'relative',
     zIndex: 1000,
+    width: '100%',
   },
 
   // Dropdown
@@ -16,13 +17,11 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     marginTop: spacing.xs,
-    backgroundColor: colors.background.primary,
     borderRadius: spacing.md,
     maxHeight: 500,
     borderWidth: 1,
-    borderColor: colors.border.medium,
     ...getShadowStyle({
-      color: colors.dark.background,
+      color: '#000',
       offsetY: 4,
       opacity: 0.15,
       radius: 24,
@@ -39,7 +38,6 @@ export const styles = StyleSheet.create({
 
   messageText: {
     fontSize: typography.sizes.sm,
-    color: colors.text.secondary,
     textAlign: 'center',
     marginTop: spacing.xs,
   },

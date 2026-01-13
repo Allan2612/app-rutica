@@ -3,6 +3,7 @@ import { Alert, Text, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { signIn } from '@/features/auth/services/auth.service';
+import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
@@ -10,6 +11,7 @@ export const LoginScreen = memo(function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const colors = useThemedColors();
 
   const handleLogin = useCallback(async () => {
     if (!email || !password) {
@@ -45,9 +47,9 @@ export const LoginScreen = memo(function LoginScreen() {
     <AuthCard
       title="Iniciar Sesión"
       footer={
-        <Text style={sharedStyles.footerText}>
+        <Text style={[sharedStyles.footerText, { color: colors.text.tertiary }]}>
           Al iniciar sesión, aceptas nuestros{' '}
-          <Text style={sharedStyles.footerLink}>Términos y Condiciones</Text>
+          <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>Términos y Condiciones</Text>
         </Text>
       }
     >
@@ -70,7 +72,7 @@ export const LoginScreen = memo(function LoginScreen() {
         editable={!loading}
         headerRight={
           <Link href="/(auth)/recover">
-            <Text style={sharedStyles.linkSmall}>¿Olvidaste la contraseña?</Text>
+            <Text style={[sharedStyles.linkSmall, { color: colors.primary[500] }]}>¿Olvidaste la contraseña?</Text>
           </Link>
         }
       />
@@ -82,13 +84,13 @@ export const LoginScreen = memo(function LoginScreen() {
         style={sharedStyles.buttonSpacing}
       />
 
-      <View style={sharedStyles.separator} />
+      <View style={[sharedStyles.separator, { backgroundColor: colors.border.medium }]} />
 
       <View style={styles.accountOptions}>
-        <Text style={sharedStyles.linkText}>
+        <Text style={[sharedStyles.linkText, { color: colors.text.secondary }]}>
           ¿No tienes cuenta?{' '}
           <Link href="/(auth)/register">
-            <Text style={sharedStyles.link}>Regístrate aquí</Text>
+            <Text style={[sharedStyles.link, { color: colors.primary[500] }]}>Regístrate aquí</Text>
           </Link>
         </Text>
 

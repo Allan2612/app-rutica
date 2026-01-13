@@ -2,8 +2,8 @@ import { memo } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { MapPin, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
-import { colors } from '@/styles/theme/colors';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
 
 export interface BusinessCardProps {
@@ -31,26 +31,27 @@ export const BusinessCard = memo(function BusinessCard({
   reviewCount = 20,
   onPress,
 }: BusinessCardProps) {
+  const colors = useThemedColors();
   const categoryColor = getCategoryColorScheme(categoryId);
   
   return (
-    <Pressable style={styles.card} onPress={onPress} disabled={!onPress}>
+    <Pressable style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]} onPress={onPress} disabled={!onPress}>
       {imageUrl ? (
         <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
       ) : (
-        <View style={[styles.heroFull, styles.heroPlaceholder]} />
+        <View style={[styles.heroFull, styles.heroPlaceholder, { backgroundColor: colors.background.tertiary }]} />
       )}
 
       {logoUrl ? (
-        <View style={styles.logoBadge}>
+        <View style={[styles.logoBadge, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}>
           <Image source={{ uri: logoUrl }} style={styles.logoImage} resizeMode="cover" />
         </View>
       ) : null}
 
-      <View style={styles.ratingBadge}>
+      <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
         <Star size={16} color="#fbbf24" fill="#fbbf24" />
-        <Text style={styles.ratingValue}>{rating.toFixed(1)}</Text>
-        <Text style={styles.ratingCount}>({reviewCount})</Text>
+        <Text style={[styles.ratingValue, { color: colors.text.primary }]}>{rating.toFixed(1)}</Text>
+        <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>({reviewCount})</Text>
       </View>
 
       <LinearGradient

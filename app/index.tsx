@@ -3,10 +3,11 @@ import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { useAuthStore } from '@/store';
-import { colors } from '@/styles/theme';
+import { useThemedColors } from '@/hooks';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
+  const themedColors = useThemedColors();
 
   useEffect(() => {
     // Si ya está autenticado, redirigir a home
@@ -18,8 +19,8 @@ export default function Index() {
   // Mostrar loading mientras se verifica la autenticación
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={colors.primary[500]} />
+      <View style={[styles.container, { backgroundColor: themedColors.background.primary }]}>
+        <ActivityIndicator size="large" color={themedColors.primary[500]} />
       </View>
     );
   }
@@ -37,7 +38,7 @@ export default function Index() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: themedColors.background.primary }]}>
       <View style={styles.content}>
         {/* Logo */}
         <Image 
@@ -47,25 +48,25 @@ export default function Index() {
           transition={200}
           cachePolicy="memory-disk"
         />
-        <Text style={styles.title}>Bienvenido a Rutica</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: themedColors.text.primary }]}>Bienvenido a Rutica</Text>
+        <Text style={[styles.subtitle, { color: themedColors.text.secondary }]}>
           Descubre comercios, atracciones y promociones cerca de ti
         </Text>
 
         {/* Botones */}
         <View style={styles.buttons}>
-          <Pressable style={styles.buttonPrimary} onPress={handleExplore}>
+          <Pressable style={[styles.buttonPrimary, { backgroundColor: themedColors.primary[500] }]} onPress={handleExplore}>
             <Text style={styles.buttonPrimaryText}>Explorar sin cuenta</Text>
           </Pressable>
 
-          <Pressable style={styles.buttonSecondary} onPress={handleLogin}>
-            <Text style={styles.buttonSecondaryText}>Iniciar sesión</Text>
+          <Pressable style={[styles.buttonSecondary, { borderColor: themedColors.primary[500] }]} onPress={handleLogin}>
+            <Text style={[styles.buttonSecondaryText, { color: themedColors.primary[500] }]}>Iniciar sesión</Text>
           </Pressable>
 
           <Pressable style={styles.buttonText} onPress={handleRegister}>
-            <Text style={styles.buttonTextLabel}>
+            <Text style={[styles.buttonTextLabel, { color: themedColors.text.secondary }]}>
               ¿No tienes cuenta?{' '}
-              <Text style={styles.buttonTextLink}>Regístrate aquí</Text>
+              <Text style={[styles.buttonTextLink, { color: themedColors.primary[500] }]}>Regístrate aquí</Text>
             </Text>
           </Pressable>
         </View>
@@ -79,7 +80,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background.primary,
   },
   content: {
     width: '100%',
@@ -95,13 +95,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.text.primary,
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: colors.text.secondary,
     textAlign: 'center',
     marginBottom: 40,
     lineHeight: 24,
@@ -111,7 +109,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   buttonPrimary: {
-    backgroundColor: colors.primary[500],
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -125,14 +122,12 @@ const styles = StyleSheet.create({
   buttonSecondary: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: colors.primary[500],
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 12,
     alignItems: 'center',
   },
   buttonSecondaryText: {
-    color: colors.primary[500],
     fontSize: 16,
     fontWeight: '600',
   },
@@ -142,10 +137,8 @@ const styles = StyleSheet.create({
   },
   buttonTextLabel: {
     fontSize: 14,
-    color: colors.text.secondary,
   },
   buttonTextLink: {
-    color: colors.primary[500],
     fontWeight: '600',
     textDecorationLine: 'underline',
   },

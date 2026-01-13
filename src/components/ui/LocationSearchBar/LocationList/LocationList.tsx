@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { View, ScrollView, Text } from 'react-native';
 import { LocationListItem } from '../LocationListItem';
+import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 export interface Province {
@@ -47,10 +48,12 @@ export const LocationList = memo(function LocationList({
   getCantons,
   getDistricts,
 }: LocationListProps) {
+  const colors = useThemedColors();
+  
   if (provinces.length === 0) {
     return (
       <View style={styles.emptyState}>
-        <Text style={styles.emptyStateText}>No se encontraron resultados</Text>
+        <Text style={[styles.emptyStateText, { color: colors.text.tertiary }]}>No se encontraron resultados</Text>
       </View>
     );
   }

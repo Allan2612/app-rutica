@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { View } from 'react-native';
-import { useLocation, LocationSelection } from '@/hooks';
+import { useLocation, LocationSelection, useThemedColors } from '@/hooks';
 import { LocationSearchBar } from '@/components/ui';
 import { BaseHeader } from './BaseHeader';
 import { styles } from './styles';
@@ -14,6 +14,7 @@ import { styles } from './styles';
  */
 export const HeaderWithSearch = memo(function HeaderWithSearch() {
   const { updateLocation } = useLocation();
+  const colors = useThemedColors();
 
   const handleLocationChange = useCallback(async (selection: LocationSelection) => {
     updateLocation({
@@ -29,7 +30,14 @@ export const HeaderWithSearch = memo(function HeaderWithSearch() {
   return (
     <>
       <BaseHeader showBorder={false} />
-      <View style={styles.searchRow}>
+      <View style={[
+        styles.searchRow,
+        { 
+          backgroundColor: colors.background.primary,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border.light,
+        }
+      ]}>
         <LocationSearchBar 
           onLocationChange={handleLocationChange}
           placeholder="Buscar por ubicación..."

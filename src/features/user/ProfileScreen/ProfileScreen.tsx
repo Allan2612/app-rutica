@@ -6,13 +6,14 @@ import { useProfile } from '@/features/user/hooks';
 import { ProfileCard, ProfileEditModal } from '@/components/user';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
+import { useThemedColors } from '@/hooks';
 import styles from './styles';
-import { colors } from '@/styles/theme/colors';
 
 export default memo(function ProfileScreen() {
   const user = useAuthStore((state) => state.user);
   const { profile, isLoading, error, updateProfile } = useProfile();
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const colors = useThemedColors();
 
   const handleOpenEdit = useCallback(() => {
     setIsEditModalVisible(true);

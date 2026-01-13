@@ -7,7 +7,7 @@ export interface BusinessCategoryItem {
 
 export async function getBusinessCategories(): Promise<BusinessCategoryItem[]> {
     const { data, error } = await supabase
-        .from('business_categories')
+        .from('business_category_map')
         .select('id_bca, name_bca')
         .order('name_bca', { ascending: true });
 

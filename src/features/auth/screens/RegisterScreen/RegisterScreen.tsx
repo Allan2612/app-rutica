@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react-native';
 import { Link, router } from 'expo-router';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { signUp } from '@/features/auth/services/auth.service';
+import { useThemedColors } from '@/hooks';
 import type { UserRole } from '@/types/enums';
 import { styles } from './styles';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
@@ -16,6 +17,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<UserRole>('buyer');
   const [loading, setLoading] = useState(false);
+  const colors = useThemedColors();
 
   const handleRegister = useCallback(async () => {
     if (!email || !password || !name || !confirmPassword) {
@@ -71,35 +73,38 @@ export const RegisterScreen = memo(function RegisterScreen() {
   }, [email, password, confirmPassword, name, phone, role]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 }}>
+    <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, backgroundColor: colors.background.primary }}>
         <Pressable
           onPress={() => router.replace('/(app)/(tabs)/manage')}
           style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center' }}
         >
-          <ArrowLeft size={22} color="#11181C" />
+          <ArrowLeft size={22} color={colors.text.primary} />
         </Pressable>
       </View>
 
       <AuthCard
         title="Crear Cuenta"
         footer={
-          <Text style={sharedStyles.footerTextSmall}>
+          <Text style={[sharedStyles.footerTextSmall, { color: colors.text.tertiary }]}>
             Al registrarte, aceptas nuestros{' '}
-            <Text style={sharedStyles.footerLink}>Términos y Condiciones</Text>
+            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>Términos y Condiciones</Text>
             {' y '}
-            <Text style={sharedStyles.footerLink}>Política de Privacidad</Text>
+            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>Política de Privacidad</Text>
           </Text>
         }
       >
         {/* Tipo de cuenta */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Tipo de cuenta</Text>
+          <Text style={[styles.label, { color: colors.text.primary }]}>Tipo de cuenta</Text>
           <View style={styles.roleButtons}>
             <TouchableOpacity
               style={[
                 styles.roleButton,
-                role === 'buyer' && styles.roleButtonActive,
+                {
+                  borderColor: role === 'buyer' ? colors.primary[500] : colors.border.medium,
+                  backgroundColor: role === 'buyer' ? (colors.isDark ? colors.primary[900] : colors.primary[50]) : colors.background.tertiary,
+                },
               ]}
               onPress={() => setRole('buyer')}
             >
@@ -107,18 +112,23 @@ export const RegisterScreen = memo(function RegisterScreen() {
               <Text
                 style={[
                   styles.roleTitle,
-                  role === 'buyer' && styles.roleTextActive,
+                  {
+                    color: role === 'buyer' ? (colors.isDark ? colors.primary[400] : colors.primary[700]) : colors.text.primary,
+                  },
                 ]}
               >
                 Comprador
               </Text>
-              <Text style={styles.roleSubtitle}>Descubre y explora</Text>
+              <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>Descubre y explora</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 styles.roleButton,
-                role === 'seller' && styles.roleButtonActive,
+                {
+                  borderColor: role === 'seller' ? colors.primary[500] : colors.border.medium,
+                  backgroundColor: role === 'seller' ? (colors.isDark ? colors.primary[900] : colors.primary[50]) : colors.background.tertiary,
+                },
               ]}
               onPress={() => setRole('seller')}
             >
@@ -126,12 +136,14 @@ export const RegisterScreen = memo(function RegisterScreen() {
               <Text
                 style={[
                   styles.roleTitle,
-                  role === 'seller' && styles.roleTextActive,
+                  {
+                    color: role === 'seller' ? (colors.isDark ? colors.primary[400] : colors.primary[700]) : colors.text.primary,
+                  },
                 ]}
               >
                 Vendedor
               </Text>
-              <Text style={styles.roleSubtitle}>Promociona tu negocio</Text>
+              <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>Promociona tu negocio</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -189,10 +201,10 @@ export const RegisterScreen = memo(function RegisterScreen() {
         />
 
         <View style={sharedStyles.section}>
-          <Text style={sharedStyles.linkText}>
+          <Text style={[sharedStyles.linkText, { color: colors.text.secondary }]}>
             ¿Ya tienes cuenta?{' '}
             <Link href="/(auth)/login">
-              <Text style={sharedStyles.link}>Inicia sesión aquí</Text>
+              <Text style={[sharedStyles.link, { color: colors.primary[500] }]}>Inicia sesión aquí</Text>
             </Link>
           </Text>
         </View>

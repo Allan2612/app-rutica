@@ -1,20 +1,23 @@
 import { Tabs } from 'expo-router';
 import { Home, Landmark, Map, Store, Wrench } from 'lucide-react-native';
 import { HeaderWithSearch } from '@/components/layout';
+import { useThemedColors } from '@/hooks';
 
 export default function TabsLayout() {
+  const colors = useThemedColors();
+  
   return (
     <Tabs
       initialRouteName="home"
       screenOptions={{
         headerShown: true,
         header: () => <HeaderWithSearch />,
-        tabBarActiveTintColor: '#10b981',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: colors.primary[500],
+        tabBarInactiveTintColor: colors.text.tertiary,
         tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopWidth: 0.5,
-          borderTopColor: '#e5e5e5',
+          backgroundColor: colors.background.primary,
+          borderTopWidth: 1,
+          borderTopColor: colors.border.light,
         },
       }}
     >

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, typography } from '@/styles/theme';
+import { spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -8,11 +8,8 @@ export const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: 'center',
     width: '100%',
-  },
-  primary: {
-    backgroundColor: colors.primary[500],
     ...getShadowStyle({
-      color: colors.primary[500],
+      color: '#10b981',
       offsetX: 0,
       offsetY: 6,
       opacity: 0.25,
@@ -22,8 +19,6 @@ export const styles = StyleSheet.create({
   },
   secondary: {
     borderWidth: 2,
-    borderColor: colors.border.medium,
-    backgroundColor: colors.background.secondary,
   },
   disabled: {
     opacity: 0.7,
@@ -32,11 +27,5 @@ export const styles = StyleSheet.create({
     fontSize: typography.sizes.sm,
     fontWeight: typography.fontWeights.bold,
     letterSpacing: 0.3,
-  },
-  primaryText: {
-    color: colors.text.inverse,
-  },
-  secondaryText: {
-    color: colors.text.secondary,
   },
 });

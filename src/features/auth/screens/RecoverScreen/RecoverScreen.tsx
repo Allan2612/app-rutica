@@ -3,12 +3,14 @@ import { Alert, Text, TouchableOpacity } from 'react-native';
 import { Link } from 'expo-router';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { supabase } from '@/lib/supabase/client';
+import { useThemedColors } from '@/hooks';
 import Toast from 'react-native-toast-message';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const RecoverScreen = memo(function RecoverScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const colors = useThemedColors();
 
   const handleRecover = useCallback(async () => {
     if (!email) {
@@ -67,7 +69,7 @@ export const RecoverScreen = memo(function RecoverScreen() {
 
       <Link href="/(auth)/login" asChild>
         <TouchableOpacity style={sharedStyles.backLink}>
-          <Text style={sharedStyles.backLinkText}>
+          <Text style={[sharedStyles.backLinkText, { color: colors.text.secondary }]}>
             ← Volver al inicio de sesión
           </Text>
         </TouchableOpacity>

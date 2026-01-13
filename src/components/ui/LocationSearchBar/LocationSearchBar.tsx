@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { SearchButton } from './SearchButton';
 import { DropdownHeader } from './DropdownHeader';
 import { LocationList } from './LocationList';
-import { useLocationDetection, useLocationFilters, type LocationSelection } from '@/hooks';
+import { useLocationDetection, useLocationFilters, useThemedColors, type LocationSelection } from '@/hooks';
 import { styles } from './styles';
 
 export interface LocationSearchBarProps {
@@ -21,6 +21,7 @@ export const LocationSearchBar = memo(function LocationSearchBar({
   const [searchText, setSearchText] = useState('');
   const [expandedProvince, setExpandedProvince] = useState<string | null>(null);
   const [expandedCanton, setExpandedCanton] = useState<string | null>(null);
+  const colors = useThemedColors();
 
   // Hook para detección GPS
   const {
@@ -112,7 +113,13 @@ export const LocationSearchBar = memo(function LocationSearchBar({
 
       {/* Dropdown de selección */}
       {isDropdownOpen && (
-        <View style={styles.dropdown}>
+        <View style={[
+          styles.dropdown,
+          {
+            backgroundColor: colors.background.primary,
+            borderColor: colors.border.medium,
+          }
+        ]}>
           <DropdownHeader
             searchText={searchText}
             onSearchChange={setSearchText}
@@ -122,18 +129,18 @@ export const LocationSearchBar = memo(function LocationSearchBar({
           {/* Estado de carga */}
           {isLoading && (
             <View style={[styles.messageContainer, { padding: 20 }]}>
-              <ActivityIndicator size="small" color="#10b981" />
-              <Text style={styles.messageText}>Cargando ubicaciones...</Text>
+              <ActivityIndicator size="small" color={colors.primary[500]} />
+              <Text style={[styles.messageText, { color: colors.text.secondary }]}>Cargando ubicaciones...</Text>
             </View>
           )}
 
           {/* Error o sin datos - Mostrar "Sin ubicación" */}
           {!isLoading && (hasError || !hasData) && (
             <View style={[styles.messageContainer, { padding: 20 }]}>
-              <Text style={[styles.messageText, { fontSize: 16, fontWeight: '600' }]}>
+              <Text style={[styles.messageText, { color: colors.text.primary, fontSize: 16, fontWeight: '600' }]}>
                 📍 Sin ubicación
               </Text>
-              <Text style={[styles.messageText, { fontSize: 12, color: '#6b7280', marginTop: 4 }]}>
+              <Text style={[styles.messageText, { color: colors.text.tertiary, fontSize: 12, marginTop: 4 }]}>
                 No se pudieron cargar las ubicaciones
               </Text>
             </View>

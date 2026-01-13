@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { View, TextInput, Pressable, ScrollView, Text } from 'react-native';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
-import { colors } from '@/styles/theme/colors';
+import { useThemedColors } from '@/hooks';
 
 export interface CategorySearchBarProps {
     placeholder: string;
@@ -23,6 +23,7 @@ export const CategorySearchBar = memo(function CategorySearchBar({
     isLoading = false,
 }: CategorySearchBarProps) {
     const [showFilters, setShowFilters] = useState(false);
+    const colors = useThemedColors();
 
     return (
         <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 }}>
@@ -43,10 +44,12 @@ export const CategorySearchBar = memo(function CategorySearchBar({
                     placeholder={placeholder}
                     value={searchText}
                     onChangeText={onSearchChange}
+                    placeholderTextColor={colors.text.tertiary}
                     style={{
                         flex: 1,
                         paddingVertical: 10,
                         fontSize: 14,
+                        color: colors.text.primary,
                     }}
                 />
                 <Pressable
@@ -85,13 +88,13 @@ export const CategorySearchBar = memo(function CategorySearchBar({
                                     borderRadius: 999,
                                     borderWidth: 1,
                                     borderColor: selected ? colors.primary[500] : colors.border.light,
-                                    backgroundColor: selected ? colors.primary[50] : colors.background.primary,
+                                    backgroundColor: selected ? (colors.isDark ? colors.primary[900] : colors.primary[50]) : colors.background.primary,
                                     marginRight: 6,
                                 }}
                             >
                                 <Text
                                     style={{
-                                        color: selected ? colors.primary[700] : colors.text.tertiary,
+                                        color: selected ? (colors.isDark ? colors.primary[200] : colors.primary[700]) : colors.text.tertiary,
                                         fontSize: 12,
                                     }}
                                 >

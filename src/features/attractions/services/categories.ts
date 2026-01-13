@@ -7,7 +7,7 @@ export interface AttractionCategoryItem {
 
 export async function getAttractionCategories(): Promise<AttractionCategoryItem[]> {
     const { data, error } = await supabase
-        .from('attraction_categories')
+        .from('attraction_category_map')
         .select('id_aca, name_aca')
         .order('name_aca', { ascending: true });
 

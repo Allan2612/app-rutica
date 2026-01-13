@@ -3,7 +3,7 @@ import { ActivityIndicator, Text, TextInput, View, useWindowDimensions } from 'r
 import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses } from '@/features/business/hooks/useBusinesses';
-import { colors } from '@/styles/theme/colors';
+import { useThemedColors } from '@/hooks';
 import { useBusinessesStyles } from './styles';
 import { BusinessesList } from '@/components/business/BusinessesList';
 
@@ -17,6 +17,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   const [searchText, setSearchText] = useState('');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const { width } = useWindowDimensions();
+  const colors = useThemedColors();
   const styles = useBusinessesStyles();
   
   // Calcular número de columnas según el ancho
@@ -41,7 +42,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       {/* Category Search - solo para Comercios */}
       {activeTab === 'commerces' && (
         <CategorySearchBar
@@ -69,11 +70,13 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
           >
             <TextInput
               placeholder="Buscar promociones..."
+              placeholderTextColor={colors.text.tertiary}
               value={searchText}
               onChangeText={setSearchText}
               style={{
                 paddingVertical: 10,
                 fontSize: 14,
+                color: colors.text.primary,
               }}
             />
           </View>
@@ -84,7 +87,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       <TabSelector tabs={BUSINESS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Contenido */}
-      <View style={styles.content}>
+      <View style={[styles.content, { backgroundColor: colors.background.secondary }]}>
         {activeTab === 'commerces' ? (
           isBusinessesLoading ? (
             <View style={styles.loader}>
@@ -99,8 +102,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
           )
         ) : (
           <View style={styles.placeholder}>
-            <Text style={styles.placeholderTitle}>Explora las promociones pronto</Text>
-            <Text style={styles.placeholderSubtitle}>
+            <Text style={[styles.placeholderTitle, { color: colors.text.primary }]}>Explora las promociones pronto</Text>
+            <Text style={[styles.placeholderSubtitle, { color: colors.text.secondary }]}>
               Estamos preparando las mejores ofertas para ti.
             </Text>
           </View>
