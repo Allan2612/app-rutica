@@ -1,1 +1,0 @@
-export { NoAuthManageScreen } from './NoAuthManageScreen';

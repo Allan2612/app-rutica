@@ -2,38 +2,35 @@ import { StyleSheet } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+  scrollContent: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
     alignItems: 'center',
-    padding: spacing.lg,
   },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
+  content: {
+    width: '100%',
+    maxWidth: 860,
+  },
+  header: {
+    paddingBottom: spacing.lg,
     marginBottom: spacing.lg,
-    elevation: 6,
+    borderBottomWidth: 1,
+    alignItems: 'center',
   },
   title: {
-    fontSize: typography.sizes['4xl'] - 4,
+    fontSize: typography.sizes['3xl'],
     fontWeight: typography.fontWeights.bold,
-    marginBottom: spacing.sm + 4,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: typography.sizes.base,
+    lineHeight: 22,
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: spacing.md,
   },
-  comingSoon: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.fontWeights.semibold,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    overflow: 'hidden',
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
 });
