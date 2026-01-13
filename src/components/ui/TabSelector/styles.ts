@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,25 +8,25 @@ export const styles = StyleSheet.create({
     borderBottomColor: colors.border.light,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    gap: 24,
+    paddingHorizontal: spacing.md,
+    gap: spacing.lg,
     justifyContent: 'center',
     alignItems: 'center',
     flexGrow: 1,
   },
   tab: {
-    paddingVertical: 12,
+    paddingVertical: spacing.sm + 4,
     position: 'relative',
   },
   tabText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.secondary,
     letterSpacing: 0.2,
   },
   tabTextActive: {
     color: colors.text.primary,
-    fontWeight: '700',
+    fontWeight: typography.fontWeights.bold,
   },
   indicator: {
     position: 'absolute',

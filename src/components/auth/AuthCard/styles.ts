@@ -1,23 +1,24 @@
 import { StyleSheet } from 'react-native';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#f8f8f8',
-    padding: 16,
+    backgroundColor: colors.background.secondary,
+    padding: spacing.md,
     justifyContent: 'center',
     alignItems: 'center',
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 32,
-    marginHorizontal: 16,
+    backgroundColor: colors.background.primary,
+    borderRadius: spacing.lg,
+    padding: spacing.xl,
+    marginHorizontal: spacing.md,
     width: '100%',
     maxWidth: 480,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.dark.background,
       offsetX: 0,
       offsetY: 8,
       opacity: 0.1,
@@ -26,23 +27,23 @@ export const styles = StyleSheet.create({
     }),
   },
   title: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#111',
-    marginBottom: 12,
+    fontSize: typography.sizes['2xl'] + 2,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.primary,
+    marginBottom: spacing.sm + 4,
     textAlign: 'center',
   },
   description: {
-    fontSize: 15,
-    color: '#666',
+    fontSize: typography.sizes.sm,
+    color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 28,
+    marginBottom: spacing.lg + 4,
   },
   footer: {
-    marginTop: 32,
-    marginBottom: 20,
-    paddingHorizontal: 16,
+    marginTop: spacing.xl,
+    marginBottom: spacing.md + 4,
+    paddingHorizontal: spacing.md,
     width: '100%',
     maxWidth: 480,
   },

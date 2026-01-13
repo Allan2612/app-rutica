@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background.secondary,
-    padding: 24,
+    padding: spacing.lg,
   },
   iconContainer: {
     width: 96,
@@ -16,30 +16,30 @@ export const styles = StyleSheet.create({
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.lg,
     boxShadow: `0px 4px 12px ${colors.primary[500]}40`,
     elevation: 6,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: typography.sizes['4xl'] - 4,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginBottom: 12,
+    marginBottom: spacing.sm + 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   comingSoon: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.primary[700],
     backgroundColor: colors.primary[100],
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: 20,
     overflow: 'hidden',
   },

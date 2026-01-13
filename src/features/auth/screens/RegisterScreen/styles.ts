@@ -1,29 +1,29 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: spacing.md + 4,
     width: '100%',
   },
   label: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     letterSpacing: 0.2,
   },
   roleButtons: {
     flexDirection: 'row',
-    gap: 12,
+    gap: spacing.sm + 4,
     justifyContent: 'space-between',
   },
   roleButton: {
     flex: 1,
     borderWidth: 2,
     borderColor: colors.border.medium,
-    borderRadius: 12,
-    padding: 18,
+    borderRadius: spacing.sm + 4,
+    padding: spacing.lg - 6,
     alignItems: 'center',
     backgroundColor: colors.background.tertiary,
   },
@@ -33,13 +33,13 @@ export const styles = StyleSheet.create({
   },
   roleIcon: {
     fontSize: 28,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   roleTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   roleTextActive: {
     color: colors.primary[700],

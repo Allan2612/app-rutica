@@ -1,10 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
-import { spacing } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background.primary,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
   },
@@ -16,7 +15,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingVertical: 12,
+    paddingVertical: spacing.sm + 4,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -28,12 +27,12 @@ export const styles = StyleSheet.create({
     height: 28,
   },
   logoText: {
-    fontSize: 30,
-    color: '#54de52',
+    fontSize: typography.sizes['3xl'],
+    color: colors.primary[500],
     letterSpacing: -0.5,
   },
   userButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
   userIconAuthenticated: {
     width: 36,

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 const sharedStyles = StyleSheet.create({
   container: {
@@ -9,9 +9,9 @@ const sharedStyles = StyleSheet.create({
     backgroundColor: colors.background.primary,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    fontSize: typography.sizes['2xl'],
+    fontWeight: typography.fontWeights.bold,
+    marginBottom: spacing.md,
   },
 });
 

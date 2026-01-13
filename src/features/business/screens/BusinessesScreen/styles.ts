@@ -1,5 +1,5 @@
 import { StyleSheet, useWindowDimensions } from 'react-native';
-import { colors } from '@/styles/theme/colors';
+import { colors, spacing, typography } from '@/styles/theme';
 
 const createStyles = (width: number) => {
   return StyleSheet.create({
@@ -20,17 +20,17 @@ const createStyles = (width: number) => {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingHorizontal: 24,
+      paddingHorizontal: spacing.lg,
     },
     placeholderTitle: {
-      fontSize: 15,
-      fontWeight: '700',
+      fontSize: typography.sizes.sm,
+      fontWeight: typography.fontWeights.bold,
       color: colors.text.primary,
       textAlign: 'center',
-      marginBottom: 6,
+      marginBottom: spacing.xs + 2,
     },
     placeholderSubtitle: {
-      fontSize: 13,
+      fontSize: typography.sizes.xs,
       color: colors.text.secondary,
       textAlign: 'center',
       lineHeight: 18,

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -9,14 +9,14 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
     paddingTop: 60,
-    paddingRight: 16,
+    paddingRight: spacing.md,
   },
   menuContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: colors.background.primary,
+    borderRadius: spacing.sm + 4,
     minWidth: 240,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.dark.background,
       offsetX: 0,
       offsetY: 2,
       opacity: 0.25,
@@ -27,8 +27,8 @@ export const styles = StyleSheet.create({
   menuHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    gap: 12,
+    padding: spacing.md,
+    gap: spacing.sm + 4,
   },
   menuUserIcon: {
     width: 48,
@@ -42,45 +42,45 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   menuUserName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
     marginBottom: 2,
   },
   menuUserEmail: {
-    fontSize: 13,
+    fontSize: typography.sizes.xs,
     color: colors.text.secondary,
   },
   menuDivider: {
     height: 1,
     backgroundColor: colors.border.light,
-    marginVertical: 4,
+    marginVertical: spacing.xs,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 12,
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm + 4,
   },
   menuItemText: {
-    fontSize: 15,
+    fontSize: typography.sizes.sm,
     color: colors.text.primary,
   },
   menuItemTextPrimary: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.primary[600],
   },
   menuItemDanger: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 12,
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm + 4,
   },
   menuItemTextDanger: {
-    fontSize: 15,
-    color: '#ef4444',
+    fontSize: typography.sizes.sm,
+    color: colors.error,
   },
 });

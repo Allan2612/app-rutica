@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -14,45 +14,45 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background.primary,
-    padding: 24,
+    padding: spacing.lg,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 16,
+    marginTop: spacing.sm + 4,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
   },
   errorText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.error,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   helpText: {
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: colors.text.secondary,
     textAlign: 'center',
   },
   retryButton: {
     backgroundColor: colors.primary[500],
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 20,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm + 4,
+    borderRadius: spacing.sm,
+    marginTop: spacing.md + 4,
   },
   buttonText: {
     color: colors.text.inverse,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
   },
   webInfoCard: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
+    bottom: spacing.md + 4,
+    left: spacing.md + 4,
+    right: spacing.md + 4,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    padding: 12,
-    borderRadius: 8,
+    padding: spacing.sm + 4,
+    borderRadius: spacing.sm,
     ...getShadowStyle({
       color: colors.dark.background,
       offsetY: 2,
@@ -63,12 +63,12 @@ export const styles = StyleSheet.create({
   },
   mobileInfoCard: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    right: 10,
+    top: spacing.sm + 2,
+    left: spacing.sm + 2,
+    right: spacing.sm + 2,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    padding: 12,
-    borderRadius: 8,
+    padding: spacing.sm + 4,
+    borderRadius: spacing.sm,
     ...getShadowStyle({
       color: colors.dark.background,
       offsetY: 2,
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
     }),
   },
   infoText: {
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: colors.text.primary,
     textAlign: 'center',
   },

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -7,41 +7,41 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.md + 4,
   },
   container: {
     backgroundColor: colors.background.primary,
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: spacing.md,
+    padding: spacing.lg,
     width: '100%',
     maxWidth: 400,
   },
   header: {
-    marginBottom: 20,
+    marginBottom: spacing.md + 4,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: colors.text.secondary,
   },
   form: {
-    gap: 16,
+    gap: spacing.md,
   },
   buttons: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 24,
+    gap: spacing.sm + 4,
+    marginTop: spacing.lg,
   },
   button: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.md + 4,
+    borderRadius: spacing.sm,
     alignItems: 'center',
   },
   buttonPrimary: {
@@ -53,13 +53,13 @@ export const styles = StyleSheet.create({
     borderColor: colors.border.light,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.inverse,
   },
   buttonTextSecondary: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
   },
 });

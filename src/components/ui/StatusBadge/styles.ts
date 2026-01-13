@@ -1,30 +1,30 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: spacing.xs,
     borderRadius: 20,
   },
   badgeText: {
-    fontWeight: '600',
+    fontWeight: typography.fontWeights.semibold,
   },
 
   // Sizes
   size_sm: {
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 2,
   },
   size_md: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: spacing.xs,
   },
   text_sm: {
-    fontSize: 11,
+    fontSize: typography.sizes.xs - 1,
   },
   text_md: {
-    fontSize: 12,
+    fontSize: typography.sizes.xs,
   },
 
   // Status colors

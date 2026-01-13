@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
+    borderRadius: spacing.sm + 4,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border.light,
@@ -14,27 +14,27 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 12,
+    padding: spacing.sm + 4,
     backgroundColor: colors.background.primary,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
   },
   headerText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
     flex: 1,
   },
   button: {
     backgroundColor: colors.primary[500],
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.xs + 2,
     borderRadius: 6,
   },
   buttonText: {
     color: colors.text.inverse,
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.fontWeights.semibold,
   },
   webview: {
     flex: 1,
@@ -49,14 +49,14 @@ export const styles = StyleSheet.create({
   loadingAddressBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    padding: spacing.sm,
     backgroundColor: colors.primary[50],
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
-    gap: 8,
+    gap: spacing.sm,
   },
   loadingAddressText: {
-    fontSize: 12,
+    fontSize: typography.sizes.xs,
     color: colors.info,
   },
   coordinatesWeb: {
@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
     bottom: 50,
     left: 10,
     backgroundColor: 'white',
-    padding: 8,
+    padding: spacing.sm,
     borderRadius: 6,
     zIndex: 1000,
     ...getShadowStyle({
@@ -76,14 +76,14 @@ export const styles = StyleSheet.create({
     }),
   },
   coordText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.fontWeights.medium,
   },
   hint: {
-    padding: 8,
+    padding: spacing.sm,
     backgroundColor: colors.primary[50],
     color: colors.info,
-    fontSize: 12,
+    fontSize: typography.sizes.xs,
     textAlign: 'center',
   },
 });

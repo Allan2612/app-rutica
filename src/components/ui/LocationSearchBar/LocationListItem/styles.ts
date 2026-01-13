@@ -1,13 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
-import { spacing } from '@/styles/theme/spacing';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: 12,
+    paddingVertical: spacing.sm + 4,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
   },
@@ -34,25 +33,25 @@ export const styles = StyleSheet.create({
   },
 
   listItemText: {
-    fontSize: 15,
+    fontSize: typography.sizes.sm,
     color: colors.text.primary,
-    fontWeight: '500',
+    fontWeight: typography.fontWeights.medium,
     flex: 1,
   },
 
   listItemTextNested: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.normal,
   },
 
   listItemTextNestedDeep: {
-    fontSize: 13,
-    fontWeight: '400',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.fontWeights.normal,
     color: colors.text.secondary,
   },
 
   listItemTextSelected: {
     color: colors.primary[700],
-    fontWeight: '600',
+    fontWeight: typography.fontWeights.semibold,
   },
 });

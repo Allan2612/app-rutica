@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
-import { spacing } from '@/styles/theme/spacing';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -23,7 +22,7 @@ export const styles = StyleSheet.create({
 
   searchButtonText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: colors.text.primary,
   },
 

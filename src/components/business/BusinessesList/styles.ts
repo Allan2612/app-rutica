@@ -1,34 +1,34 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
   },
   columnWrapper: {
     justifyContent: 'space-around',
-    gap: 12,
+    gap: spacing.sm,
   },
   cardWrapper: {
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   emptyState: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.lg,
     minHeight: 300,
   },
   emptyTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: spacing.xs + 2,
   },
   emptySubtitle: {
-    fontSize: 13,
+    fontSize: typography.sizes.xs,
     color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 18,

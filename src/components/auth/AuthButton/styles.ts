@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   button: {
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
     alignItems: 'center',
     width: '100%',
   },
@@ -29,8 +29,8 @@ export const styles = StyleSheet.create({
     opacity: 0.7,
   },
   text: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.bold,
     letterSpacing: 0.3,
   },
   primaryText: {

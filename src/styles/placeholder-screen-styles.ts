@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
+import { colors, spacing, typography } from '@/styles/theme';
 
 /**
  * Estilos compartidos para pantallas placeholder (en desarrollo)
@@ -11,16 +11,16 @@ export const placeholderScreenStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background.secondary,
-    padding: 20,
+    padding: spacing.md + 4,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: typography.sizes['3xl'] - 2,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
   },
 });

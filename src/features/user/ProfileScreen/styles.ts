@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export default StyleSheet.create({
   scrollContainer: {
@@ -7,53 +7,53 @@ export default StyleSheet.create({
     backgroundColor: colors.background.tertiary,
   },
   contentContainer: {
-    padding: 16,
+    padding: spacing.md,
     alignItems: 'center',
   },
   header: {
     width: '100%',
     maxWidth: 600,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: typography.sizes['3xl'] - 2,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
     textAlign: 'center',
   },
   cardWrapper: {
     width: '100%',
     maxWidth: 600,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.md + 4,
     backgroundColor: colors.background.tertiary,
   },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: spacing.md,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
   },
   errorTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.fontWeights.bold,
     color: colors.error,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   errorText: {
-    fontSize: 16,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
     textAlign: 'center',
   },

@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
-import { spacing } from '@/styles/theme/spacing';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,8 +9,8 @@ export const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
     marginBottom: spacing.md,
   },
@@ -31,7 +30,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background.secondary,
     borderRadius: spacing.sm,
     padding: spacing.md,
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: colors.text.primary,
     marginTop: spacing.sm,
   },

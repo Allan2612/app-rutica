@@ -1,30 +1,31 @@
 import { StyleSheet } from 'react-native';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: spacing.md + 4,
     width: '100%',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text.primary,
     letterSpacing: 0.2,
   },
   input: {
     borderWidth: 2,
-    borderColor: '#e5e5e5',
+    borderColor: colors.border.medium,
     borderRadius: 12,
-    padding: 16,
-    fontSize: 15,
-    color: '#111',
-    backgroundColor: '#fafafa',
+    padding: spacing.md,
+    fontSize: typography.sizes.sm,
+    color: colors.text.primary,
+    backgroundColor: colors.background.secondary,
     width: '100%',
   },
 });

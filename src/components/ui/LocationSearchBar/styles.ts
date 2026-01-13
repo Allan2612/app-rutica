@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme/colors';
-import { spacing } from '@/styles/theme/spacing';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -39,7 +38,7 @@ export const styles = StyleSheet.create({
   },
 
   messageText: {
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: colors.text.secondary,
     textAlign: 'center',
     marginTop: spacing.xs,

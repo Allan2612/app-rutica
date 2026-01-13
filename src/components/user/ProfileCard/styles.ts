@@ -1,74 +1,74 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.background.primary,
-    borderRadius: 16,
-    padding: 24,
-    marginVertical: 12,
+    borderRadius: spacing.md,
+    padding: spacing.lg,
+    marginVertical: spacing.sm + 4,
     boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
     elevation: 3,
   },
   header: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: colors.text.secondary,
   },
   content: {
-    gap: 16,
+    gap: spacing.md,
   },
   field: {
-    gap: 8,
+    gap: spacing.sm,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
   },
   value: {
-    fontSize: 16,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
   },
   buttonContainer: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
+    gap: spacing.sm + 4,
+    marginTop: spacing.md,
   },
   backButton: {
     flex: 1,
     backgroundColor: colors.background.primary,
     borderWidth: 1,
     borderColor: colors.primary[500],
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.lg,
+    borderRadius: spacing.sm,
     alignItems: 'center',
   },
   backButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.primary[500],
   },
   editButton: {
     flex: 1,
     backgroundColor: colors.primary[500],
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.lg,
+    borderRadius: spacing.sm,
     alignItems: 'center',
   },
   editButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.inverse,
   },
 });
