@@ -32,7 +32,7 @@ export const MapScreen = memo(function MapScreen() {
           style={[styles.retryButton, { backgroundColor: colors.primary[500] }]}
           onPress={retry}
         >
-          <Text style={[styles.buttonText, { color: colors.text.inverse }]}>🔄 Reintentar</Text>
+          <Text style={[styles.buttonText, { color: colors.text.inverse }]}>Reintentar</Text>
         </TouchableOpacity>
       </View>
     );

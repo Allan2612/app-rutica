@@ -14,7 +14,6 @@ export const NoAuthManageScreen = memo(function NoAuthManageScreen() {
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             {/* Header Section */}
             <View style={styles.headerSection}>
-                <Text style={styles.emoji}>🚀</Text>
                 <Text style={styles.mainTitle}>¡Desbloquea tu Potencial!</Text>
                 <Text style={styles.subtitle}>
                     Comienza a vender tus productos y servicios hoy mismo
@@ -26,17 +25,17 @@ export const NoAuthManageScreen = memo(function NoAuthManageScreen() {
                 <Text style={styles.benefitsTitle}>¿Por qué unirse a Rútica?</Text>
 
                 <BenefitCard
-                    icon="🏪"
+                    icon=""
                     title="Crea tu Negocio"
                     description="Establece tu tienda virtual y llega a miles de clientes potenciales"
                 />
                 <BenefitCard
-                    icon="📈"
+                    icon=""
                     title="Aumenta tus Ventas"
                     description="Promociona tus productos y servicios con herramientas profesionales"
                 />
                 <BenefitCard
-                    icon="⭐"
+                    icon=""
                     title="Gana Reputación"
                     description="Construye tu marca con reseñas y calificaciones de clientes"
                 />

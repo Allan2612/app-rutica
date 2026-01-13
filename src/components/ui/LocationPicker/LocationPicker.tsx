@@ -121,7 +121,7 @@ export const LocationPicker = memo(function LocationPicker({
           disabled={loadingLocation}
         >
           <Text style={styles.buttonText}>
-            {loadingLocation ? 'Obteniendo...' : '📍 Mi ubicación'}
+            {loadingLocation ? 'Obteniendo...' : 'Mi ubicación'}
           </Text>
         </Pressable>
       </View>
@@ -186,7 +186,7 @@ export const LocationPicker = memo(function LocationPicker({
       )}
 
       <Text style={styles.hint}>
-        💡 Arrastra el pin o haz clic en el mapa para cambiar la ubicación
+        Arrastra el pin o haz clic en el mapa para cambiar la ubicación
       </Text>
     </View>
   );

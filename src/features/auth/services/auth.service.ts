@@ -31,7 +31,40 @@ export async function signUp(input: SignUpInput) {
   });
 
   if (error) throw error;
-  if (!data.user) throw new Error('User not created');
+  if (!data.user) throw new Error('No se pudo crear el usuario');
+
+  // CRÍTICO: Verificar que el perfil se creó correctamente
+  // Esperar un momento para que el trigger se ejecute
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id_prf')
+    .eq('id_prf', data.user.id)
+    .single();
+
+  // Si el perfil NO se creó, el usuario debe cerrar sesión y reportar error
+  if (profileError || !profile) {
+    console.error('[AUTH] Error al verificar perfil:', profileError);
+    
+    // Cerrar la sesión del usuario recién creado
+    await supabase.auth.signOut();
+
+    // Lanzar error con mensaje específico
+    if (profileError?.code === '23505') {
+      // Código de PostgreSQL para violación de unique constraint
+      const detail = profileError.details || profileError.message || '';
+      if (detail.includes('phone')) {
+        throw new Error('Este número de teléfono ya está registrado');
+      } else if (detail.includes('email')) {
+        throw new Error('Este correo electrónico ya está registrado');
+      } else {
+        throw new Error('Los datos ingresados ya están registrados');
+      }
+    } else {
+      throw new Error('Error al crear el perfil. El usuario de autenticación fue creado pero hay un problema con los datos. Por favor contacta a soporte.');
+    }
+  }
 
   return data.user;
 }

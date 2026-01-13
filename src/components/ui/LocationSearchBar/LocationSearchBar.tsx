@@ -138,7 +138,7 @@ export const LocationSearchBar = memo(function LocationSearchBar({
           {!isLoading && (hasError || !hasData) && (
             <View style={[styles.messageContainer, { padding: 20 }]}>
               <Text style={[styles.messageText, { color: colors.text.primary, fontSize: 16, fontWeight: '600' }]}>
-                📍 Sin ubicación
+                Sin ubicación
               </Text>
               <Text style={[styles.messageText, { color: colors.text.tertiary, fontSize: 12, marginTop: 4 }]}>
                 No se pudieron cargar las ubicaciones

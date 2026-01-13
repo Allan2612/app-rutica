@@ -8,7 +8,7 @@ export const HomeScreen = memo(function HomeScreen() {
   
   return (
     <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
-      <Text style={[styles.title, { color: colors.text.primary }]}>🏠 Home</Text>
+      <Text style={[styles.title, { color: colors.text.primary }]}>Home</Text>
       <Text style={[styles.subtitle, { color: colors.text.secondary }]}>Pantalla principal</Text>
     </View>
   );

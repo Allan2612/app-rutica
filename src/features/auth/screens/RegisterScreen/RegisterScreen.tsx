@@ -1,8 +1,9 @@
 import { memo, useState, useCallback } from 'react';
-import { Alert, Text, View, TouchableOpacity, Pressable } from 'react-native';
+import { Text, View, TouchableOpacity, Pressable } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { signUp } from '@/features/auth/services/auth.service';
 import { useThemedColors } from '@/hooks';
@@ -24,26 +25,35 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
   const handleRegister = useCallback(async () => {
     if (!email || !password || !firstName || !lastName1 || !confirmPassword) {
-      Alert.alert(
-        'Campos incompletos',
-        'Por favor completa todos los campos obligatorios.'
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Campos incompletos',
+        text2: 'Por favor completa todos los campos obligatorios',
+        position: 'top',
+        visibilityTime: 4000,
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert(
-        'Contraseñas no coinciden',
-        'La contraseña y la confirmación deben ser iguales.'
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Contraseñas no coinciden',
+        text2: 'La contraseña y la confirmación deben ser iguales',
+        position: 'top',
+        visibilityTime: 4000,
+      });
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert(
-        'Contraseña inválida',
-        'La contraseña debe tener al menos 6 caracteres.'
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Contraseña muy corta',
+        text2: 'Debe tener al menos 6 caracteres',
+        position: 'top',
+        visibilityTime: 4000,
+      });
       return;
     }
 
@@ -60,18 +70,27 @@ export const RegisterScreen = memo(function RegisterScreen() {
         role,
       });
 
-      Alert.alert('Registro exitoso', 'Tu cuenta fue creada correctamente.', [
-        {
-          text: 'OK',
-          onPress: () => router.replace('/(auth)/login'),
-        },
-      ]);
+      Toast.show({
+        type: 'success',
+        text1: '¡Registro exitoso!',
+        text2: 'Tu cuenta fue creada. Ahora puedes iniciar sesión',
+        position: 'top',
+        visibilityTime: 4000,
+      });
+
+      // Redirigir al login después de un breve delay
+      setTimeout(() => {
+        router.replace('/(auth)/login');
+      }, 1500);
     } catch (error: any) {
       console.error('[REGISTER] Error:', error);
-      Alert.alert(
-        'Error al registrarse',
-        error?.message ?? 'Ocurrió un error inesperado'
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error al registrarse',
+        text2: error?.message || 'Ocurrió un error inesperado',
+        position: 'top',
+        visibilityTime: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -115,7 +134,6 @@ export const RegisterScreen = memo(function RegisterScreen() {
               ]}
               onPress={() => setRole('buyer')}
             >
-              <Text style={styles.roleIcon}>👤</Text>
               <Text
                 style={[
                   styles.roleTitle,
@@ -139,7 +157,6 @@ export const RegisterScreen = memo(function RegisterScreen() {
               ]}
               onPress={() => setRole('seller')}
             >
-              <Text style={styles.roleIcon}>🏪</Text>
               <Text
                 style={[
                   styles.roleTitle,
@@ -226,9 +243,9 @@ export const RegisterScreen = memo(function RegisterScreen() {
         <View style={sharedStyles.section}>
           <Text style={[sharedStyles.linkText, { color: colors.text.secondary }]}>
             ¿Ya tienes cuenta?{' '}
-            <Link href="/(auth)/login">
+            <Pressable onPress={() => router.replace('/(auth)/login')}>
               <Text style={[sharedStyles.link, { color: colors.primary[500] }]}>Inicia sesión aquí</Text>
-            </Link>
+            </Pressable>
           </Text>
         </View>
       </AuthCard>

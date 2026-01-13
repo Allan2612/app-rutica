@@ -1,7 +1,8 @@
 import { memo, useCallback, useState } from 'react';
-import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { LogOut } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
 import { useAuthStore } from '@/store';
@@ -19,7 +20,13 @@ export const LogoutScreen = memo(function LogoutScreen() {
       await signOutFromStore();
       router.replace('/');
     } catch (error: any) {
-      Alert.alert('Error', error?.message || 'No se pudo cerrar sesión');
+      Toast.show({
+        type: 'error',
+        text1: 'Error al cerrar sesión',
+        text2: error?.message || 'No se pudo cerrar sesión',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     } finally {
       setLoading(false);
     }

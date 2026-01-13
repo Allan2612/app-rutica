@@ -1,6 +1,7 @@
 import { memo, useState, useCallback } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Link, router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { signIn } from '@/features/auth/services/auth.service';
 import { useThemedColors } from '@/hooks';
@@ -15,7 +16,13 @@ export const LoginScreen = memo(function LoginScreen() {
 
   const handleLogin = useCallback(async () => {
     if (!email || !password) {
-      Alert.alert('Campos incompletos', 'Ingresa correo y contraseña.');
+      Toast.show({
+        type: 'error',
+        text1: 'Campos incompletos',
+        text2: 'Ingresa correo y contraseña',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
 
@@ -24,15 +31,31 @@ export const LoginScreen = memo(function LoginScreen() {
     try {
       await signIn({ email, password });
       
+      Toast.show({
+        type: 'success',
+        text1: '¡Bienvenido!',
+        text2: 'Sesión iniciada correctamente',
+        position: 'top',
+        visibilityTime: 2000,
+      });
+
       // El listener se encargará de cargar los datos
       setTimeout(() => {
         router.replace('/(app)/(tabs)/home');
-      }, 100);
+      }, 500);
     } catch (error: any) {
-      Alert.alert(
-        'Error al iniciar sesión',
-        error?.message ?? 'Credenciales incorrectas'
-      );
+      console.error('[LOGIN] Error:', error);
+      const errorMessage = error?.message || 'Credenciales incorrectas';
+      
+      Toast.show({
+        type: 'error',
+        text1: 'Error al iniciar sesión',
+        text2: errorMessage.includes('Invalid') 
+          ? 'Correo o contraseña incorrectos' 
+          : errorMessage,
+        position: 'top',
+        visibilityTime: 4000,
+      });
     } finally {
       setLoading(false);
     }

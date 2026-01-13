@@ -1,10 +1,10 @@
 import { memo, useState, useCallback } from 'react';
-import { Alert, Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import { Link } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { supabase } from '@/lib/supabase/client';
 import { useThemedColors } from '@/hooks';
-import Toast from 'react-native-toast-message';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const RecoverScreen = memo(function RecoverScreen() {
@@ -14,7 +14,13 @@ export const RecoverScreen = memo(function RecoverScreen() {
 
   const handleRecover = useCallback(async () => {
     if (!email) {
-      Alert.alert('Campo incompleto', 'Por favor ingresa tu email.');
+      Toast.show({
+        type: 'error',
+        text1: 'Campo incompleto',
+        text2: 'Por favor ingresa tu email',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
 
@@ -29,17 +35,20 @@ export const RecoverScreen = memo(function RecoverScreen() {
 
       Toast.show({
         type: 'success',
-        text1: '📧 Correo enviado',
+        text1: 'Correo enviado',
         text2: 'Revisa tu bandeja de entrada para restablecer tu contraseña',
         position: 'top',
         visibilityTime: 4000,
       });
       setEmail('');
     } catch (error: any) {
-      Alert.alert(
-        'Error',
-        error?.message ?? 'No se pudo enviar el correo de recuperación'
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error al enviar correo',
+        text2: error?.message || 'No se pudo enviar el correo de recuperación',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     } finally {
       setLoading(false);
     }

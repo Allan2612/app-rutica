@@ -108,13 +108,13 @@ export async function uploadImageToStorage(
       });
 
     if (error) {
-      console.error('❌ Error de Supabase:', error.message);
+      console.error('Error de Supabase:', error.message);
       throw error;
     }
 
     return filePath;
   } catch (error) {
-    console.error('❌ Error en uploadImageToStorage:', error);
+    console.error('Error en uploadImageToStorage:', error);
     throw error;
   }
 }
@@ -196,7 +196,7 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
       );
       await saveBusinessImageReference(business.id_BUS, 'business-logos', logoPath, 0);
     } catch (error) {
-      console.error('❌ Error subiendo logo:', error);
+      console.error('Error subiendo logo:', error);
       // No lanzar error si falla el logo, continuar
     }
   }
@@ -214,7 +214,7 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
         await saveBusinessImageReference(business.id_BUS, 'business-images', imagePath, i);
       }
     } catch (error) {
-      console.error('❌ Error subiendo imágenes del negocio:', error);
+      console.error('Error subiendo imágenes del negocio:', error);
       // No lanzar error si fallan las imágenes, continuar
     }
   }

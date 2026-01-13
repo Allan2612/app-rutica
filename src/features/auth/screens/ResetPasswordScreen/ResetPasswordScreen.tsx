@@ -1,9 +1,8 @@
 import { memo, useState, useCallback } from 'react';
-import { Alert } from 'react-native';
 import { router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { supabase } from '@/lib/supabase/client';
-import Toast from 'react-native-toast-message';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
@@ -13,17 +12,35 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
 
   const handleResetPassword = useCallback(async () => {
     if (!password || !confirmPassword) {
-      Alert.alert('Campos incompletos', 'Por favor completa todos los campos.');
+      Toast.show({
+        type: 'error',
+        text1: 'Campos incompletos',
+        text2: 'Por favor completa todos los campos',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden.');
+      Toast.show({
+        type: 'error',
+        text1: 'Contraseñas no coinciden',
+        text2: 'Las contraseñas deben ser iguales',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres.');
+      Toast.show({
+        type: 'error',
+        text1: 'Contraseña muy corta',
+        text2: 'Debe tener al menos 6 caracteres',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
 
@@ -38,7 +55,7 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
 
       Toast.show({
         type: 'success',
-        text1: '✓ Contraseña actualizada',
+        text1: 'Contraseña actualizada',
         text2: 'Tu contraseña ha sido restablecida correctamente',
         position: 'top',
         visibilityTime: 3000,
@@ -49,10 +66,13 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
       }, 2000);
     } catch (error: any) {
       console.error('[RESET PASSWORD] Error:', error);
-      Alert.alert(
-        'Error',
-        error?.message ?? 'No se pudo actualizar la contraseña'
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error al actualizar',
+        text2: error?.message || 'No se pudo actualizar la contraseña',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     } finally {
       setLoading(false);
     }

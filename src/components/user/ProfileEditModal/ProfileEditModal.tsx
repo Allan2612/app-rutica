@@ -1,5 +1,6 @@
 import { memo, useState, useCallback } from 'react';
-import { View, Text, Modal, Pressable, Alert } from 'react-native';
+import { View, Text, Modal, Pressable } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { AuthInput } from '@/components/auth';
 import type { Profile, ProfileUpdate } from '@/types/entities';
 import { useThemedColors } from '@/hooks';
@@ -27,7 +28,13 @@ export const ProfileEditModal = memo(function ProfileEditModal({
 
   const handleSave = useCallback(async () => {
     if (!firstName.trim() || !lastName1.trim()) {
-      Alert.alert('Error', 'El nombre y primer apellido son obligatorios');
+      Toast.show({
+        type: 'error',
+        text1: 'Campos obligatorios',
+        text2: 'El nombre y primer apellido son obligatorios',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
 
@@ -39,10 +46,22 @@ export const ProfileEditModal = memo(function ProfileEditModal({
         last_name2_PRF: lastName2.trim() || null,
         phone_number_PRF: phoneNumber.trim() || null,
       });
-      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+      Toast.show({
+        type: 'success',
+        text1: '¡Perfil actualizado!',
+        text2: 'Tus datos se guardaron correctamente',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       onClose();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'No se pudo actualizar el perfil');
+      Toast.show({
+        type: 'error',
+        text1: 'Error al actualizar',
+        text2: error.message || 'No se pudo actualizar el perfil',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     } finally {
       setLoading(false);
     }
