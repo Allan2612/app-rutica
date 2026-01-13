@@ -8,13 +8,18 @@ interface UseLocationResult {
   retry: () => void;
 }
 
+interface UseUserLocationOptions {
+  enabled?: boolean;
+}
+
 /**
  * Hook para manejar la obtención de ubicación del usuario
  * Solicita permisos y obtiene coordenadas actuales
  */
-export function useUserLocation(): UseLocationResult {
+export function useUserLocation(options: UseUserLocationOptions = {}): UseLocationResult {
+  const { enabled = true } = options;
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const requestLocation = useCallback(async () => {
@@ -48,8 +53,12 @@ export function useUserLocation(): UseLocationResult {
   }, []);
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     requestLocation();
-  }, [requestLocation]);
+  }, [enabled, requestLocation]);
 
   return {
     location,

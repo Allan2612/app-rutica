@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
-import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
   container: {
@@ -39,38 +38,9 @@ export const styles = StyleSheet.create({
     fontSize: typography.sizes.base,
     fontWeight: typography.fontWeights.semibold,
   },
-  webInfoCard: {
-    position: 'absolute',
-    bottom: spacing.md + 4,
-    left: spacing.md + 4,
-    right: spacing.md + 4,
-    padding: spacing.sm + 4,
-    borderRadius: spacing.sm,
-    ...getShadowStyle({
-      color: '#000',
-      offsetY: 2,
-      opacity: 0.25,
-      radius: 3.84,
-      elevation: 5,
-    }),
-  },
-  mobileInfoCard: {
-    position: 'absolute',
-    top: spacing.sm + 2,
-    left: spacing.sm + 2,
-    right: spacing.sm + 2,
-    padding: spacing.sm + 4,
-    borderRadius: spacing.sm,
-    ...getShadowStyle({
-      color: '#000',
-      offsetY: 2,
-      opacity: 0.25,
-      radius: 3.84,
-      elevation: 5,
-    }),
-  },
-  infoText: {
-    fontSize: typography.sizes.sm,
-    textAlign: 'center',
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

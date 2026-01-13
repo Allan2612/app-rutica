@@ -1,20 +1,22 @@
-import { generateMapHTML as generateMapHTMLBase } from '@/components/ui/LocationPicker/mapTemplate';
+import { generateMapHTML as generateMapHTMLBase, type MapOptions } from '@/components/ui/LocationPicker/mapTemplate';
+
+interface MapViewOptions {
+  theme?: MapOptions['theme'];
+  zoom?: number;
+}
 
 /**
  * Genera el HTML para el mapa de visualización (sin drag)
  */
-export function generateMapHTML(latitude: number, longitude: number): string {
+export function generateMapHTML(
+  latitude: number,
+  longitude: number,
+  options: MapViewOptions = {}
+): string {
   return generateMapHTMLBase(latitude, longitude, {
     draggable: false,
     showCoordinates: false,
-    zoom: 16,
+    zoom: options.zoom ?? 16,
+    theme: options.theme,
   });
-}
-
-/**
- * Genera URL para Google Maps Embed
- */
-export function generateGoogleMapsURL(latitude: number, longitude: number): string {
-  const apiKey = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8';
-  return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=16`;
 }

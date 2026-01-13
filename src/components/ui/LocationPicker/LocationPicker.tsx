@@ -80,7 +80,13 @@ export const LocationPicker = memo(function LocationPicker({
     }
   }, []);
 
-  const mapHTML = useMemo(() => generateMapHTML(latitude, longitude), [latitude, longitude]);
+  const mapHTML = useMemo(
+    () =>
+      generateMapHTML(latitude, longitude, {
+        theme: colors.isDark ? 'dark' : 'light',
+      }),
+    [latitude, longitude, colors.isDark]
+  );
 
   const handleMessage = useCallback(
     (event: any) => {
