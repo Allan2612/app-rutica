@@ -2,6 +2,7 @@ import { memo, useState, useCallback } from 'react';
 import { Alert, Text, View, TouchableOpacity, Pressable } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import { Link, router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { signUp } from '@/features/auth/services/auth.service';
 import { useThemedColors } from '@/hooks';
@@ -74,14 +75,16 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, backgroundColor: colors.background.primary }}>
-        <Pressable
-          onPress={() => router.replace('/(app)/(tabs)/manage')}
-          style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <ArrowLeft size={22} color={colors.text.primary} />
-        </Pressable>
-      </View>
+      <SafeAreaView edges={['top']} style={{ backgroundColor: colors.background.primary }}>
+        <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+          <Pressable
+            onPress={() => router.replace('/(app)/(tabs)/manage')}
+            style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center' }}
+          >
+            <ArrowLeft size={22} color={colors.text.primary} />
+          </Pressable>
+        </View>
+      </SafeAreaView>
 
       <AuthCard
         title="Crear Cuenta"

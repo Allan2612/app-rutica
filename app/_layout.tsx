@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
-import { Platform } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { queryClient } from '@/lib/react-query/client';
 import { useDeepLinkHandler } from '@/hooks/useDeepLinkHandler';
 import { useAuthStore } from '@/store';
 import { useLocationDataStore } from '@/store/locationDataStore';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 export default function RootLayout() {
   useDeepLinkHandler();
 
@@ -60,13 +60,20 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(app)" />
-      </Stack>
-      <Toast />
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <StatusBar 
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
+      />
+      <QueryClientProvider client={queryClient}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(app)" />
+        </Stack>
+        <Toast />
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
