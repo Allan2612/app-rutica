@@ -53,8 +53,7 @@ export default function Index() {
           source={require('..//assets/logo.png')} 
           style={styles.logo}
           contentFit="contain"
-          transition={200}
-          cachePolicy="memory-disk"
+          transition={0}
         />
         <Text style={[
               styles.title,
@@ -98,6 +97,7 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     paddingHorizontal: 32,
     alignItems: 'center',
+    zIndex: 10,
   },
   logo: {
     width: 250,
