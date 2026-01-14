@@ -76,7 +76,16 @@ export function useBusinessForm(businessId: string) {
     };
 
     const handleSubmit = async () => {
-        if (!validate()) return;
+        if (!validate()) {
+            Toast.show({
+                type: 'error',
+                text1: 'Campos incompletos',
+                text2: 'Por favor completa todos los campos obligatorios',
+                position: 'top',
+                visibilityTime: 3000,
+            });
+            return;
+        }
 
         try {
             const data: UpdateBusinessData = {
@@ -101,10 +110,27 @@ export function useBusinessForm(businessId: string) {
             };
 
             await updateMutation.mutateAsync({ businessId, data });
-            Toast.show({ type: 'success', text1: 'Comercio actualizado con éxito', position: 'top' });
-            router.replace('/manage/businesses');
+            Toast.show({ 
+                type: 'success', 
+                text1: '¡Comercio actualizado!', 
+                text2: 'Los cambios se guardaron exitosamente',
+                position: 'top',
+                visibilityTime: 2000,
+            });
+            
+            // Redirigir después de un breve delay para que se vea el toast
+            setTimeout(() => {
+                router.replace('/(app)/(tabs)/manage/businesses');
+            }, 500);
         } catch (error) {
-            Toast.show({ type: 'error', text1: 'Error al actualizar el comercio', position: 'top' });
+            console.error('Error updating business:', error);
+            Toast.show({ 
+                type: 'error', 
+                text1: 'Error al actualizar el comercio', 
+                text2: 'Por favor intenta de nuevo o contacta soporte',
+                position: 'top',
+                visibilityTime: 4000,
+            });
         }
     };
 

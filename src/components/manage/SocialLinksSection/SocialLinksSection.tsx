@@ -34,7 +34,7 @@ export const SocialLinksSection = memo(function SocialLinksSection({
                     style={[
                         styles.input,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
                             color: colors.text.primary,
                         },
@@ -54,7 +54,7 @@ export const SocialLinksSection = memo(function SocialLinksSection({
                     style={[
                         styles.input,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
                             color: colors.text.primary,
                         },
@@ -74,7 +74,7 @@ export const SocialLinksSection = memo(function SocialLinksSection({
                     style={[
                         styles.input,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
                             color: colors.text.primary,
                         },

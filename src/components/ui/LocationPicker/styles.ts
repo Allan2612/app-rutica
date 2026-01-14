@@ -7,22 +7,21 @@ export const styles = StyleSheet.create({
     borderRadius: spacing.sm + 4,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.background.tertiary,
+    // Borde dinámico se aplicará con useThemedColors en el componente
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing.sm + 4,
-    backgroundColor: colors.background.primary,
+    // backgroundColor se aplicará dinámicamente en el componente
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
   },
   headerText: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text.primary,
+    // color se aplicará dinámicamente en el componente
     flex: 1,
   },
   button: {
@@ -41,7 +40,7 @@ export const styles = StyleSheet.create({
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    // backgroundColor se aplicará dinámicamente en el componente
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -50,14 +49,13 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.sm,
-    backgroundColor: colors.primary[50],
+    // backgroundColor y borderBottomColor se aplicarán dinámicamente en el componente
     borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
     gap: spacing.sm,
   },
   loadingAddressText: {
     fontSize: typography.sizes.xs,
-    color: colors.info,
+    // color se aplicará dinámicamente en el componente
   },
   coordinatesWeb: {
     position: 'absolute',
@@ -81,8 +79,7 @@ export const styles = StyleSheet.create({
   },
   hint: {
     padding: spacing.sm,
-    backgroundColor: colors.primary[50],
-    color: colors.info,
+    // backgroundColor y color se aplicarán dinámicamente en el componente
     fontSize: typography.sizes.xs,
     textAlign: 'center',
   },

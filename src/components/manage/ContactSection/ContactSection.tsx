@@ -34,7 +34,7 @@ export const ContactSection = memo(function ContactSection({
                     style={[
                         styles.input,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
                             color: colors.text.primary,
                         },
@@ -53,7 +53,7 @@ export const ContactSection = memo(function ContactSection({
                     style={[
                         styles.input,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
                             color: colors.text.primary,
                         },
@@ -73,7 +73,7 @@ export const ContactSection = memo(function ContactSection({
                     style={[
                         styles.input,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
                             color: colors.text.primary,
                         },

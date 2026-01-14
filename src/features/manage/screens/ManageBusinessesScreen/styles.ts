@@ -8,6 +8,9 @@ export const styles = StyleSheet.create({
     scrollContent: {
         padding: spacing.lg,
         gap: spacing.md,
+        maxWidth: 800,
+        alignSelf: 'center',
+        width: '100%',
     },
     header: {
         paddingBottom: spacing.lg,

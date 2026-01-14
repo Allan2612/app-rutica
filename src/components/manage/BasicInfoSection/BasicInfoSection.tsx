@@ -34,7 +34,7 @@ export const BasicInfoSection = memo(function BasicInfoSection({
                     style={[
                         styles.input,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: errors.name ? colors.error : colors.border.medium,
                             color: colors.text.primary,
                         },
@@ -54,7 +54,7 @@ export const BasicInfoSection = memo(function BasicInfoSection({
                         styles.input,
                         styles.textArea,
                         {
-                            backgroundColor: colors.background.primary,
+                            backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
                             color: colors.text.primary,
                         },

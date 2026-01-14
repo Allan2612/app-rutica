@@ -89,19 +89,86 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
 }
 
 export async function deleteUserBusiness(businessId: string, userId: string): Promise<void> {
-    const { data: business } = await supabase
+    // 1. Verificar permisos
+    const { data: business, error: businessError } = await supabase
         .from('businesses')
-        .select('owner_id_bus')
+        .select('owner_id_bus, location_id_bus')
         .eq('id_bus', businessId)
         .single();
 
+    if (businessError) throw businessError;
     if (!business || business.owner_id_bus !== userId) {
         throw new Error('No tienes permiso para eliminar este negocio');
     }
 
-    const { error } = await supabase.from('businesses').delete().eq('id_bus', businessId);
+    try {
+        // 2. Obtener todas las imágenes antes de eliminar
+        const { data: images } = await supabase
+            .from('business_images')
+            .select('bucket_bim, path_bim')
+            .eq('business_id_bim', businessId);
 
-    if (error) throw error;
+        // 3. Eliminar imágenes del bucket de Supabase
+        if (images && images.length > 0) {
+            const imagePaths = images.map((img) => img.path_bim);
+            const { error: storageError } = await supabase.storage
+                .from('business-images')
+                .remove(imagePaths);
+
+            if (storageError) {
+                console.error('Error deleting images from storage:', storageError);
+                // Continuar aunque falle la eliminación del storage
+            }
+        }
+
+        // 4. Eliminar registros de business_images
+        const { error: imagesError } = await supabase
+            .from('business_images')
+            .delete()
+            .eq('business_id_bim', businessId);
+
+        if (imagesError) {
+            console.error('Error deleting business_images records:', imagesError);
+        }
+
+        // 5. Eliminar categorías asociadas
+        const { error: categoriesError } = await supabase
+            .from('business_category_map')
+            .delete()
+            .eq('business_id_bcm', businessId);
+
+        if (categoriesError) {
+            console.error('Error deleting business_category_map records:', categoriesError);
+        }
+
+        // 6. Eliminar el negocio
+        const { error: deleteError } = await supabase
+            .from('businesses')
+            .delete()
+            .eq('id_bus', businessId);
+
+        if (deleteError) throw deleteError;
+
+        // 7. Eliminar la ubicación si existe (solo si no está siendo usada por otros negocios)
+        if (business.location_id_bus) {
+            const { data: otherBusinesses } = await supabase
+                .from('businesses')
+                .select('id_bus')
+                .eq('location_id_bus', business.location_id_bus)
+                .limit(1);
+
+            // Si no hay otros negocios usando esta ubicación, eliminarla
+            if (!otherBusinesses || otherBusinesses.length === 0) {
+                await supabase
+                    .from('locations')
+                    .delete()
+                    .eq('id_loc', business.location_id_bus);
+            }
+        }
+    } catch (error) {
+        console.error('Error in deleteUserBusiness:', error);
+        throw error;
+    }
 }
 
 export async function getBusinessById(

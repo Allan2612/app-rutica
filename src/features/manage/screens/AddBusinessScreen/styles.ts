@@ -9,6 +9,9 @@ export const styles = StyleSheet.create({
         padding: spacing.lg,
         gap: spacing.lg,
         paddingBottom: spacing['3xl'],
+        maxWidth: 800,
+        alignSelf: 'center',
+        width: '100%',
     },
     header: {
         paddingBottom: spacing.md,
@@ -22,6 +25,17 @@ export const styles = StyleSheet.create({
     subtitle: {
         fontSize: typography.sizes.sm,
         lineHeight: 20,
+    },
+    formCard: {
+        borderWidth: 1,
+        borderRadius: 12,
+        padding: spacing.lg,
+        gap: spacing.lg,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
     },
     section: {
         gap: spacing.md,

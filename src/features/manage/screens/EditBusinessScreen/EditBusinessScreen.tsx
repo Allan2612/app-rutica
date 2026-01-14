@@ -61,6 +61,14 @@ export const EditBusinessScreen = memo(function EditBusinessScreen() {
                     </Text>
                 </View>
 
+                <View style={[
+                    styles.formCard,
+                    {
+                        backgroundColor: colors.background.primary,
+                        borderColor: colors.border.light,
+                    }
+                ]}>
+
                 <BasicInfoSection
                     name={formData.name}
                     description={formData.description}
@@ -110,6 +118,7 @@ export const EditBusinessScreen = memo(function EditBusinessScreen() {
                     onInstagramChange={(text) => updateField('instagram', text)}
                     onTiktokChange={(text) => updateField('tiktok', text)}
                 />
+                </View>
 
                 <FormActions
                     onCancel={() => router.push('/(app)/(tabs)/manage/businesses')}

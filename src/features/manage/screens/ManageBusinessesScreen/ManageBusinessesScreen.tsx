@@ -1,10 +1,12 @@
 import { memo, useCallback, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
-import { Plus, Store, Trash2 } from 'lucide-react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { Plus, Store } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
 import { useUserBusinesses, useDeleteBusiness } from '@/features/business/hooks/useUserBusinesses';
 import { UserBusinessCard } from '@/components/business/UserBusinessCard';
+import { DeleteBusinessDialog } from '@/components/manage';
 import { styles } from './styles';
 
 export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
@@ -13,6 +15,7 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
     const { data: businesses = [] as any[], isLoading, refetch, error } = useUserBusinesses();
     const deleteMutation = useDeleteBusiness();
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [deleteDialog, setDeleteDialog] = useState<{ id: string; name: string } | null>(null);
 
     const handleAddBusiness = useCallback(() => {
         router.push('/(app)/(tabs)/manage/businesses/add');
@@ -27,31 +30,40 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
 
     const handleDeleteBusiness = useCallback(
         (businessId: string, businessName: string) => {
-            Alert.alert(
-                'Eliminar negocio',
-                `¿Estás seguro de eliminar "${businessName}"? Esta acción no se puede deshacer.`,
-                [
-                    { text: 'Cancelar', style: 'cancel' },
-                    {
-                        text: 'Eliminar',
-                        style: 'destructive',
-                        onPress: async () => {
-                            try {
-                                setDeletingId(businessId);
-                                await deleteMutation.mutateAsync(businessId);
-                                Alert.alert('Éxito', 'Negocio eliminado correctamente');
-                            } catch (error) {
-                                Alert.alert('Error', 'No se pudo eliminar el negocio');
-                                console.error(error);
-                            } finally {
-                                setDeletingId(null);
-                            }
-                        },
-                    },
-                ]
-            );
+            setDeleteDialog({ id: businessId, name: businessName });
         },
-        [deleteMutation]
+        []
+    );
+
+    const handleConfirmDelete = useCallback(
+        async () => {
+            if (!deleteDialog) return;
+
+            try {
+                setDeletingId(deleteDialog.id);
+                await deleteMutation.mutateAsync(deleteDialog.id);
+                Toast.show({
+                    type: 'success',
+                    text1: 'Negocio eliminado',
+                    text2: `"${deleteDialog.name}" ha sido eliminado correctamente`,
+                    position: 'top',
+                    visibilityTime: 3000,
+                });
+                setDeleteDialog(null);
+            } catch (error) {
+                console.error('Error deleting business:', error);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error al eliminar',
+                    text2: 'No se pudo eliminar el negocio. Intenta de nuevo.',
+                    position: 'top',
+                    visibilityTime: 4000,
+                });
+            } finally {
+                setDeletingId(null);
+            }
+        },
+        [deleteDialog, deleteMutation]
     );
 
     if (isLoading) {
@@ -133,6 +145,14 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
                     </View>
                 )}
             </ScrollView>
+
+            <DeleteBusinessDialog
+                visible={!!deleteDialog}
+                businessName={deleteDialog?.name || ''}
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteDialog(null)}
+                isDeleting={!!deletingId}
+            />
         </View>
     );
 });

@@ -7,3 +7,4 @@ export * from './LocationSection';
 export * from './ContactSection';
 export * from './SocialLinksSection';
 export * from './FormActions';
+export * from './DeleteBusinessDialog';

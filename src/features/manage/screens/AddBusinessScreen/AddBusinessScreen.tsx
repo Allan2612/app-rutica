@@ -53,7 +53,13 @@ export const AddBusinessScreen = memo(function AddBusinessScreen() {
 
     const handleSubmit = async () => {
         if (!validate()) {
-            Alert.alert('Campos incompletos', 'Por favor completa todos los campos obligatorios');
+            Toast.show({ 
+                type: 'error', 
+                text1: 'Campos incompletos', 
+                text2: 'Por favor completa todos los campos obligatorios',
+                position: 'top',
+                visibilityTime: 3000,
+            });
             return;
         }
 
@@ -80,11 +86,27 @@ export const AddBusinessScreen = memo(function AddBusinessScreen() {
             };
 
             await createMutation.mutateAsync(data);
-            Toast.show({ type: 'success', text1: 'Comercio creado con éxito', position: 'top' });
-            router.replace('/manage/businesses');
+            Toast.show({ 
+                type: 'success', 
+                text1: '¡Comercio creado!', 
+                text2: 'Tu negocio ha sido creado exitosamente',
+                position: 'top',
+                visibilityTime: 2000,
+            });
+            
+            // Redirigir después de un breve delay para que se vea el toast
+            setTimeout(() => {
+                router.replace('/(app)/(tabs)/manage/businesses');
+            }, 500);
         } catch (error) {
             console.error('Error creating business:', error);
-            Toast.show({ type: 'error', text1: 'Error al crear el comercio', text2: 'Por favor intenta de nuevo', position: 'top' });
+            Toast.show({ 
+                type: 'error', 
+                text1: 'Error al crear el comercio', 
+                text2: 'Por favor intenta de nuevo o contacta soporte',
+                position: 'top',
+                visibilityTime: 4000,
+            });
         }
     };
 
@@ -111,6 +133,14 @@ export const AddBusinessScreen = memo(function AddBusinessScreen() {
                         Completa la información para agregar un nuevo negocio
                     </Text>
                 </View>
+
+                <View style={[
+                    styles.formCard,
+                    {
+                        backgroundColor: colors.background.primary,
+                        borderColor: colors.border.light,
+                    }
+                ]}>
 
                 <BasicInfoSection
                     name={name}
@@ -165,6 +195,7 @@ export const AddBusinessScreen = memo(function AddBusinessScreen() {
                     onInstagramChange={setInstagram}
                     onTiktokChange={setTiktok}
                 />
+                </View>
 
                 <FormActions
                     onCancel={() => router.back()}

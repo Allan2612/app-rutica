@@ -68,7 +68,8 @@ export const LocationPicker = memo(function LocationPicker({
       const locationData = await reverseGeocode(newLat, newLng);
       onLocationSelect({
         ...locationData,
-        coordinates: { latitude: newLat, longitude: newLng },
+        latitude: newLat,
+        longitude: newLng,
       });
     } catch (error) {
       console.error('[LOCATION PICKER] Error getting location:', error);
@@ -103,7 +104,8 @@ export const LocationPicker = memo(function LocationPicker({
           reverseGeocode(data.latitude, data.longitude).then((locationData) => {
             onLocationSelect({
               ...locationData,
-              coordinates: { latitude: data.latitude, longitude: data.longitude },
+              latitude: data.latitude,
+              longitude: data.longitude,
             });
           });
         }
@@ -116,9 +118,16 @@ export const LocationPicker = memo(function LocationPicker({
 
   // Usar Leaflet interactivo en todas las plataformas (web y mobile)
   return (
-    <View style={[styles.container, { height }]}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>
+    <View style={[
+      styles.container, 
+      { 
+        height,
+        borderColor: colors.border.light,
+        backgroundColor: colors.background.tertiary,
+      }
+    ]}>
+      <View style={[styles.header, { backgroundColor: colors.background.primary }]}>
+        <Text style={[styles.headerText, { color: colors.text.primary }]}>
           Mueve el pin a la ubicación del negocio
         </Text>
         <Pressable
@@ -133,14 +142,23 @@ export const LocationPicker = memo(function LocationPicker({
       </View>
 
       {loadingAddress && (
-        <View style={styles.loadingAddressBar}>
+        <View style={[
+          styles.loadingAddressBar,
+          { 
+            backgroundColor: colors.primary[50],
+            borderBottomColor: colors.border.light,
+          }
+        ]}>
           <ActivityIndicator size="small" color={colors.primary[500]} />
-          <Text style={styles.loadingAddressText}>Obteniendo dirección...</Text>
+          <Text style={[styles.loadingAddressText, { color: colors.info }]}>Obteniendo dirección...</Text>
         </View>
       )}
 
       {loading && (
-        <View style={styles.loadingOverlay}>
+        <View style={[
+          styles.loadingOverlay,
+          { backgroundColor: colors.isDark ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.9)' }
+        ]}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
         </View>
       )}
@@ -191,7 +209,13 @@ export const LocationPicker = memo(function LocationPicker({
         />
       )}
 
-      <Text style={styles.hint}>
+      <Text style={[
+        styles.hint, 
+        { 
+          backgroundColor: colors.isDark ? colors.background.tertiary : colors.primary[50],
+          color: colors.text.secondary,
+        }
+      ]}>
         Arrastra el pin o haz clic en el mapa para cambiar la ubicación
       </Text>
     </View>
