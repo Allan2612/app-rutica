@@ -42,7 +42,7 @@ export const LocationPicker = memo(function LocationPicker({
   const [loading, setLoading] = useState(true);
   const [loadingLocation, setLoadingLocation] = useState(false);
   const colors = useThemedColors();
-  
+
   const { reverseGeocode, isLoading: loadingAddress } = useReverseGeocode();
 
   const getCurrentLocation = useCallback(async () => {
@@ -66,7 +66,10 @@ export const LocationPicker = memo(function LocationPicker({
 
       // Obtener dirección y notificar al padre
       const locationData = await reverseGeocode(newLat, newLng);
-      onLocationSelect(locationData);
+      onLocationSelect({
+        ...locationData,
+        coordinates: { latitude: newLat, longitude: newLng },
+      });
     } catch (error) {
       console.error('[LOCATION PICKER] Error getting location:', error);
     } finally {
@@ -98,7 +101,10 @@ export const LocationPicker = memo(function LocationPicker({
 
           // Obtener dirección automáticamente
           reverseGeocode(data.latitude, data.longitude).then((locationData) => {
-            onLocationSelect(locationData);
+            onLocationSelect({
+              ...locationData,
+              coordinates: { latitude: data.latitude, longitude: data.longitude },
+            });
           });
         }
       } catch (error) {
