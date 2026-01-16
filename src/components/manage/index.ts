@@ -8,3 +8,7 @@ export * from './ContactSection';
 export * from './SocialLinksSection';
 export * from './FormActions';
 export * from './DeleteBusinessDialog';
+export * from './UserProductCard';
+export * from './ProductsHeader';
+export * from './ProductsEmptyState';
+export * from './ProductsList';

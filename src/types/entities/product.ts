@@ -43,8 +43,32 @@ export interface ProductInsert extends Omit<Product, 'id_PRD' | 'created_at_PRD'
   is_active_PRD?: boolean;
 }
 
-export interface ProductUpdate extends Partial<Omit<Product, 'id_PRD' | 'business_id_PRD' | 'created_at_PRD'>> {}
+export interface ProductUpdate extends Partial<Omit<Product, 'id_PRD' | 'business_id_PRD' | 'created_at_PRD'>> { }
 
 export interface ProductImageInsert extends Omit<ProductImage, 'id_PIM' | 'created_at_PIM'> {
   id_PIM?: string;
 }
+
+export interface ProductListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  categoryNames: string[];
+  categoryIds: string[];
+  imageUrl: string | null;
+  isActive: boolean;
+}
+
+export interface CreateProductData {
+  name: string;
+  description?: string;
+  price: number;
+  currency?: string;
+  categoryIds: string[];
+  mainImage: string | null;
+  secondaryImages: string[];
+}
+
+export interface UpdateProductData extends CreateProductData { }
