@@ -28,6 +28,13 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
         [router]
     );
 
+    const handleProducts = useCallback(
+        (businessId: string) => {
+            router.push(`/(app)/(tabs)/manage/businesses/${businessId}/products`);
+        },
+        [router]
+    );
+
     const handleDeleteBusiness = useCallback(
         (businessId: string, businessName: string) => {
             setDeleteDialog({ id: businessId, name: businessName });
@@ -137,6 +144,7 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
                                 logoUrl={business.logoUrl}
                                 moderationStatus={business.moderationStatus}
                                 isActive={business.isActive}
+                                onProducts={() => handleProducts(business.id)}
                                 onEdit={() => handleEditBusiness(business.id)}
                                 onDelete={() => handleDeleteBusiness(business.id, business.name)}
                                 isDeleting={deletingId === business.id}
