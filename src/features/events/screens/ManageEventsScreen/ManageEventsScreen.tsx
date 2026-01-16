@@ -7,6 +7,7 @@ import { useThemedColors } from '@/hooks';
 import { useUserEvents, useDeleteEvent } from '@/features/events/hooks';
 import { UserEventCard } from '@/components/events';
 import { ConfirmDeleteDialog } from '@/components/manage';
+import { BackButton } from '@/components/ui';
 import { supabase } from '@/lib/supabase/client';
 import { styles } from './styles';
 
@@ -87,25 +88,28 @@ export const ManageEventsScreen = memo(function ManageEventsScreen() {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Header */}
                 <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-                    <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
-                        Mis Eventos
-                    </Text>
-                    <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
-                        Administra tus eventos publicados. Puedes crear, editar y eliminar tus eventos.
-                    </Text>
-
-                    {/* Botón Agregar */}
-                    <Pressable
-                        style={({ pressed }) => [
-                            styles.addButton,
-                            { backgroundColor: colors.primary[500], opacity: pressed ? 0.8 : 1 },
-                        ]}
-                        onPress={handleAddEvent}
-                    >
-                        <Plus color="#fff" size={20} strokeWidth={2.5} />
-                        <Text style={[styles.addButtonText, { color: '#fff' }]}>Agregar Evento</Text>
-                    </Pressable>
+                    <BackButton href="/(app)/(tabs)/manage" />
+                    <View style={styles.headerContent}>
+                        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
+                            Mis Eventos
+                        </Text>
+                        <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
+                            Administra tus eventos publicados. Puedes crear, editar y eliminar tus eventos.
+                        </Text>
+                    </View>
                 </View>
+
+                {/* Botón Agregar */}
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.addButton,
+                        { backgroundColor: colors.primary[500], opacity: pressed ? 0.8 : 1 },
+                    ]}
+                    onPress={handleAddEvent}
+                >
+                    <Plus color="#fff" size={20} strokeWidth={2.5} />
+                    <Text style={[styles.addButtonText, { color: '#fff' }]}>Agregar Evento</Text>
+                </Pressable>
 
                 {/* Lista */}
                 {events.length === 0 ? (

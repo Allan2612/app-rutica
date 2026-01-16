@@ -15,6 +15,13 @@ export const styles = StyleSheet.create({
     header: {
         paddingBottom: spacing.lg,
         borderBottomWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
+    },
+    headerContent: {
+        flex: 1,
+        justifyContent: 'center',
     },
     headerTitle: {
         fontSize: typography.sizes['2xl'],

@@ -25,6 +25,13 @@ export const formViewStyles = StyleSheet.create({
         paddingBottom: spacing.md + spacing.xs, // 20
         borderBottomWidth: 1,
         alignSelf: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
+    },
+    headerContent: {
+        flex: 1,
+        justifyContent: 'center',
     },
     title: {
         fontSize: typography.sizes['3xl'] - 2, // 28

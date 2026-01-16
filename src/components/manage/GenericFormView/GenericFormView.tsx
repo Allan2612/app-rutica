@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import { FormActions } from '@/components/manage';
+import { BackButton } from '@/components/ui';
 import { formViewStyles as styles } from '@/styles/form-view-styles';
 
 interface GenericFormViewProps {
@@ -43,12 +44,15 @@ export const GenericFormView = memo(function GenericFormView({
                 keyboardShouldPersistTaps="handled"
             >
                 <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-                    <Text style={[styles.title, { color: colors.text.primary }]}>
-                        {title}
-                    </Text>
-                    <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-                        {subtitle}
-                    </Text>
+                    <BackButton />
+                    <View style={styles.headerContent}>
+                        <Text style={[styles.title, { color: colors.text.primary }]}>
+                            {title}
+                        </Text>
+                        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+                            {subtitle}
+                        </Text>
+                    </View>
                 </View>
 
                 <View
