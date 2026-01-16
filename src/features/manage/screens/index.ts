@@ -4,5 +4,6 @@ export * from './ManageBusinessesScreen';
 export * from './AddBusinessScreen';
 export * from './EditBusinessScreen';
 export * from './ManageProductsScreen';
+export * from './AddProductScreen';
 
 

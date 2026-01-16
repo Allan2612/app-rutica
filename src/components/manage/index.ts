@@ -12,3 +12,7 @@ export * from './UserProductCard';
 export * from './ProductsHeader';
 export * from './ProductsEmptyState';
 export * from './ProductsList';
+export * from './ProductBasicInfo';
+export * from './ProductCurrencySelector';
+export * from './ProductImagesSection';
+export * from './AddProductHeader';
