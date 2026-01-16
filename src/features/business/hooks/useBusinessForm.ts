@@ -3,7 +3,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useCategories } from '@/features/business/hooks/useCategories';
 import { useBusinessById, useUpdateBusiness } from '@/features/business/hooks/useUserBusinesses';
-import type { UpdateBusinessData } from '@/features/business/services';
+import type { UpdateBusinessData } from '@/types/entities/business';
 
 interface UseBusinessFormProps {
     businessId: string;
@@ -110,23 +110,23 @@ export function useBusinessForm(businessId: string) {
             };
 
             await updateMutation.mutateAsync({ businessId, data });
-            Toast.show({ 
-                type: 'success', 
-                text1: '¡Comercio actualizado!', 
+            Toast.show({
+                type: 'success',
+                text1: '¡Comercio actualizado!',
                 text2: 'Los cambios se guardaron exitosamente',
                 position: 'top',
                 visibilityTime: 2000,
             });
-            
+
             // Redirigir después de un breve delay para que se vea el toast
             setTimeout(() => {
                 router.replace('/(app)/(tabs)/manage/businesses');
             }, 500);
         } catch (error) {
             console.error('Error updating business:', error);
-            Toast.show({ 
-                type: 'error', 
-                text1: 'Error al actualizar el comercio', 
+            Toast.show({
+                type: 'error',
+                text1: 'Error al actualizar el comercio',
                 text2: 'Por favor intenta de nuevo o contacta soporte',
                 position: 'top',
                 visibilityTime: 4000,

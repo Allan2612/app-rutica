@@ -1,0 +1,1 @@
+export { BusinessGallery } from './BusinessGallery';

@@ -46,19 +46,23 @@ export interface BusinessListRecord {
   id_bus: string;
   name_bus: string;
   description_bus: string | null;
-  category_id_bus: string | null;
   moderation_status_bus: string;
   is_active_bus: boolean;
-  business_categories?: {
-    id_bca: string;
-    name_bca: string;
-  } | null;
+  avg_rating_bus: number | null;
+  reviews_count_bus: number | null;
+  business_category_map?: {
+    categories: {
+      id_cat: string;
+      name_cat: string;
+    } | null;
+  }[] | null;
   locations?: {
     canton_loc: string | null;
     district_loc: string | null;
     province_loc: string | null;
   } | null;
   business_images?: {
+    image_type_bim: 'logo' | 'cover' | 'gallery';
     bucket_bim: 'business-logos' | 'business-images';
     path_bim: string;
     sort_order_bim: number;
@@ -225,23 +229,32 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
 export async function getBusinessList(filters: BusinessListFilters = {}): Promise<BusinessListRecord[]> {
   const { searchText, categoryIds } = filters;
 
+  console.log('[BUSINESS_SERVICE] getBusinessList - Filtros:', { searchText, categoryIds });
+
   let query = supabase
     .from('businesses')
     .select(`
       id_bus,
       name_bus,
       description_bus,
-      category_id_bus,
       moderation_status_bus,
       is_active_bus,
-      business_categories ( id_bca, name_bca ),
+      avg_rating_bus,
+      reviews_count_bus,
+      business_category_map!inner (
+        categories!inner (
+          id_cat,
+          name_cat
+        )
+      ),
       locations ( canton_loc, district_loc, province_loc ),
-      business_images ( bucket_bim, path_bim, sort_order_bim )
-    `)
-    .neq('moderation_status_bus', 'rejected');
+      business_images ( image_type_bim, bucket_bim, path_bim, sort_order_bim )
+    `);
+  // .eq('moderation_status_bus', 'approved'); // Comentado temporalmente para testing
 
+  // Filtrar por categorías usando la tabla de relación
   if (categoryIds && categoryIds.length > 0) {
-    query = query.in('category_id_bus', categoryIds);
+    query = query.in('business_category_map.category_id_bcm', categoryIds);
   }
 
   if (searchText && searchText.trim().length > 0) {
@@ -256,6 +269,11 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
   if (error) {
     console.error('[BUSINESS] getBusinessList ERROR:', error);
     return [] as BusinessListRecord[];
+  }
+
+  console.log('[BUSINESS_SERVICE] getBusinessList - Datos recibidos:', data?.length ?? 0);
+  if (data && data.length > 0) {
+    console.log('[BUSINESS_SERVICE] Primer negocio:', JSON.stringify(data[0], null, 2));
   }
 
   return (data ?? []) as unknown as BusinessListRecord[];

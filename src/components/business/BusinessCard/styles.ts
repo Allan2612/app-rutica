@@ -64,10 +64,21 @@ export const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         borderRadius: 0,
     },
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
     title: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
         color: colors.text.inverse,
+        flexShrink: 1,
+    },
+    verificationIcon: {
+        width: 18,
+        height: 18,
+        marginTop: 2,
     },
     description: {
         fontSize: typography.sizes.xs,
@@ -78,7 +89,10 @@ export const styles = StyleSheet.create({
     metaRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        flexWrap: 'nowrap',
+        gap: spacing.xs,
         marginTop: spacing.sm + 4,
+        overflow: 'hidden',
     },
     categoryChip: {
         borderRadius: spacing.sm + 4,
@@ -113,7 +127,7 @@ export const styles = StyleSheet.create({
         marginLeft: spacing.xs + 2,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
-        color: colors.text.primary,
+        color: '#000',
     },
     ratingCount: {
         marginLeft: spacing.xs,
