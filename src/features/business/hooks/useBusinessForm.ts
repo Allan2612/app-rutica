@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useCategories } from '@/features/business/hooks/useCategories';
@@ -35,11 +35,16 @@ export function useBusinessForm(businessId: string) {
         coordinates: null as { latitude: number; longitude: number } | null,
     });
 
+    const [originalData, setOriginalData] = useState(formData);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const hasChanges = useMemo(() => {
+        return JSON.stringify(formData) !== JSON.stringify(originalData);
+    }, [formData, originalData]);
 
     useEffect(() => {
         if (business) {
-            setFormData({
+            const loadedData = {
                 name: business.name,
                 description: business.description || '',
                 selectedCategoryIds: business.categoryIds,
@@ -57,7 +62,9 @@ export function useBusinessForm(businessId: string) {
                 district: business.district || '',
                 address: business.address || '',
                 coordinates: { latitude: business.latitude, longitude: business.longitude },
-            });
+            };
+            setFormData(loadedData);
+            setOriginalData(loadedData);
         }
     }, [business]);
 
@@ -155,6 +162,7 @@ export function useBusinessForm(businessId: string) {
         handleSubmit,
         handleLocationSelect,
         isSubmitting: updateMutation.isPending,
+        hasChanges,
         router,
     };
 }

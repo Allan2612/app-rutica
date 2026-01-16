@@ -1,0 +1,178 @@
+import { useState, useCallback, useMemo } from 'react';
+import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
+import { useCategories } from './useCategories';
+import { useCreateBusiness } from './useCreateBusiness';
+import type { CreateBusinessData } from '../services';
+
+interface FormData {
+    name: string;
+    description: string;
+    selectedCategoryIds: string[];
+    province: string | null;
+    canton: string | null;
+    district: string | null;
+    address: string;
+    coordinates: { latitude: number; longitude: number } | null;
+    phone: string;
+    email: string;
+    website: string;
+    facebook: string;
+    instagram: string;
+    tiktok: string;
+    logoUri: string | null;
+    coverUri: string | null;
+    galleryUris: string[];
+}
+
+interface FormErrors {
+    name?: string;
+    categories?: string;
+    location?: string;
+}
+
+const initialFormData: FormData = {
+    name: '',
+    description: '',
+    selectedCategoryIds: [],
+    province: null,
+    canton: null,
+    district: null,
+    address: '',
+    coordinates: null,
+    phone: '',
+    email: '',
+    website: '',
+    facebook: '',
+    instagram: '',
+    tiktok: '',
+    logoUri: null,
+    coverUri: null,
+    galleryUris: [],
+};
+
+export function useCreateBusinessForm() {
+    const router = useRouter();
+    const { data: categories = [], isLoading: loadingCategories } = useCategories();
+    const createMutation = useCreateBusiness();
+
+    const [formData, setFormData] = useState<FormData>(initialFormData);
+    const [errors, setErrors] = useState<FormErrors>({});
+
+    const hasChanges = useMemo(() => {
+        return JSON.stringify(formData) !== JSON.stringify(initialFormData);
+    }, [formData]);
+
+    const updateField = useCallback(<K extends keyof FormData>(field: K, value: FormData[K]) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        if (errors[field as keyof FormErrors]) {
+            setErrors((prev) => ({ ...prev, [field]: undefined }));
+        }
+    }, [errors]);
+
+    const handleLocationSelect = useCallback((location: any) => {
+        setFormData((prev) => ({
+            ...prev,
+            province: location.province || null,
+            canton: location.canton || null,
+            district: location.district || null,
+            address: location.address || '',
+            coordinates:
+                location.latitude && location.longitude
+                    ? { latitude: location.latitude, longitude: location.longitude }
+                    : null,
+        }));
+        if (errors.location) {
+            setErrors((prev) => ({ ...prev, location: undefined }));
+        }
+    }, [errors.location]);
+
+    const validate = (): boolean => {
+        const newErrors: FormErrors = {};
+
+        if (!formData.name.trim()) {
+            newErrors.name = 'El nombre es obligatorio';
+        }
+
+        if (formData.selectedCategoryIds.length === 0) {
+            newErrors.categories = 'Selecciona al menos una categoría';
+        }
+
+        if (!formData.coordinates) {
+            newErrors.location = 'Selecciona una ubicación en el mapa';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = useCallback(async () => {
+        if (!validate()) {
+            Toast.show({
+                type: 'error',
+                text1: 'Campos incompletos',
+                text2: 'Por favor completa todos los campos obligatorios',
+                position: 'top',
+                visibilityTime: 3000,
+            });
+            return;
+        }
+
+        try {
+            const data: CreateBusinessData = {
+                name: formData.name.trim(),
+                description: formData.description.trim() || undefined,
+                categoryIds: formData.selectedCategoryIds,
+                province: formData.province ?? undefined,
+                canton: formData.canton ?? undefined,
+                district: formData.district ?? undefined,
+                address: formData.address.trim() || undefined,
+                latitude: formData.coordinates!.latitude,
+                longitude: formData.coordinates!.longitude,
+                phone: formData.phone.trim() || undefined,
+                email: formData.email.trim() || undefined,
+                website: formData.website.trim() || undefined,
+                facebook: formData.facebook.trim() || undefined,
+                instagram: formData.instagram.trim() || undefined,
+                tiktok: formData.tiktok.trim() || undefined,
+                logoUri: formData.logoUri,
+                coverUri: formData.coverUri,
+                galleryUris: formData.galleryUris,
+            };
+
+            await createMutation.mutateAsync(data);
+            Toast.show({
+                type: 'success',
+                text1: '¡Comercio creado!',
+                text2: 'Tu negocio ha sido creado exitosamente',
+                position: 'top',
+                visibilityTime: 2000,
+            });
+
+            setTimeout(() => {
+                router.replace('/(app)/(tabs)/manage/businesses');
+            }, 500);
+        } catch (error) {
+            console.error('Error creating business:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Error al crear el comercio',
+                text2: 'Por favor intenta de nuevo o contacta soporte',
+                position: 'top',
+                visibilityTime: 4000,
+            });
+        }
+    }, [formData, createMutation, router]);
+
+    return {
+        categories,
+        loadingCategories,
+        formData,
+        errors,
+        updateField,
+        handleSubmit,
+        handleLocationSelect,
+        isSubmitting: createMutation.isPending,
+        hasChanges,
+    };
+}
