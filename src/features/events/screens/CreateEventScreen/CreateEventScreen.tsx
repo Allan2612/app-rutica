@@ -28,7 +28,6 @@ export const CreateEventScreen = memo(function CreateEventScreen() {
             isSubmitting={isSubmitting}
             hasChanges={hasChanges}
             submitLabel="Crear Evento"
-            loadingLabel="Creando evento..."
             onFieldChange={updateField}
             onLocationSelect={handleLocationSelect}
             onCancel={() => router.push('/(app)/(tabs)/manage/events')}

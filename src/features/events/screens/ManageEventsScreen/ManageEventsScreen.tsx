@@ -5,7 +5,8 @@ import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
 import { useUserEvents, useDeleteEvent } from '@/features/events/hooks';
-import { DeleteEventDialog, UserEventCard } from '@/components/events';
+import { UserEventCard } from '@/components/events';
+import { ConfirmDeleteDialog } from '@/components/manage';
 import { supabase } from '@/lib/supabase/client';
 import { styles } from './styles';
 
@@ -175,9 +176,10 @@ export const ManageEventsScreen = memo(function ManageEventsScreen() {
                 )}
             </ScrollView>
 
-            <DeleteEventDialog
+            <ConfirmDeleteDialog
                 visible={!!deleteDialog}
-                eventName={deleteDialog?.name || ''}
+                entityName={deleteDialog?.name || ''}
+                entityType="evento"
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setDeleteDialog(null)}
                 isDeleting={!!deletingId}

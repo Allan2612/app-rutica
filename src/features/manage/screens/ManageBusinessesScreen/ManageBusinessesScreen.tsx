@@ -6,7 +6,7 @@ import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
 import { useUserBusinesses, useDeleteBusiness } from '@/features/business/hooks/useUserBusinesses';
 import { UserBusinessCard } from '@/components/business/UserBusinessCard';
-import { DeleteBusinessDialog } from '@/components/manage';
+import { ConfirmDeleteDialog } from '@/components/manage';
 import { styles } from './styles';
 
 export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
@@ -146,9 +146,10 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
                 )}
             </ScrollView>
 
-            <DeleteBusinessDialog
+            <ConfirmDeleteDialog
                 visible={!!deleteDialog}
-                businessName={deleteDialog?.name || ''}
+                entityName={deleteDialog?.name || ''}
+                entityType="negocio"
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setDeleteDialog(null)}
                 isDeleting={!!deletingId}

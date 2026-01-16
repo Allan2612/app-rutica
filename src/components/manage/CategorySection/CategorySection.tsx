@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import { CategorySelector } from '@/components/ui';
 import { CategoryItem } from '@/features/business/services';
-import { styles } from './styles';
+import { formSectionStyles as styles } from '@/styles/form-section-styles';
 
 interface CategorySectionProps {
     categories: CategoryItem[];

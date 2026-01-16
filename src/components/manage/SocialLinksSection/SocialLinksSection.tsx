@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { styles } from './styles';
+import { formSectionStyles as styles } from '@/styles/form-section-styles';
 
 interface SocialLinksSectionProps {
     facebook: string;

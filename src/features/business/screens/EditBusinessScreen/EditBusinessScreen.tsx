@@ -64,7 +64,6 @@ export const EditBusinessScreen = memo(function EditBusinessScreen() {
             isSubmitting={isSubmitting}
             hasChanges={hasChanges}
             submitLabel="Guardar Cambios"
-            loadingLabel="Actualizando negocio..."
             onFieldChange={updateField}
             onLocationSelect={handleLocationSelect}
             onCancel={() => router.push('/(app)/(tabs)/manage/businesses')}

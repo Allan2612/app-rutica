@@ -4,25 +4,27 @@ import { AlertTriangle, X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
-interface DeleteBusinessDialogProps {
+interface ConfirmDeleteDialogProps {
     visible: boolean;
-    businessName: string;
+    entityName: string;
+    entityType: 'negocio' | 'evento';
     onConfirm: () => void;
     onCancel: () => void;
     isDeleting?: boolean;
 }
 
-export const DeleteBusinessDialog = memo(function DeleteBusinessDialog({
+export const ConfirmDeleteDialog = memo(function ConfirmDeleteDialog({
     visible,
-    businessName,
+    entityName,
+    entityType,
     onConfirm,
     onCancel,
     isDeleting = false,
-}: DeleteBusinessDialogProps) {
+}: ConfirmDeleteDialogProps) {
     const colors = useThemedColors();
     const [confirmText, setConfirmText] = useState('');
 
-    const isValid = confirmText === businessName;
+    const isValid = confirmText === entityName;
 
     const handleConfirm = () => {
         if (isValid) {
@@ -34,6 +36,23 @@ export const DeleteBusinessDialog = memo(function DeleteBusinessDialog({
         setConfirmText('');
         onCancel();
     };
+
+    const entityTypeLabels = {
+        negocio: {
+            title: 'Eliminar negocio',
+            description: 'Se eliminará toda la información del negocio incluyendo imágenes y datos de contacto.',
+            buttonText: 'Eliminar negocio',
+            deletingText: 'Eliminando...',
+        },
+        evento: {
+            title: 'Eliminar evento',
+            description: 'Se eliminará toda la información del evento incluyendo imágenes, fechas y ubicación.',
+            buttonText: 'Eliminar evento',
+            deletingText: 'Eliminando...',
+        },
+    };
+
+    const labels = entityTypeLabels[entityType];
 
     return (
         <Modal
@@ -61,11 +80,11 @@ export const DeleteBusinessDialog = memo(function DeleteBusinessDialog({
                     {/* Content */}
                     <View style={styles.content}>
                         <Text style={[styles.title, { color: colors.text.primary }]}>
-                            Eliminar negocio
+                            {labels.title}
                         </Text>
                         <Text style={[styles.description, { color: colors.text.secondary }]}>
                             Esta acción es <Text style={[styles.bold, { color: colors.error }]}>permanente</Text> y no se puede deshacer. 
-                            Se eliminará toda la información del negocio incluyendo imágenes y datos de contacto.
+                            {labels.description}
                         </Text>
 
                         <View style={[styles.warningBox, { backgroundColor: colors.error + '10', borderColor: colors.error + '30' }]}>
@@ -75,7 +94,7 @@ export const DeleteBusinessDialog = memo(function DeleteBusinessDialog({
                         </View>
 
                         <Text style={[styles.label, { color: colors.text.primary }]}>
-                            Para confirmar, escribe el nombre del negocio: <Text style={styles.bold}>{businessName}</Text>
+                            Para confirmar, escribe el nombre del {entityType}: <Text style={styles.bold}>{entityName}</Text>
                         </Text>
 
                         <TextInput
@@ -89,7 +108,7 @@ export const DeleteBusinessDialog = memo(function DeleteBusinessDialog({
                             ]}
                             value={confirmText}
                             onChangeText={setConfirmText}
-                            placeholder={businessName}
+                            placeholder={entityName}
                             placeholderTextColor={colors.text.tertiary}
                             editable={!isDeleting}
                             autoCapitalize="none"
@@ -129,7 +148,7 @@ export const DeleteBusinessDialog = memo(function DeleteBusinessDialog({
                             disabled={!isValid || isDeleting}
                         >
                             <Text style={[styles.buttonText, { color: '#fff' }]}>
-                                {isDeleting ? 'Eliminando...' : 'Eliminar negocio'}
+                                {isDeleting ? labels.deletingText : labels.buttonText}
                             </Text>
                         </Pressable>
                     </View>
