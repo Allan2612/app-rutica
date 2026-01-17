@@ -62,7 +62,6 @@ export const LoginScreen = memo(function LoginScreen() {
   }, [email, password]);
 
   const handleContinueWithoutAccount = useCallback(() => {
-    console.log('[LOGIN] Continuar sin cuenta');
     router.replace('/(app)/(tabs)/home');
   }, []);
 

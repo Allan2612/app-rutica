@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { styles } from './styles';
+import { formSectionStyles } from '@/styles/form-section-styles';
 
 interface BasicInfoSectionProps {
     name: string;
@@ -9,6 +9,12 @@ interface BasicInfoSectionProps {
     onNameChange: (text: string) => void;
     onDescriptionChange: (text: string) => void;
     errors?: { name?: string; description?: string };
+    nameLabel?: string;
+    namePlaceholder?: string;
+    descriptionLabel?: string;
+    descriptionPlaceholder?: string;
+    sectionTitle?: string;
+    nameRequired?: boolean;
 }
 
 export const BasicInfoSection = memo(function BasicInfoSection({
@@ -17,22 +23,29 @@ export const BasicInfoSection = memo(function BasicInfoSection({
     onNameChange,
     onDescriptionChange,
     errors = {},
+    nameLabel = 'Nombre',
+    namePlaceholder = 'Ej: Café Premium',
+    descriptionLabel = 'Descripción',
+    descriptionPlaceholder = 'Describe tu negocio...',
+    sectionTitle = 'Información Básica',
+    nameRequired = true,
 }: BasicInfoSectionProps) {
     const colors = useThemedColors();
 
     return (
-        <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-                Información Básica
+        <View style={formSectionStyles.section}>
+            <Text style={[formSectionStyles.sectionTitle, { color: colors.text.primary }]}>
+                {sectionTitle}
             </Text>
 
-            <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: colors.text.primary }]}>
-                    Nombre <Text style={styles.required}>*</Text>
+            <View style={formSectionStyles.inputGroup}>
+                <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
+                    {nameLabel}
+                    {nameRequired && <Text style={formSectionStyles.required}> *</Text>}
                 </Text>
                 <TextInput
                     style={[
-                        styles.input,
+                        formSectionStyles.input,
                         {
                             backgroundColor: colors.background.secondary,
                             borderColor: errors.name ? colors.error : colors.border.medium,
@@ -41,18 +54,18 @@ export const BasicInfoSection = memo(function BasicInfoSection({
                     ]}
                     value={name}
                     onChangeText={onNameChange}
-                    placeholder="Ej: Café Premium"
+                    placeholder={namePlaceholder}
                     placeholderTextColor={colors.text.tertiary}
                 />
-                {errors.name && <Text style={styles.error}>{errors.name}</Text>}
+                {errors.name && <Text style={[formSectionStyles.error, { color: colors.error }]}>{errors.name}</Text>}
             </View>
 
-            <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: colors.text.primary }]}>Descripción</Text>
+            <View style={formSectionStyles.inputGroup}>
+                <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>{descriptionLabel}</Text>
                 <TextInput
                     style={[
-                        styles.input,
-                        styles.textArea,
+                        formSectionStyles.input,
+                        formSectionStyles.textArea,
                         {
                             backgroundColor: colors.background.secondary,
                             borderColor: colors.border.medium,
@@ -61,7 +74,7 @@ export const BasicInfoSection = memo(function BasicInfoSection({
                     ]}
                     value={description}
                     onChangeText={onDescriptionChange}
-                    placeholder="Describe tu negocio..."
+                    placeholder={descriptionPlaceholder}
                     placeholderTextColor={colors.text.tertiary}
                     multiline
                     numberOfLines={4}

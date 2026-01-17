@@ -7,4 +7,5 @@ export * from './LocationSection';
 export * from './ContactSection';
 export * from './SocialLinksSection';
 export * from './FormActions';
-export * from './DeleteBusinessDialog';
+export * from './ConfirmDeleteDialog';
+// GenericFormView importar directamente para evitar require cycle

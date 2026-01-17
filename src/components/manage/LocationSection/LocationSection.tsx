@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import { LocationPicker } from '@/components/ui';
-import { styles } from './styles';
+import { formSectionStyles as styles } from '@/styles/form-section-styles';
 
 interface LocationSectionProps {
     onLocationSelect: (location: {

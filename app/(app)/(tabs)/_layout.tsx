@@ -63,6 +63,7 @@ export default function TabsLayout() {
         options={{
           title: 'Gestionar',
           tabBarIcon: ({ color, size }) => <Wrench color={color} size={size} />,
+          href: '/manage',
         }}
       />
 

@@ -1,15 +1,23 @@
 import { memo } from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { SingleImagePicker, MultipleImagePicker } from '@/components/ui';
+import { useThemedColors } from '@/hooks';
+import { formSectionStyles } from '@/styles/form-section-styles';
 import { styles } from './styles';
 
 interface ImageSectionProps {
-    logoUri: string | null;
+    logoUri?: string | null;
     coverUri: string | null;
     galleryUris: string[];
-    onLogoChange: (uri: string | null) => void;
+    onLogoChange?: (uri: string | null) => void;
     onCoverChange: (uri: string | null) => void;
     onGalleryChange: (uris: string[]) => void;
+    showLogo?: boolean;
+    sectionTitle?: string;
+    coverLabel?: string;
+    coverHelperText?: string;
+    galleryLabel?: string;
+    galleryHelperText?: string;
 }
 
 export const ImageSection = memo(function ImageSection({
@@ -19,22 +27,38 @@ export const ImageSection = memo(function ImageSection({
     onLogoChange,
     onCoverChange,
     onGalleryChange,
+    showLogo = true,
+    sectionTitle = 'Imágenes',
+    coverLabel = 'Imagen de Portada',
+    coverHelperText = 'Imagen principal que se mostrará en la cabecera',
+    galleryLabel = 'Galería (Opcional)',
+    galleryHelperText = 'Hasta 3 imágenes adicionales del lugar o comercio',
 }: ImageSectionProps) {
+    const colors = useThemedColors();
+
     return (
         <View style={styles.section}>
-            <SingleImagePicker
-                imageUri={logoUri}
-                onImageChange={onLogoChange}
-                label="Logo"
-                helperText="Imagen cuadrada que representa tu negocio"
-                aspectRatio={[1, 1]}
-            />
+            {sectionTitle && (
+                <Text style={[formSectionStyles.sectionTitle, { color: colors.text.primary }]}>
+                    {sectionTitle}
+                </Text>
+            )}
+
+            {showLogo && logoUri !== undefined && onLogoChange && (
+                <SingleImagePicker
+                    imageUri={logoUri}
+                    onImageChange={onLogoChange}
+                    label="Logo"
+                    helperText="Imagen cuadrada que representa tu negocio"
+                    aspectRatio={[1, 1]}
+                />
+            )}
 
             <SingleImagePicker
                 imageUri={coverUri}
                 onImageChange={onCoverChange}
-                label="Imagen de Portada"
-                helperText="Imagen principal que se mostrará en la cabecera"
+                label={coverLabel}
+                helperText={coverHelperText}
                 aspectRatio={[16, 9]}
             />
 
@@ -42,8 +66,8 @@ export const ImageSection = memo(function ImageSection({
                 images={galleryUris}
                 onImagesChange={onGalleryChange}
                 maxImages={3}
-                label="Galería (Opcional)"
-                helperText="Hasta 3 imágenes adicionales del lugar o comercio"
+                label={galleryLabel}
+                helperText={galleryHelperText}
             />
         </View>
     );

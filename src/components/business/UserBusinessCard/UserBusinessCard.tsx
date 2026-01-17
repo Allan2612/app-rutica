@@ -47,8 +47,8 @@ export const UserBusinessCard = memo(function UserBusinessCard({
             <View style={styles.cardContent}>
                 {/* Imagen */}
                 <View style={[styles.imageContainer, { backgroundColor: colors.background.tertiary }]}>
-                    {imageUrl || logoUrl ? (
-                        <Image source={{ uri: imageUrl || logoUrl || '' }} style={styles.image} resizeMode="cover" />
+                    {logoUrl || imageUrl ? (
+                        <Image source={{ uri: logoUrl || imageUrl || '' }} style={styles.image} resizeMode="cover" />
                     ) : (
                         <View style={styles.imagePlaceholder}>
                             <Store color={colors.text.tertiary} size={32} strokeWidth={1.5} />

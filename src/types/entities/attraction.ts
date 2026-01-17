@@ -12,13 +12,15 @@ export interface Attraction {
   submitted_by_ATR: string;
   name_ATR: string;
   description_ATR: string | null;
-  category_id_ATR: string | null;
   location_id_ATR: string | null;
   
   moderation_status_ATR: ModerationStatus;
   reviewed_by_ATR: string | null;
   reviewed_at_ATR: string | null;
   moderation_note_ATR: string | null;
+  
+  avg_rating_ATR: number;
+  reviews_count_ATR: number;
   
   is_active_ATR: boolean;
   created_at_ATR: string;

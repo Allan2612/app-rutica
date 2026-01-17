@@ -40,9 +40,14 @@ export const RequireRole = memo(function RequireRole({
     // Esperar a que el navegador esté listo antes de intentar navegar
     if (!rootNavigationState?.key) return;
 
-    if (!isAllowed && pathname !== redirectTo) {
-      router.replace(redirectTo);
-    }
+    // Delay para asegurar que el Root Layout esté montado
+    const timer = setTimeout(() => {
+      if (!isAllowed && pathname !== redirectTo) {
+        router.replace(redirectTo);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [isAllowed, pathname, redirectTo, rootNavigationState?.key]);
 
   if (!isAllowed) {

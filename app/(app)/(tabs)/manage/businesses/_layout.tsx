@@ -24,7 +24,7 @@ export default function BusinessesLayout() {
                 name="add"
                 options={{
                     title: 'Agregar Negocio',
-                    headerShown: true,
+                    headerShown: false,
                     presentation: 'card',
                 }}
             />

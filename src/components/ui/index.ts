@@ -1,3 +1,4 @@
+export * from './BackButton';
 export * from './StatusBadge';
 export * from './ThemedView';
 export * from './ThemedText';
