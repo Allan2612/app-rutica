@@ -337,14 +337,14 @@ async function uploadImage(
     type: 'cover' | 'gallery',
     sortOrder: number
 ): Promise<void> {
-    let blob: Blob;
+    let uploadData: Blob | ArrayBuffer;
     let fileExt = 'jpg'; // Default
 
     if (Platform.OS === 'web' || uri.startsWith('blob:')) {
         const response = await fetch(uri);
-        blob = await response.blob();
+        uploadData = await response.blob();
         // Obtener extensión del tipo MIME del blob
-        const mimeType = blob.type;
+        const mimeType = (uploadData as Blob).type;
         if (mimeType === 'image/png') fileExt = 'png';
         else if (mimeType === 'image/jpeg' || mimeType === 'image/jpg') fileExt = 'jpg';
         else if (mimeType === 'image/webp') fileExt = 'webp';
@@ -368,7 +368,7 @@ async function uploadImage(
             byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
         const byteArray = new Uint8Array(byteNumbers);
-        blob = new Blob([byteArray], { type: `image/${fileExt}` });
+        uploadData = byteArray.buffer;
     }
 
     // Generar nombre único y simple
@@ -381,14 +381,12 @@ async function uploadImage(
 
     const { error: uploadError } = await supabase.storage
         .from('events-images')
-        .upload(filePath, blob, {
+        .upload(filePath, uploadData, {
             contentType,
             upsert: false,
         });
 
     if (uploadError) throw uploadError;
-
-    console.log('Inserting event_image - eventId:', eventId, 'type:', type, 'path:', filePath);
 
     const { error: insertError } = await supabase.from('event_images').insert({
         event_id_eim: eventId,

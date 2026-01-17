@@ -2,8 +2,8 @@ import { memo } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useThemedColors } from "@/hooks";
-import { useEventForm } from "@/features/events/hooks";
-import { EventFormView } from "@/components/events";
+import { useEventForm } from '@/features/events/hooks/useEventForm';
+import { EventFormView } from '@/components/events/EventFormView/EventFormView';
 import { styles } from "@/components/events/EventFormView/styles";
 
 export const EditEventScreen = memo(function EditEventScreen() {

@@ -8,4 +8,4 @@ export * from './ContactSection';
 export * from './SocialLinksSection';
 export * from './FormActions';
 export * from './ConfirmDeleteDialog';
-export * from './GenericFormView';
+// GenericFormView importar directamente para evitar require cycle

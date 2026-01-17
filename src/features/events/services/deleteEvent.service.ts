@@ -31,8 +31,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
 
         // 3. Eliminar imágenes del bucket de Supabase
         if (images && images.length > 0) {
-            console.log('Deleting images from storage:', images.map(img => img.path_eim));
-            
             const imagePaths = images.map((img: { bucket_eim: string; path_eim: string }) => img.path_eim);
             
             // Intentar eliminar archivos individuales
@@ -43,8 +41,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
             if (storageError) {
                 console.error('Error deleting images from storage:', storageError);
                 console.error('Attempted to delete paths:', imagePaths);
-            } else {
-                console.log('Successfully deleted', imagePaths.length, 'images from storage');
             }
 
             // Intentar también listar y eliminar toda la carpeta del evento (fallback)
@@ -58,7 +54,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
 
                 if (folderFiles && folderFiles.length > 0) {
                     const folderPaths = folderFiles.map(file => `${eventId}/${file.name}`);
-                    console.log('Cleaning up folder contents:', folderPaths);
                     await supabase.storage
                         .from('events-images')
                         .remove(folderPaths);
@@ -66,8 +61,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
             } catch (folderError) {
                 console.error('Error cleaning up event folder:', folderError);
             }
-        } else {
-            console.log('No images to delete from storage');
         }
 
         // 4. Eliminar registros de event_images

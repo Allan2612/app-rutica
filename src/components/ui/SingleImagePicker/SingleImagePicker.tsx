@@ -27,7 +27,7 @@ export const SingleImagePicker = memo(function SingleImagePicker({
         try {
             setIsLoading(true);
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                mediaTypes: ['images'],
                 allowsEditing: true,
                 aspect: aspectRatio,
                 quality: 0.8,

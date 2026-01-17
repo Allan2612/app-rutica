@@ -103,21 +103,46 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
 
     try {
         // 2. Obtener todas las imágenes antes de eliminar
-        const { data: images } = await supabase
+        const { data: images, error: queryError } = await supabase
             .from('business_images')
             .select('bucket_bim, path_bim')
             .eq('business_id_bim', businessId);
 
+        if (queryError) {
+            console.error('Error querying business images:', queryError);
+        }
+
         // 3. Eliminar imágenes del bucket de Supabase
         if (images && images.length > 0) {
-            const imagePaths = images.map((img) => img.path_bim);
+            const imagePaths = images.map((img: { bucket_bim: string; path_bim: string }) => img.path_bim);
+            
+            // Intentar eliminar archivos individuales
             const { error: storageError } = await supabase.storage
                 .from('business-images')
                 .remove(imagePaths);
 
             if (storageError) {
                 console.error('Error deleting images from storage:', storageError);
-                // Continuar aunque falle la eliminación del storage
+                console.error('Attempted to delete paths:', imagePaths);
+            }
+
+            // Intentar también listar y eliminar toda la carpeta del negocio (fallback)
+            try {
+                const { data: folderFiles } = await supabase.storage
+                    .from('business-images')
+                    .list(businessId, {
+                        limit: 100,
+                        sortBy: { column: 'name', order: 'asc' }
+                    });
+
+                if (folderFiles && folderFiles.length > 0) {
+                    const folderPaths = folderFiles.map(file => `${businessId}/${file.name}`);
+                    await supabase.storage
+                        .from('business-images')
+                        .remove(folderPaths);
+                }
+            } catch (folderError) {
+                console.error('Error cleaning up business folder:', folderError);
             }
         }
 
@@ -265,137 +290,4 @@ export async function getBusinessById(
         coverUrl,
         galleryUrls,
     };
-}
-
-export async function updateBusinessComplete(
-    businessId: string,
-    userId: string,
-    data: UpdateBusinessData
-): Promise<void> {
-    const { data: business } = await supabase
-        .from('businesses')
-        .select('owner_id_bus, location_id_bus')
-        .eq('id_bus', businessId)
-        .single();
-
-    if (!business || business.owner_id_bus !== userId) {
-        throw new Error('No tienes permiso para editar este negocio');
-    }
-
-    if (business.location_id_bus) {
-        await supabase
-            .from('locations')
-            .update({
-                province_loc: data.province ?? null,
-                canton_loc: data.canton ?? null,
-                district_loc: data.district ?? null,
-                address_loc: data.address ?? null,
-                latitude_loc: data.latitude,
-                longitude_loc: data.longitude,
-            })
-            .eq('id_loc', business.location_id_bus);
-    }
-
-    const socialLinks: Record<string, string> = {};
-    if (data.facebook) socialLinks.facebook = data.facebook;
-    if (data.instagram) socialLinks.instagram = data.instagram;
-    if (data.tiktok) socialLinks.tiktok = data.tiktok;
-
-    const { error: businessError } = await supabase
-        .from('businesses')
-        .update({
-            name_bus: data.name,
-            description_bus: data.description ?? null,
-            contact_phone_bus: data.phone ?? null,
-            contact_email_bus: data.email ?? null,
-            website_bus: data.website ?? null,
-            social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-        })
-        .eq('id_bus', businessId);
-
-    if (businessError) throw businessError;
-
-    await supabase.from('business_category_map').delete().eq('business_id_bcm', businessId);
-
-    if (data.categoryIds.length > 0) {
-        const categoryMaps = data.categoryIds.map((catId) => ({
-            business_id_bcm: businessId,
-            category_id_bcm: catId,
-        }));
-        await supabase.from('business_category_map').insert(categoryMaps);
-    }
-
-    const imagePromises: Promise<void>[] = [];
-
-    if (data.logoUri && isNewImage(data.logoUri)) {
-        imagePromises.push(
-            (async () => {
-                await supabase
-                    .from('business_images')
-                    .delete()
-                    .eq('business_id_bim', businessId)
-                    .eq('image_type_bim', 'logo');
-
-                const filePath = await uploadImage(businessId, data.logoUri!, 'logo.jpg');
-                await supabase.from('business_images').insert({
-                    id_bim: generateUUID(),
-                    business_id_bim: businessId,
-                    image_type_bim: 'logo',
-                    bucket_bim: 'business-images',
-                    path_bim: filePath,
-                    sort_order_bim: 0,
-                });
-            })()
-        );
-    }
-
-    if (data.coverUri && isNewImage(data.coverUri)) {
-        imagePromises.push(
-            (async () => {
-                await supabase
-                    .from('business_images')
-                    .delete()
-                    .eq('business_id_bim', businessId)
-                    .eq('image_type_bim', 'cover');
-
-                const filePath = await uploadImage(businessId, data.coverUri!, 'cover.jpg');
-                await supabase.from('business_images').insert({
-                    id_bim: generateUUID(),
-                    business_id_bim: businessId,
-                    image_type_bim: 'cover',
-                    bucket_bim: 'business-images',
-                    path_bim: filePath,
-                    sort_order_bim: 1,
-                });
-            })()
-        );
-    }
-
-    const hasNewGalleryImages = data.galleryUris.some((uri) => isNewImage(uri));
-    if (hasNewGalleryImages) {
-        imagePromises.push(
-            (async () => {
-                await supabase
-                    .from('business_images')
-                    .delete()
-                    .eq('business_id_bim', businessId)
-                    .eq('image_type_bim', 'gallery');
-
-                const newGalleryImages = data.galleryUris.filter((uri) => isNewImage(uri));
-                for (let index = 0; index < newGalleryImages.length; index++) {
-                    const filePath = await uploadImage(businessId, newGalleryImages[index], `gallery-${index}.jpg`);
-                    await supabase.from('business_images').insert({
-                        id_bim: generateUUID(),
-                        business_id_bim: businessId,
-                        image_type_bim: 'gallery',
-                        bucket_bim: 'business-images',
-                        path_bim: filePath,
-                        sort_order_bim: 2 + index,
-                    });
-                }
-            })()
-        );
-    }
-
-    await Promise.all(imagePromises);
 }

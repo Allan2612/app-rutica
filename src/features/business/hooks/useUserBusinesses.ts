@@ -3,8 +3,8 @@ import {
     getBusinessById,
     getUserBusinesses,
     deleteUserBusiness,
-    updateBusinessComplete,
 } from '../services/userBusinesses.service';
+import { updateBusinessComplete } from '../services/updateBusiness.service';
 import { createBusinessComplete } from '../services/createBusiness.service';
 import type { UpdateBusinessData } from '@/types/entities/business';
 import { useAuthStore } from '@/store';

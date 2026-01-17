@@ -6,8 +6,8 @@ import {
     LocationSection,
     ContactSection,
     SocialLinksSection,
-    GenericFormView,
 } from '@/components/manage';
+import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
 import type { CategoryItem } from '@/features/business/services/categories.service';
 
 interface BusinessFormData {

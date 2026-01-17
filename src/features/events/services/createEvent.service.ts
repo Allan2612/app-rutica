@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
 function generateUUID(): string {
@@ -51,14 +51,14 @@ async function uploadImage(
     fileName: string
 ): Promise<string> {
     try {
-        let blob: Blob;
+        let uploadData: Blob | ArrayBuffer;
         let fileExt = 'jpg'; // Default
 
         if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
             const response = await fetch(imageUri);
-            blob = await response.blob();
+            uploadData = await response.blob();
             // Obtener extensión del tipo MIME del blob
-            const mimeType = blob.type;
+            const mimeType = (uploadData as Blob).type;
             if (mimeType === 'image/png') fileExt = 'png';
             else if (mimeType === 'image/jpeg' || mimeType === 'image/jpg') fileExt = 'jpg';
             else if (mimeType === 'image/webp') fileExt = 'webp';
@@ -82,7 +82,7 @@ async function uploadImage(
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
             }
             const byteArray = new Uint8Array(byteNumbers);
-            blob = new Blob([byteArray], { type: `image/${fileExt}` });
+            uploadData = byteArray.buffer;
         }
 
         // Generar nombre único y simple (eventId/tipo-timestamp-random.ext)
@@ -93,7 +93,7 @@ async function uploadImage(
 
         const contentType = fileExt === 'png' ? 'image/png' : fileExt === 'webp' ? 'image/webp' : 'image/jpeg';
 
-        const { error } = await supabase.storage.from('events-images').upload(filePath, blob, {
+        const { error } = await supabase.storage.from('events-images').upload(filePath, uploadData, {
             contentType,
             upsert: false,
         });

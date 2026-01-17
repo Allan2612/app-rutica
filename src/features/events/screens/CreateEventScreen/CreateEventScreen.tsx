@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useRouter } from 'expo-router';
 import { useCreateEventForm } from '@/features/events/hooks';
-import { EventFormView } from '@/components/events';
+import { EventFormView } from '@/components/events/EventFormView/EventFormView';
 
 export const CreateEventScreen = memo(function CreateEventScreen() {
     const router = useRouter();
