@@ -1,9 +1,5 @@
 import { Business } from './business';
-
-export interface ProductCategory {
-  id_PCA: string;
-  name_PCA: string;
-}
+import { Category } from './category';
 
 export interface Product {
   id_prd: string;
@@ -20,7 +16,7 @@ export interface Product {
 export interface ProductWithRelations extends Product {
   business?: Business;
   images?: ProductImage[];
-  categories?: ProductCategory[];
+  categories?: Category[];  // Cambiado: usa Category unificado
 }
 
 export interface ProductImage {

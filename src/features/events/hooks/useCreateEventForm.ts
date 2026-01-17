@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useCategories } from '@/features/business/hooks/useCategories';
+import { useCategories } from '@/hooks/useCategories';
 import { useCreateEvent } from './useCreateEvent';
 import type { CreateEventData } from '../services/createEvent.service';
 

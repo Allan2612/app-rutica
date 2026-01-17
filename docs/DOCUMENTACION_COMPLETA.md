@@ -665,6 +665,27 @@ Todas las rutas en `manage/` protegidas:
 **Todos los campos (100%):**
 - id_cat, name_cat, created_at_cat
 
+**Uso de Categorías (Sistema Centralizado):**
+
+La tabla `categories` es compartida por todas las entidades (business, events, attractions, products, promotions). Usar siempre el sistema centralizado:
+
+```typescript
+// Hook para obtener categorías
+import { useCategories } from '@/hooks/useCategories';
+const { data: categories = [] } = useCategories(); // CategoryItem[]
+
+// Servicio para queries manuales
+import { getCategories } from '@/services/categories.service';
+const categories = await getCategories(); // CategoryItem[]
+
+// Tipos
+import { Category, CategoryItem } from '@/types/entities';
+// Category: formato BD {id_cat, name_cat}
+// CategoryItem: formato UI {id, name}
+```
+
+**IMPORTANTE**: Siempre usar columnas en minúsculas (`id_cat`, `name_cat`) en queries de BD.
+
 ## 6.2 Implementación de Imágenes
 
 ### Eliminación Correcta de Imágenes

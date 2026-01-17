@@ -1,11 +1,7 @@
 import { ModerationStatus } from '@/types/enums';
 import { Location } from './location';
 import { Profile } from './profile';
-
-export interface AttractionCategory {
-  id_ACA: string;
-  name_ACA: string;
-}
+import { Category } from './category';
 
 export interface Attraction {
   id_ATR: string;
@@ -29,7 +25,7 @@ export interface Attraction {
 
 export interface AttractionWithRelations extends Attraction {
   submitted_by?: Profile;
-  category?: AttractionCategory;
+  categories?: Category[];  // Cambiado: usa Category[] unificado
   location?: Location;
   images?: AttractionImage[];
 }

@@ -1,13 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { getCategories } from '../services';
-
 /**
- * Hook para obtener todas las categorías del sistema
+ * @deprecated Use useCategories from '@/hooks/useCategories' instead
+ * Este hook se mantiene por compatibilidad pero redirige al hook centralizado
  */
-export function useCategories() {
-    return useQuery({
-        queryKey: ['categories'],
-        queryFn: getCategories,
-        staleTime: 30 * 60 * 1000, // 30 minutos (las categorías no cambian frecuentemente)
-    });
-}
+export { useCategories } from '@/hooks/useCategories';

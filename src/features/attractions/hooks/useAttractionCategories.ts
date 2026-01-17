@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { getAttractionCategories } from '@/features/attractions/services/categories';
+/**
+ * @deprecated Use useCategories from '@/hooks/useCategories' instead
+ * Este hook se mantiene por compatibilidad pero redirige al hook centralizado
+ */
+import { useCategories } from '@/hooks/useCategories';
 
 export function useAttractionCategories() {
-    return useQuery({
-        queryKey: ['attractionCategories'],
-        queryFn: getAttractionCategories,
-    });
+    return useCategories();
 }

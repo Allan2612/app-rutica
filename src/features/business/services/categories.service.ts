@@ -1,25 +1,13 @@
-import { supabase } from '@/lib/supabase/client';
-
-export interface CategoryItem {
-    id: string;
-    name: string;
-}
+/**
+ * @deprecated Este archivo es obsoleto. Usa @/services/categories.service.ts
+ * Este archivo se mantiene por compatibilidad pero todas las funciones redirigen al servicio centralizado
+ */
+import { getCategories as getCategoriesCore } from '@/services/categories.service';
+import { CategoryItem } from '@/types/entities';
 
 /**
- * Obtiene todas las categorías disponibles en el sistema
+ * @deprecated Use getCategories from '@/services/categories.service' instead
  */
 export async function getCategories(): Promise<CategoryItem[]> {
-    const { data, error } = await supabase
-        .from('categories')
-        .select('id_cat, name_cat')
-        .order('name_cat', { ascending: true });
-
-    if (error) {
-        return [];
-    }
-
-    return (data ?? []).map((row: any) => ({
-        id: row.id_cat,
-        name: row.name_cat,
-    }));
+    return getCategoriesCore();
 }

@@ -2,6 +2,14 @@
 export type { Profile, ProfileInsert, ProfileUpdate } from './profile';
 export { getFullName } from './profile';
 
+// Category (Tabla central compartida)
+export type {
+  Category,
+  CategoryItem,
+  CategoryMap,
+} from './category';
+export { categoryToItem, categoriesToItems } from './category';
+
 // Location
 export type { 
   Location, 
@@ -15,7 +23,6 @@ export type {
 // Business
 export type {
   Business,
-  BusinessCategory,
   BusinessWithRelations,
   BusinessImage,
   BusinessSocialLink,
@@ -28,7 +35,6 @@ export type {
 // Product
 export type {
   Product,
-  ProductCategory,
   ProductWithRelations,
   ProductImage,
   ProductCategoryMap,
@@ -40,7 +46,6 @@ export type {
 // Attraction
 export type {
   Attraction,
-  AttractionCategory,
   AttractionWithRelations,
   AttractionImage,
   AttractionInsert,

@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { ActivityIndicator, View, Text } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEditProductForm } from '@/features/products/hooks';
-import { useCategories } from '@/features/business/hooks';
+import { useCategories } from '@/hooks/useCategories';
 import {
     GenericFormView,
     BasicInfoSection,

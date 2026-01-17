@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useCategories } from './useCategories';
+import { useCategories } from '@/hooks/useCategories';
 import { useCreateBusiness } from './useCreateBusiness';
 import type { CreateBusinessData } from '../services';
 

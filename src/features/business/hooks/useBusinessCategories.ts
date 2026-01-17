@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { getBusinessCategories } from '@/features/business/services/categories';
+/**
+ * @deprecated Use useCategories from '@/hooks/useCategories' instead
+ * Este hook se mantiene por compatibilidad pero redirige al hook centralizado
+ */
+import { useCategories } from '@/hooks/useCategories';
 
 export function useBusinessCategories() {
-    return useQuery({
-        queryKey: ['businessCategories'],
-        queryFn: getBusinessCategories,
-    });
+    return useCategories();
 }

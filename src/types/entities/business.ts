@@ -1,11 +1,7 @@
 import { ModerationStatus } from '@/types/enums';
 import { Location } from './location';
 import { Profile } from './profile';
-
-export interface BusinessCategory {
-  id_BCA: string;
-  name_BCA: string;
-}
+import { Category } from './category';
 
 export interface Business {
   id_BUS: string;
@@ -32,7 +28,7 @@ export interface Business {
 
 export interface BusinessWithRelations extends Business {
   owner?: Profile;
-  category?: BusinessCategory;
+  categories?: Category[];  // Cambiado: ahora usa Category[] en lugar de BusinessCategory
   location?: Location;
   images?: BusinessImage[];
   social_links?: BusinessSocialLink[];

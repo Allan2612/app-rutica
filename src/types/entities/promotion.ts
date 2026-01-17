@@ -1,7 +1,8 @@
 import { PromoScope, DiscountType, PlacementType, ModerationStatus, PromoPaymentState } from '@/types/enums';
 import { Business } from './business';
-import { Product, ProductCategory } from './product';
+import { Product } from './product';
 import { Profile } from './profile';
+import { Category } from './category';
 
 export interface Promotion {
   id_PRM: string;
@@ -38,7 +39,7 @@ export interface PromotionWithRelations extends Promotion {
   business?: Business;
   created_by?: Profile;
   products?: Product[];
-  categories?: ProductCategory[];
+  categories?: Category[];  // Cambiado: usa Category unificado
   combo_items?: PromotionComboItem[];
 }
 

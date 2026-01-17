@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { useProductForm } from '@/features/products/hooks';
-import { useCategories } from '@/features/business/hooks';
+import { useCategories } from '@/hooks/useCategories';
 import {
     GenericFormView,
     BasicInfoSection,

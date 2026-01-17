@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { useCategories } from '@/features/business/hooks/useCategories';
+import { useCategories } from '@/hooks/useCategories';
 import { useCreateAttraction } from './useCreateAttraction';
 import { useAttractionById, useUpdateAttraction } from './useUpdateAttraction';
 import type { CreateAttractionData } from '../services/createAttraction.service';

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useCategories } from '@/features/business/hooks/useCategories';
+import { useCategories } from '@/hooks/useCategories';
 import { useBusinessById, useUpdateBusiness } from '@/features/business/hooks/useUserBusinesses';
 import type { UpdateBusinessData } from '@/types/entities/business';
 

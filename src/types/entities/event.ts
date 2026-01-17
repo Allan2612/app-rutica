@@ -1,6 +1,7 @@
 import { ModerationStatus } from '@/types/enums';
 import { Location } from './location';
 import { Profile } from './profile';
+import { Category } from './category';
 
 /**
  * Evento
@@ -46,7 +47,7 @@ export interface EventWithRelations extends Event {
   created_by?: Profile;
   location?: Location;
   images?: EventImage[];
-  categories?: EventCategory[];
+  categories?: Category[];  // Cambiado: usa Category unificado
 }
 
 /**
@@ -56,14 +57,6 @@ export interface EventWithRelations extends Event {
 export interface EventCategoryMap {
   event_id_ECM: string;
   category_id_ECM: string;
-}
-
-/**
- * Categoría de evento (desde categories)
- */
-export interface EventCategory {
-  id_CAT: string;
-  name_CAT: string;
 }
 
 /**
