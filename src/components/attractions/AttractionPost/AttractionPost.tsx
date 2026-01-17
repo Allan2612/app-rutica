@@ -1,9 +1,11 @@
-import { memo } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { memo, useState, useRef } from 'react';
+import { Image, Pressable, Text, View, ScrollView, Dimensions, Linking, Platform } from 'react-native';
 import { MapPin, Star, Mountain } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface AttractionPostProps {
     name: string;
@@ -11,7 +13,9 @@ export interface AttractionPostProps {
     categoryNames?: string[];
     categoryIds?: string[];
     locationLabel?: string | null;
-    imageUrl?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    imageUrls?: string[];
     authorName?: string | null;
     rating?: number;
     reviewCount?: number;
@@ -43,13 +47,25 @@ function getInitials(name: string): string {
     return name.substring(0, 2).toUpperCase();
 }
 
+function openMaps(latitude: number, longitude: number, label?: string) {
+    const encodedLabel = encodeURIComponent(label ?? 'Ubicación');
+    const url = Platform.select({
+        ios: `maps:0,0?q=${encodedLabel}@${latitude},${longitude}`,
+        android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodedLabel})`,
+        default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
+    });
+    Linking.openURL(url);
+}
+
 export const AttractionPost = memo(function AttractionPost({
     name,
     description,
     categoryNames = [],
     categoryIds = [],
     locationLabel,
-    imageUrl,
+    latitude,
+    longitude,
+    imageUrls = [],
     authorName,
     rating = 0,
     reviewCount = 0,
@@ -58,6 +74,23 @@ export const AttractionPost = memo(function AttractionPost({
     onPress,
 }: AttractionPostProps) {
     const colors = useThemedColors();
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const scrollRef = useRef<ScrollView>(null);
+
+    const handleScroll = (event: any) => {
+        const contentOffset = event.nativeEvent.contentOffset.x;
+        const imageWidth = event.nativeEvent.layoutMeasurement.width;
+        const index = Math.round(contentOffset / imageWidth);
+        setActiveImageIndex(index);
+    };
+
+    const handleLocationPress = () => {
+        if (latitude && longitude) {
+            openMaps(latitude, longitude, locationLabel ?? name);
+        }
+    };
+
+    const hasLocation = latitude !== null && latitude !== undefined && longitude !== null && longitude !== undefined;
 
     return (
         <Pressable
@@ -80,7 +113,7 @@ export const AttractionPost = memo(function AttractionPost({
                     <Text style={[styles.authorName, { color: colors.text.primary }]}>
                         {authorName ?? 'Rutica'}
                     </Text>
-                    <Text style={[styles.metaText, { color: colors.text.tertiary }]}>
+                    <Text style={[styles.metaText, { color: colors.text.primary }]}>
                         {createdAt ? getTimeAgo(createdAt) : ''}
                         {locationLabel ? ` • ${locationLabel}` : ''}
                     </Text>
@@ -94,9 +127,45 @@ export const AttractionPost = memo(function AttractionPost({
                 )}
             </View>
 
-            {/* Imagen principal */}
-            {imageUrl ? (
-                <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+            {/* Carrusel de imágenes */}
+            {imageUrls.length > 0 ? (
+                <View>
+                    <ScrollView
+                        ref={scrollRef}
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}
+                    >
+                        {imageUrls.map((uri, index) => (
+                            <Image
+                                key={index}
+                                source={{ uri }}
+                                style={[styles.image, { width: SCREEN_WIDTH - 32 }]}
+                                resizeMode="cover"
+                            />
+                        ))}
+                    </ScrollView>
+                    {/* Indicadores de página */}
+                    {imageUrls.length > 1 && (
+                        <View style={styles.pagination}>
+                            {imageUrls.map((_, index) => (
+                                <View
+                                    key={index}
+                                    style={[
+                                        styles.paginationDot,
+                                        {
+                                            backgroundColor: index === activeImageIndex
+                                                ? colors.primary[500]
+                                                : 'rgba(255,255,255,0.5)',
+                                        },
+                                    ]}
+                                />
+                            ))}
+                        </View>
+                    )}
+                </View>
             ) : (
                 <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
                     <Mountain size={48} color={colors.text.tertiary} />
@@ -137,18 +206,22 @@ export const AttractionPost = memo(function AttractionPost({
                 {rating > 0 && (
                     <View style={styles.footerItem}>
                         <Star size={16} color="#fbbf24" fill="#fbbf24" />
-                        <Text style={[styles.footerText, { color: colors.text.secondary }]}>
+                        <Text style={[styles.footerText, { color: colors.text.primary }]}>
                             {rating.toFixed(1)} ({reviewCount})
                         </Text>
                     </View>
                 )}
                 {locationLabel && (
-                    <View style={styles.footerItem}>
-                        <MapPin size={14} color={colors.text.tertiary} />
-                        <Text style={[styles.footerText, { color: colors.text.tertiary }]}>
+                    <Pressable
+                        style={styles.footerItem}
+                        onPress={handleLocationPress}
+                        disabled={!hasLocation}
+                    >
+                        <MapPin size={14} color={colors.primary[500]} />
+                        <Text style={[styles.footerText, { color: colors.primary[500] }]}>
                             {locationLabel}
                         </Text>
-                    </View>
+                    </Pressable>
                 )}
             </View>
         </Pressable>

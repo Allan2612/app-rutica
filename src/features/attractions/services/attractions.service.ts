@@ -29,6 +29,8 @@ export interface AttractionListRecord {
         canton_loc: string | null;
         district_loc: string | null;
         province_loc: string | null;
+        latitude_loc: number | null;
+        longitude_loc: number | null;
     } | null;
     attraction_images?: {
         bucket_aim: string;
@@ -67,7 +69,7 @@ export async function getAttractionsList(filters: AttractionListFilters = {}): P
                     name_cat
                 )
             ),
-            locations ( canton_loc, district_loc, province_loc ),
+            locations ( canton_loc, district_loc, province_loc, latitude_loc, longitude_loc ),
             attraction_images ( bucket_aim, path_aim, sort_order_aim )
         `);
 

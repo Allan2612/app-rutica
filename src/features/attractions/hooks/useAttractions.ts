@@ -13,7 +13,9 @@ export interface AttractionListItem {
     categoryNames: string[];
     categoryIds: string[];
     locationLabel: string | null;
-    imageUrl: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    imageUrls: string[];
     authorName: string | null;
     rating: number;
     reviewCount: number;
@@ -22,16 +24,14 @@ export interface AttractionListItem {
 }
 
 function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem {
-    // Obtener primera imagen ordenada por sort_order
+    // Obtener todas las imágenes ordenadas por sort_order
     const sortedImages = [...(item.attraction_images ?? [])].sort(
         (a, b) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0)
     );
 
-    const primaryImage = sortedImages[0];
-    const imageUrl =
-        primaryImage?.bucket_aim && primaryImage?.path_aim
-            ? getImageUrl(primaryImage.bucket_aim, primaryImage.path_aim)
-            : null;
+    const imageUrls = sortedImages
+        .filter(img => img?.bucket_aim && img?.path_aim)
+        .map(img => getImageUrl(img.bucket_aim, img.path_aim));
 
     // Obtener categorías
     const categories = item.attraction_category_map
@@ -40,8 +40,12 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
     const categoryNames = categories.map(cat => cat.name_cat);
     const categoryIds = categories.map(cat => cat.id_cat);
 
-    // Ubicación
-    const locationParts = [item.locations?.canton_loc, item.locations?.district_loc].filter(Boolean);
+    // Ubicación con provincia (San José, Pérez Zeledón, Pejibaye)
+    const locationParts = [
+        item.locations?.province_loc,
+        item.locations?.canton_loc,
+        item.locations?.district_loc
+    ].filter(Boolean);
 
     // Nombre del autor
     const authorName = item.profiles
@@ -55,7 +59,9 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
         categoryNames,
         categoryIds,
         locationLabel: locationParts.length ? locationParts.join(', ') : null,
-        imageUrl,
+        latitude: item.locations?.latitude_loc ?? null,
+        longitude: item.locations?.longitude_loc ?? null,
+        imageUrls,
         authorName,
         rating: item.avg_rating_atr ?? 0,
         reviewCount: item.reviews_count_atr ?? 0,
