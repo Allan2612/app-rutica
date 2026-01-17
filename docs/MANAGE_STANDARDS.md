@@ -25,7 +25,7 @@ Los módulos de gestión (manage) siguen una arquitectura limpia y reutilizable 
 
 - ✅ **Negocios (Business)** - Completamente implementado
 - ✅ **Eventos (Events)** - Completamente implementado
-- 🔲 **Atracciones (Attractions)** - Pendiente
+- ✅ **Atracciones (Attractions)** - Completamente implementado
 - 🔲 **Promociones (Promotions)** - Pendiente
 - 🔲 **Productos (Products)** - Pendiente
 
@@ -51,7 +51,7 @@ src/
 │       │   ├── index.ts             # Re-export de todos los hooks
 │       │   ├── useCategories.ts     # (Opcional) Si usa categorías
 │       │   ├── useCreate{Entity}Form.ts
-│       │   ├── useEdit{Entity}Form.ts
+│       │   ├── use{Entity}Form.ts   # Para edición (reutiliza lógica)
 │       │   ├── useCreate{Entity}.ts
 │       │   ├── useUpdate{Entity}.ts
 │       │   ├── useDelete{Entity}.ts
@@ -62,8 +62,8 @@ src/
 │       │   ├── create{Entity}.service.ts
 │       │   └── user{Entities}.service.ts
 │       └── screens/
-│           ├── Add{Entity}Screen/
-│           │   ├── Add{Entity}Screen.tsx
+           ├── Create{Entity}Screen/
+           │   ├── Create{Entity}Screen.tsx
 │           │   └── index.ts
 │           ├── Edit{Entity}Screen/
 │           │   ├── Edit{Entity}Screen.tsx
@@ -112,7 +112,7 @@ Wrapper para todos los formularios de gestión.
 import { GenericFormView } from '@/components/manage';
 
 <GenericFormView
-    title="Agregar {Entity}"
+    title="Crear {Entity}"
     subtitle="Completa la información..."
     isSubmitting={isSubmitting}
     hasChanges={hasChanges}
@@ -270,7 +270,7 @@ import { formViewStyles } from '@/styles/form-view-styles';
 | Tipo | Convención | Ejemplo |
 |------|-----------|---------|
 | Feature folder | `{entity}` (singular) | `attractions/`, `promotions/` |
-| Screen | `{Action}{Entity}Screen` | `AddAttractionScreen`, `EditProductScreen` |
+| Screen | `{Action}{Entity}Screen` | `CreateAttractionScreen`, `EditProductScreen` |
 | Component | `{Entity}{Type}` | `AttractionFormView`, `UserProductCard` |
 | Hook | `use{Action}{Entity}` | `useCreateAttraction`, `useUserPromotions` |
 | Service | `{entity}.service.ts` | `attraction.service.ts` |
@@ -304,7 +304,7 @@ const { data } = useAttractions();       // Sin alias
 
 ## 🎨 Patrones de Formularios
 
-### Patrón 1: Formulario de Creación (Add)
+### Patrón 1: Formulario de Creación (Create)
 
 ```tsx
 import { memo } from 'react';
@@ -312,7 +312,7 @@ import { useRouter } from 'expo-router';
 import { useCreateAttractionForm } from '@/features/attractions/hooks';
 import { AttractionFormView } from '@/components/attractions';
 
-export const AddAttractionScreen = memo(function AddAttractionScreen() {
+export const CreateAttractionScreen = memo(function CreateAttractionScreen() {
     const router = useRouter();
     const {
         categories,
@@ -328,8 +328,8 @@ export const AddAttractionScreen = memo(function AddAttractionScreen() {
 
     return (
         <AttractionFormView
-            title="Agregar Atracción"
-            subtitle="Completa la información para agregar una nueva atracción turística"
+            title="Crear Atracción"
+            subtitle="Completa la información para crear una nueva atracción turística"
             formData={formData}
             errors={errors}
             categories={categories}
@@ -672,7 +672,7 @@ export interface UpdateAttractionData extends Partial<CreateAttractionData> {}
 3. **useDelete{Entity}** - Mutación para eliminar
 4. **useUser{Entities}** - Query para listar entidades del usuario
 5. **useCreate{Entity}Form** - Hook de formulario de creación
-6. **useEdit{Entity}Form** - Hook de formulario de edición
+6. **use{Entity}Form** - Hook de formulario de edición
 
 ---
 
@@ -706,7 +706,7 @@ export interface Attraction {
 - `useDelete{Entity}.ts`
 - `useUser{Entities}.ts`
 - `useCreate{Entity}Form.ts`
-- `useEdit{Entity}Form.ts`
+- `use{Entity}Form.ts`  # Para edición
 
 #### 4. **Crear Componentes**
 
@@ -721,7 +721,7 @@ components/{entity}/
 
 ```
 features/{entity}/screens/
-├── Add{Entity}Screen/
+├── Create{Entity}Screen/
 ├── Edit{Entity}Screen/
 └── Manage{Entities}Screen/
 ```
@@ -802,6 +802,7 @@ app/(app)/(tabs)/manage/{entities}/
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 1.0.0 | 2026-01-16 | Versión inicial del documento de estándares |
+| 1.0.1 | 2026-01-17 | Actualizado para reflejar patrones reales (Create en vez de Add), marcado Attractions como completado |
 
 ---
 
