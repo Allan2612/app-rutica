@@ -56,7 +56,7 @@ export function getImageUrl(bucket: string, path: string): string {
 }
 
 export async function getEventsList(filters: EventListFilters = {}): Promise<EventListRecord[]> {
-    const { searchText, upcoming = true } = filters;
+    const { searchText, categoryIds, upcoming = true } = filters;
 
     let query = supabase
         .from('events')
@@ -113,6 +113,23 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
     // Filtro por texto
     if (searchText?.trim()) {
         query = query.ilike('name_evt', `%${searchText.trim()}%`);
+    }
+
+    // Filtro por categorías
+    if (categoryIds && categoryIds.length > 0) {
+        // Obtener IDs de eventos que tienen las categorías seleccionadas
+        const { data: eventCategoryData } = await supabase
+            .from('event_category_map')
+            .select('event_id_ecm')
+            .in('category_id_ecm', categoryIds);
+        
+        if (eventCategoryData && eventCategoryData.length > 0) {
+            const eventIds = [...new Set(eventCategoryData.map(ec => ec.event_id_ecm))];
+            query = query.in('id_evt', eventIds);
+        } else {
+            // No hay eventos con esas categorías
+            return [];
+        }
     }
 
     // Ordenar por fecha de inicio (próximos primero)

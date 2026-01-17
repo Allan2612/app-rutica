@@ -2,8 +2,13 @@ import { StyleSheet } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
-  container: {
+  wrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderBottomWidth: 1,
+  },
+  container: {
+    flex: 1,
   },
   scrollContent: {
     paddingHorizontal: spacing.md,
@@ -27,5 +32,8 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
+  },
+  rightElement: {
+    paddingRight: spacing.md,
   },
 });

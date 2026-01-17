@@ -11,5 +11,6 @@ export * from './SingleImagePicker';
 export * from './MultipleImagePicker';
 export * from './ImageCarousel';
 export * from './TikTokIcon';
+export * from './SearchFilterModal';
 
 

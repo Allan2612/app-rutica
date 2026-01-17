@@ -35,6 +35,13 @@ const createStyles = (width: number) => {
       textAlign: 'center',
       lineHeight: 18,
     },
+    searchButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   });
 };
 

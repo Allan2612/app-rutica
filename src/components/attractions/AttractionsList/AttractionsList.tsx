@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Text, View, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AttractionPost } from '@/components/attractions/AttractionPost';
 import { AttractionListItem } from '@/features/attractions/hooks/useAttractions';
@@ -8,10 +8,14 @@ import { styles } from './styles';
 
 export interface AttractionsListProps {
     data: AttractionListItem[];
+    isRefreshing?: boolean;
+    onRefresh?: () => void;
 }
 
 export const AttractionsList = memo(function AttractionsList({
     data,
+    isRefreshing = false,
+    onRefresh,
 }: AttractionsListProps) {
     const colors = useThemedColors();
     const router = useRouter();
@@ -59,6 +63,16 @@ export const AttractionsList = memo(function AttractionsList({
             showsVerticalScrollIndicator={false}
             renderItem={renderItem}
             ListEmptyComponent={emptyComponent}
+            refreshControl={
+                onRefresh ? (
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.primary[500]}
+                        colors={[colors.primary[500]]}
+                    />
+                ) : undefined
+            }
         />
     );
 });

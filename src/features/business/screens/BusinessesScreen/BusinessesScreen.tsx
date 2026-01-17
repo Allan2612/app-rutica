@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
-import { ActivityIndicator, Text, TextInput, View, useWindowDimensions } from 'react-native';
-import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
+import { ActivityIndicator, Text, View, useWindowDimensions, Pressable } from 'react-native';
+import { Search, SlidersHorizontal } from 'lucide-react-native';
+import { TabSelector, TabOption, SearchFilterModal, SearchFilters } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses } from '@/features/business/hooks/useBusinesses';
 import { useThemedColors } from '@/hooks';
@@ -14,8 +15,20 @@ const BUSINESS_TABS: TabOption[] = [
 
 export const BusinessesScreen = memo(function BusinessesScreen() {
   const [activeTab, setActiveTab] = useState('commerces');
-  const [searchText, setSearchText] = useState('');
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  
+  // Filtros para comercios
+  const [commerceFilters, setCommerceFilters] = useState<SearchFilters>({
+    searchText: '',
+    categoryIds: [],
+  });
+  
+  // Filtros para promociones
+  const [promotionFilters, setPromotionFilters] = useState<SearchFilters>({
+    searchText: '',
+    categoryIds: [],
+  });
+  
   const { width } = useWindowDimensions();
   const colors = useThemedColors();
   const styles = useBusinessesStyles();
@@ -25,66 +38,58 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   // Key para forzar re-render al cambiar numColumns
   const listKey = `businesses-${numColumns}-columns`;
 
-  const { data: categories = [], isLoading } = useBusinessCategories();
+  const { data: categories = [] } = useBusinessCategories();
   const {
     data: businesses = [],
     isLoading: isBusinessesLoading,
+    refetch: refetchBusinesses,
+    isRefetching: isBusinessesRefetching,
   } = useBusinesses({
-    searchText,
-    categoryIds: selectedCategoryIds,
+    searchText: commerceFilters.searchText,
+    categoryIds: commerceFilters.categoryIds,
     enabled: activeTab === 'commerces',
   });
 
-  const toggleCategory = (id: string) => {
-    setSelectedCategoryIds((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
+  const currentFilters = activeTab === 'commerces' ? commerceFilters : promotionFilters;
+  const hasActiveFilters = currentFilters.searchText !== '' || currentFilters.categoryIds.length > 0;
+
+  const handleApplyFilters = (filters: SearchFilters) => {
+    if (activeTab === 'commerces') {
+      setCommerceFilters(filters);
+    } else {
+      setPromotionFilters(filters);
+    }
   };
+
+  const SearchButton = (
+    <Pressable
+      onPress={() => setIsSearchModalVisible(true)}
+      style={[
+        styles.searchButton,
+        { 
+          backgroundColor: hasActiveFilters 
+            ? colors.primary[500] 
+            : colors.background.secondary,
+        },
+      ]}
+    >
+      {hasActiveFilters ? (
+        <SlidersHorizontal size={18} color={colors.text.inverse} />
+      ) : (
+        <Search size={18} color={colors.text.secondary} />
+      )}
+    </Pressable>
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
-      {/* Category Search - solo para Comercios */}
-      {activeTab === 'commerces' && (
-        <CategorySearchBar
-          placeholder="Buscar comercios..."
-          categories={categories}
-          selectedCategoryIds={selectedCategoryIds}
-          onCategoryToggle={toggleCategory}
-          onSearchChange={setSearchText}
-          searchText={searchText}
-          isLoading={isLoading}
-        />
-      )}
-
-      {/* Search simple para Promociones */}
-      {activeTab === 'promotions' && (
-        <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 }}>
-          <View
-            style={{
-              borderWidth: 1,
-              borderColor: colors.border.dark,
-              borderRadius: 8,
-              backgroundColor: colors.background.primary,
-              paddingHorizontal: 12,
-            }}
-          >
-            <TextInput
-              placeholder="Buscar promociones..."
-              placeholderTextColor={colors.text.tertiary}
-              value={searchText}
-              onChangeText={setSearchText}
-              style={{
-                paddingVertical: 10,
-                fontSize: 14,
-                color: colors.text.primary,
-              }}
-            />
-          </View>
-        </View>
-      )}
-
-      {/* Tabs debajo del search */}
-      <TabSelector tabs={BUSINESS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Tabs con botón de búsqueda a la derecha */}
+      <TabSelector 
+        tabs={BUSINESS_TABS} 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        rightElement={SearchButton}
+      />
 
       {/* Contenido */}
       <View style={[styles.content, { backgroundColor: colors.background.secondary }]}>
@@ -98,6 +103,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
               data={businesses}
               numColumns={numColumns}
               listKey={listKey}
+              isRefreshing={isBusinessesRefetching}
+              onRefresh={() => refetchBusinesses()}
             />
           )
         ) : (
@@ -109,6 +116,18 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
           </View>
         )}
       </View>
+
+      {/* Modal de búsqueda y filtros */}
+      <SearchFilterModal
+        visible={isSearchModalVisible}
+        onClose={() => setIsSearchModalVisible(false)}
+        onApply={handleApplyFilters}
+        categories={categories}
+        initialSearchText={currentFilters.searchText}
+        initialCategoryIds={currentFilters.categoryIds}
+        placeholder={activeTab === 'commerces' ? 'Buscar comercios...' : 'Buscar promociones...'}
+        title={activeTab === 'commerces' ? 'Buscar Comercios' : 'Buscar Promociones'}
+      />
     </View>
   );
 });

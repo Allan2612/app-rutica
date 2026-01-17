@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Text, View, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BusinessCard } from '@/components/business/BusinessCard';
 import { BusinessListItem } from '@/features/business/hooks/useBusinesses';
@@ -10,12 +10,16 @@ export interface BusinessesListProps {
   data: BusinessListItem[];
   numColumns: number;
   listKey: string;
+  isRefreshing?: boolean;
+  onRefresh?: () => void;
 }
 
 export const BusinessesList = memo(function BusinessesList({
   data,
   numColumns,
   listKey,
+  isRefreshing = false,
+  onRefresh,
 }: BusinessesListProps) {
   const colors = useThemedColors();
   const router = useRouter();
@@ -64,6 +68,16 @@ export const BusinessesList = memo(function BusinessesList({
       showsVerticalScrollIndicator={false}
       renderItem={renderItem}
       ListEmptyComponent={emptyComponent}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary[500]}
+            colors={[colors.primary[500]]}
+          />
+        ) : undefined
+      }
     />
   );
 });
