@@ -1,11 +1,13 @@
-import { memo, useState, useRef } from 'react';
-import { Image, Pressable, Text, View, ScrollView, Dimensions, Linking, Platform } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable, Text, View, Dimensions, Linking, Platform } from 'react-native';
 import { MapPin, Star, Mountain } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { ImageCarousel } from '@/components/ui';
 import { styles } from './styles';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const MAX_VISIBLE_CATEGORIES = 3;
 
 export interface AttractionPostProps {
     name: string;
@@ -57,7 +59,7 @@ function openMaps(latitude: number, longitude: number, label?: string) {
     Linking.openURL(url);
 }
 
-export const AttractionPost = memo(function AttractionPost({
+export function AttractionPost({
     name,
     description,
     categoryNames = [],
@@ -74,15 +76,7 @@ export const AttractionPost = memo(function AttractionPost({
     onPress,
 }: AttractionPostProps) {
     const colors = useThemedColors();
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-    const scrollRef = useRef<ScrollView>(null);
-
-    const handleScroll = (event: any) => {
-        const contentOffset = event.nativeEvent.contentOffset.x;
-        const imageWidth = event.nativeEvent.layoutMeasurement.width;
-        const index = Math.round(contentOffset / imageWidth);
-        setActiveImageIndex(index);
-    };
+    const [showAllCategories, setShowAllCategories] = useState(false);
 
     const handleLocationPress = () => {
         if (latitude && longitude) {
@@ -91,6 +85,13 @@ export const AttractionPost = memo(function AttractionPost({
     };
 
     const hasLocation = latitude !== null && latitude !== undefined && longitude !== null && longitude !== undefined;
+
+    // Carrusel ocupa todo el ancho - está fuera del contenedor con padding
+    const carouselWidth = Platform.OS === 'web' ? Math.min(SCREEN_WIDTH, 600) : SCREEN_WIDTH;
+    
+    // Categorías visibles y extra - depende del estado showAllCategories
+    const categoriesToShow = showAllCategories ? categoryNames : categoryNames.slice(0, MAX_VISIBLE_CATEGORIES);
+    const extraCategoriesCount = showAllCategories ? 0 : categoryNames.length - MAX_VISIBLE_CATEGORIES;
 
     return (
         <Pressable
@@ -113,82 +114,53 @@ export const AttractionPost = memo(function AttractionPost({
                     <Text style={[styles.authorName, { color: colors.text.primary }]}>
                         {authorName ?? 'Rutica'}
                     </Text>
-                    <Text style={[styles.metaText, { color: colors.text.primary }]}>
+                    <Text style={[styles.metaText, { color: colors.text.secondary }]}>
                         {createdAt ? getTimeAgo(createdAt) : ''}
-                        {locationLabel ? ` • ${locationLabel}` : ''}
                     </Text>
                 </View>
-                {isApproved && (
-                    <Image
-                        source={require('../../../../assets/verification.png')}
-                        style={{ width: 20, height: 20 }}
-                        resizeMode="contain"
-                    />
-                )}
             </View>
 
             {/* Carrusel de imágenes */}
-            {imageUrls.length > 0 ? (
-                <View>
-                    <ScrollView
-                        ref={scrollRef}
-                        horizontal
-                        pagingEnabled
-                        showsHorizontalScrollIndicator={false}
-                        onScroll={handleScroll}
-                        scrollEventThrottle={16}
-                    >
-                        {imageUrls.map((uri, index) => (
-                            <Image
-                                key={index}
-                                source={{ uri }}
-                                style={[styles.image, { width: SCREEN_WIDTH - 32 }]}
-                                resizeMode="cover"
-                            />
-                        ))}
-                    </ScrollView>
-                    {/* Indicadores de página */}
-                    {imageUrls.length > 1 && (
-                        <View style={styles.pagination}>
-                            {imageUrls.map((_, index) => (
-                                <View
-                                    key={index}
-                                    style={[
-                                        styles.paginationDot,
-                                        {
-                                            backgroundColor: index === activeImageIndex
-                                                ? colors.primary[500]
-                                                : 'rgba(255,255,255,0.5)',
-                                        },
-                                    ]}
-                                />
-                            ))}
-                        </View>
-                    )}
-                </View>
-            ) : (
-                <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
-                    <Mountain size={48} color={colors.text.tertiary} />
-                </View>
-            )}
+            <View style={{ width: carouselWidth, alignSelf: 'center' }}>
+                {imageUrls.length > 0 ? (
+                    <ImageCarousel
+                        images={imageUrls}
+                        imageWidth={carouselWidth}
+                        aspectRatio={16 / 9}
+                    />
+                ) : (
+                    <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
+                        <Mountain size={48} color={colors.text.tertiary} />
+                    </View>
+                )}
+            </View>
 
             {/* Contenido */}
             <View style={styles.content}>
-                <Text style={[styles.title, { color: colors.text.primary }]}>{name}</Text>
+                <View style={styles.titleRow}>
+                    <Text style={[styles.title, { color: colors.text.primary }]}>{name}</Text>
+                    {isApproved && (
+                        <Image
+                            source={require('../../../../assets/verification.png')}
+                            style={{ width: 18, height: 18, marginLeft: 6 }}
+                            resizeMode="contain"
+                        />
+                    )}
+                </View>
                 {description && (
                     <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={3}>
                         {description}
                     </Text>
                 )}
 
-                {/* Categorías */}
+                {/* Categorías con límite */}
                 {categoryNames.length > 0 && (
                     <View style={styles.categoriesRow}>
-                        {categoryNames.slice(0, 3).map((catName, index) => {
+                        {categoriesToShow.map((catName, index) => {
                             const categoryColor = getCategoryColorScheme(categoryIds[index]);
                             return (
                                 <View
-                                    key={index}
+                                    key={categoryIds[index] ?? index}
                                     style={[styles.categoryChip, { backgroundColor: categoryColor.backgroundColor }]}
                                 >
                                     <Text style={[styles.categoryText, { color: categoryColor.textColor }]}>
@@ -197,6 +169,16 @@ export const AttractionPost = memo(function AttractionPost({
                                 </View>
                             );
                         })}
+                        {extraCategoriesCount > 0 && (
+                            <Pressable 
+                                onPress={() => setShowAllCategories(true)}
+                                style={[styles.categoryChip, { backgroundColor: colors.background.tertiary }]}
+                            >
+                                <Text style={[styles.categoryText, { color: colors.text.secondary }]}>
+                                    +{extraCategoriesCount}
+                                </Text>
+                            </Pressable>
+                        )}
                     </View>
                 )}
             </View>
@@ -226,4 +208,4 @@ export const AttractionPost = memo(function AttractionPost({
             </View>
         </Pressable>
     );
-});
+}

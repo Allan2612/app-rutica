@@ -1,10 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.md,
+        ...(Platform.OS === 'web' && {
+            maxWidth: 600,
+            alignSelf: 'center',
+            width: '100%',
+        }),
     },
     emptyState: {
         flex: 1,

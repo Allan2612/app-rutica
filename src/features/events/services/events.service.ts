@@ -1,0 +1,129 @@
+import { supabase } from '@/lib/supabase/client';
+
+export interface EventListFilters {
+    searchText?: string;
+    categoryIds?: string[];
+    upcoming?: boolean;
+}
+
+export interface EventListRecord {
+    id_evt: string;
+    name_evt: string;
+    description_evt: string | null;
+    start_at_evt: string;
+    end_at_evt: string;
+    is_free_evt: boolean;
+    price_evt: number | null;
+    currency_evt: string | null;
+    capacity_evt: number | null;
+    moderation_status_evt: string;
+    is_active_evt: boolean;
+    created_at_evt: string;
+    created_by_evt: string;
+    contact_phone_evt: string | null;
+    contact_email_evt: string | null;
+    website_evt: string | null;
+    social_links_evt: Record<string, string> | null;
+    avg_rating_evt: number | null;
+    reviews_count_evt: number | null;
+    profiles?: {
+        first_name_prf: string;
+        last_name1_prf: string;
+    } | null;
+    event_category_map?: {
+        categories: {
+            id_cat: string;
+            name_cat: string;
+        } | null;
+    }[] | null;
+    locations?: {
+        canton_loc: string | null;
+        district_loc: string | null;
+        province_loc: string | null;
+        latitude_loc: number | null;
+        longitude_loc: number | null;
+    } | null;
+    event_images?: {
+        bucket_eim: string;
+        path_eim: string;
+        sort_order_eim: number;
+    }[] | null;
+}
+
+export function getImageUrl(bucket: string, path: string): string {
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+    return data.publicUrl;
+}
+
+export async function getEventsList(filters: EventListFilters = {}): Promise<EventListRecord[]> {
+    const { searchText, upcoming = true } = filters;
+
+    let query = supabase
+        .from('events')
+        .select(`
+            id_evt,
+            name_evt,
+            description_evt,
+            start_at_evt,
+            end_at_evt,
+            is_free_evt,
+            price_evt,
+            currency_evt,
+            capacity_evt,
+            moderation_status_evt,
+            is_active_evt,
+            created_at_evt,
+            created_by_evt,
+            contact_phone_evt,
+            contact_email_evt,
+            website_evt,
+            social_links_evt,
+            avg_rating_evt,
+            reviews_count_evt,
+            profiles!events_created_by_evt_fkey (
+                first_name_prf,
+                last_name1_prf
+            ),
+            event_category_map (
+                categories (
+                    id_cat,
+                    name_cat
+                )
+            ),
+            locations (
+                province_loc,
+                canton_loc,
+                district_loc,
+                latitude_loc,
+                longitude_loc
+            ),
+            event_images (
+                bucket_eim,
+                path_eim,
+                sort_order_eim
+            )
+        `)
+        .eq('is_active_evt', true);
+
+    // Filtrar solo eventos futuros o en curso
+    if (upcoming) {
+        query = query.gte('end_at_evt', new Date().toISOString());
+    }
+
+    // Filtro por texto
+    if (searchText?.trim()) {
+        query = query.ilike('name_evt', `%${searchText.trim()}%`);
+    }
+
+    // Ordenar por fecha de inicio (próximos primero)
+    query = query.order('start_at_evt', { ascending: true });
+
+    const { data, error } = await query;
+
+    if (error) {
+        console.error('Error fetching events list:', error);
+        throw error;
+    }
+
+    return data as unknown as EventListRecord[];
+}

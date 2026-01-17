@@ -2,9 +2,11 @@ import { memo, useState } from 'react';
 import { View, TextInput, Text, ActivityIndicator } from 'react-native';
 import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
 import { AttractionsList } from '@/components/attractions';
+import { EventsList } from '@/components/events';
 import { useThemedColors } from '@/hooks';
 import { useCategories } from '@/hooks/useCategories';
 import { useAttractions } from '@/features/attractions/hooks/useAttractions';
+import { useEvents } from '@/features/events/hooks/useEvents';
 import { styles } from './styles';
 
 const ATTRACTION_TABS: TabOption[] = [
@@ -15,6 +17,7 @@ const ATTRACTION_TABS: TabOption[] = [
 export const AttractionsScreen = memo(function AttractionsScreen() {
   const [activeTab, setActiveTab] = useState('attractions');
   const [searchText, setSearchText] = useState('');
+  const [eventSearchText, setEventSearchText] = useState('');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const colors = useThemedColors();
 
@@ -26,6 +29,16 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
     searchText,
     categoryIds: selectedCategoryIds,
     enabled: activeTab === 'attractions',
+  });
+
+  const {
+    data: events = [],
+    isLoading: isEventsLoading,
+    refetch: refetchEvents,
+    isRefetching: isEventsRefetching,
+  } = useEvents({
+    searchText: eventSearchText,
+    upcoming: true,
   });
 
   const toggleCategory = (id: string) => {
@@ -64,8 +77,8 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
             <TextInput
               placeholder="Buscar eventos..."
               placeholderTextColor={colors.text.tertiary}
-              value={searchText}
-              onChangeText={setSearchText}
+              value={eventSearchText}
+              onChangeText={setEventSearchText}
               style={{
                 paddingVertical: 10,
                 fontSize: 14,
@@ -90,14 +103,13 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
             <AttractionsList data={attractions} />
           )
         ) : (
-          <View style={styles.placeholder}>
-            <Text style={[styles.placeholderTitle, { color: colors.text.primary }]}>
-              Explora los eventos pronto
-            </Text>
-            <Text style={[styles.placeholderSubtitle, { color: colors.text.secondary }]}>
-              Estamos preparando los mejores eventos para ti.
-            </Text>
-          </View>
+          <EventsList
+            events={events}
+            isLoading={isEventsLoading}
+            isRefreshing={isEventsRefetching}
+            onRefresh={() => refetchEvents()}
+            emptyMessage="No hay eventos próximos disponibles"
+          />
         )}
       </View>
     </View>

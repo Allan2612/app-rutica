@@ -51,29 +51,19 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    pagination: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute',
-        bottom: spacing.sm,
-        left: 0,
-        right: 0,
-        gap: spacing.xs,
-    },
-    paginationDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-    },
     content: {
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm + 4,
     },
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: spacing.xs,
+        flexWrap: 'wrap',
+    },
     title: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
-        marginBottom: spacing.xs,
     },
     description: {
         fontSize: typography.sizes.sm,
