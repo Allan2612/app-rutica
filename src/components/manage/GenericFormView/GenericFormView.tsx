@@ -7,7 +7,7 @@ import {
     Platform,
 } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { FormActions } from '@/components/manage';
+import { FormActions } from '../FormActions';
 import { BackButton } from '@/components/ui';
 import { formViewStyles as styles } from '@/styles/form-view-styles';
 

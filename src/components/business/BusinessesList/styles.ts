@@ -23,13 +23,11 @@ export const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.fontWeights.bold,
-    color: colors.text.primary,
     textAlign: 'center',
     marginBottom: spacing.xs + 2,
   },
   emptySubtitle: {
     fontSize: typography.sizes.xs,
-    color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 18,
   },

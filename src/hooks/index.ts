@@ -1,5 +1,4 @@
 export * from './use-color-scheme';
-export * from './use-theme-color';
 export * from './useDeepLinkHandler';
 export * from './useLocation';
 export * from './useLocationDetection';

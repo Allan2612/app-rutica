@@ -78,7 +78,6 @@ async function uploadImage(
         if (error) throw error;
         return filePath;
     } catch (error) {
-        console.error('Error uploading image:', error);
         throw error;
     }
 }
@@ -147,7 +146,6 @@ export async function createBusinessComplete(
                 .insert(categoryMaps);
 
             if (categoryError) {
-                console.error('Error associating categories:', categoryError);
             }
         }
 
@@ -169,7 +167,6 @@ export async function createBusinessComplete(
                             sort_order_bim: 0,
                         });
                     } catch (error) {
-                        console.error('Error uploading logo:', error);
                     }
                 })()
             );
@@ -190,7 +187,6 @@ export async function createBusinessComplete(
                             sort_order_bim: 1,
                         });
                     } catch (error) {
-                        console.error('Error uploading cover:', error);
                     }
                 })()
             );
@@ -211,7 +207,6 @@ export async function createBusinessComplete(
                             sort_order_bim: 2 + index,
                         });
                     } catch (error) {
-                        console.error(`Error uploading gallery image ${index}:`, error);
                     }
                 })()
             );
@@ -221,7 +216,6 @@ export async function createBusinessComplete(
 
         return businessId;
     } catch (error) {
-        console.error('Error creating business:', error);
         throw error;
     }
 }

@@ -16,6 +16,7 @@ export interface UserBusinessCardProps {
     logoUrl?: string | null;
     moderationStatus: 'pending' | 'approved' | 'rejected';
     isActive: boolean;
+    onProducts?: () => void;
     onEdit?: () => void;
     onDelete?: () => void;
     isDeleting?: boolean;
@@ -33,6 +34,7 @@ export const UserBusinessCard = memo(function UserBusinessCard({
     isActive,
     onEdit,
     onDelete,
+    onProducts,
     isDeleting = false,
 }: UserBusinessCardProps) {
     const colors = useThemedColors();
@@ -128,15 +130,30 @@ export const UserBusinessCard = memo(function UserBusinessCard({
                     style={({ pressed }) => [
                         styles.actionButton,
                         {
-                            backgroundColor: colors.primary[500],
+                            backgroundColor: colors.primary[700],
+                            opacity: pressed ? 0.8 : 1,
+                        },
+                    ]}
+                    onPress={onProducts}
+                    disabled={isDeleting}
+                >
+                    <Store color="#fff" size={16} strokeWidth={2} />
+                    <Text style={[styles.actionText, { color: '#fff' }]}>Productos</Text>
+                </Pressable>
+
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.actionButton,
+                        {
+                            backgroundColor: colors.background.tertiary,
                             opacity: pressed ? 0.8 : 1,
                         },
                     ]}
                     onPress={onEdit}
                     disabled={isDeleting}
                 >
-                    <Edit2 color="#fff" size={16} strokeWidth={2} />
-                    <Text style={[styles.actionText, { color: '#fff' }]}>Editar</Text>
+                    <Edit2 color={colors.primary[500]} size={16} strokeWidth={2} />
+                    <Text style={[styles.actionText, { color: colors.primary[500] }]}>Editar</Text>
                 </Pressable>
 
                 <Pressable

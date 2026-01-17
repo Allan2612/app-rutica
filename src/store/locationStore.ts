@@ -62,7 +62,7 @@ type LocationStore = {
  *   
  *   // Verificar si hay ubicación
  *   if (hasLocation) {
- *     console.log(location?.province);
+ *     // Usar location?.province
  *   }
  *   
  *   // Limpiar ubicación

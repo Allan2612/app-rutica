@@ -15,7 +15,6 @@ export function useAuth() {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error obteniendo sesión:', error);
           if (isMounted) {
             setSession(null);
             setIsLoading(false);
@@ -42,7 +41,6 @@ export function useAuth() {
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Error inicializando sesión:', error);
         if (isMounted) {
           setSession(null);
           setIsLoading(false);

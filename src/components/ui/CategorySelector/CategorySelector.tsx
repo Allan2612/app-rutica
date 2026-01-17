@@ -1,8 +1,8 @@
 import { memo, useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { spacing, typography } from '@/styles/theme';
+import { styles } from './styles';
 
 export interface CategorySelectorProps {
     categories: Array<{ id: string; name: string }>;
@@ -77,31 +77,4 @@ export const CategorySelector = memo(function CategorySelector({
             })}
         </ScrollView>
     );
-});
-
-const styles = StyleSheet.create({
-    scrollContent: {
-        gap: spacing.sm,
-        paddingVertical: spacing.xs,
-    },
-    chip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.sm,
-        borderRadius: 20,
-        borderWidth: 1,
-        gap: spacing.xs,
-    },
-    chipText: {
-        fontSize: typography.sizes.sm,
-        fontWeight: typography.fontWeights.medium,
-    },
-    loadingContainer: {
-        paddingVertical: spacing.md,
-        alignItems: 'center',
-    },
-    loadingText: {
-        fontSize: typography.sizes.sm,
-    },
 });

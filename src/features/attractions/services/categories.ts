@@ -12,7 +12,6 @@ export async function getAttractionCategories(): Promise<AttractionCategoryItem[
         .order('name_aca', { ascending: true });
 
     if (error) {
-        console.error('[ATTRACTIONS] getAttractionCategories error', error);
         return [];
     }
 

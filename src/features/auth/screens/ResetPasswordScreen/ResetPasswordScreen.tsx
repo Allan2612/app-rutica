@@ -65,7 +65,6 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
         router.replace('/(auth)/login');
       }, 2000);
     } catch (error: any) {
-      console.error('[RESET PASSWORD] Error:', error);
       Toast.show({
         type: 'error',
         text1: 'Error al actualizar',

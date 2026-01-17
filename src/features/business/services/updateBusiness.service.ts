@@ -393,7 +393,6 @@ async function uploadImage(
     });
 
     if (insertError) {
-        console.error('Error inserting business_image:', insertError);
         throw insertError;
     }
 }

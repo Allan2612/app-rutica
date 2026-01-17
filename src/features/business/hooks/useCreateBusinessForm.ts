@@ -153,7 +153,6 @@ export function useCreateBusinessForm() {
                 router.replace('/(app)/(tabs)/manage/businesses');
             }, 500);
         } catch (error) {
-            console.error('Error creating business:', error);
             Toast.show({
                 type: 'error',
                 text1: 'Error al crear el comercio',

@@ -117,7 +117,6 @@ export const useLocationDataStore = create<LocationDataStore>((set, get) => ({
         lastLoadedAt: Date.now(),
       });
     } catch (error) {
-      console.error('[LOCATION STORE] Error:', error);
       set({
         isLoading: false,
         isLoaded: true,

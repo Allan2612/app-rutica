@@ -46,7 +46,6 @@ export function useUserLocation(options: UseUserLocationOptions = {}): UseLocati
       setLocation(currentLocation);
       setLoading(false);
     } catch (err: any) {
-      console.error('[LOCATION] Error:', err);
       setError(err.message || 'Error al obtener ubicación');
       setLoading(false);
     }

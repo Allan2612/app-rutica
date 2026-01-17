@@ -261,7 +261,6 @@ export function useEventForm(eventId?: string) {
 
             router.push('/(app)/(tabs)/manage/events');
         } catch (error) {
-            console.error('Error saving event:', error);
         } finally {
             setIsSubmitting(false);
         }

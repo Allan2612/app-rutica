@@ -70,6 +70,22 @@ export const colors = {
     approved: '#10b981',
     rejected: '#ef4444',
   },
+
+  // Social media brand colors
+  social: {
+    facebook: '#1877f2',
+    instagram: '#E4405F',
+    tiktok: '#00f2ea',
+    tiktokBg: 'rgba(240, 240, 240, 0.3)',
+  },
+
+  // Modal/overlay colors
+  overlay: {
+    dark: 'rgba(0, 0, 0, 0.95)',
+  },
+
+  // Shadow color
+  shadow: '#000',
 } as const;
 
 export type Colors = typeof colors;

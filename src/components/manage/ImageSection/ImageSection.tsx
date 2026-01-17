@@ -7,17 +7,19 @@ import { styles } from './styles';
 
 interface ImageSectionProps {
     logoUri?: string | null;
-    coverUri: string | null;
+    coverUri?: string | null;
     galleryUris: string[];
     onLogoChange?: (uri: string | null) => void;
-    onCoverChange: (uri: string | null) => void;
+    onCoverChange?: (uri: string | null) => void;
     onGalleryChange: (uris: string[]) => void;
     showLogo?: boolean;
+    showCover?: boolean;
     sectionTitle?: string;
     coverLabel?: string;
     coverHelperText?: string;
     galleryLabel?: string;
     galleryHelperText?: string;
+    maxGalleryImages?: number;
 }
 
 export const ImageSection = memo(function ImageSection({
@@ -28,11 +30,13 @@ export const ImageSection = memo(function ImageSection({
     onCoverChange,
     onGalleryChange,
     showLogo = true,
+    showCover = true,
     sectionTitle = 'Imágenes',
     coverLabel = 'Imagen de Portada',
     coverHelperText = 'Imagen principal que se mostrará en la cabecera',
     galleryLabel = 'Galería (Opcional)',
     galleryHelperText = 'Hasta 3 imágenes adicionales del lugar o comercio',
+    maxGalleryImages = 3,
 }: ImageSectionProps) {
     const colors = useThemedColors();
 
@@ -54,18 +58,20 @@ export const ImageSection = memo(function ImageSection({
                 />
             )}
 
-            <SingleImagePicker
-                imageUri={coverUri}
-                onImageChange={onCoverChange}
-                label={coverLabel}
-                helperText={coverHelperText}
-                aspectRatio={[16, 9]}
-            />
+            {showCover && onCoverChange && (
+                <SingleImagePicker
+                    imageUri={coverUri ?? null}
+                    onImageChange={onCoverChange}
+                    label={coverLabel}
+                    helperText={coverHelperText}
+                    aspectRatio={[16, 9]}
+                />
+            )}
 
             <MultipleImagePicker
                 images={galleryUris}
                 onImagesChange={onGalleryChange}
-                maxImages={3}
+                maxImages={maxGalleryImages}
                 label={galleryLabel}
                 helperText={galleryHelperText}
             />

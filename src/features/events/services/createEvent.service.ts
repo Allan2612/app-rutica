@@ -101,7 +101,6 @@ async function uploadImage(
         if (error) throw error;
         return filePath;
     } catch (error) {
-        console.error('Error uploading image:', error);
         throw error;
     }
 }
@@ -177,7 +176,6 @@ export async function createEventComplete(
                 .insert(categoryMaps);
 
             if (categoryError) {
-                console.error('Error associating categories:', categoryError);
             }
         }
 
@@ -198,11 +196,9 @@ export async function createEventComplete(
                             sort_order_eim: 0,
                         });
                         if (insertError) {
-                            console.error('Error inserting cover image:', insertError);
                             throw insertError;
                         }
                     } catch (error) {
-                        console.error('Error uploading cover:', error);
                     }
                 })()
             );
@@ -222,11 +218,9 @@ export async function createEventComplete(
                             sort_order_eim: index + 1,
                         });
                         if (insertError) {
-                            console.error('Error inserting gallery image:', insertError);
                             throw insertError;
                         }
                     } catch (error) {
-                        console.error(`Error uploading gallery image ${index}:`, error);
                     }
                 })()
             );
@@ -236,7 +230,6 @@ export async function createEventComplete(
 
         return eventId;
     } catch (error) {
-        console.error('Error creating event:', error);
         throw error;
     }
 }

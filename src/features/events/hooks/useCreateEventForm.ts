@@ -177,7 +177,6 @@ export function useCreateEventForm() {
                 router.replace('/(app)/(tabs)/manage/events');
             }, 500);
         } catch (error) {
-            console.error('Error creating event:', error);
             Toast.show({
                 type: 'error',
                 text1: 'Error al crear el evento',

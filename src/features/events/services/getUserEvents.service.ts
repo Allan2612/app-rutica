@@ -65,7 +65,6 @@ export async function getUserEvents(userId: string): Promise<UserEvent[]> {
         if (error) throw error;
         return data || [];
     } catch (error) {
-        console.error('Error fetching user events:', error);
         throw error;
     }
 }

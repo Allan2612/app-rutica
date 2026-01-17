@@ -28,7 +28,6 @@ export async function deleteUserAttraction(attractionId: string, userId: string)
         .eq('attraction_id_aim', attractionId);
 
     if (queryError) {
-        console.error('Error querying attraction images:', queryError);
     }
 
     // 3. Eliminar imágenes del bucket de Supabase
@@ -40,8 +39,6 @@ export async function deleteUserAttraction(attractionId: string, userId: string)
             .remove(imagePaths);
 
         if (storageError) {
-            console.error('Error deleting images from storage:', storageError);
-            console.error('Attempted to delete paths:', imagePaths);
         }
 
         // Fallback: eliminar carpeta completa
@@ -60,7 +57,6 @@ export async function deleteUserAttraction(attractionId: string, userId: string)
                     .remove(folderPaths);
             }
         } catch (folderError) {
-            console.error('Error cleaning up attraction folder:', folderError);
         }
     }
 
@@ -71,7 +67,6 @@ export async function deleteUserAttraction(attractionId: string, userId: string)
         .eq('attraction_id_aim', attractionId);
 
     if (imagesError) {
-        console.error('Error deleting attraction images records:', imagesError);
     }
 
     // 5. Eliminar registros de attraction_category_map
@@ -81,7 +76,6 @@ export async function deleteUserAttraction(attractionId: string, userId: string)
         .eq('attraction_id_acm', attractionId);
 
     if (categoryError) {
-        console.error('Error deleting attraction categories:', categoryError);
     }
 
     // 6. Eliminar la atracción

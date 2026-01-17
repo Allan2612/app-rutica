@@ -77,7 +77,6 @@ async function uploadImage(
         if (error) throw error;
         return filePath;
     } catch (error) {
-        console.error('Error uploading image:', error);
         throw error;
     }
 }
@@ -134,7 +133,6 @@ export async function createAttractionComplete(
                 .insert(categoryMaps);
 
             if (categoryError) {
-                console.error('Error associating categories:', categoryError);
             }
         }
 
@@ -155,11 +153,9 @@ export async function createAttractionComplete(
                             sort_order_aim: 0,
                         });
                         if (insertError) {
-                            console.error('Error inserting cover image:', insertError);
                             throw insertError;
                         }
                     } catch (error) {
-                        console.error('Error uploading cover:', error);
                     }
                 })()
             );
@@ -179,11 +175,9 @@ export async function createAttractionComplete(
                             sort_order_aim: index + 1,
                         });
                         if (insertError) {
-                            console.error('Error inserting gallery image:', insertError);
                             throw insertError;
                         }
                     } catch (error) {
-                        console.error(`Error uploading gallery image ${index}:`, error);
                     }
                 })()
             );
@@ -193,7 +187,6 @@ export async function createAttractionComplete(
 
         return attractionId;
     } catch (error) {
-        console.error('Error creating attraction:', error);
         throw error;
     }
 }

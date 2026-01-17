@@ -109,7 +109,6 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
             .eq('business_id_bim', businessId);
 
         if (queryError) {
-            console.error('Error querying business images:', queryError);
         }
 
         // 3. Eliminar imágenes del bucket de Supabase
@@ -122,8 +121,6 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
                 .remove(imagePaths);
 
             if (storageError) {
-                console.error('Error deleting images from storage:', storageError);
-                console.error('Attempted to delete paths:', imagePaths);
             }
 
             // Intentar también listar y eliminar toda la carpeta del negocio (fallback)
@@ -142,7 +139,6 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
                         .remove(folderPaths);
                 }
             } catch (folderError) {
-                console.error('Error cleaning up business folder:', folderError);
             }
         }
 
@@ -153,7 +149,6 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
             .eq('business_id_bim', businessId);
 
         if (imagesError) {
-            console.error('Error deleting business_images records:', imagesError);
         }
 
         // 5. Eliminar categorías asociadas
@@ -163,7 +158,6 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
             .eq('business_id_bcm', businessId);
 
         if (categoriesError) {
-            console.error('Error deleting business_category_map records:', categoriesError);
         }
 
         // 6. Eliminar el negocio
@@ -191,7 +185,6 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
             }
         }
     } catch (error) {
-        console.error('Error in deleteUserBusiness:', error);
         throw error;
     }
 }

@@ -1,15 +1,12 @@
 export * from './BackButton';
 export * from './StatusBadge';
-export * from './ThemedView';
-export * from './ThemedText';
+export * from './CategoryChips';
 export * from './LocationPicker';
 export * from './MapBackground';
 export * from './LocationSearchBar';
-export * from './IconSymbol';
 export * from './TabSelector';
 export * from './CategorySearchBar';
 export * from './CategorySelector';
-export * from './ImageSelector';
 export * from './SingleImagePicker';
 export * from './MultipleImagePicker';
 

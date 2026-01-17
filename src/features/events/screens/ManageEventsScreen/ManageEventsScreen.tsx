@@ -55,7 +55,6 @@ export const ManageEventsScreen = memo(function ManageEventsScreen() {
                 });
                 setDeleteDialog(null);
             } catch (error) {
-                console.error('Error deleting event:', error);
                 Toast.show({
                     type: 'error',
                     text1: 'Error al eliminar',

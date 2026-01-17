@@ -72,7 +72,7 @@ export const LocationPicker = memo(function LocationPicker({
         longitude: newLng,
       });
     } catch (error) {
-      console.error('[LOCATION PICKER] Error getting location:', error);
+      // Error getting location
     } finally {
       setLoadingLocation(false);
     }
@@ -110,7 +110,7 @@ export const LocationPicker = memo(function LocationPicker({
           });
         }
       } catch (error) {
-        console.error('[LOCATION PICKER] Error parsing message:', error);
+        // Error parsing message
       }
     },
     [reverseGeocode, onLocationSelect]

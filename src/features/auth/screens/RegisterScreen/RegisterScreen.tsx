@@ -83,7 +83,6 @@ export const RegisterScreen = memo(function RegisterScreen() {
         router.replace('/(auth)/login');
       }, 1500);
     } catch (error: any) {
-      console.error('[REGISTER] Error:', error);
       Toast.show({
         type: 'error',
         text1: 'Error al registrarse',

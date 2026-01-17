@@ -397,7 +397,6 @@ async function uploadImage(
     });
 
     if (insertError) {
-        console.error('Error inserting event_image:', insertError);
         throw insertError;
     }
 }

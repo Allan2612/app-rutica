@@ -9,31 +9,32 @@ import { getCategoryColorScheme } from '@/utils/categoryColors';
 export interface BusinessCardProps {
   name: string;
   description?: string | null;
-  categoryName?: string | null;
-  categoryId?: string | null;
+  categoryNames?: string[];
+  categoryIds?: string[];
   locationLabel?: string | null;
   imageUrl?: string | null;
   logoUrl?: string | null;
   rating?: number;
   reviewCount?: number;
+  isApproved?: boolean;
   onPress?: () => void;
 }
 
 export const BusinessCard = memo(function BusinessCard({
   name,
   description,
-  categoryName,
-  categoryId = null,
+  categoryNames = [],
+  categoryIds = [],
   locationLabel,
   imageUrl,
   logoUrl,
   rating = 4.5,
   reviewCount = 20,
+  isApproved = false,
   onPress,
 }: BusinessCardProps) {
   const colors = useThemedColors();
-  const categoryColor = getCategoryColorScheme(categoryId);
-  
+
   return (
     <Pressable style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]} onPress={onPress} disabled={!onPress}>
       {imageUrl ? (
@@ -48,11 +49,13 @@ export const BusinessCard = memo(function BusinessCard({
         </View>
       ) : null}
 
-      <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
-        <Star size={16} color="#fbbf24" fill="#fbbf24" />
-        <Text style={[styles.ratingValue, { color: colors.text.primary }]}>{rating.toFixed(1)}</Text>
-        <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>({reviewCount})</Text>
-      </View>
+      {rating > 0 && (
+        <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
+          <Star size={16} color="#fbbf24" fill="#fbbf24" />
+          <Text style={styles.ratingValue}>{rating.toFixed(1)}</Text>
+          <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>({reviewCount})</Text>
+        </View>
+      )}
 
       <LinearGradient
         colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)']}
@@ -62,7 +65,16 @@ export const BusinessCard = memo(function BusinessCard({
       />
 
       <View style={styles.content}>
-        <Text style={styles.title}>{name}</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>{name}</Text>
+          {isApproved && (
+            <Image
+              source={require('../../../../assets/verification.png')}
+              style={styles.verificationIcon}
+              resizeMode="contain"
+            />
+          )}
+        </View>
 
         {description ? (
           <Text style={styles.description} numberOfLines={2}>
@@ -71,18 +83,29 @@ export const BusinessCard = memo(function BusinessCard({
         ) : null}
 
         <View style={styles.metaRow}>
-          {categoryName ? (
-            <View
-              style={[
-                styles.categoryChip,
-                { backgroundColor: categoryColor.backgroundColor },
-              ]}
-            >
-              <Text style={[styles.categoryText, { color: categoryColor.textColor }]}>
-                {categoryName}
+          {categoryNames.length > 0 && categoryNames.slice(0, 2).map((catName, index) => {
+            const categoryColor = getCategoryColorScheme(categoryIds[index]);
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.categoryChip,
+                  { backgroundColor: categoryColor.backgroundColor },
+                ]}
+              >
+                <Text style={[styles.categoryText, { color: categoryColor.textColor }]}>
+                  {catName}
+                </Text>
+              </View>
+            );
+          })}
+          {categoryNames.length > 2 && (
+            <View style={[styles.categoryChip, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+              <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
+                +{categoryNames.length - 2}
               </Text>
             </View>
-          ) : null}
+          )}
         </View>
 
         {locationLabel ? (

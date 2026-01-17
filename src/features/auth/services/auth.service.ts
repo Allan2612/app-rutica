@@ -45,7 +45,6 @@ export async function signUp(input: SignUpInput) {
 
   // Si el perfil NO se creó, el usuario debe cerrar sesión y reportar error
   if (profileError || !profile) {
-    console.error('[AUTH] Error al verificar perfil:', profileError);
     
     // Cerrar la sesión del usuario recién creado
     await supabase.auth.signOut();

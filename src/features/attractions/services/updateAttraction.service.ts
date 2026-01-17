@@ -305,7 +305,6 @@ async function uploadImage(
     });
 
     if (insertError) {
-        console.error('Error inserting attraction_image:', insertError);
         throw insertError;
     }
 }

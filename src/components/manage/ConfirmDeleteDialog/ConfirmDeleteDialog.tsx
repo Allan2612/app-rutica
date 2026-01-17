@@ -7,7 +7,7 @@ import { styles } from './styles';
 interface ConfirmDeleteDialogProps {
     visible: boolean;
     entityName: string;
-    entityType: 'negocio' | 'evento' | 'atracción';
+    entityType: 'negocio' | 'evento' | 'atracción' | 'producto' | 'promoción';
     onConfirm: () => void;
     onCancel: () => void;
     isDeleting?: boolean;
@@ -54,6 +54,18 @@ export const ConfirmDeleteDialog = memo(function ConfirmDeleteDialog({
             title: 'Eliminar atracción',
             description: 'Se eliminará toda la información de la atracción incluyendo imágenes y ubicación.',
             buttonText: 'Eliminar atracción',
+            deletingText: 'Eliminando...',
+        },
+        producto: {
+            title: 'Eliminar producto',
+            description: 'Se eliminará toda la información del producto incluyendo imágenes y precio.',
+            buttonText: 'Eliminar producto',
+            deletingText: 'Eliminando...',
+        },
+        promoción: {
+            title: 'Eliminar promoción',
+            description: 'Se eliminará toda la información de la promoción incluyendo imágenes y descuentos.',
+            buttonText: 'Eliminar promoción',
             deletingText: 'Eliminando...',
         },
     };

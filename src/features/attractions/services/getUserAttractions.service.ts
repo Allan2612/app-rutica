@@ -59,7 +59,6 @@ export async function getUserAttractions(userId: string): Promise<UserAttraction
         if (error) throw error;
         return data || [];
     } catch (error) {
-        console.error('Error fetching user attractions:', error);
         throw error;
     }
 }

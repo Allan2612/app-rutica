@@ -26,7 +26,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
             .eq('event_id_eim', eventId);
 
         if (queryError) {
-            console.error('Error querying event images:', queryError);
         }
 
         // 3. Eliminar imágenes del bucket de Supabase
@@ -39,8 +38,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
                 .remove(imagePaths);
 
             if (storageError) {
-                console.error('Error deleting images from storage:', storageError);
-                console.error('Attempted to delete paths:', imagePaths);
             }
 
             // Intentar también listar y eliminar toda la carpeta del evento (fallback)
@@ -59,7 +56,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
                         .remove(folderPaths);
                 }
             } catch (folderError) {
-                console.error('Error cleaning up event folder:', folderError);
             }
         }
 
@@ -70,7 +66,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
             .eq('event_id_eim', eventId);
 
         if (imagesError) {
-            console.error('Error deleting event_images records:', imagesError);
         }
 
         // 5. Eliminar categorías asociadas
@@ -80,7 +75,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
             .eq('event_id_ecm', eventId);
 
         if (categoriesError) {
-            console.error('Error deleting event_category_map records:', categoriesError);
         }
 
         // 6. Eliminar el evento
@@ -108,7 +102,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
             }
         }
     } catch (error) {
-        console.error('Error in deleteUserEvent:', error);
         throw error;
     }
 }

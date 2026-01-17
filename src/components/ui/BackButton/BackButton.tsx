@@ -1,8 +1,9 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useThemedColors } from '@/hooks';
+import { styles } from './styles';
 
 interface BackButtonProps {
   /** Ruta personalizada a la que navegar. Si no se proporciona, usa router.back() */
@@ -61,20 +62,4 @@ export const BackButton = memo(function BackButton({
       )}
     </Pressable>
   );
-});
-
-const styles = StyleSheet.create({
-  button: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
 });

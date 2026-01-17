@@ -19,7 +19,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   const { width } = useWindowDimensions();
   const colors = useThemedColors();
   const styles = useBusinessesStyles();
-  
+
   // Calcular número de columnas según el ancho
   const numColumns = width > 768 ? 3 : width > 600 ? 2 : 1;
   // Key para forzar re-render al cambiar numColumns
