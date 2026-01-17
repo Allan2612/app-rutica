@@ -1,9 +1,11 @@
 import { memo, useState } from 'react';
-import { View, TextInput, Text } from 'react-native';
+import { View, TextInput, Text, ActivityIndicator } from 'react-native';
 import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
+import { AttractionsList } from '@/components/attractions';
 import { useThemedColors } from '@/hooks';
+import { useCategories } from '@/hooks/useCategories';
+import { useAttractions } from '@/features/attractions/hooks/useAttractions';
 import { styles } from './styles';
-import { useAttractionCategories } from '@/features/attractions/hooks/useAttractionCategories';
 
 const ATTRACTION_TABS: TabOption[] = [
   { id: 'attractions', label: 'Atracciones' },
@@ -16,7 +18,15 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const colors = useThemedColors();
 
-  const { data: categories = [], isLoading } = useAttractionCategories();
+  const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
+  const {
+    data: attractions = [],
+    isLoading: isAttractionsLoading,
+  } = useAttractions({
+    searchText,
+    categoryIds: selectedCategoryIds,
+    enabled: activeTab === 'attractions',
+  });
 
   const toggleCategory = (id: string) => {
     setSelectedCategoryIds((prev) =>
@@ -35,7 +45,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
           onCategoryToggle={toggleCategory}
           onSearchChange={setSearchText}
           searchText={searchText}
-          isLoading={isLoading}
+          isLoading={isCategoriesLoading}
         />
       )}
 
@@ -70,7 +80,26 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
       <TabSelector tabs={ATTRACTION_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Contenido */}
-      <View style={styles.content} />
+      <View style={[styles.content, { backgroundColor: colors.background.secondary }]}>
+        {activeTab === 'attractions' ? (
+          isAttractionsLoading ? (
+            <View style={styles.loader}>
+              <ActivityIndicator size="small" color={colors.primary[600]} />
+            </View>
+          ) : (
+            <AttractionsList data={attractions} />
+          )
+        ) : (
+          <View style={styles.placeholder}>
+            <Text style={[styles.placeholderTitle, { color: colors.text.primary }]}>
+              Explora los eventos pronto
+            </Text>
+            <Text style={[styles.placeholderSubtitle, { color: colors.text.secondary }]}>
+              Estamos preparando los mejores eventos para ti.
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 });

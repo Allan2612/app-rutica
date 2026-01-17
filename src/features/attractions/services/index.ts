@@ -9,6 +9,9 @@ export { deleteUserAttraction } from './deleteAttraction.service';
 export { getAttractionById, updateAttractionComplete } from './updateAttraction.service';
 export type { AttractionDetailForEdit, UpdateAttractionData } from './updateAttraction.service';
 
+export { getAttractionsList, getImageUrl } from './attractions.service';
+export type { AttractionListFilters, AttractionListRecord } from './attractions.service';
+
 /**
  * @deprecated Use getCategories from '@/services/categories.service' and CategoryItem from '@/types/entities'
  */

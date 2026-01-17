@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,6 +8,27 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: spacing.md,
+  },
+  loader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  placeholderTitle: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.fontWeights.bold,
+    textAlign: 'center',
+    marginBottom: spacing.xs + 2,
+  },
+  placeholderSubtitle: {
+    fontSize: typography.sizes.xs,
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });
