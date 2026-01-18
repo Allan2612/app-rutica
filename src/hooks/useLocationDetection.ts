@@ -99,7 +99,6 @@ export function useLocationDetection(
       
       return newSelection;
     } catch (error) {
-      console.error('[LOCATION] Error:', error);
       return null;
     } finally {
       setLoadingLocation(false);

@@ -58,7 +58,8 @@
           "photosPermission": "Rutica necesita acceso a tus fotos para subir imágenes de tu negocio o productos.",
           "cameraPermission": "Rutica necesita acceso a la cámara para tomar fotos de tu negocio o productos."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ]
   }
 }

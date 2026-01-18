@@ -5,7 +5,7 @@ import { useThemedColors } from '@/hooks';
 
 export default function TabsLayout() {
   const colors = useThemedColors();
-  
+
   return (
     <Tabs
       initialRouteName="home"
@@ -27,6 +27,17 @@ export default function TabsLayout() {
         options={{
           title: 'Negocios',
           tabBarIcon: ({ color, size }) => <Store color={color} size={size} />,
+        }}
+        listeners={{
+          tabPress: (e) => {
+            // Redirigir siempre a /businesses index
+            e.preventDefault();
+            const navigation = e.target?.split('-')[0];
+            if (navigation) {
+              // Usar router para navegar a businesses root
+              require('expo-router').router.push('/(app)/(tabs)/businesses');
+            }
+          },
         }}
       />
 
@@ -63,6 +74,7 @@ export default function TabsLayout() {
         options={{
           title: 'Gestionar',
           tabBarIcon: ({ color, size }) => <Wrench color={color} size={size} />,
+          href: '/manage',
         }}
       />
 

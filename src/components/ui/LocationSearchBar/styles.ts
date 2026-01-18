@@ -29,6 +29,21 @@ export const styles = StyleSheet.create({
     }),
   },
 
+  // Dropdown estático (sin botón)
+  dropdownStatic: {
+    width: '100%',
+    borderRadius: spacing.md,
+    maxHeight: 500,
+    borderWidth: 1,
+    ...getShadowStyle({
+      color: '#000',
+      offsetY: 4,
+      opacity: 0.15,
+      radius: 24,
+      elevation: 8,
+    }),
+  },
+
   // Contenedor de mensajes (loading, error)
   messageContainer: {
     padding: spacing.lg,

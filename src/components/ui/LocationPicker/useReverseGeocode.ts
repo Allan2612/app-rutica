@@ -47,7 +47,6 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
       const errorMessage = error?.name === 'AbortError' 
         ? 'Timeout al obtener ubicación (> 8s)'
         : error?.message || 'Error desconocido en geocodificación';
-      console.error('[GEOCODING] Error:', errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -1,12 +1,13 @@
 import { memo, useCallback, useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { User, LogIn } from 'lucide-react-native';
+import { User, LogIn, MapPin } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useLocationStore } from '@/store';
 import { useThemedColors } from '@/hooks';
 import { UserMenu } from '@/components/layout/Header/UserMenu';
+import { LocationDropdown } from '@/components/layout/Header/LocationDropdown';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { styles } from './styles';
 
@@ -16,8 +17,10 @@ interface BaseHeaderProps {
 
 export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHeaderProps) {
   const { user, isLoading, isAuthenticated } = useAuthStore();
+  const { location } = useLocationStore();
   const colors = useThemedColors();
   const [menuVisible, setMenuVisible] = useState(false);
+  const [locationVisible, setLocationVisible] = useState(false);
   const [fontsLoaded] = useFonts({
     Caveat_700Bold,
   });
@@ -30,9 +33,33 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
     setMenuVisible(false);
   }, []);
 
+  const handleLocationPress = useCallback(() => {
+    setLocationVisible(true);
+  }, []);
+
+  const handleCloseLocation = useCallback(() => {
+    setLocationVisible(false);
+  }, []);
+
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+
   const handleLogoPress = useCallback(() => {
     router.push('/(app)/(tabs)/home');
   }, []);
+
+  const getLocationText = () => {
+    if (!location) return 'Ubicación';
+    
+    // En mobile mostrar solo distrito o cantón
+    if (isMobile) {
+      return location.district || location.canton || location.province || 'Ubicación';
+    }
+    
+    // En pantallas grandes mostrar todo
+    const parts = [location.district, location.canton, location.province].filter(Boolean);
+    return parts.length > 0 ? parts.join(', ') : 'Ubicación';
+  };
 
   if (!fontsLoaded) {
     return <Text>Cargando...</Text>;
@@ -62,6 +89,29 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
 
         <View style={styles.rightControls}>
           <Pressable
+            style={styles.locationContainer}
+            onPress={handleLocationPress}
+          >
+            <View style={[
+              styles.locationTextContainer, 
+              { 
+                backgroundColor: colors.background.tertiary,
+                maxWidth: isMobile ? 120 : 250
+              }
+            ]}>
+              <Text 
+                style={[styles.locationText, { color: colors.primary[500] }]} 
+                numberOfLines={1}
+              >
+                {getLocationText()}
+              </Text>
+            </View>
+            <View style={[styles.locationIcon, { backgroundColor: colors.background.tertiary }]}>
+              <MapPin color={colors.primary[600]} size={20} />
+            </View>
+          </Pressable>
+          
+          <Pressable
             style={styles.userButton}
             onPress={handleUserPress}
             disabled={isLoading}
@@ -80,6 +130,11 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
           </Pressable>
         </View>
       </View>
+
+      <LocationDropdown 
+        visible={locationVisible}
+        onClose={handleCloseLocation}
+      />
 
       <UserMenu
         visible={menuVisible}

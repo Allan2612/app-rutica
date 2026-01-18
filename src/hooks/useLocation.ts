@@ -39,7 +39,6 @@ export function useLocation() {
    */
   const saveToDatabase = useCallback(async () => {
     if (!location) {
-      console.warn('[useLocation] No hay ubicación para guardar');
       return { success: false, error: 'No hay ubicación' };
     }
 
@@ -62,7 +61,6 @@ export function useLocation() {
       
       return { success: true, data: location };
     } catch (error: any) {
-      console.error('[useLocation] Error guardando ubicación:', error);
       return { success: false, error: error.message };
     }
   }, [location]);
@@ -96,7 +94,6 @@ export function useLocation() {
       
       return { success: true, data: null };
     } catch (error: any) {
-      console.error('[useLocation] Error cargando ubicación:', error);
       return { success: false, error: error.message };
     }
   }, [setLocation]);

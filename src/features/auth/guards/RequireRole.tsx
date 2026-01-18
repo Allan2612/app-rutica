@@ -1,6 +1,6 @@
 import { memo, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
-import { router, usePathname } from 'expo-router';
+import { router, usePathname, useRootNavigationState } from 'expo-router';
 import type { UserRole } from '@/types/enums';
 import { useAuthStore } from '@/store';
 
@@ -28,6 +28,7 @@ export const RequireRole = memo(function RequireRole({
   children,
 }: RequireRoleProps) {
   const pathname = usePathname();
+  const rootNavigationState = useRootNavigationState();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const role = useAuthStore((s) => s.role);
@@ -36,10 +37,18 @@ export const RequireRole = memo(function RequireRole({
   const isAllowed = hasAuth && !!role && allowedRoles.includes(role);
 
   useEffect(() => {
-    if (!isAllowed && pathname !== redirectTo) {
-      router.replace(redirectTo);
-    }
-  }, [isAllowed, pathname, redirectTo]);
+    // Esperar a que el navegador esté listo antes de intentar navegar
+    if (!rootNavigationState?.key) return;
+
+    // Delay para asegurar que el Root Layout esté montado
+    const timer = setTimeout(() => {
+      if (!isAllowed && pathname !== redirectTo) {
+        router.replace(redirectTo);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [isAllowed, pathname, redirectTo, rootNavigationState?.key]);
 
   if (!isAllowed) {
     return null;

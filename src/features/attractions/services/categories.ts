@@ -1,20 +1,13 @@
-import { supabase } from '@/lib/supabase/client';
+/**
+ * @deprecated Este archivo es obsoleto. Usa @/services/categories.service.ts
+ * Este archivo se mantiene por compatibilidad pero redirige al servicio centralizado
+ */
+import { getCategories } from '@/services/categories.service';
+import { CategoryItem } from '@/types/entities';
 
-export interface AttractionCategoryItem {
-    id: string;
-    name: string;
-}
-
-export async function getAttractionCategories(): Promise<AttractionCategoryItem[]> {
-    const { data, error } = await supabase
-        .from('attraction_category_map')
-        .select('id_aca, name_aca')
-        .order('name_aca', { ascending: true });
-
-    if (error) {
-        console.error('[ATTRACTIONS] getAttractionCategories error', error);
-        return [];
-    }
-
-    return (data ?? []).map((row: any) => ({ id: row.id_aca, name: row.name_aca }));
+/**
+ * @deprecated Use getCategories from '@/services/categories.service' instead
+ */
+export async function getAttractionCategories(): Promise<CategoryItem[]> {
+    return getCategories();
 }

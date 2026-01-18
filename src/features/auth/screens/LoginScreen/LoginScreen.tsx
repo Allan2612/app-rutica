@@ -44,7 +44,6 @@ export const LoginScreen = memo(function LoginScreen() {
         router.replace('/(app)/(tabs)/home');
       }, 500);
     } catch (error: any) {
-      console.error('[LOGIN] Error:', error);
       const errorMessage = error?.message || 'Credenciales incorrectas';
       
       Toast.show({
@@ -62,7 +61,6 @@ export const LoginScreen = memo(function LoginScreen() {
   }, [email, password]);
 
   const handleContinueWithoutAccount = useCallback(() => {
-    console.log('[LOGIN] Continuar sin cuenta');
     router.replace('/(app)/(tabs)/home');
   }, []);
 

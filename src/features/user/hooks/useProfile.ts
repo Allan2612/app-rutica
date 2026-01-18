@@ -34,7 +34,6 @@ export function useProfile(): UseProfileReturn {
       const data = await getCurrentProfile(user.id);
       setProfile(data);
     } catch (err: any) {
-      console.error('[useProfile] Error al cargar perfil:', err);
       setError(err.message || 'Error al cargar perfil');
       setProfile(null);
     } finally {
@@ -54,7 +53,6 @@ export function useProfile(): UseProfileReturn {
         const updatedProfile = await updateUserProfile(user.id, updates);
         setProfile(updatedProfile);
       } catch (err: any) {
-        console.error('[useProfile] Error al actualizar perfil:', err);
         setError(err.message || 'Error al actualizar perfil');
         throw err;
       } finally {

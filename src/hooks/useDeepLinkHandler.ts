@@ -33,7 +33,7 @@ export function useDeepLinkHandler() {
             router.replace('/(auth)/reset-password');
           }
         } catch (error) {
-          console.error('[DEEP LINK] Error procesando URL:', error);
+          // Error processing deep link
         }
       }
     };

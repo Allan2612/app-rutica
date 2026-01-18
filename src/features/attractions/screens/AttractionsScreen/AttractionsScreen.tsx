@@ -1,9 +1,14 @@
 import { memo, useState } from 'react';
-import { View, TextInput, Text } from 'react-native';
-import { TabSelector, TabOption, CategorySearchBar } from '@/components/ui';
+import { View, ActivityIndicator, Pressable } from 'react-native';
+import { Search, SlidersHorizontal } from 'lucide-react-native';
+import { TabSelector, TabOption, SearchFilterModal, SearchFilters } from '@/components/ui';
+import { AttractionsList } from '@/components/attractions';
+import { EventsList } from '@/components/events';
 import { useThemedColors } from '@/hooks';
+import { useCategories } from '@/hooks/useCategories';
+import { useAttractions } from '@/features/attractions/hooks/useAttractions';
+import { useEvents } from '@/features/events/hooks/useEvents';
 import { styles } from './styles';
-import { useAttractionCategories } from '@/features/attractions/hooks/useAttractionCategories';
 
 const ATTRACTION_TABS: TabOption[] = [
   { id: 'attractions', label: 'Atracciones' },
@@ -12,65 +17,123 @@ const ATTRACTION_TABS: TabOption[] = [
 
 export const AttractionsScreen = memo(function AttractionsScreen() {
   const [activeTab, setActiveTab] = useState('attractions');
-  const [searchText, setSearchText] = useState('');
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  
+  // Filtros para atracciones
+  const [attractionFilters, setAttractionFilters] = useState<SearchFilters>({
+    searchText: '',
+    categoryIds: [],
+  });
+  
+  // Filtros para eventos
+  const [eventFilters, setEventFilters] = useState<SearchFilters>({
+    searchText: '',
+    categoryIds: [],
+  });
+  
   const colors = useThemedColors();
 
-  const { data: categories = [], isLoading } = useAttractionCategories();
+  const { data: categories = [] } = useCategories();
+  
+  const {
+    data: attractions = [],
+    isLoading: isAttractionsLoading,
+    refetch: refetchAttractions,
+    isRefetching: isAttractionsRefetching,
+  } = useAttractions({
+    searchText: attractionFilters.searchText,
+    categoryIds: attractionFilters.categoryIds,
+    enabled: activeTab === 'attractions',
+  });
 
-  const toggleCategory = (id: string) => {
-    setSelectedCategoryIds((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
+  const {
+    data: events = [],
+    isLoading: isEventsLoading,
+    refetch: refetchEvents,
+    isRefetching: isEventsRefetching,
+  } = useEvents({
+    searchText: eventFilters.searchText,
+    categoryIds: eventFilters.categoryIds,
+    upcoming: true,
+  });
+
+  const currentFilters = activeTab === 'attractions' ? attractionFilters : eventFilters;
+  const hasActiveFilters = currentFilters.searchText !== '' || currentFilters.categoryIds.length > 0;
+
+  const handleApplyFilters = (filters: SearchFilters) => {
+    if (activeTab === 'attractions') {
+      setAttractionFilters(filters);
+    } else {
+      setEventFilters(filters);
+    }
   };
+
+  const SearchButton = (
+    <Pressable
+      onPress={() => setIsSearchModalVisible(true)}
+      style={[
+        styles.searchButton,
+        { 
+          backgroundColor: hasActiveFilters 
+            ? colors.primary[500] 
+            : colors.background.secondary,
+        },
+      ]}
+    >
+      {hasActiveFilters ? (
+        <SlidersHorizontal size={18} color={colors.text.inverse} />
+      ) : (
+        <Search size={18} color={colors.text.secondary} />
+      )}
+    </Pressable>
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
-      {/* Category Search - solo para Atracciones */}
-      {activeTab === 'attractions' && (
-        <CategorySearchBar
-          placeholder="Buscar atracciones..."
-          categories={categories}
-          selectedCategoryIds={selectedCategoryIds}
-          onCategoryToggle={toggleCategory}
-          onSearchChange={setSearchText}
-          searchText={searchText}
-          isLoading={isLoading}
-        />
-      )}
-
-      {/* Search simple para Eventos */}
-      {activeTab === 'events' && (
-        <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 }}>
-          <View
-            style={{
-              borderWidth: 1,
-              borderColor: colors.border.dark,
-              borderRadius: 8,
-              backgroundColor: colors.background.secondary,
-              paddingHorizontal: 12,
-            }}
-          >
-            <TextInput
-              placeholder="Buscar eventos..."
-              placeholderTextColor={colors.text.tertiary}
-              value={searchText}
-              onChangeText={setSearchText}
-              style={{
-                paddingVertical: 10,
-                fontSize: 14,
-                color: colors.text.primary,
-              }}
-            />
-          </View>
-        </View>
-      )}
-
-      {/* Tabs debajo del search */}
-      <TabSelector tabs={ATTRACTION_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Tabs con botón de búsqueda a la derecha */}
+      <TabSelector 
+        tabs={ATTRACTION_TABS} 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        rightElement={SearchButton}
+      />
 
       {/* Contenido */}
-      <View style={styles.content} />
+      <View style={[styles.content, { backgroundColor: colors.background.secondary }]}>
+        {activeTab === 'attractions' ? (
+          isAttractionsLoading ? (
+            <View style={styles.loader}>
+              <ActivityIndicator size="small" color={colors.primary[600]} />
+            </View>
+          ) : (
+            <AttractionsList 
+              data={attractions}
+              isRefreshing={isAttractionsRefetching}
+              onRefresh={() => refetchAttractions()}
+            />
+          )
+        ) : (
+          <EventsList
+            events={events}
+            isLoading={isEventsLoading}
+            isRefreshing={isEventsRefetching}
+            onRefresh={() => refetchEvents()}
+            emptyMessage="No hay eventos próximos disponibles"
+          />
+        )}
+      </View>
+
+      {/* Modal de búsqueda y filtros */}
+      <SearchFilterModal
+        visible={isSearchModalVisible}
+        onClose={() => setIsSearchModalVisible(false)}
+        onApply={handleApplyFilters}
+        categories={categories}
+        initialSearchText={currentFilters.searchText}
+        initialCategoryIds={currentFilters.categoryIds}
+        placeholder={activeTab === 'attractions' ? 'Buscar atracciones...' : 'Buscar eventos...'}
+        title={activeTab === 'attractions' ? 'Buscar Atracciones' : 'Buscar Eventos'}
+      />
     </View>
   );
 });

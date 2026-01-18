@@ -117,6 +117,16 @@ export const UserMenu = memo(function UserMenu({
                 <UserCircle color={colors.text.primary} size={20} />
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Registrarse</Text>
               </Pressable>
+              
+              <Pressable style={styles.menuItem} onPress={handleSettings}>
+                <Settings color={colors.text.primary} size={20} />
+                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Configuración</Text>
+              </Pressable>
+
+              <Pressable style={styles.menuItem} onPress={handleSupport}>
+                <UserCircle color={colors.primary[500]} size={20} />
+                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Soporte</Text>
+              </Pressable>
             </>
           )}
         </View>

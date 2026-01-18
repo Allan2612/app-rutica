@@ -45,7 +45,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
     } catch (error) {
-      console.error('[THEME] Error saving theme to storage:', error);
+      // Error saving theme
     }
     
     // Si es auto, ya se resolverá con updateEffectiveTheme
@@ -76,7 +76,6 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
         set({ isLoaded: true });
       }
     } catch (error) {
-      console.error('[THEME] Error loading theme from storage:', error);
       set({ isLoaded: true });
     }
   },

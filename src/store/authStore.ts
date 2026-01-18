@@ -103,7 +103,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const authUser = session.user;
 
       if (!authUser) {
-        console.warn('[AUTH] No hay usuario en la sesión');
         set({
           user: null,
           role: null,
@@ -124,13 +123,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (profileError) {
         // Si el perfil no existe, desloguear
         if (profileError.code === 'PGRST116') {
-          console.warn('[AUTH] Perfil no existe, cerrando sesión');
           set({ _isLoadingData: false });
           await get().signOut();
           return;
         }
         
-        console.warn('[AUTH] Error al cargar perfil:', profileError);
         // Otros errores: mantener sesión sin rol
         set({
           user: authUser,
@@ -150,7 +147,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         });
       }
     } catch (error: any) {
-      console.error('[AUTH] Error crítico al cargar datos:', error?.message || error);
       // IMPORTANTE: Siempre resetear el flag en caso de error
       set({
         user: null,
@@ -176,7 +172,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         _isLoadingData: false,
       });
     } catch (error) {
-      console.error('[AUTH] Error al cerrar sesión:', error);
       // Limpiar estado local de todos modos
       set({
         user: null,

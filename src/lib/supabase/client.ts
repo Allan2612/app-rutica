@@ -32,7 +32,6 @@ const ExpoAsyncStorageAdapter = {
       
       return value;
     } catch (error) {
-      console.warn('[Supabase Storage] Error al leer item:', error);
       return null;
     }
   },
@@ -47,10 +46,6 @@ const ExpoAsyncStorageAdapter = {
     try {
       // Si el valor es muy grande, no lo guardamos para evitar problemas
       if (value.length > MAX_SECURE_STORE_SIZE * 2) {
-        console.warn(
-          `[Supabase Storage] Valor muy grande para AsyncStorage (${value.length} bytes). ` +
-          'Algunos datos de sesión pueden perderse.'
-        );
         // Intentar guardar solo la parte crítica (token)
         if (key.includes('session')) {
           try {
@@ -70,10 +65,7 @@ const ExpoAsyncStorageAdapter = {
     } catch (error: any) {
       // Si AsyncStorage falla por tamaño, intentar con localStorage en web
       if (error?.message?.includes('size') || error?.message?.includes('quota')) {
-        console.warn('[Supabase Storage] Almacenamiento lleno, limpiando datos antiguos...');
         // En un caso real, aquí se podría limpiar datos antiguos
-      } else {
-        console.error('[Supabase Storage] Error al guardar item:', error);
       }
     }
   },
@@ -87,7 +79,7 @@ const ExpoAsyncStorageAdapter = {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.warn('[Supabase Storage] Error al remover item:', error);
+      // Error removing item
     }
   },
 };
@@ -98,5 +90,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
+  },
+  global: {
+    headers: {
+      'Accept': 'application/json',
+    },
   },
 });

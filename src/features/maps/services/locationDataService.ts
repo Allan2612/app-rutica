@@ -55,18 +55,15 @@ export class LocationDataService {
         .order('province_loc', { ascending: true });
 
       if (error) {
-        console.error('[LOCATION SERVICE] Error:', error.message);
         return null;
       }
 
       if (!data || data.length === 0) {
-        console.warn('[LOCATION SERVICE] No hay datos en la tabla');
         return null;
       }
       
       return this.processLocations(data as Location[]);
     } catch (error) {
-      console.error('[LOCATION SERVICE] Error inesperado:', error);
       return null;
     }
   }

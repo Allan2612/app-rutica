@@ -10,14 +10,18 @@ export interface LocationSearchBarProps {
   onLocationChange?: (selection: LocationSelection) => void;
   placeholder?: string;
   autoDetectLocation?: boolean;
+  initialOpen?: boolean;
+  hideButton?: boolean;
 }
 
 export const LocationSearchBar = memo(function LocationSearchBar({
   onLocationChange,
   placeholder = 'Buscar ubicación o provincia...',
   autoDetectLocation = true,
+  initialOpen = false,
+  hideButton = false,
 }: LocationSearchBarProps) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(initialOpen);
   const [searchText, setSearchText] = useState('');
   const [expandedProvince, setExpandedProvince] = useState<string | null>(null);
   const [expandedCanton, setExpandedCanton] = useState<string | null>(null);
@@ -102,19 +106,21 @@ export const LocationSearchBar = memo(function LocationSearchBar({
   return (
     <View style={styles.container}>
       {/* Botón de búsqueda */}
-      <SearchButton
-        selectedDistrict={selectedDistrict}
-        selectedCanton={selectedCanton}
-        selectedProvince={selectedProvince}
-        loadingLocation={loadingLocation}
-        onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-        onLocationPress={handleGetCurrentLocation}
-      />
+      {!hideButton && (
+        <SearchButton
+          selectedDistrict={selectedDistrict}
+          selectedCanton={selectedCanton}
+          selectedProvince={selectedProvince}
+          loadingLocation={loadingLocation}
+          onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+          onLocationPress={handleGetCurrentLocation}
+        />
+      )}
 
       {/* Dropdown de selección */}
       {isDropdownOpen && (
         <View style={[
-          styles.dropdown,
+          hideButton ? styles.dropdownStatic : styles.dropdown,
           {
             backgroundColor: colors.background.primary,
             borderColor: colors.border.medium,
