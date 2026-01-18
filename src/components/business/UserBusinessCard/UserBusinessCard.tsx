@@ -130,7 +130,7 @@ export const UserBusinessCard = memo(function UserBusinessCard({
                     style={({ pressed }) => [
                         styles.actionButton,
                         {
-                            backgroundColor: colors.primary[700],
+                            backgroundColor: colors.primary[600],
                             opacity: pressed ? 0.8 : 1,
                         },
                     ]}

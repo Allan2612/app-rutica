@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
     titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        marginBottom: spacing.xs,
         flexWrap: 'wrap',
     },
     title: {
@@ -65,6 +65,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: spacing.xs,
+        marginTop: spacing.xs + 1,
         gap: spacing.xs,
     },
     eventInfoText: {
@@ -77,7 +78,7 @@ export const styles = StyleSheet.create({
     description: {
         fontSize: typography.sizes.sm,
         lineHeight: 20,
-        marginTop: spacing.sm,
+        marginTop: spacing.xs,
     },
     categoriesRow: {
         flexDirection: 'row',

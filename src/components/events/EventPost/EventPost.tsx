@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Image, Pressable, Text, View, Dimensions, Linking, Platform } from 'react-native';
-import { MapPin, Calendar, Phone, Mail, Globe, PartyPopper, Star, Facebook, Instagram } from 'lucide-react-native';
+import { MapPin, Calendar, Phone, Mail, Globe, PartyPopper, Star, Facebook, Instagram, Users, Coins } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { ImageCarousel, TikTokIcon } from '@/components/ui';
 import { styles } from './styles';
@@ -68,8 +68,12 @@ function formatEventDate(startAt: string, endAt: string): string {
         return `${capitalizeFirst(start.toLocaleDateString('es-CR', dateOptions))}, ${start.toLocaleTimeString('es-CR', timeOptions)}`;
     }
 
-    // Múltiples días
-    return `${capitalizeFirst(start.toLocaleDateString('es-CR', dateOptions))} - ${capitalizeFirst(end.toLocaleDateString('es-CR', dateOptions))}`;
+    // Múltiples días - incluir horas de inicio y fin
+    const startDate = capitalizeFirst(start.toLocaleDateString('es-CR', { day: 'numeric', month: 'long' }));
+    const endDate = capitalizeFirst(end.toLocaleDateString('es-CR', { day: 'numeric', month: 'long' }));
+    const startTime = start.toLocaleTimeString('es-CR', timeOptions);
+    const endTime = end.toLocaleTimeString('es-CR', timeOptions);
+    return `${startDate} - ${startTime} a ${endDate} - ${endTime}`;
 }
 
 function capitalizeFirst(str: string): string {
@@ -118,6 +122,20 @@ function openMaps(latitude: number, longitude: number, label?: string) {
         default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
     });
     Linking.openURL(url);
+}
+
+function extractSocialUsername(url: string): string {
+    // Eliminar protocolo y www
+    let cleaned = url.replace(/^https?:\/\/(www\.)?/, '');
+    // Eliminar dominio y obtener lo que sigue después de /
+    const parts = cleaned.split('/');
+    if (parts.length > 1) {
+        // Obtener el username (segunda parte después del dominio)
+        const username = parts[1].replace('@', '');
+        return username ? `@${username}` : url;
+    }
+    // Si no hay /, asumimos que es solo el username
+    return cleaned.replace('@', '') ? `@${cleaned.replace('@', '')}` : url;
 }
 
 export function EventPost({
@@ -224,35 +242,7 @@ export function EventPost({
                     )}
                 </View>
 
-                {/* Fecha y hora del evento */}
-                <View style={styles.eventInfoRow}>
-                    <Calendar size={16} color={colors.primary[500]} />
-                    <Text style={[styles.eventInfoText, { color: colors.text.primary }]}>
-                        {eventDateLabel}
-                    </Text>
-                </View>
-
-                {/* Precio - sin icono si es gratis */}
-                <View style={styles.eventInfoRow}>
-                    <Text style={[
-                        styles.eventInfoText,
-                        styles.priceText,
-                        { color: isFree ? '#10b981' : colors.text.primary }
-                    ]}>
-                        {priceLabel}
-                    </Text>
-                </View>
-
-                {/* Cupos disponibles */}
-                {capacity && capacity > 0 && (
-                    <View style={styles.eventInfoRow}>
-                        <PartyPopper size={16} color={colors.primary[500]} />
-                        <Text style={[styles.eventInfoText, { color: colors.text.primary }]}>
-                            {capacity} cupos disponibles
-                        </Text>
-                    </View>
-                )}
-
+                {/* Descripción */}
                 {description && (
                     <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={3}>
                         {description}
@@ -289,6 +279,36 @@ export function EventPost({
                     </View>
                 )}
 
+                {/* Fecha y hora del evento */}
+                <View style={styles.eventInfoRow}>
+                    <Calendar size={16} color={colors.primary[500]} />
+                    <Text style={[styles.eventInfoText, { color: colors.text.primary }]}>
+                        {eventDateLabel}
+                    </Text>
+                </View>
+
+                {/* Precio */}
+                <View style={styles.eventInfoRow}>
+                    <Coins size={16} color={isFree ? '#10b981' : colors.primary[500]} />
+                    <Text style={[
+                        styles.eventInfoText,
+                        styles.priceText,
+                        { color: isFree ? '#10b981' : colors.text.primary }
+                    ]}>
+                        {priceLabel}
+                    </Text>
+                </View>
+
+                {/* Cupos disponibles */}
+                {capacity && capacity > 0 && (
+                    <View style={styles.eventInfoRow}>
+                        <Users size={16} color={colors.primary[500]} />
+                        <Text style={[styles.eventInfoText, { color: colors.text.primary }]}>
+                            {capacity} cupos disponibles
+                        </Text>
+                    </View>
+                )}
+
                 {/* Rating */}
                 {rating > 0 && (
                     <View style={styles.ratingRow}>
@@ -320,7 +340,7 @@ export function EventPost({
                             >
                                 <Facebook size={14} color="#1877F2" />
                                 <Text style={[styles.contactText, { color: '#1877F2' }]} numberOfLines={1}>
-                                    Facebook
+                                    {extractSocialUsername(socialLinks.facebook)}
                                 </Text>
                             </Pressable>
                         )}
@@ -344,7 +364,7 @@ export function EventPost({
                             >
                                 <Instagram size={14} color="#E4405F" />
                                 <Text style={[styles.contactText, { color: '#E4405F' }]} numberOfLines={1}>
-                                    Instagram
+                                    {extractSocialUsername(socialLinks.instagram)}
                                 </Text>
                             </Pressable>
                         )}
@@ -366,7 +386,7 @@ export function EventPost({
                             >
                                 <TikTokIcon size={14} color={colors.text.primary} />
                                 <Text style={[styles.contactText, { color: colors.text.primary }]} numberOfLines={1}>
-                                    TikTok
+                                    {extractSocialUsername(socialLinks.tiktok)}
                                 </Text>
                             </Pressable>
                         )}
