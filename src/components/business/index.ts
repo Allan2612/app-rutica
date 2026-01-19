@@ -9,5 +9,8 @@ export * from './ContactSection';
 export * from './SocialButtons';
 export * from './CoverImage';
 export * from './ImageViewerModal';
+export * from './ProductCard';
+export * from './ProductImageCarousel';
+export * from './BusinessProducts';
 // BusinessesList se importa directamente para evitar referencias circulares
 

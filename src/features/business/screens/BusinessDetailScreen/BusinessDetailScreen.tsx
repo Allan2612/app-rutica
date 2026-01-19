@@ -7,6 +7,7 @@ import { useBusinessDetail } from '@/features/business/hooks/useBusinessDetail';
 import {
     BusinessHeader,
     BusinessGallery,
+    BusinessProducts,
     ContactSection,
     CoverImage,
     ImageViewerModal
@@ -106,6 +107,9 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                                 onImagePress={setSelectedImage}
                             />
                         )}
+
+                        {/* Products Section */}
+                        <BusinessProducts businessId={business.id} />
 
                         {/* Contact Section with Social Links */}
                         <ContactSection

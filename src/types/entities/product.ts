@@ -54,6 +54,7 @@ export interface ProductListItem {
   categoryNames: string[];
   categoryIds: string[];
   imageUrl: string | null;
+  imageUrls: string[];
   isActive: boolean;
 }
 
