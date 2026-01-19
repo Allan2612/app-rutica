@@ -20,7 +20,7 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
 
     return (
         <View style={styles.contactSection}>
-            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+            <Text style={[styles.sectionTitle, { color: themedColors.text.primary }]}>
                 Contáctenos
             </Text>
 

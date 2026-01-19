@@ -35,7 +35,7 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
         <View style={styles.header}>
             <View style={styles.infoSection}>
                 <View style={styles.nameRow}>
-                    <Text style={[styles.name, { color: '#FFFFFF' }]}>{name}</Text>
+                    <Text style={[styles.name, { color: themedColors.text.primary }]}>{name}</Text>
                     {isApproved && (
                         <Image
                             source={require('../../../../assets/verification.png')}
@@ -46,7 +46,7 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
                 </View>
 
                 {description && (
-                    <Text style={[styles.description, { color: '#FFFFFF' }]}>
+                    <Text style={[styles.description, { color: themedColors.text.primary }]}>
                         {description}
                     </Text>
                 )}
@@ -83,8 +83,8 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
                         onPress={handleLocationPress}
                         disabled={!latitude || !longitude}
                     >
-                        <MapPin size={18} color="#FFFFFF" />
-                        <Text style={[styles.locationText, { color: '#FFFFFF' }]}>
+                        <MapPin size={18} color={themedColors.text.primary} />
+                        <Text style={[styles.locationText, { color: themedColors.text.primary }]}>
                             {locationLabel}
                         </Text>
                     </Pressable>

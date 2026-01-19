@@ -9,6 +9,7 @@ import {
     Platform,
 } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 interface BusinessGalleryProps {
@@ -27,6 +28,7 @@ const AUTO_SCROLL_INTERVAL = 3000;
 export const BusinessGallery = memo(({ images, onImagePress }: BusinessGalleryProps) => {
     const flatListRef = useRef<FlatList>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const colors = useThemedColors();
 
     useEffect(() => {
         if (!images || images.length <= 1) {
@@ -77,7 +79,7 @@ export const BusinessGallery = memo(({ images, onImagePress }: BusinessGalleryPr
 
     return (
         <View style={styles.gallerySection}>
-            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
                 Galería
             </Text>
             <View style={styles.carouselWrapper}>

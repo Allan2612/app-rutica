@@ -22,7 +22,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId }: B
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+                <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
                     Nuestros Productos
                 </Text>
                 <View style={styles.loadingContainer}>
@@ -34,7 +34,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId }: B
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
                 Nuestros Productos
             </Text>
 
