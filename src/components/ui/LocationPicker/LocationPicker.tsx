@@ -9,7 +9,9 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
+import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
+import { isWithinCostaRica, COSTA_RICA_CENTER } from '@/utils/geoHelpers';
 import { styles } from './styles';
 import { generateMapHTML } from './mapTemplate';
 import { useReverseGeocode } from './useReverseGeocode';
@@ -31,9 +33,9 @@ export interface LocationPickerProps {
   height?: number;
 }
 
-// Coordenadas por defecto: Costa Rica
-const DEFAULT_LAT = 9.9281;
-const DEFAULT_LNG = -84.0907;
+// Coordenadas por defecto: Centro de Costa Rica
+const DEFAULT_LAT = COSTA_RICA_CENTER.latitude;
+const DEFAULT_LNG = COSTA_RICA_CENTER.longitude;
 
 export const LocationPicker = memo(function LocationPicker({
   initialLatitude,
@@ -50,7 +52,7 @@ export const LocationPicker = memo(function LocationPicker({
   const hasInitializedFromProps = useRef(false);
   const colors = useThemedColors();
 
-  const { reverseGeocode, isLoading: loadingAddress } = useReverseGeocode();
+  const { reverseGeocode, isLoading: loadingAddress, error: geocodeError } = useReverseGeocode();
 
   // Actualizar coordenadas cuando cambian las props iniciales (ej: cuando se cargan datos del negocio)
   useEffect(() => {
@@ -81,19 +83,24 @@ export const LocationPicker = memo(function LocationPicker({
       const location = await Location.getCurrentPositionAsync({});
       const newLat = location.coords.latitude;
       const newLng = location.coords.longitude;
+
+      // Solo enviar coordenadas (dirección se obtiene al guardar)
       setLatitude(newLat);
       setLongitude(newLng);
-      setMapKey((prev) => prev + 1); // Forzar re-render del mapa
-
-      // Obtener dirección y notificar al padre
-      const locationData = await reverseGeocode(newLat, newLng);
+      setMapKey((prev) => prev + 1);
+      
       onLocationSelect({
-        ...locationData,
         latitude: newLat,
         longitude: newLng,
       });
     } catch (error) {
-      // Error getting location
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo obtener tu ubicación',
+        position: 'top',
+        visibilityTime: 3000,
+      });
     } finally {
       setLoadingLocation(false);
     }
@@ -111,17 +118,39 @@ export const LocationPicker = memo(function LocationPicker({
     (event: any) => {
       try {
         const data = JSON.parse(event.nativeEvent.data);
+        
+        // Manejar mensajes de error (ubicación fuera de Costa Rica)
+        if (data.error) {
+          Toast.show({
+            type: 'error',
+            text1: 'Ubicación no válida',
+            text2: data.error,
+            position: 'top',
+            visibilityTime: 3000,
+          });
+          return;
+        }
+        
         if (data.latitude && data.longitude) {
+          // Validar que esté dentro de Costa Rica (coordenadas)
+          if (!isWithinCostaRica(data.latitude, data.longitude)) {
+            Toast.show({
+              type: 'error',
+              text1: 'Ubicación no válida',
+              text2: 'La ubicación debe estar dentro de Costa Rica',
+              position: 'top',
+              visibilityTime: 3000,
+            });
+            return;
+          }
+          
+          // Solo enviar coordenadas (dirección se obtiene al guardar)
           setLatitude(data.latitude);
           setLongitude(data.longitude);
-
-          // Obtener dirección automáticamente
-          reverseGeocode(data.latitude, data.longitude).then((locationData) => {
-            onLocationSelect({
-              ...locationData,
-              latitude: data.latitude,
-              longitude: data.longitude,
-            });
+          
+          onLocationSelect({
+            latitude: data.latitude,
+            longitude: data.longitude,
           });
         }
       } catch (error) {
@@ -195,20 +224,40 @@ export const LocationPicker = memo(function LocationPicker({
             window.addEventListener('message', (event) => {
               try {
                 const data = JSON.parse(event.data);
+                
+                // Manejar mensajes de error (ubicación fuera de Costa Rica)
+                if (data.error) {
+                  Toast.show({
+                    type: 'error',
+                    text1: 'Ubicación no válida',
+                    text2: data.error,
+                    position: 'top',
+                    visibilityTime: 3000,
+                  });
+                  return;
+                }
+                
                 if (data.latitude && data.longitude) {
+                  // Validar que esté dentro de Costa Rica (coordenadas)
+                  if (!isWithinCostaRica(data.latitude, data.longitude)) {
+                    Toast.show({
+                      type: 'error',
+                      text1: 'Ubicación no válida',
+                      text2: 'La ubicación debe estar dentro de Costa Rica',
+                      position: 'top',
+                      visibilityTime: 3000,
+                    });
+                    return;
+                  }
+                  
+                  // Solo enviar coordenadas (dirección se obtiene al guardar)
                   setLatitude(data.latitude);
                   setLongitude(data.longitude);
-
-                  // Obtener dirección automáticamente
-                  reverseGeocode(data.latitude, data.longitude).then(
-                    (locationData) => {
-                      onLocationSelect({
-                        ...locationData,
-                        latitude: data.latitude,
-                        longitude: data.longitude,
-                      });
-                    }
-                  );
+                  
+                  onLocationSelect({
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                  });
                 }
               } catch (error) {
                 // Ignorar mensajes no JSON

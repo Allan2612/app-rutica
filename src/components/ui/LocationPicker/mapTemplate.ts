@@ -6,7 +6,16 @@ export interface MapOptions {
   showCoordinates?: boolean;
   zoom?: number;
   theme?: 'light' | 'dark';
+  restrictToCostaRica?: boolean;
 }
+
+// Límites geográficos de Costa Rica
+const COSTA_RICA_BOUNDS = {
+  north: 11.22,
+  south: 8.03,
+  east: -82.55,
+  west: -85.95,
+};
 
 /**
  * Genera el HTML para el mapa interactivo Leaflet
@@ -21,6 +30,7 @@ export function generateMapHTML(
     showCoordinates = true,
     zoom = 15,
     theme = 'light',
+    restrictToCostaRica = true,
   } = options;
 
   // Carto: usar base sin labels + overlay de labels en modo dark para mejorar legibilidad
@@ -150,8 +160,20 @@ export function generateMapHTML(
   ` : ''}
 
   <script>
+    // Límites geográficos de Costa Rica
+    const costaRicaBounds = ${restrictToCostaRica ? `[
+      [${COSTA_RICA_BOUNDS.south}, ${COSTA_RICA_BOUNDS.west}], // Suroeste
+      [${COSTA_RICA_BOUNDS.north}, ${COSTA_RICA_BOUNDS.east}]  // Noreste
+    ]` : 'null'};
+
     // Inicializar mapa
-    const map = L.map('map').setView([${latitude}, ${longitude}], ${zoom});
+    const mapOptions = {
+      maxBounds: costaRicaBounds,
+      maxBoundsViscosity: 1.0, // Hace que los límites sean "sólidos"
+      minZoom: ${restrictToCostaRica ? '8' : '3'}, // Evita alejar demasiado cuando se restringe a CR
+    };
+    
+    const map = L.map('map', mapOptions).setView([${latitude}, ${longitude}], ${zoom});
 
     // Agregar tiles (con fallback si el proveedor falla)
     const primaryAttribution = ${JSON.stringify(primaryAttribution)};
@@ -235,8 +257,41 @@ export function generateMapHTML(
     }).addTo(map);
 
     ${draggable ? `
+    // Validar si las coordenadas están dentro de Costa Rica
+    function isWithinCostaRica(lat, lng) {
+      ${restrictToCostaRica ? `
+      return lat >= ${COSTA_RICA_BOUNDS.south} && 
+             lat <= ${COSTA_RICA_BOUNDS.north} && 
+             lng >= ${COSTA_RICA_BOUNDS.west} && 
+             lng <= ${COSTA_RICA_BOUNDS.east};
+      ` : 'return true;'}
+    }
+
     // Actualizar coordenadas cuando se mueve el marcador
     function updateCoordinates(lat, lng) {
+      ${restrictToCostaRica ? `
+      // Validar que esté dentro de Costa Rica
+      if (!isWithinCostaRica(lat, lng)) {
+        // Mostrar mensaje de error
+        const errorMessage = 'La ubicación debe estar dentro de Costa Rica';
+        marker.bindPopup('<b style="color: #dc2626;">⚠️ Ubicación no válida</b><br>' + errorMessage).openPopup();
+        
+        // Enviar error a React Native/Web
+        const errorMsg = JSON.stringify({
+          error: errorMessage,
+          latitude: lat,
+          longitude: lng
+        });
+        
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(errorMsg);
+        } else {
+          window.parent.postMessage(errorMsg, '*');
+        }
+        return;
+      }
+      ` : ''}
+      
       ${showCoordinates ? `
       document.getElementById('lat').textContent = lat.toFixed(6);
       document.getElementById('lng').textContent = lng.toFixed(6);

@@ -85,6 +85,22 @@ export function useCreateEventForm() {
     }, [errors]);
 
     const handleLocationSelect = useCallback((location: any) => {
+        // Validar que la ubicación tenga país y sea Costa Rica
+        const country = location.country?.toLowerCase() || '';
+        const isCostaRica = country.includes('costa rica') || country === 'cr';
+        
+        if (!isCostaRica && location.country) {
+            // Si tiene país pero no es Costa Rica, rechazar
+            Toast.show({
+                type: 'error',
+                text1: 'Ubicación no válida',
+                text2: `La ubicación está en ${location.country}, debe estar en Costa Rica`,
+                position: 'top',
+                visibilityTime: 4000,
+            });
+            return;
+        }
+        
         setFormData((prev) => ({
             ...prev,
             province: location.province || null,
