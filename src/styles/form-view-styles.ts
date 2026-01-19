@@ -33,6 +33,13 @@ export const formViewStyles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
     },
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     title: {
         fontSize: typography.sizes['3xl'] - 2, // 28
         fontWeight: typography.fontWeights.bold,
