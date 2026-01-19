@@ -126,19 +126,12 @@ export function useEventForm(eventId?: string) {
     }, [errors]);
 
     const handleLocationSelect = useCallback((locationData: {
-        province?: string;
-        canton?: string;
-        district?: string;
-        address?: string;
         latitude?: number;
         longitude?: number;
     }) => {
+        // Solo guardar coordenadas, la validación se hace al guardar
         setFormData((prev) => ({
             ...prev,
-            province: locationData.province ?? null,
-            canton: locationData.canton ?? null,
-            district: locationData.district ?? null,
-            address: locationData.address ?? null,
             coordinates: locationData.latitude && locationData.longitude ? {
                 latitude: locationData.latitude,
                 longitude: locationData.longitude,

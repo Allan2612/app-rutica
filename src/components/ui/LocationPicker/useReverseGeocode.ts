@@ -2,8 +2,9 @@ import { useState, useCallback } from 'react';
 import { LocationData } from './LocationPicker';
 
 interface UseReverseGeocodeReturn {
-  reverseGeocode: (lat: number, lng: number) => Promise<LocationData>;
+  reverseGeocode: (lat: number, lng: number, validateCountry?: boolean) => Promise<LocationData>;
   isLoading: boolean;
+  error: string | null;
 }
 
 /**
@@ -11,9 +12,16 @@ interface UseReverseGeocodeReturn {
  */
 export function useReverseGeocode(): UseReverseGeocodeReturn {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<LocationData> => {
+  const reverseGeocode = useCallback(async (
+    lat: number, 
+    lng: number,
+    validateCountry: boolean = true
+  ): Promise<LocationData> => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
@@ -29,34 +37,93 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
         }
       );
       clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error('Error en la respuesta del servidor de geocodificación');
+      }
+      
       const data = await response.json();
 
       if (data && data.address) {
         const addr = data.address;
+        const country = addr.country || '';
+        const countryCode = addr.country_code?.toLowerCase() || '';
+        
+        // Validar que el país sea Costa Rica (solo si se solicita validación)
+        if (validateCountry) {
+          const isCostaRica = 
+            countryCode === 'cr' || 
+            country.toLowerCase().includes('costa rica');
+          
+          if (!isCostaRica) {
+            const errorMsg = `La ubicación está en ${country || 'otro país'}, debe estar en Costa Rica`;
+            setError(errorMsg);
+            throw new Error(errorMsg);
+          }
+        }
+        
         return {
           latitude: lat,
           longitude: lng,
-          country: addr.country || '',
+          country: country,
           province: addr.state || addr.province || '',
           canton: addr.county || addr.municipality || '',
           district: addr.city || addr.town || addr.village || '',
           address: data.display_name || '',
         };
       }
+      
+      // Si no hay datos de dirección Y estamos validando país, es un error
+      if (validateCountry) {
+        const errorMsg = 'No se pudo verificar que la ubicación esté en Costa Rica';
+        setError(errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      // Si no estamos validando, retornar coordenadas básicas
+      return {
+        latitude: lat,
+        longitude: lng,
+        country: '',
+        province: '',
+        canton: '',
+        district: '',
+        address: '',
+      };
+      
     } catch (error: any) {
+      // Si es un error de validación de país, relanzarlo
+      if (error?.message?.includes('debe estar en Costa Rica') || 
+          error?.message?.includes('No se pudo verificar')) {
+        throw error;
+      }
+      
+      // Para otros errores (timeout, red, etc.)
       const errorMessage = error?.name === 'AbortError' 
-        ? 'Timeout al obtener ubicación (> 8s)'
-        : error?.message || 'Error desconocido en geocodificación';
+        ? 'Timeout al obtener ubicación'
+        : error?.message || 'Error al obtener dirección';
+      
+      setError(errorMessage);
+      
+      // Si estamos validando país y hay error de red, rechazar
+      if (validateCountry) {
+        throw new Error('No se pudo verificar la ubicación. Intenta de nuevo.');
+      }
+      
+      // Si no estamos validando país, retornar coordenadas básicas
+      return {
+        latitude: lat,
+        longitude: lng,
+        country: '',
+        province: '',
+        canton: '',
+        district: '',
+        address: '',
+      };
     } finally {
       setIsLoading(false);
     }
-
-    // Si falla, retornar solo coordenadas
-    return {
-      latitude: lat,
-      longitude: lng,
-    };
   }, []);
 
-  return { reverseGeocode, isLoading };
+  return { reverseGeocode, isLoading, error };
 }

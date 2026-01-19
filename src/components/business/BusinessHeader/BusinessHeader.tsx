@@ -23,7 +23,7 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
         if (latitude && longitude) {
             const encodedLabel = encodeURIComponent(locationLabel ?? name);
             const url = Platform.select({
-                ios: `maps:0,0?q=${encodedLabel}@${latitude},${longitude}`,
+                ios: `http://maps.apple.com/?q=${encodedLabel}&ll=${latitude},${longitude}`,
                 android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodedLabel})`,
                 default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
             });
