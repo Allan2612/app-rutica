@@ -94,6 +94,8 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                             categoryIds={business.categoryIds}
                             categoryNames={business.categoryNames}
                             locationLabel={business.locationLabel}
+                            latitude={business.latitude}
+                            longitude={business.longitude}
                             isApproved={business.isApproved}
                         />
 

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Pressable, Platform, Linking } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
@@ -11,11 +11,25 @@ interface BusinessHeaderProps {
     categoryNames: string[];
     categoryIds: string[];
     locationLabel: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
     isApproved?: boolean;
 }
 
-export const BusinessHeader = memo(({ name, description, categoryNames, categoryIds, locationLabel, isApproved = false }: BusinessHeaderProps) => {
+export const BusinessHeader = memo(({ name, description, categoryNames, categoryIds, locationLabel, latitude, longitude, isApproved = false }: BusinessHeaderProps) => {
     const themedColors = useThemedColors();
+
+    const handleLocationPress = () => {
+        if (latitude && longitude) {
+            const encodedLabel = encodeURIComponent(locationLabel ?? name);
+            const url = Platform.select({
+                ios: `maps:0,0?q=${encodedLabel}@${latitude},${longitude}`,
+                android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodedLabel})`,
+                default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
+            });
+            Linking.openURL(url!);
+        }
+    };
 
     return (
         <View style={styles.header}>
@@ -61,12 +75,19 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
 
                 {/* Ubicación */}
                 {locationLabel && (
-                    <View style={styles.locationRow}>
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.locationRow,
+                            { opacity: pressed ? 0.7 : 1 }
+                        ]}
+                        onPress={handleLocationPress}
+                        disabled={!latitude || !longitude}
+                    >
                         <MapPin size={18} color="#FFFFFF" />
                         <Text style={[styles.locationText, { color: '#FFFFFF' }]}>
                             {locationLabel}
                         </Text>
-                    </View>
+                    </Pressable>
                 )}
             </View>
         </View>
