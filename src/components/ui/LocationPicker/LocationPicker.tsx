@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useCallback, useMemo } from 'react';
+import { memo, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -31,19 +31,39 @@ export interface LocationPickerProps {
   height?: number;
 }
 
+// Coordenadas por defecto: Costa Rica
+const DEFAULT_LAT = 9.9281;
+const DEFAULT_LNG = -84.0907;
+
 export const LocationPicker = memo(function LocationPicker({
   initialLatitude,
   initialLongitude,
   onLocationSelect,
   height = 400,
 }: LocationPickerProps) {
-  const [latitude, setLatitude] = useState(initialLatitude || 9.9281); // Default Costa Rica
-  const [longitude, setLongitude] = useState(initialLongitude || -84.0907);
+  // Usar las coordenadas iniciales si están disponibles, sino usar default de Costa Rica
+  const [latitude, setLatitude] = useState(initialLatitude ?? DEFAULT_LAT);
+  const [longitude, setLongitude] = useState(initialLongitude ?? DEFAULT_LNG);
   const [loading, setLoading] = useState(true);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [mapKey, setMapKey] = useState(0); // Key para forzar re-render del mapa
+  const hasInitializedFromProps = useRef(false);
   const colors = useThemedColors();
 
   const { reverseGeocode, isLoading: loadingAddress } = useReverseGeocode();
+
+  // Actualizar coordenadas cuando cambian las props iniciales (ej: cuando se cargan datos del negocio)
+  useEffect(() => {
+    if (initialLatitude !== undefined && initialLongitude !== undefined) {
+      // Solo actualizar si no hemos inicializado o las coordenadas cambiaron
+      if (!hasInitializedFromProps.current) {
+        setLatitude(initialLatitude);
+        setLongitude(initialLongitude);
+        setMapKey((prev) => prev + 1); // Forzar re-render del mapa con nuevas coordenadas
+        hasInitializedFromProps.current = true;
+      }
+    }
+  }, [initialLatitude, initialLongitude]);
 
   const getCurrentLocation = useCallback(async () => {
     setLoadingLocation(true);
@@ -63,6 +83,7 @@ export const LocationPicker = memo(function LocationPicker({
       const newLng = location.coords.longitude;
       setLatitude(newLat);
       setLongitude(newLng);
+      setMapKey((prev) => prev + 1); // Forzar re-render del mapa
 
       // Obtener dirección y notificar al padre
       const locationData = await reverseGeocode(newLat, newLng);
@@ -77,12 +98,6 @@ export const LocationPicker = memo(function LocationPicker({
       setLoadingLocation(false);
     }
   }, [reverseGeocode, onLocationSelect]);
-
-  useEffect(() => {
-    if (!initialLatitude && !initialLongitude) {
-      getCurrentLocation();
-    }
-  }, []);
 
   const mapHTML = useMemo(
     () =>
@@ -166,6 +181,7 @@ export const LocationPicker = memo(function LocationPicker({
       {Platform.OS === 'web' ? (
         // En web: renderizar HTML directamente
         <iframe
+          key={mapKey}
           srcDoc={mapHTML}
           style={{
             width: '100%',
@@ -186,7 +202,11 @@ export const LocationPicker = memo(function LocationPicker({
                   // Obtener dirección automáticamente
                   reverseGeocode(data.latitude, data.longitude).then(
                     (locationData) => {
-                      onLocationSelect(locationData);
+                      onLocationSelect({
+                        ...locationData,
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                      });
                     }
                   );
                 }
@@ -199,6 +219,7 @@ export const LocationPicker = memo(function LocationPicker({
       ) : (
         // En mobile: usar WebView
         <WebView
+          key={mapKey}
           source={{ html: mapHTML }}
           style={styles.webview}
           onMessage={handleMessage}
