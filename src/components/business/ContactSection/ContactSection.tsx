@@ -2,16 +2,20 @@ import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Phone, Mail, Globe } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { SocialButtons } from '../SocialButtons';
 import { styles } from './styles';
 
 interface ContactSectionProps {
     phone: string | null;
     email: string | null;
     website: string | null;
+    facebook?: string;
+    instagram?: string;
+    tiktok?: string;
     onContactPress: (url: string) => void;
 }
 
-export const ContactSection = memo(({ phone, email, website, onContactPress }: ContactSectionProps) => {
+export const ContactSection = memo(({ phone, email, website, facebook, instagram, tiktok, onContactPress }: ContactSectionProps) => {
     const themedColors = useThemedColors();
 
     return (
@@ -98,7 +102,15 @@ export const ContactSection = memo(({ phone, email, website, onContactPress }: C
                         </View>
                     </Pressable>
                 )}
+
             </View>
+
+            <SocialButtons
+                facebook={facebook}
+                instagram={instagram}
+                tiktok={tiktok}
+                onSocialPress={onContactPress}
+            />
         </View>
     );
 });

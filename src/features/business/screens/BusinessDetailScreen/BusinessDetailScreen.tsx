@@ -8,7 +8,6 @@ import {
     BusinessHeader,
     BusinessGallery,
     ContactSection,
-    SocialLinksSection,
     CoverImage,
     ImageViewerModal
 } from '@/components/business';
@@ -24,7 +23,7 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
 
     const handleOpenLink = (url: string) => {
         if (url) {
-            Linking.openURL(url).catch(err => {});
+            Linking.openURL(url).catch(err => { });
         }
     };
 
@@ -106,20 +105,15 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                             />
                         )}
 
-                        {/* Contact Section */}
+                        {/* Contact Section with Social Links */}
                         <ContactSection
                             phone={business.contactPhone}
                             email={business.contactEmail}
                             website={business.website}
-                            onContactPress={handleOpenLink}
-                        />
-
-                        {/* Social Links */}
-                        <SocialLinksSection
                             facebook={business.socialLinks.facebook}
                             instagram={business.socialLinks.instagram}
                             tiktok={business.socialLinks.tiktok}
-                            onSocialPress={handleOpenLink}
+                            onContactPress={handleOpenLink}
                         />
                     </View>
                 </View>
