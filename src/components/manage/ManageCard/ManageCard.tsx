@@ -67,8 +67,8 @@ export const ManageCard = memo(function ManageCard({
       styles.card,
       {
         backgroundColor: colors.isDark
-          ? colors.background.primary
-          : colors.background.secondary,
+          ? colors.background.secondary
+          : colors.background.primary,
         borderColor: colors.isDark ? colors.border.light : colors.border.medium,
       },
       colors.isDark ? shadows.lg : shadows.xl,
@@ -79,7 +79,7 @@ export const ManageCard = memo(function ManageCard({
       {
         backgroundColor: colors.isDark
           ? colors.background.tertiary
-          : colors.background.primary,
+          : colors.background.secondary,
         borderColor: colors.isDark ? colors.border.light : colors.border.medium,
       },
     ];
@@ -89,7 +89,7 @@ export const ManageCard = memo(function ManageCard({
       {
         backgroundColor: colors.isDark
           ? colors.background.tertiary
-          : colors.background.primary,
+          : colors.background.secondary,
         borderColor: colors.isDark ? colors.border.light : colors.border.medium,
       },
     ];

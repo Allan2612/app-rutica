@@ -8,7 +8,6 @@ import { getCategoryColorScheme } from '@/utils/categoryColors';
 
 export interface BusinessCardProps {
   name: string;
-  description?: string | null;
   categoryNames?: string[];
   categoryIds?: string[];
   locationLabel?: string | null;
@@ -22,7 +21,6 @@ export interface BusinessCardProps {
 
 export const BusinessCard = memo(function BusinessCard({
   name,
-  description,
   categoryNames = [],
   categoryIds = [],
   locationLabel,
@@ -75,12 +73,6 @@ export const BusinessCard = memo(function BusinessCard({
             />
           )}
         </View>
-
-        {description ? (
-          <Text style={styles.description} numberOfLines={2}>
-            {description}
-          </Text>
-        ) : null}
 
         <View style={styles.metaRow}>
           {categoryNames.length > 0 && categoryNames.slice(0, 2).map((catName, index) => {

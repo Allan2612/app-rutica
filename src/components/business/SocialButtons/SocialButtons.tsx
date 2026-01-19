@@ -1,30 +1,34 @@
 import { memo } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Facebook, Instagram } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { colors as themeColors } from '@/styles/theme';
 import { TikTokIcon } from '../TikTokIcon';
 import { styles } from './styles';
 
-interface SocialLinksSectionProps {
+interface SocialButtonsProps {
     facebook?: string;
     instagram?: string;
     tiktok?: string;
     onSocialPress: (url: string) => void;
 }
 
-export const SocialLinksSection = memo(({ facebook, instagram, tiktok, onSocialPress }: SocialLinksSectionProps) => {
+export const SocialButtons = memo(function SocialButtons({
+    facebook,
+    instagram,
+    tiktok,
+    onSocialPress,
+}: SocialButtonsProps) {
     const colors = useThemedColors();
 
-    if (!facebook && !instagram && !tiktok) {
+    const hasSocialLinks = facebook || instagram || tiktok;
+
+    if (!hasSocialLinks) {
         return null;
     }
 
     return (
-        <View style={styles.socialSection}>
-            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
-                Redes Sociales
-            </Text>
+        <View style={styles.socialLinksContainer}>
             <View style={styles.socialLinksRow}>
                 {facebook && (
                     <Pressable
@@ -76,5 +80,3 @@ export const SocialLinksSection = memo(({ facebook, instagram, tiktok, onSocialP
         </View>
     );
 });
-
-SocialLinksSection.displayName = 'SocialLinksSection';

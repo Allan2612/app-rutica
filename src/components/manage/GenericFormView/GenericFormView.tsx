@@ -5,10 +5,12 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
 } from 'react-native';
-import { useThemedColors } from '@/hooks';
+import { ChevronLeft } from 'lucide-react-native';
+import { useThemedColors, useFormExitGuard } from '@/hooks';
 import { FormActions } from '../FormActions';
-import { BackButton } from '@/components/ui';
+import { ConfirmExitDialog } from '../ConfirmExitDialog';
 import { formViewStyles as styles } from '@/styles/form-view-styles';
 
 interface GenericFormViewProps {
@@ -33,6 +35,17 @@ export const GenericFormView = memo(function GenericFormView({
     children,
 }: GenericFormViewProps) {
     const colors = useThemedColors();
+    
+    // Hook para manejar la confirmación de salida
+    const {
+        showExitDialog,
+        handleSafeBack,
+        confirmExit,
+        cancelExit,
+    } = useFormExitGuard({
+        hasChanges,
+        onExit: onCancel,
+    });
 
     return (
         <KeyboardAvoidingView
@@ -44,7 +57,28 @@ export const GenericFormView = memo(function GenericFormView({
                 keyboardShouldPersistTaps="handled"
             >
                 <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-                    <BackButton />
+                    {/* BackButton personalizado que usa el guard */}
+                    <Pressable
+                        onPress={handleSafeBack}
+                        style={({ pressed }) => [
+                            styles.backButton,
+                            { 
+                                backgroundColor: pressed 
+                                    ? colors.primary[500] 
+                                    : colors.background.tertiary,
+                            },
+                        ]}
+                        hitSlop={8}
+                        disabled={isSubmitting}
+                    >
+                        {({ pressed }) => (
+                            <ChevronLeft
+                                size={24}
+                                color={pressed ? '#FFFFFF' : colors.text.primary}
+                                strokeWidth={2.5}
+                            />
+                        )}
+                    </Pressable>
                     <View style={styles.headerContent}>
                         <Text style={[styles.title, { color: colors.text.primary }]}>
                             {title}
@@ -75,6 +109,13 @@ export const GenericFormView = memo(function GenericFormView({
                     />
                 </View>
             </ScrollView>
+
+            {/* Modal de confirmación de salida */}
+            <ConfirmExitDialog
+                visible={showExitDialog}
+                onConfirm={confirmExit}
+                onCancel={cancelExit}
+            />
         </KeyboardAvoidingView>
     );
 });

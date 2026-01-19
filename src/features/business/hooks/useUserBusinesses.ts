@@ -6,7 +6,7 @@ import {
 } from '../services/userBusinesses.service';
 import { updateBusinessComplete } from '../services/updateBusiness.service';
 import { createBusinessComplete } from '../services/createBusiness.service';
-import type { UpdateBusinessData } from '@/types/entities/business';
+import type { UpdateBusinessData } from '../services/updateBusiness.service';
 import { useAuthStore } from '@/store';
 
 /**

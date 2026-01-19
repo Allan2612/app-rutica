@@ -52,7 +52,7 @@ function getInitials(name: string): string {
 function openMaps(latitude: number, longitude: number, label?: string) {
     const encodedLabel = encodeURIComponent(label ?? 'Ubicación');
     const url = Platform.select({
-        ios: `maps:0,0?q=${encodedLabel}@${latitude},${longitude}`,
+        ios: `http://maps.apple.com/?q=${encodedLabel}&ll=${latitude},${longitude}`,
         android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodedLabel})`,
         default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
     });

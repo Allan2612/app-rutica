@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Pressable, Platform, Linking } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
@@ -11,17 +11,31 @@ interface BusinessHeaderProps {
     categoryNames: string[];
     categoryIds: string[];
     locationLabel: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
     isApproved?: boolean;
 }
 
-export const BusinessHeader = memo(({ name, description, categoryNames, categoryIds, locationLabel, isApproved = false }: BusinessHeaderProps) => {
+export const BusinessHeader = memo(({ name, description, categoryNames, categoryIds, locationLabel, latitude, longitude, isApproved = false }: BusinessHeaderProps) => {
     const themedColors = useThemedColors();
+
+    const handleLocationPress = () => {
+        if (latitude && longitude) {
+            const encodedLabel = encodeURIComponent(locationLabel ?? name);
+            const url = Platform.select({
+                ios: `http://maps.apple.com/?q=${encodedLabel}&ll=${latitude},${longitude}`,
+                android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodedLabel})`,
+                default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
+            });
+            Linking.openURL(url!);
+        }
+    };
 
     return (
         <View style={styles.header}>
             <View style={styles.infoSection}>
                 <View style={styles.nameRow}>
-                    <Text style={[styles.name, { color: '#FFFFFF' }]}>{name}</Text>
+                    <Text style={[styles.name, { color: themedColors.text.primary }]}>{name}</Text>
                     {isApproved && (
                         <Image
                             source={require('../../../../assets/verification.png')}
@@ -32,7 +46,7 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
                 </View>
 
                 {description && (
-                    <Text style={[styles.description, { color: '#FFFFFF' }]}>
+                    <Text style={[styles.description, { color: themedColors.text.primary }]}>
                         {description}
                     </Text>
                 )}
@@ -61,12 +75,19 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
 
                 {/* Ubicación */}
                 {locationLabel && (
-                    <View style={styles.locationRow}>
-                        <MapPin size={18} color="#FFFFFF" />
-                        <Text style={[styles.locationText, { color: '#FFFFFF' }]}>
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.locationRow,
+                            { opacity: pressed ? 0.7 : 1 }
+                        ]}
+                        onPress={handleLocationPress}
+                        disabled={!latitude || !longitude}
+                    >
+                        <MapPin size={18} color={themedColors.text.primary} />
+                        <Text style={[styles.locationText, { color: themedColors.text.primary }]}>
                             {locationLabel}
                         </Text>
-                    </View>
+                    </Pressable>
                 )}
             </View>
         </View>

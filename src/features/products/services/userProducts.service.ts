@@ -40,12 +40,11 @@ export async function getBusinessProducts(businessId: string): Promise<ProductLi
             // Error fetching categories
         }
 
-        // Obtener imágenes principales
+        // Obtener todas las imágenes (main y gallery)
         const { data: images, error: imagesError } = await supabase
             .from('product_images')
             .select('*')
             .in('product_id_pim', productIds)
-            .eq('image_type_pim', 'main')
             .order('sort_order_pim', { ascending: true });
 
         if (imagesError) {
@@ -62,11 +61,10 @@ export async function getBusinessProducts(businessId: string): Promise<ProductLi
             const categoryNames = productCategories.map((cat: any) => cat?.name_cat || '').filter(Boolean);
             const categoryIds = productCategories.map((cat: any) => cat?.id_cat || '').filter(Boolean);
 
-            // Imagen principal
-            const mainImage = (images || []).find((img: any) => img.product_id_pim === product.id_prd);
-            const imageUrl = mainImage
-                ? getImageUrl(mainImage.bucket_pim, mainImage.path_pim)
-                : null;
+            // Todas las imágenes del producto
+            const productImages = (images || []).filter((img: any) => img.product_id_pim === product.id_prd);
+            const imageUrls = productImages.map((img: any) => getImageUrl(img.bucket_pim, img.path_pim));
+            const imageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
 
             return {
                 id: product.id_prd,
@@ -77,6 +75,7 @@ export async function getBusinessProducts(businessId: string): Promise<ProductLi
                 categoryNames,
                 categoryIds,
                 imageUrl,
+                imageUrls,
                 isActive: product.is_active_prd,
             };
         });

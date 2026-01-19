@@ -94,6 +94,52 @@ export function useBusinessForm(businessId: string) {
             return;
         }
 
+        // Validar que la ubicación esté en Costa Rica antes de guardar
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${formData.coordinates!.latitude}&lon=${formData.coordinates!.longitude}&addressdetails=1`,
+                {
+                    headers: {
+                        'Accept-Language': 'es',
+                        'User-Agent': 'RuticaApp/1.0',
+                    },
+                }
+            );
+            const data = await response.json();
+            
+            if (data && data.address) {
+                const country = data.address.country || '';
+                const countryCode = data.address.country_code?.toLowerCase() || '';
+                const isCostaRica = countryCode === 'cr' || country.toLowerCase().includes('costa rica');
+                
+                if (!isCostaRica) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Ubicación no válida',
+                        text2: `La ubicación está en ${country}, debe estar en Costa Rica`,
+                        position: 'top',
+                        visibilityTime: 4000,
+                    });
+                    return;
+                }
+                
+                // Actualizar datos de ubicación si los obtuvimos
+                if (data.address.state) formData.province = data.address.state;
+                if (data.address.county) formData.canton = data.address.county;
+                if (data.address.city || data.address.town) formData.district = data.address.city || data.address.town;
+                if (data.display_name) formData.address = data.display_name;
+            }
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'Error de validación',
+                text2: 'No se pudo verificar la ubicación. Intenta de nuevo.',
+                position: 'top',
+                visibilityTime: 3000,
+            });
+            return;
+        }
+
         try {
             const data: UpdateBusinessData = {
                 name: formData.name.trim(),
@@ -141,10 +187,7 @@ export function useBusinessForm(businessId: string) {
     };
 
     const handleLocationSelect = (location: any) => {
-        if (location.province) updateField('province', location.province);
-        if (location.canton) updateField('canton', location.canton);
-        if (location.district) updateField('district', location.district);
-        if (location.address) updateField('address', location.address);
+        // Solo guardar coordenadas, la validación se hace al guardar
         if (location.latitude && location.longitude) {
             updateField('coordinates', { latitude: location.latitude, longitude: location.longitude });
         }

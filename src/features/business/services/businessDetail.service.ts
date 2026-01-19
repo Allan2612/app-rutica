@@ -8,6 +8,8 @@ export interface BusinessDetailData {
     categoryIds: string[];
     locationLabel: string | null;
     fullAddress: string | null;
+    latitude: number | null;
+    longitude: number | null;
     coverImageUrl: string | null;
     logoUrl: string | null;
     galleryImages: string[];
@@ -48,7 +50,9 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
         canton_loc,
         district_loc,
         province_loc,
-        address_loc
+        address_loc,
+        latitude_loc,
+        longitude_loc
       ),
       business_images (
         image_type_bim,
@@ -120,6 +124,8 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
         categoryIds,
         locationLabel,
         fullAddress: location?.address_loc ?? null,
+        latitude: location?.latitude_loc ?? null,
+        longitude: location?.longitude_loc ?? null,
         coverImageUrl,
         logoUrl,
         galleryImages,

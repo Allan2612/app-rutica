@@ -124,7 +124,7 @@ export const ManageScreen = memo(function ManageScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { backgroundColor: colors.background.primary },
+          { backgroundColor: colors.background.secondary },
         ]}
       >
         <View style={styles.content}>
