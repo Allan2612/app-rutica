@@ -1,1 +1,0 @@
-export { AttractionsScreen } from './AttractionsScreen';

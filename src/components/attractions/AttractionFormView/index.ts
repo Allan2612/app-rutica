@@ -1,1 +1,0 @@
-export { AttractionFormView } from './AttractionFormView';

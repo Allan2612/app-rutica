@@ -1,1 +1,0 @@
-export { ManageScreen } from './ManageScreen';

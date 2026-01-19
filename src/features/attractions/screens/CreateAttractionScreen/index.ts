@@ -1,1 +1,0 @@
-export { CreateAttractionScreen } from './CreateAttractionScreen';

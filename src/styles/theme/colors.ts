@@ -1,27 +1,4 @@
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#58a6ff';
-
 export const colors = {
-  // Light mode colors
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-
-  // Dark mode colors (GitHub/VS Code inspired)
-  dark: {
-    text: '#e6edf3',           // Texto principal claro
-    background: '#0d1117',     // Fondo principal muy oscuro
-    tint: tintColorDark,
-    icon: '#8b949e',
-    tabIconDefault: '#8b949e',
-    tabIconSelected: tintColorDark,
-  },
-
   // Brand colors
   primary: {
     50: '#ecfdf5',
@@ -45,7 +22,7 @@ export const colors = {
   // Background colors
   background: {
     primary: '#ffffff',
-    secondary: '#f5f6f7',
+    secondary: '#f9fafb',
     tertiary: '#f3f4f6',
   },
 
@@ -70,22 +47,6 @@ export const colors = {
     approved: '#10b981',
     rejected: '#ef4444',
   },
-
-  // Social media brand colors
-  social: {
-    facebook: '#1877f2',
-    instagram: '#E4405F',
-    tiktok: '#00f2ea',
-    tiktokBg: 'rgba(240, 240, 240, 0.3)',
-  },
-
-  // Modal/overlay colors
-  overlay: {
-    dark: 'rgba(0, 0, 0, 0.95)',
-  },
-
-  // Shadow color
-  shadow: '#000',
 } as const;
 
 export type Colors = typeof colors;

@@ -1,42 +1,58 @@
-import { getShadowStyle } from '@/utils/shadowHelper';
+import { Platform } from 'react-native';
 
 export const shadows = {
   none: {},
 
-  sm: getShadowStyle({
-    color: '#000',
-    offsetX: 0,
-    offsetY: 1,
-    opacity: 0.05,
-    radius: 2,
-    elevation: 1,
+  sm: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+    },
+    android: {
+      elevation: 1,
+    },
+    default: {},
   }),
 
-  md: getShadowStyle({
-    color: '#000',
-    offsetX: 0,
-    offsetY: 2,
-    opacity: 0.1,
-    radius: 4,
-    elevation: 3,
+  md: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    android: {
+      elevation: 3,
+    },
+    default: {},
   }),
 
-  lg: getShadowStyle({
-    color: '#000',
-    offsetX: 0,
-    offsetY: 4,
-    opacity: 0.15,
-    radius: 8,
-    elevation: 6,
+  lg: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+    },
+    android: {
+      elevation: 6,
+    },
+    default: {},
   }),
 
-  xl: getShadowStyle({
-    color: '#000',
-    offsetX: 0,
-    offsetY: 8,
-    opacity: 0.2,
-    radius: 16,
-    elevation: 10,
+  xl: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.2,
+      shadowRadius: 16,
+    },
+    android: {
+      elevation: 10,
+    },
+    default: {},
   }),
 } as const;
 
