@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirma tu cuenta - Rutica</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #0d0d0d;
+      color: #e5e5e5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .logo {
+      font-size: 48px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 10px;
+    }
+    .card {
+      background-color: #1a1a1a;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+      border: 1px solid #2a2a2a;
+    }
+    h1 {
+      color: #10b981;
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    p {
+      color: #b3b3b3;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #10b981;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      margin: 20px 0;
+      transition: background-color 0.2s;
+    }
+    .button:hover {
+      background-color: #059669;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid #3a3a3a;
+    }
+    .footer p {
+      color: #808080;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+    .footer a {
+      color: #10b981;
+      text-decoration: none;
+    }
+    .security-note {
+      background-color: #0d0d0d;
+      border-left: 4px solid #10b981;
+      padding: 16px;
+      margin-top: 30px;
+      border-radius: 8px;
+    }
+    .security-note p {
+      margin: 0;
+      font-size: 14px;
+      color: #b3b3b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">Rutica</div>
+    </div>
+    
+    <div class="card">
+      <h1>¡Bienvenido a Rutica!</h1>
+      
+      <p>Hola,</p>
+      
+      <p>Gracias por registrarte en Rutica. Estamos emocionados de tenerte con nosotros. Para comenzar a descubrir comercios, atracciones y promociones cerca de ti, necesitamos que confirmes tu dirección de correo electrónico.</p>
+      
+      <div style="text-align: center;">
+        <a href="{{ .ConfirmationURL }}" class="button" style="background-color: #10b981; color: #ffffff !important; text-decoration: none; display: inline-block; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 16px; margin: 20px 0;">Confirmar mi cuenta</a>
+      </div>
+      
+      <p>O copia y pega este enlace en tu navegador:</p>
+      <p style="word-break: break-all; color: #10b981; font-size: 14px;">{{ .ConfirmationURL }}</p>
+      
+      <div class="security-note">
+        <p><strong>Nota de seguridad:</strong> Este enlace expirará en 24 horas. Si no solicitaste esta cuenta, puedes ignorar este correo.</p>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>&copy; 2026 Rutica. Todos los derechos reservados.</p>
+      <p>¿Tienes preguntas? <a href="mailto:soporte@rutica.com">Contáctanos</a></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+export { ManageAttractionsScreen } from './ManageAttractionsScreen';
