@@ -11,6 +11,7 @@ interface ProductCardProps {
     currency: string;
     imageUrl?: string | null;
     imageUrls?: string[];
+    onImagePress?: (imageUrl: string) => void;
 }
 
 const formatPrice = (value: number, curr: string): string => {
@@ -26,6 +27,7 @@ export const ProductCard = memo(function ProductCard({
     currency,
     imageUrl,
     imageUrls = [],
+    onImagePress,
 }: ProductCardProps) {
     const colors = useThemedColors();
     const [cardWidth, setCardWidth] = useState(0);
@@ -39,7 +41,7 @@ export const ProductCard = memo(function ProductCard({
 
     return (
         <View style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}>
-            <ProductImageCarousel images={images} cardWidth={cardWidth} onLayout={onLayout} />
+            <ProductImageCarousel images={images} cardWidth={cardWidth} onLayout={onLayout} onImagePress={onImagePress} />
 
             <View style={styles.content}>
                 <Text style={[styles.name, { color: colors.text.primary }]} numberOfLines={1}>

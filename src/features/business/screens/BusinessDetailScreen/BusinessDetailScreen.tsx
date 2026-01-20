@@ -65,6 +65,8 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                     logoImage={business.logoUrl}
                     rating={business.rating}
                     reviewCount={business.reviewCount}
+                    onCoverPress={setSelectedImage}
+                    onLogoPress={setSelectedImage}
                 />
 
                 {/* Back Button */}
@@ -110,7 +112,7 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                         )}
 
                         {/* Products Section */}
-                        <BusinessProducts businessId={business.id} />
+                        <BusinessProducts businessId={business.id} onImagePress={setSelectedImage} />
 
                         {/* Map Section */}
                         {business.latitude && business.longitude && (

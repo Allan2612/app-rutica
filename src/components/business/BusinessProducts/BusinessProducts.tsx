@@ -8,9 +8,10 @@ import { styles } from './styles';
 
 interface BusinessProductsProps {
     businessId: string;
+    onImagePress?: (imageUrl: string) => void;
 }
 
-export const BusinessProducts = memo(function BusinessProducts({ businessId }: BusinessProductsProps) {
+export const BusinessProducts = memo(function BusinessProducts({ businessId, onImagePress }: BusinessProductsProps) {
     const colors = useThemedColors();
     const { data: products = [], isLoading } = useBusinessProducts(businessId);
 
@@ -47,6 +48,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId }: B
                         price={item.price}
                         currency={item.currency}
                         imageUrls={item.imageUrls}
+                        onImagePress={onImagePress}
                     />
                 )}
                 keyExtractor={(item) => item.id}

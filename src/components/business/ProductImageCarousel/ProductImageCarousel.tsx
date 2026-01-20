@@ -8,12 +8,14 @@ interface ProductImageCarouselProps {
     images: string[];
     cardWidth: number;
     onLayout: (event: LayoutChangeEvent) => void;
+    onImagePress?: (imageUrl: string) => void;
 }
 
 export const ProductImageCarousel = memo(function ProductImageCarousel({
     images,
     cardWidth,
     onLayout,
+    onImagePress,
 }: ProductImageCarouselProps) {
     const colors = useThemedColors();
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -67,9 +69,12 @@ export const ProductImageCarousel = memo(function ProductImageCarousel({
     };
 
     const renderImage = ({ item }: { item: string }) => (
-        <View style={[styles.imageContainer, { width: cardWidth || 100 }]}>
+        <Pressable
+            style={[styles.imageContainer, { width: cardWidth || 100 }]}
+            onPress={() => onImagePress?.(item)}
+        >
             <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />
-        </View>
+        </Pressable>
     );
 
     if (images.length === 0) {
