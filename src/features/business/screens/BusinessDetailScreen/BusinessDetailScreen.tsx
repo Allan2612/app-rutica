@@ -10,7 +10,8 @@ import {
     BusinessProducts,
     ContactSection,
     CoverImage,
-    ImageViewerModal
+    ImageViewerModal,
+    BusinessMap
 } from '@/components/business';
 import { styles } from './styles';
 
@@ -111,6 +112,16 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                         {/* Products Section */}
                         <BusinessProducts businessId={business.id} />
 
+                        {/* Map Section */}
+                        {business.latitude && business.longitude && (
+                            <BusinessMap
+                                latitude={business.latitude}
+                                longitude={business.longitude}
+                                businessName={business.name}
+                                phone={business.contactPhone}
+                            />
+                        )}
+
                         {/* Contact Section with Social Links */}
                         <ContactSection
                             phone={business.contactPhone}
@@ -121,6 +132,8 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                             tiktok={business.socialLinks.tiktok}
                             onContactPress={handleOpenLink}
                         />
+
+
                     </View>
                 </View>
             </ScrollView>

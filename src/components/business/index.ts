@@ -12,5 +12,6 @@ export * from './ImageViewerModal';
 export * from './ProductCard';
 export * from './ProductImageCarousel';
 export * from './BusinessProducts';
+export * from './BusinessMap';
 // BusinessesList se importa directamente para evitar referencias circulares
 

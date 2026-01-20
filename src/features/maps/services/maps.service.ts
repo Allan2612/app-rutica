@@ -3,6 +3,7 @@ import { generateMapHTML as generateMapHTMLBase, type MapOptions } from '@/compo
 interface MapViewOptions {
   theme?: MapOptions['theme'];
   zoom?: number;
+  popupText?: string;
 }
 
 /**
@@ -18,5 +19,6 @@ export function generateMapHTML(
     showCoordinates: false,
     zoom: options.zoom ?? 16,
     theme: options.theme,
+    popupText: options.popupText,
   });
 }

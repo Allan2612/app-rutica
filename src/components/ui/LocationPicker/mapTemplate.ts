@@ -7,6 +7,7 @@ export interface MapOptions {
   zoom?: number;
   theme?: 'light' | 'dark';
   restrictToCostaRica?: boolean;
+  popupText?: string;
 }
 
 // Límites geográficos de Costa Rica
@@ -31,6 +32,7 @@ export function generateMapHTML(
     zoom = 15,
     theme = 'light',
     restrictToCostaRica = true,
+    popupText,
   } = options;
 
   // Carto: usar base sin labels + overlay de labels en modo dark para mejorar legibilidad
@@ -53,13 +55,13 @@ export function generateMapHTML(
 
   const primaryAttribution = '© OpenStreetMap contributors | © CartoDB';
   const fallbackAttribution = '© OpenStreetMap contributors';
-  
+
   const backgroundColor = theme === 'dark' ? '#0d1117' : '#ffffff';
   const surfaceColor = theme === 'dark' ? 'rgba(13,17,23,0.92)' : '#ffffff';
   const surfaceBorder = theme === 'dark' ? '#30363d' : '#e5e7eb';
   const surfaceText = theme === 'dark' ? '#e6edf3' : '#111827';
   const popupBg = theme === 'dark' ? '#161b22' : '#ffffff';
-  const popupText = theme === 'dark' ? '#e6edf3' : '#111827';
+  const popupTextColor = theme === 'dark' ? '#e6edf3' : '#111827';
 
   return `
 <!DOCTYPE html>
@@ -129,8 +131,8 @@ export function generateMapHTML(
       filter: contrast(1.07) brightness(5) saturate(1.05);
     }
     ` : ''}
-    .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: ${popupBg}; color: ${popupText}; }
-    .leaflet-popup-content { color: ${popupText}; }
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: ${popupBg}; color: ${popupTextColor}; }
+    .leaflet-popup-content { color: ${popupTextColor}; }
     .leaflet-control-container .leaflet-top, .leaflet-control-container .leaflet-bottom { color: ${surfaceText}; }
     ${showCoordinates ? `
     .coordinates-display {
@@ -328,7 +330,7 @@ export function generateMapHTML(
     marker.bindPopup("<b>Ubicación del negocio</b><br>Arrastra este pin para cambiar").openPopup();
     ` : `
     // Marcador estático
-    marker.bindPopup("<b>Tu ubicación</b><br>Estás aquí").openPopup();
+    marker.bindPopup(${JSON.stringify(popupText || '<b>Tu ubicación</b><br>Estás aquí')}).openPopup();
     
     // Agregar círculo de precisión (50m por defecto)
     const circle = L.circle([${latitude}, ${longitude}], {
