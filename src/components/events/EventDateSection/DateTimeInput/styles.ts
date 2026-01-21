@@ -28,4 +28,40 @@ export const styles = StyleSheet.create({
         width: 0,
         height: 0,
     } as any,
+
+    // Estilos del modal para iOS
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        paddingBottom: spacing.xl,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        borderBottomWidth: 1,
+    },
+    modalTitle: {
+        fontSize: typography.sizes.base,
+        fontWeight: '600',
+    },
+    modalCancelText: {
+        fontSize: typography.sizes.base,
+        fontWeight: '500',
+    },
+    modalConfirmText: {
+        fontSize: typography.sizes.base,
+        fontWeight: '600',
+    },
+    iosPicker: {
+        height: 200,
+        width: '100%',
+        alignSelf: 'center',
+    },
 });
