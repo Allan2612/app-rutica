@@ -6,6 +6,7 @@ import { useProfile } from '@/features/user/hooks';
 import { ProfileCard, ProfileEditModal } from '@/components/user';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
+import { BackButton } from '@/components/ui';
 import { useThemedColors } from '@/hooks';
 import styles from './styles';
 
@@ -58,17 +59,22 @@ export default memo(function ProfileScreen() {
   return (
     <Screen>
       <BaseHeader />
-      <ScrollView 
+      <ScrollView
         style={[styles.scrollContainer, { backgroundColor: colors.background.secondary }]}
         contentContainerStyle={styles.contentContainer}
       >
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text.primary }]}>
-            Mi Perfil
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-            {user?.email}
-          </Text>
+        <View style={styles.headerWrapper}>
+          <View style={styles.headerWithBack}>
+            <BackButton href="/(app)/(tabs)/home" />
+            <View style={styles.headerContent}>
+              <Text style={[styles.title, { color: colors.text.primary }]}>
+                Mi Perfil
+              </Text>
+              <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+                {user?.email}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View style={styles.cardWrapper}>

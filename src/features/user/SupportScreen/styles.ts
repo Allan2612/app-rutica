@@ -13,6 +13,18 @@ export const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 600,
   },
+  headerWithBack: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  headerContent: {
+    flex: 1,
+    marginRight: 40,
+  },
   header: {
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.md,

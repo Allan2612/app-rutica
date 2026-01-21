@@ -83,8 +83,8 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
                         onPress={handleLocationPress}
                         disabled={!latitude || !longitude}
                     >
-                        <MapPin size={18} color={themedColors.text.primary} />
-                        <Text style={[styles.locationText, { color: themedColors.text.primary }]}>
+                        <MapPin size={18} color={themedColors.primary[500]} />
+                        <Text style={[styles.locationText, { color: themedColors.primary[500] }]}>
                             {locationLabel}
                         </Text>
                     </Pressable>
