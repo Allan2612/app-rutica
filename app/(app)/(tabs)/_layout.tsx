@@ -1,10 +1,12 @@
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname, useRouter } from 'expo-router';
 import { Home, Landmark, Map, Store, Wrench } from 'lucide-react-native';
 import { HeaderWithSearch } from '@/components/layout';
 import { useThemedColors } from '@/hooks';
 
 export default function TabsLayout() {
   const colors = useThemedColors();
+  const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <Tabs
@@ -27,17 +29,6 @@ export default function TabsLayout() {
         options={{
           title: 'Negocios',
           tabBarIcon: ({ color, size }) => <Store color={color} size={size} />,
-        }}
-        listeners={{
-          tabPress: (e) => {
-            // Redirigir siempre a /businesses index
-            e.preventDefault();
-            const navigation = e.target?.split('-')[0];
-            if (navigation) {
-              // Usar router para navegar a businesses root
-              require('expo-router').router.push('/(app)/(tabs)/businesses');
-            }
-          },
         }}
       />
 
@@ -74,7 +65,6 @@ export default function TabsLayout() {
         options={{
           title: 'Gestionar',
           tabBarIcon: ({ color, size }) => <Wrench color={color} size={size} />,
-          href: '/manage',
         }}
       />
 
