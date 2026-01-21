@@ -3,7 +3,7 @@ import { ManageAttractionsScreen } from '@/features/attractions/screens';
 
 export default function ManageAttractionsRoute() {
     return (
-        <RequireRole allowedRoles={['seller', 'admin']} redirectTo="/(app)/(tabs)/home">
+        <RequireRole allowedRoles={['buyer', 'seller', 'admin']} redirectTo="/(app)/(tabs)/home">
             <ManageAttractionsScreen />
         </RequireRole>
     );

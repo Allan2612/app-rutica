@@ -3,7 +3,7 @@ import { ManageEventsScreen } from '@/features/events/screens';
 
 export default function ManageEventsRoute() {
     return (
-        <RequireRole allowedRoles={['seller', 'admin']} redirectTo="/(app)/(tabs)/home">
+        <RequireRole allowedRoles={['buyer', 'seller', 'admin']} redirectTo="/(app)/(tabs)/home">
             <ManageEventsScreen />
         </RequireRole>
     );

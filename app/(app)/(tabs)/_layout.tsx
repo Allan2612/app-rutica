@@ -10,7 +10,6 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      initialRouteName="home"
       screenOptions={{
         headerShown: true,
         header: () => <HeaderWithSearch />,
@@ -29,6 +28,7 @@ export default function TabsLayout() {
         options={{
           title: 'Negocios',
           tabBarIcon: ({ color, size }) => <Store color={color} size={size} />,
+          href: '/businesses',
         }}
       />
 
@@ -38,6 +38,7 @@ export default function TabsLayout() {
         options={{
           title: 'Atracciones',
           tabBarIcon: ({ color, size }) => <Landmark color={color} size={size} />,
+          href: '/attractions',
         }}
       />
 
@@ -47,6 +48,7 @@ export default function TabsLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          href: '/home',
         }}
       />
 
@@ -56,6 +58,7 @@ export default function TabsLayout() {
         options={{
           title: 'Mapa',
           tabBarIcon: ({ color, size }) => <Map color={color} size={size} />,
+          href: '/maps',
         }}
       />
 
@@ -65,6 +68,7 @@ export default function TabsLayout() {
         options={{
           title: 'Gestionar',
           tabBarIcon: ({ color, size }) => <Wrench color={color} size={size} />,
+          href: '/manage',
         }}
       />
 

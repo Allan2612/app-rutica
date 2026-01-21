@@ -67,7 +67,7 @@ export const ManageCard = memo(function ManageCard({
       styles.card,
       {
         backgroundColor: colors.isDark
-          ? colors.background.secondary
+          ? colors.background.primary
           : colors.background.primary,
         borderColor: colors.isDark ? colors.border.light : colors.border.medium,
       },
