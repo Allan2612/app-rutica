@@ -18,6 +18,13 @@ interface ContactSectionProps {
 export const ContactSection = memo(({ phone, email, website, facebook, instagram, tiktok, onContactPress }: ContactSectionProps) => {
     const themedColors = useThemedColors();
 
+    // No mostrar la sección si no hay información de contacto
+    const hasContactInfo = phone || email || website || facebook || instagram || tiktok;
+
+    if (!hasContactInfo) {
+        return null;
+    }
+
     return (
         <View style={styles.contactSection}>
             <Text style={[styles.sectionTitle, { color: themedColors.text.primary }]}>

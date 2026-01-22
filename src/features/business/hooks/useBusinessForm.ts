@@ -106,12 +106,12 @@ export function useBusinessForm(businessId: string) {
                 }
             );
             const data = await response.json();
-            
+
             if (data && data.address) {
                 const country = data.address.country || '';
                 const countryCode = data.address.country_code?.toLowerCase() || '';
                 const isCostaRica = countryCode === 'cr' || country.toLowerCase().includes('costa rica');
-                
+
                 if (!isCostaRica) {
                     Toast.show({
                         type: 'error',
@@ -122,7 +122,7 @@ export function useBusinessForm(businessId: string) {
                     });
                     return;
                 }
-                
+
                 // Actualizar datos de ubicación si los obtuvimos
                 if (data.address.state) formData.province = data.address.state;
                 if (data.address.county) formData.canton = data.address.county;
@@ -143,20 +143,21 @@ export function useBusinessForm(businessId: string) {
         try {
             const data: UpdateBusinessData = {
                 name: formData.name.trim(),
-                description: formData.description.trim() || undefined,
+                description: formData.description.trim() || null,
                 categoryIds: formData.selectedCategoryIds,
-                province: formData.province || undefined,
-                canton: formData.canton || undefined,
-                district: formData.district || undefined,
-                address: formData.address.trim() || undefined,
+                country: 'Costa Rica',
+                province: formData.province || null,
+                canton: formData.canton || null,
+                district: formData.district || null,
+                address: formData.address.trim() || null,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
-                phone: formData.phone.trim() || undefined,
-                email: formData.email.trim() || undefined,
-                website: formData.website.trim() || undefined,
-                facebook: formData.facebook.trim() || undefined,
-                instagram: formData.instagram.trim() || undefined,
-                tiktok: formData.tiktok.trim() || undefined,
+                phone: formData.phone.trim() || null,
+                email: formData.email.trim() || null,
+                website: formData.website.trim() || null,
+                facebook: formData.facebook.trim() || null,
+                instagram: formData.instagram.trim() || null,
+                tiktok: formData.tiktok.trim() || null,
                 logoUri: formData.logoUri,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
