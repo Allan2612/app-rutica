@@ -14,10 +14,6 @@ export const SettingsScreen = memo(function SettingsScreen() {
   const { mode, setMode } = useThemeStore();
   const isDark = mode === 'dark';
 
-  const handleBack = useCallback(() => {
-    router.back();
-  }, []);
-
   const handleToggleTheme = useCallback(() => {
     setMode(isDark ? 'light' : 'dark');
   }, [isDark, setMode]);
@@ -32,7 +28,7 @@ export const SettingsScreen = memo(function SettingsScreen() {
         <View style={styles.centerWrapper}>
           {/* Header con botón de retroceso */}
           <View style={styles.headerWithBack}>
-            <BackButton href="/(app)/(tabs)/home" />
+            <BackButton />
             <View style={styles.headerContent}>
               <Text style={[styles.title, { color: colors.text.primary }]}>
                 Configuración
