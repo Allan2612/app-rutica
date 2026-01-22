@@ -46,10 +46,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: spacing.sm,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   backButtonText: {
     fontSize: typography.sizes.base,
     fontWeight: typography.fontWeights.semibold,
+    textAlign: 'center',
   },
   editButton: {
     flex: 1,
@@ -57,11 +59,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: spacing.sm,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   editButtonText: {
     fontSize: typography.sizes.base,
     fontWeight: typography.fontWeights.semibold,
     color: '#ffffff',
+    textAlign: 'center',
   },
 });
 
