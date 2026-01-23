@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, Store } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useBusinessDetail } from '@/features/business/hooks/useBusinessDetail';
@@ -17,7 +17,6 @@ import { styles } from './styles';
 
 export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
     const colors = useThemedColors();
-    const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
 
     const { data: business, isLoading, error } = useBusinessDetail(id);
@@ -30,7 +29,11 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
     };
 
     const handleClose = () => {
-        router.push('/(app)/(tabs)/businesses');
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            router.replace('/(app)/(tabs)/businesses');
+        }
     };
 
     if (isLoading) {

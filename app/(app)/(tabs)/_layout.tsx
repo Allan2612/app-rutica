@@ -70,6 +70,7 @@ export default function TabsLayout() {
 
       {/* Hidden screens/stacks */}
       <Tabs.Screen name="promotions" options={{ href: null }} />
+      <Tabs.Screen name="events" options={{ href: null }} />
     </Tabs>
   );
 }

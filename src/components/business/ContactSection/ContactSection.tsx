@@ -38,14 +38,14 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
                         style={({ pressed }) => [
                             styles.contactItem,
                             {
-                                backgroundColor: pressed ? themedColors.background.secondary : themedColors.background.primary,
+                                backgroundColor: pressed ? themedColors.border.medium : themedColors.background.tertiary,
                                 borderColor: themedColors.border.medium,
                             },
                         ]}
                         onPress={() => onContactPress(`tel:${phone}`)}
                     >
                         <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
-                            <Phone size={22} color={themedColors.primary[500]} />
+                            <Phone size={18} color={themedColors.primary[500]} />
                         </View>
                         <View style={styles.contactTextContainer}>
                             <Text style={[styles.contactLabel, { color: themedColors.text.tertiary }]}>
@@ -64,14 +64,14 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
                         style={({ pressed }) => [
                             styles.contactItem,
                             {
-                                backgroundColor: pressed ? themedColors.background.secondary : themedColors.background.primary,
+                                backgroundColor: pressed ? themedColors.border.medium : themedColors.background.tertiary,
                                 borderColor: themedColors.border.medium,
                             },
                         ]}
                         onPress={() => onContactPress(`mailto:${email}`)}
                     >
                         <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
-                            <Mail size={22} color={themedColors.primary[500]} />
+                            <Mail size={18} color={themedColors.primary[500]} />
                         </View>
                         <View style={styles.contactTextContainer}>
                             <Text style={[styles.contactLabel, { color: themedColors.text.tertiary }]}>
@@ -90,14 +90,14 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
                         style={({ pressed }) => [
                             styles.contactItem,
                             {
-                                backgroundColor: pressed ? themedColors.background.secondary : themedColors.background.primary,
+                                backgroundColor: pressed ? themedColors.border.medium : themedColors.background.tertiary,
                                 borderColor: themedColors.border.medium,
                             },
                         ]}
                         onPress={() => onContactPress(website)}
                     >
                         <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
-                            <Globe size={22} color={themedColors.primary[500]} />
+                            <Globe size={18} color={themedColors.primary[500]} />
                         </View>
                         <View style={styles.contactTextContainer}>
                             <Text style={[styles.contactLabel, { color: themedColors.text.tertiary }]}>

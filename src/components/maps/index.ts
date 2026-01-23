@@ -5,6 +5,7 @@
  * - LocationPicker: Selector de ubicación interactivo
  * - MapBackground: Fondo animado con rutas de mapa
  * - LeafletMap: Generador de HTML para mapas Leaflet
+ * - ExploreMap: Mapa de exploración con múltiples marcadores
  */
 
 // LocationPicker - Selector de ubicación
@@ -17,3 +18,6 @@ export { MapBackground } from './MapBackground';
 // LeafletMap - Generador de mapas
 export { generateMapHTML } from './LeafletMap';
 export type { MapOptions } from './LeafletMap';
+
+// ExploreMap - Mapa de exploración
+export { generateExploreMapHTML, type ExploreMapOptions } from './ExploreMap';
