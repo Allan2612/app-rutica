@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { useAuthStore } from '@/store';
 import { useThemedColors } from '@/hooks';
-import { MapBackground } from '@/components/ui/MapBackground';
+import { MapBackground } from '@/components/maps';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -46,20 +46,20 @@ export default function Index() {
     <View style={[styles.container, { backgroundColor: themedColors.background.primary }]}>
       {/* Fondo animado estilo mapa */}
       <MapBackground />
-      
+
       <View style={styles.content}>
         {/* Logo */}
-        <Image 
-          source={require('..//assets/logo.png')} 
+        <Image
+          source={require('..//assets/logo.png')}
           style={styles.logo}
           contentFit="contain"
           transition={0}
         />
         <Text style={[
-              styles.title,
-              { color: themedColors.primary[500] },
-              fontsLoaded && { fontFamily: 'Caveat_700Bold' },
-            ]}>Bienvenido a Rutica</Text>
+          styles.title,
+          { color: themedColors.primary[500] },
+          fontsLoaded && { fontFamily: 'Caveat_700Bold' },
+        ]}>Bienvenido a Rutica</Text>
         <Text style={[styles.subtitle, { color: themedColors.text.secondary }]}>
           Descubre comercios, atracciones y promociones cerca de ti
         </Text>

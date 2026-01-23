@@ -1,8 +1,8 @@
 export * from './BackButton';
 export * from './StatusBadge';
 export * from './CategoryChips';
-export * from './LocationPicker';
-export * from './MapBackground';
+// LocationPicker y MapBackground movidos a @/components/maps
+export * from '@/components/maps';
 export * from './LocationSearchBar';
 export * from './TabSelector';
 export * from './CategorySearchBar';
