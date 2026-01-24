@@ -88,7 +88,24 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       // 1. Verificar si hay una sesión válida
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      if (!session || sessionError) {
+      // Si hay error de refresh token, limpiar todo
+      if (sessionError) {
+        if (sessionError.message?.includes('Invalid Refresh Token') || 
+            sessionError.message?.includes('Refresh Token Not Found')) {
+          console.warn('[AUTH] Token inválido detectado, limpiando sesión...');
+          await supabase.auth.signOut();
+        }
+        set({
+          user: null,
+          role: null,
+          isAuthenticated: false,
+          isLoading: false,
+          _isLoadingData: false,
+        });
+        return;
+      }
+
+      if (!session) {
         set({
           user: null,
           role: null,
@@ -147,6 +164,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         });
       }
     } catch (error: any) {
+      console.error('[AUTH] Error cargando datos de usuario:', error);
+      
+      // Si es error de refresh token, limpiar almacenamiento
+      if (error?.message?.includes('Invalid Refresh Token') || 
+          error?.message?.includes('Refresh Token Not Found')) {
+        console.warn('[AUTH] Limpiando sesión corrupta...');
+        try {
+          await supabase.auth.signOut();
+        } catch (signOutError) {
+          console.error('[AUTH] Error al hacer signOut:', signOutError);
+        }
+      }
+      
       // IMPORTANTE: Siempre resetear el flag en caso de error
       set({
         user: null,
@@ -200,6 +230,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_OUT') {
+          set({
+            user: null,
+            role: null,
+            isAuthenticated: false,
+            isLoading: false,
+            _isLoadingData: false,
+          });
+        } else if (event === 'INITIAL_SESSION' && !session) {
+          // Si no hay sesión inicial, asegurarse de limpiar el estado
           set({
             user: null,
             role: null,
