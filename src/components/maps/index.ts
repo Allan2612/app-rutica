@@ -21,3 +21,6 @@ export type { MapOptions } from './LeafletMap';
 
 // ExploreMap - Mapa de exploración
 export { generateExploreMapHTML, type ExploreMapOptions } from './ExploreMap';
+
+// MapFilterChips - Filtros de categorías
+export { MapFilterChips, type MarkerFilter } from './MapFilterChips';
