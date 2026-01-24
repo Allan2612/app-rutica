@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: spacing.xl,
-        paddingTop: spacing.xl + spacing.xl,
+        paddingTop: spacing.sm, // 48 + 8 = 56px (logo sobresale 60px, se superpone ligeramente pero sin bloquear eventos)
     },
     mainContent: {
         maxWidth: 800,

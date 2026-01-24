@@ -46,7 +46,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: 'Inicio',
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
           href: '/home',
         }}
@@ -74,6 +74,7 @@ export default function TabsLayout() {
 
       {/* Hidden screens/stacks */}
       <Tabs.Screen name="promotions" options={{ href: null }} />
+      <Tabs.Screen name="events" options={{ href: null }} />
     </Tabs>
   );
 }

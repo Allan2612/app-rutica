@@ -14,7 +14,7 @@ interface CoverImageProps {
 
 export const CoverImage = memo(({ coverImage, logoImage, rating = 0, reviewCount = 0, onCoverPress, onLogoPress }: CoverImageProps) => {
     return (
-        <View>
+        <View style={styles.container}>
             {/* Cover Image */}
             <View style={styles.coverImageContainer}>
                 {coverImage ? (
@@ -32,11 +32,9 @@ export const CoverImage = memo(({ coverImage, logoImage, rating = 0, reviewCount
 
             {/* Logo Overlay */}
             {logoImage && (
-                <View style={styles.logoContainer}>
-                    <Pressable onPress={() => onLogoPress?.(logoImage)} style={{ width: '100%', height: '100%' }}>
-                        <Image source={{ uri: logoImage }} style={styles.logo} resizeMode="cover" />
-                    </Pressable>
-                </View>
+                <Pressable onPress={() => onLogoPress?.(logoImage)} style={styles.logoContainer}>
+                    <Image source={{ uri: logoImage }} style={styles.logo} resizeMode="cover" />
+                </Pressable>
             )}
 
             {/* Rating Badge */}

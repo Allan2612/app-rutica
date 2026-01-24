@@ -2,6 +2,11 @@ import { StyleSheet } from 'react-native';
 import { colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        height: 340, // 280 (cover) + 60 (mitad inferior del logo que sobresale)
+        marginBottom: 0,
+    },
     coverImageContainer: {
         width: '100%',
         height: 280,
@@ -40,7 +45,7 @@ export const styles = StyleSheet.create({
     },
     ratingBadge: {
         position: 'absolute',
-        bottom: 16,
+        top: 240, 
         right: 16,
         flexDirection: 'row',
         alignItems: 'center',

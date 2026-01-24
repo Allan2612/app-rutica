@@ -5,6 +5,10 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  mapContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   map: {
     flex: 1,
   },
