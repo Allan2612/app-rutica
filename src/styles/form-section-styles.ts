@@ -37,6 +37,11 @@ export const formSectionStyles = StyleSheet.create({
         fontSize: typography.sizes.sm,
     },
     textArea: {
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm + 2,
+        fontSize: typography.sizes.sm,
         minHeight: 100,
         textAlignVertical: 'top',
     },

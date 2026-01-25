@@ -5,7 +5,6 @@ import { Image } from 'expo-image';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { useAuthStore } from '@/store';
 import { useThemedColors } from '@/hooks';
-import { MapBackground } from '@/components/ui/MapBackground';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -44,9 +43,6 @@ export default function Index() {
 
   return (
     <View style={[styles.container, { backgroundColor: themedColors.background.primary }]}>
-      {/* Fondo animado estilo mapa */}
-      <MapBackground />
-      
       <View style={styles.content}>
         {/* Logo */}
         <Image 
@@ -91,18 +87,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  content: {
+    width: '100%',
   },
   content: {
     width: '100%',
     maxWidth: 400,
     paddingHorizontal: 32,
     alignItems: 'center',
-    zIndex: 10,
-  },
-  logo: {
-    width: 250,
-    height: 250,
-    marginBottom: 16,
   },
   title: {
     fontSize: 45,

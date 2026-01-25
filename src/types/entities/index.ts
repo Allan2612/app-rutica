@@ -57,13 +57,27 @@ export type {
 export type {
   Promotion,
   PromotionWithRelations,
+  PromotionImage,
+  PromotionImageInsert,
   PromotionProduct,
+  PromotionProductInsert,
   PromotionCategory,
+  PromotionCategoryInsert,
   PromotionComboItem,
+  PromotionComboItemInsert,
   PromotionInsert,
   PromotionUpdate,
-  PromotionComboItemInsert,
+  PromotionListItem,
+  PromotionDetailForEdit,
+  CreatePromotionData,
+  UpdatePromotionData,
+  PromotionRecord,
+  PromotionWizardFormData,
+  PromotionWizardErrors,
+  WizardStepId,
 } from './promotion';
+
+export { WIZARD_STEPS } from './promotion';
 
 // Reviews
 export type {

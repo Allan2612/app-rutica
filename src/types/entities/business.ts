@@ -131,20 +131,21 @@ export interface BusinessDetailForEdit {
 
 export interface UpdateBusinessData {
   name: string;
-  description?: string;
+  description: string | null;
   categoryIds: string[];
-  province?: string;
-  canton?: string;
-  district?: string;
-  address?: string;
+  country: string | null;
+  province: string | null;
+  canton: string | null;
+  district: string | null;
+  address: string | null;
   latitude: number;
   longitude: number;
-  phone?: string;
-  email?: string;
-  website?: string;
-  facebook?: string;
-  instagram?: string;
-  tiktok?: string;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  facebook: string | null;
+  instagram: string | null;
+  tiktok: string | null;
   logoUri?: string | null;
   coverUri?: string | null;
   galleryUris: string[];

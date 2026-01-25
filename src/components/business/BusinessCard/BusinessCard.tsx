@@ -16,6 +16,7 @@ export interface BusinessCardProps {
   rating?: number;
   reviewCount?: number;
   isApproved?: boolean;
+  hasActivePromotions?: boolean; // NEW: Indica si tiene promociones activas
   onPress?: () => void;
 }
 
@@ -29,6 +30,7 @@ export const BusinessCard = memo(function BusinessCard({
   rating = 4.5,
   reviewCount = 20,
   isApproved = false,
+  hasActivePromotions = false, // NEW
   onPress,
 }: BusinessCardProps) {
   const colors = useThemedColors();
@@ -46,6 +48,14 @@ export const BusinessCard = memo(function BusinessCard({
           <Image source={{ uri: logoUrl }} style={styles.logoImage} resizeMode="cover" />
         </View>
       ) : null}
+
+      {/* NEW: Promotion Badge */}
+      {hasActivePromotions && (
+        <View style={[styles.promotionBadge, { backgroundColor: colors.primary[500] }]}>
+          <Tag size={12} color="#FFFFFF" strokeWidth={2.5} />
+          <Text style={styles.promotionText}>Promoción</Text>
+        </View>
+      )}
 
       {rating > 0 && (
         <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>

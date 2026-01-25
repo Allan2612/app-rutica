@@ -17,8 +17,12 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.text.tertiary,
         tabBarStyle: {
           backgroundColor: colors.background.primary,
-          borderTopWidth: 1,
-          borderTopColor: colors.border.light,
+          borderTopWidth: 0,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 3,
+          elevation: 8,
         },
       }}
     >
