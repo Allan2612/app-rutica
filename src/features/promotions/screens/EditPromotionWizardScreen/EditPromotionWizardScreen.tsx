@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { styles } from '../CreatePromotionWizardScreen/styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles, editStyles } from './styles';
 import { router } from 'expo-router';
 import { ChevronLeft, AlertCircle } from 'lucide-react-native';
 import { useThemedColors, useFormExitGuard } from '@/hooks';
@@ -211,9 +211,9 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
         style={[styles.safeArea, { backgroundColor: colors.background.secondary }]}
         edges={['top']}
       >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={editStyles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
-          <Text style={{ color: colors.text.secondary, marginTop: 16 }}>
+          <Text style={[editStyles.loadingText, { color: colors.text.secondary }]}>
             Cargando promoción...
           </Text>
         </View>
@@ -228,12 +228,12 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
         style={[styles.safeArea, { backgroundColor: colors.background.secondary }]}
         edges={['top']}
       >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <View style={editStyles.errorContainer}>
           <AlertCircle size={48} color={colors.error} />
-          <Text style={{ color: colors.text.primary, marginTop: 16, fontSize: 18, fontWeight: 'bold' }}>
+          <Text style={[editStyles.errorTitle, { color: colors.text.primary }]}>
             Error al cargar
           </Text>
-          <Text style={{ color: colors.text.secondary, marginTop: 8, textAlign: 'center' }}>
+          <Text style={[editStyles.errorSubtitle, { color: colors.text.secondary }]}>
             {error.message || 'No se pudo cargar la promoción'}
           </Text>
         </View>

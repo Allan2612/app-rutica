@@ -5,8 +5,10 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
+import { useThemedColors } from '@/hooks';
 import { PromoScope, DiscountType } from '@/types/enums';
+import { styles } from './styles';
 
 export interface PromotionFormData {
   title: string;
@@ -39,52 +41,32 @@ export function PromotionFormView({
   onCancel,
   isSubmitting = false,
 }: PromotionFormViewProps) {
+  const colors = useThemedColors();
+
   // TODO: Implementar formulario con react-hook-form y zod
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background.primary }]}>
       <View style={styles.content}>
-        <Text style={styles.placeholder}>
+        <Text style={[styles.placeholder, { color: colors.text.primary }]}>
           {isEditing ? 'Editar Promoción' : 'Nueva Promoción'}
         </Text>
-        <Text style={styles.info}>Business ID: {businessId}</Text>
-        <Text style={styles.info}>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>Business ID: {businessId}</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>
           TODO: Implementar formulario completo con campos para:
         </Text>
-        <Text style={styles.info}>- Título</Text>
-        <Text style={styles.info}>- Descripción</Text>
-        <Text style={styles.info}>- Tipo de promoción (scope)</Text>
-        <Text style={styles.info}>- Tipo y valor de descuento</Text>
-        <Text style={styles.info}>- Fechas de inicio y fin</Text>
-        <Text style={styles.info}>- Categorías</Text>
-        <Text style={styles.info}>- Productos (si aplica)</Text>
-        <Text style={styles.info}>- Imágenes</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Título</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Descripción</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Tipo de promoción (scope)</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Tipo y valor de descuento</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Fechas de inicio y fin</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Categorías</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Productos (si aplica)</Text>
+        <Text style={[styles.info, { color: colors.text.secondary }]}>- Imágenes</Text>
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    padding: 16,
-  },
-  placeholder: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  info: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-});
 
 
 
