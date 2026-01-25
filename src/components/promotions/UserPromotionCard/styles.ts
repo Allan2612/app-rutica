@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
         zIndex: 10,
     },
     discountText: {
-        color: '#FFFFFF',
+        color: '#000000',
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
     },
@@ -75,9 +75,20 @@ export const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: spacing.md,
-        paddingVertical: spacing.md,
-        zIndex: 8,
-        gap: spacing.sm,
+        paddingBottom: spacing.md + 4,
+        paddingTop: spacing.lg,
+        zIndex: 15,
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+    },
+    infoColumn: {
+        flex: 1,
+        gap: 4,
     },
     titleSection: {
         gap: 2,
@@ -113,29 +124,21 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
     actions: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         gap: spacing.sm,
-        marginTop: spacing.xs,
     },
     actionButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        width: 42,
+        height: 42,
+        borderRadius: 21,
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 2,
+        elevation: 4,
     },
-});
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: spacing.sm,
-        marginTop: spacing.sm,
+    editButton: {
+        backgroundColor: '#FFFFFF',
     },
-    actionButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
+    deleteButton: {
+        backgroundColor: 'rgba(239, 68, 68, 0.95)',
     },
 });

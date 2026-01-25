@@ -50,7 +50,7 @@ export const UserPromotionCard = memo(function UserPromotionCard({
     const date = new Date(dateString);
     return date.toLocaleDateString('es-CR', {
       day: 'numeric',
-      month: 'short',
+      month: 'long',
     });
   };
 
@@ -65,7 +65,8 @@ export const UserPromotionCard = memo(function UserPromotionCard({
     ? `${discountValue}%`
     : `₡${discountValue.toLocaleString()}`;
 
-  const DiscountIcon = isPercentage ? Percent : DollarSign;
+  // Usar Tag icon para ambos casos
+  const DiscountIcon = Tag;
 
   return (
     <Pressable
@@ -89,8 +90,8 @@ export const UserPromotionCard = memo(function UserPromotionCard({
       )}
 
       {/* Discount Badge - Top Left */}
-      <View style={[styles.discountBadge, { backgroundColor: colors.primary[500] }]}>
-        <DiscountIcon size={14} color="#FFFFFF" strokeWidth={2.5} />
+      <View style={[styles.discountBadge, { backgroundColor: '#fbbf24' }]}>
+        <DiscountIcon size={14} color="#000000" strokeWidth={2.5} />
         <Text style={styles.discountText}>{discountDisplay}</Text>
       </View>
 
@@ -107,16 +108,16 @@ export const UserPromotionCard = memo(function UserPromotionCard({
 
       {/* Gradient Overlay */}
       <LinearGradient
-        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.75)']}
-        start={{ x: 0, y: 0 }}
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.85)']}
+        start={{ x: 0, y: 0.4 }}
         end={{ x: 0, y: 1 }}
         style={styles.gradientOverlay}
       />
 
       {/* Content - Bottom */}
       <View style={styles.content}>
-        {/* Title & Business */}
-        <View style={styles.titleSection}>
+        {/* Info Column - Left */}
+        <View style={styles.infoColumn}>
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
@@ -125,34 +126,33 @@ export const UserPromotionCard = memo(function UserPromotionCard({
               {businessName}
             </Text>
           )}
+          <View style={styles.dateRow}>
+            <Calendar size={14} color="rgba(255,255,255,0.9)" strokeWidth={1.75} />
+            <Text style={styles.dateText}>
+              {formatDate(startAt)} - {formatDate(endAt)}
+            </Text>
+            {isExpired && (
+              <View style={[styles.expiredBadge, { backgroundColor: 'rgba(239, 68, 68, 0.9)' }]}>
+                <Text style={styles.expiredText}>Expirada</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        {/* Date Range */}
-        <View style={styles.dateRow}>
-          <Calendar size={14} color="rgba(255,255,255,0.9)" strokeWidth={1.75} />
-          <Text style={styles.dateText}>
-            {formatDate(startAt)} - {formatDate(endAt)}
-          </Text>
-          {isExpired && (
-            <View style={[styles.expiredBadge, { backgroundColor: 'rgba(239, 68, 68, 0.9)' }]}>
-              <Text style={styles.expiredText}>Expirada</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Action Buttons */}
+        {/* Action Buttons - Right */}
         {(onEdit || onDelete) && (
           <View style={styles.actions}>
             {onEdit && (
               <Pressable
                 style={({ pressed }) => [
                   styles.actionButton,
-                  { backgroundColor: 'rgba(255,255,255,0.92)', opacity: pressed ? 0.8 : 1 },
+                  styles.editButton,
+                  { opacity: pressed ? 0.8 : 1 },
                 ]}
                 onPress={onEdit}
                 disabled={isDeleting}
               >
-                <Edit2 color={colors.text.primary} size={16} strokeWidth={2} />
+                <Edit2 color="#000000" size={18} strokeWidth={2.5} />
               </Pressable>
             )}
 
@@ -160,7 +160,8 @@ export const UserPromotionCard = memo(function UserPromotionCard({
               <Pressable
                 style={({ pressed }) => [
                   styles.actionButton,
-                  { backgroundColor: 'rgba(239, 68, 68, 0.9)', opacity: pressed ? 0.8 : 1 },
+                  styles.deleteButton,
+                  { opacity: pressed ? 0.8 : 1 },
                 ]}
                 onPress={onDelete}
                 disabled={isDeleting}
@@ -168,7 +169,7 @@ export const UserPromotionCard = memo(function UserPromotionCard({
                 {isDeleting ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
-                  <Trash2 color="#FFFFFF" size={16} strokeWidth={2} />
+                  <Trash2 color="#FFFFFF" size={18} strokeWidth={2.5} />
                 )}
               </Pressable>
             )}
