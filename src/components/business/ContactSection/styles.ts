@@ -50,4 +50,9 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: typography.fontWeights.semibold,
     },
+    noContactText: {
+        fontSize: typography.sizes.sm,
+        textAlign: 'center',
+        lineHeight: 20,
+    },
 });
