@@ -112,7 +112,10 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
     },
     productScroll: {
-        maxHeight: 200,
+        maxHeight: 300,
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: spacing.sm,
     },
     productList: {
         gap: spacing.sm,

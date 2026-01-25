@@ -3,6 +3,7 @@ import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { Package } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks/useBusinessProducts';
+import { useBusinessPromotions } from '@/features/promotions/hooks';
 import { ProductCard } from '../ProductCard';
 import { styles } from './styles';
 
@@ -14,6 +15,7 @@ interface BusinessProductsProps {
 export const BusinessProducts = memo(function BusinessProducts({ businessId, onImagePress }: BusinessProductsProps) {
     const colors = useThemedColors();
     const { data: products = [], isLoading } = useBusinessProducts(businessId);
+    const { data: promotions = [] } = useBusinessPromotions(businessId);
 
     // Si no hay productos, no mostrar nada
     if (!isLoading && products.length === 0) {
@@ -43,11 +45,13 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
                 data={products}
                 renderItem={({ item }) => (
                     <ProductCard
+                        productId={item.id}
                         name={item.name}
                         description={item.description}
                         price={item.price}
                         currency={item.currency}
                         imageUrls={item.imageUrls}
+                        promotions={promotions}
                         onImagePress={onImagePress}
                     />
                 )}

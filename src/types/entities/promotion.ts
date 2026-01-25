@@ -156,6 +156,7 @@ export interface PromotionListItem {
   businessName: string | null;
   imageUrl: string | null;
   categoryNames: string[];
+  productIds: string[];
   isActive: boolean;
   createdAt: string;
 }
@@ -298,5 +299,8 @@ export interface PromotionRecord {
       id_cat: string;
       name_cat: string;
     } | null;
+  }[];
+  promotion_products?: {
+    product_id_ppr: string;
   }[];
 }

@@ -6,6 +6,7 @@ import {
   Pressable,
   ActivityIndicator,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { Percent, DollarSign, Package, Check, AlertCircle } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
@@ -232,24 +233,28 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
                 </Text>
               </View>
             ) : (
-              <ScrollView style={styles.productScroll} showsVerticalScrollIndicator={false} nestedScrollEnabled>
-                <View style={styles.productList}>
-                  {products.map((product: any) => {
-                    const isSelected = formData.selectedProductIds.includes(product.id);
+              <ScrollView 
+                style={[styles.productScroll, { borderColor: colors.border.medium }]}
+                contentContainerStyle={styles.productList}
+                showsVerticalScrollIndicator={true}
+                nestedScrollEnabled={true}
+              >
+                {products.map((product: any) => {
+                  const isSelected = formData.selectedProductIds.includes(product.id);
 
-                    return (
-                      <Pressable
-                        key={product.id}
-                        style={[
-                          styles.productCard,
-                          {
-                            backgroundColor: isSelected
-                              ? colors.primary[500]
-                              : colors.background.secondary,
-                            borderColor: isSelected ? colors.primary[500] : colors.border.medium,
-                            borderWidth: 1,
-                          },
-                        ]}
+                  return (
+                    <Pressable
+                      key={product.id}
+                      style={[
+                        styles.productCard,
+                        {
+                          backgroundColor: isSelected
+                            ? colors.primary[500]
+                            : colors.background.secondary,
+                          borderColor: isSelected ? colors.primary[500] : colors.border.medium,
+                          borderWidth: 1,
+                        },
+                      ]}
                       onPress={() => onToggleProduct(product.id)}
                     >
                       <View style={styles.productInfo}>
@@ -283,9 +288,8 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
                         )}
                       </View>
                     </Pressable>
-                    );
-                  })}
-                </View>
+                  );
+                })}
               </ScrollView>
             )}
 

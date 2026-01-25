@@ -92,6 +92,9 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
                     id_cat,
                     name_cat
                 )
+            ),
+            promotion_products (
+                product_id_ppr
             )
         `)
         .eq('business_id_prm', businessId)
@@ -256,6 +259,11 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         ?.map((pcm) => pcm.categories?.name_cat)
         .filter((name): name is string => !!name) ?? [];
 
+    // Extraer IDs de productos
+    const productIds = record.promotion_products
+        ?.map((pp) => pp.product_id_ppr)
+        .filter((id): id is string => !!id) ?? [];
+
     // Determinar si está activa (aprobada y en rango de fechas)
     const now = new Date();
     const startDate = new Date(record.start_at_prm);
@@ -280,6 +288,7 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         businessName: record.businesses?.name_bus ?? null,
         imageUrl,
         categoryNames,
+        productIds,
         isActive,
         createdAt: record.created_at_prm,
     };
