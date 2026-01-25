@@ -149,7 +149,7 @@ export function generateMapScript(params: {
         markers.forEach(function(m) {
             const color = MARKER_COLORS[m.type];
             const label = TYPE_LABELS[m.type];
-            const route = TYPE_ROUTES[m.type] + '/' + m.id;
+            const route = TYPE_ROUTES[m.type] + '/' + m.id + '?from=maps';
             
             const popupContent = '<div class="marker-popup">' +
                 '<span class="type-badge" style="background:' + color + ';">' + label + '</span>' +

@@ -14,12 +14,22 @@ import { styles } from './styles';
 
 export const EventDetailScreen = memo(function EventDetailScreen() {
     const colors = useThemedColors();
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
     const { data: event, isLoading, error } = useEventDetail(id);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
     const handleClose = () => {
-        router.canGoBack() ? router.back() : router.replace('/(app)/(tabs)/attractions');
+        // Si viene del mapa, regresar al mapa
+        if (from === 'maps') {
+            router.replace('/(app)/(tabs)/maps');
+            return;
+        }
+        // Intentar regresar normalmente
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            router.replace('/(app)/(tabs)/attractions');
+        }
     };
 
     const handleOpenMaps = () => {

@@ -17,7 +17,7 @@ import { styles } from './styles';
 
 export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
     const colors = useThemedColors();
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
 
     const { data: business, isLoading, error } = useBusinessDetail(id);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -29,6 +29,12 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
     };
 
     const handleClose = () => {
+        // Si viene del mapa, regresar al mapa
+        if (from === 'maps') {
+            router.replace('/(app)/(tabs)/maps');
+            return;
+        }
+        // Intentar regresar normalmente
         if (router.canGoBack()) {
             router.back();
         } else {
