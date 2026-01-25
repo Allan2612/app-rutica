@@ -1,14 +1,11 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import {
   View,
   Text,
-  Pressable,
-  Platform,
 } from 'react-native';
-import { Calendar, AlertCircle } from 'lucide-react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { AlertCircle } from 'lucide-react-native';
 import { useThemedColors, useCategories } from '@/hooks';
-import { CategorySelector } from '@/components/ui';
+import { CategorySelector, SimpleDateTimeInput } from '@/components/ui';
 import { formSectionStyles } from '@/styles/form-section-styles';
 import type { PromotionWizardFormData, PromotionWizardErrors } from '@/types/entities';
 import { styles } from './styles';
@@ -32,35 +29,18 @@ export const WizardStepDates = memo(function WizardStepDates({
   const colors = useThemedColors();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('es-CR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const handleStartDateChange = (_: any, selectedDate?: Date) => {
-    setShowStartPicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      onFieldChange('startDate', selectedDate);
-      // If end date is before new start date, update it
-      if (formData.endDate <= selectedDate) {
-        const newEndDate = new Date(selectedDate);
-        newEndDate.setDate(newEndDate.getDate() + 1);
-        onFieldChange('endDate', newEndDate);
-      }
+  const handleStartDateChange = (selectedDate: Date) => {
+    onFieldChange('startDate', selectedDate);
+    // If end date is before new start date, update it
+    if (formData.endDate <= selectedDate) {
+      const newEndDate = new Date(selectedDate);
+      newEndDate.setDate(newEndDate.getDate() + 1);
+      onFieldChange('endDate', newEndDate);
     }
   };
 
-  const handleEndDateChange = (_: any, selectedDate?: Date) => {
-    setShowEndPicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      onFieldChange('endDate', selectedDate);
-    }
+  const handleEndDateChange = (selectedDate: Date) => {
+    onFieldChange('endDate', selectedDate);
   };
 
   const handleCategoryChange = (ids: string[]) => {
@@ -75,21 +55,14 @@ export const WizardStepDates = memo(function WizardStepDates({
           <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
             Fecha de inicio <Text style={formSectionStyles.required}>*</Text>
           </Text>
-          <Pressable
-            style={[
-              styles.dateButton,
-              {
-                backgroundColor: colors.background.secondary,
-                borderColor: errors.startDate ? colors.error : colors.border.medium,
-              },
-            ]}
-            onPress={() => setShowStartPicker(true)}
-          >
-            <Calendar size={18} color={colors.text.tertiary} />
-            <Text style={[styles.dateText, { color: colors.text.primary }]}>
-              {formatDate(formData.startDate)}
-            </Text>
-          </Pressable>
+          
+          <SimpleDateTimeInput
+            date={formData.startDate}
+            onDateChange={handleStartDateChange}
+            type="date"
+            error={errors.startDate}
+          />
+
           {errors.startDate && (
             <Text style={[styles.fieldError, { color: colors.error }]}>
               {errors.startDate}
@@ -101,21 +74,15 @@ export const WizardStepDates = memo(function WizardStepDates({
           <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
             Fecha de fin <Text style={formSectionStyles.required}>*</Text>
           </Text>
-          <Pressable
-            style={[
-              styles.dateButton,
-              {
-                backgroundColor: colors.background.secondary,
-                borderColor: errors.endDate ? colors.error : colors.border.medium,
-              },
-            ]}
-            onPress={() => setShowEndPicker(true)}
-          >
-            <Calendar size={18} color={colors.text.tertiary} />
-            <Text style={[styles.dateText, { color: colors.text.primary }]}>
-              {formatDate(formData.endDate)}
-            </Text>
-          </Pressable>
+          
+          <SimpleDateTimeInput
+            date={formData.endDate}
+            onDateChange={handleEndDateChange}
+            type="date"
+            error={errors.endDate}
+            minDate={formData.startDate.toISOString().split('T')[0]}
+          />
+
           {errors.endDate && (
             <Text style={[styles.fieldError, { color: colors.error }]}>{errors.endDate}</Text>
           )}
@@ -157,27 +124,6 @@ export const WizardStepDates = memo(function WizardStepDates({
             </View>
           )}
         </View>
-
-        {/* Date Pickers */}
-        {showStartPicker && (
-          <DateTimePicker
-            value={formData.startDate}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleStartDateChange}
-            minimumDate={new Date()}
-          />
-        )}
-
-        {showEndPicker && (
-          <DateTimePicker
-            value={formData.endDate}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleEndDateChange}
-            minimumDate={new Date(formData.startDate.getTime() + 24 * 60 * 60 * 1000)}
-          />
-        )}
       </View>
     </View>
   );
