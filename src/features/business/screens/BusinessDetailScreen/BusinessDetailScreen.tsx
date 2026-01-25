@@ -11,7 +11,8 @@ import {
     ContactSection,
     CoverImage,
     ImageViewerModal,
-    BusinessMap
+    BusinessMap,
+    ReviewsSection
 } from '@/components/business';
 import { styles } from './styles';
 
@@ -120,6 +121,28 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                             />
                         )}
 
+                        {/* Promotions Section - Próximamente */}
+                        <View style={{ marginTop: 32 }}>
+                            <Text style={{
+                                fontSize: 24,
+                                fontWeight: '700',
+                                color: colors.text.primary,
+                                marginBottom: 12,
+                                textAlign: 'center',
+                                letterSpacing: -0.3,
+                            }}>
+                                Promociones
+                            </Text>
+                            <Text style={{
+                                fontSize: 14,
+                                color: colors.text.secondary,
+                                textAlign: 'center',
+                                lineHeight: 20,
+                            }}>
+                                Próximamente
+                            </Text>
+                        </View>
+
                         {/* Products Section */}
                         <BusinessProducts businessId={business.id} onImagePress={setSelectedImage} />
 
@@ -144,6 +167,12 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                             onContactPress={handleOpenLink}
                         />
 
+                        {/* Reviews Section */}
+                        <ReviewsSection
+                            businessId={business.id}
+                            businessName={business.name}
+                            businessLogo={business.logoUrl}
+                        />
 
                     </View>
                 </View>
