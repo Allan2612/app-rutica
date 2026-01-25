@@ -7,7 +7,7 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
-import { Tag, Store, Calendar, Clock, Percent, DollarSign } from 'lucide-react-native';
+import { Tag, Store, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
@@ -30,14 +30,13 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
     const discountDisplay = isPercentage
         ? `${promotion.discountValue}%`
         : `₡${promotion.discountValue.toLocaleString()}`;
-    const DiscountIcon = isPercentage ? Percent : DollarSign;
 
     // Formatear fechas
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('es-CR', {
             day: 'numeric',
-            month: 'short',
+            month: 'long',
         });
     };
 
@@ -86,9 +85,8 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
 
             {/* Discount Badge - Protagonista */}
             <View style={styles.discountBadge}>
-                <DiscountIcon size={16} color="#000000" strokeWidth={2.5} />
+                <Tag size={16} color="#000000" strokeWidth={2.5} />
                 <Text style={styles.discountText}>{discountDisplay}</Text>
-                {isPercentage && <Text style={styles.discountLabel}>OFF</Text>}
             </View>
 
             {/* Ending Soon Badge */}

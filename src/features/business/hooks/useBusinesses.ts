@@ -18,6 +18,7 @@ export interface BusinessListItem {
     rating: number;
     reviewCount: number;
     isApproved: boolean;
+    hasActivePromotions: boolean;
 }
 
 function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
@@ -63,6 +64,7 @@ function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
         rating: item.avg_rating_bus ?? 0,
         reviewCount: item.reviews_count_bus ?? 0,
         isApproved: item.moderation_status_bus === 'approved',
+        hasActivePromotions: (item.promotions?.length ?? 0) > 0,
     };
 }
 

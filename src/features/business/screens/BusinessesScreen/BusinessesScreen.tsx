@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { ActivityIndicator, Text, View, useWindowDimensions, Pressable } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { TabSelector, TabOption, SearchFilterModal, SearchFilters } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses } from '@/features/business/hooks/useBusinesses';
@@ -75,6 +76,12 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     }
   };
 
+  const handlePromotionPress = (promotion: typeof promotions[0]) => {
+    if (promotion.businessId) {
+      router.push(`/(app)/(tabs)/businesses/${promotion.businessId}`);
+    }
+  };
+
   const SearchButton = (
     <Pressable
       onPress={() => setIsSearchModalVisible(true)}
@@ -132,6 +139,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
             listKey={promotionsListKey}
             isRefreshing={isPromotionsRefetching}
             onRefresh={() => refetchPromotions()}
+            onPromotionPress={handlePromotionPress}
           />
         )}
       </View>

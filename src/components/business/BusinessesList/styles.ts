@@ -18,17 +18,18 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+    paddingVertical: spacing['2xl'],
+    gap: spacing.md,
     minHeight: 300,
   },
   emptyTitle: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     textAlign: 'center',
-    marginBottom: spacing.xs + 2,
   },
   emptySubtitle: {
-    fontSize: typography.sizes.xs,
+    fontSize: typography.sizes.sm,
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 20,
   },
 });

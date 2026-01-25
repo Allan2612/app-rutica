@@ -1,6 +1,7 @@
 import { memo, useCallback } from 'react';
 import { FlatList, Text, View, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Store } from 'lucide-react-native';
 import { BusinessCard } from '@/components/business/BusinessCard';
 import { BusinessListItem } from '@/features/business/hooks/useBusinesses';
 import { useThemedColors } from '@/hooks';
@@ -40,6 +41,7 @@ export const BusinessesList = memo(function BusinessesList({
         rating={item.rating}
         reviewCount={item.reviewCount}
         isApproved={item.isApproved}
+        hasActivePromotions={item.hasActivePromotions}
         onPress={() => handleBusinessPress(item.id)}
       />
     </View>
@@ -47,12 +49,9 @@ export const BusinessesList = memo(function BusinessesList({
 
   const emptyComponent = (
     <View style={styles.emptyState}>
-      <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-        No hay comercios disponibles
-      </Text>
-      <Text style={[styles.emptySubtitle, { color: colors.text.secondary }]}>
-        Prueba ajustando la búsqueda o selecciona otra categoría.
-      </Text>
+      <Store size={48} color={colors.text.tertiary} strokeWidth={1.5} />
+      <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>No hay comercios disponibles</Text>
+      <Text style={[styles.emptySubtitle, { color: colors.text.secondary }]}>Los comercios activos aparecerán aquí</Text>
     </View>
   );
 

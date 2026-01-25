@@ -94,9 +94,9 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                 )
             )
         `)
-        // Solo promociones aprobadas y con pago verificado
+        // Solo promociones aprobadas y pagadas
         .eq('moderation_status_prm', 'approved')
-        .eq('payment_state_prm', 'verified')
+        .eq('payment_state_prm', 'paid')
         // Solo promociones vigentes
         .lte('start_at_prm', now)
         .gte('end_at_prm', now);

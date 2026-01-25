@@ -51,9 +51,8 @@ export const BusinessCard = memo(function BusinessCard({
 
       {/* NEW: Promotion Badge */}
       {hasActivePromotions && (
-        <View style={[styles.promotionBadge, { backgroundColor: colors.primary[500] }]}>
-          <Tag size={12} color="#FFFFFF" strokeWidth={2.5} />
-          <Text style={styles.promotionText}>Promoción</Text>
+        <View style={styles.promotionBadge}>
+          <Tag size={14} color="#000000" strokeWidth={2.5} />
         </View>
       )}
 
