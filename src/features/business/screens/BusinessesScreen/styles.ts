@@ -1,5 +1,5 @@
 import { StyleSheet, useWindowDimensions } from 'react-native';
-import { colors, spacing, typography } from '@/styles/theme';
+import { colors, spacing } from '@/styles/theme';
 
 const createStyles = (width: number) => {
   return StyleSheet.create({
@@ -15,25 +15,6 @@ const createStyles = (width: number) => {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    placeholder: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: spacing.lg,
-    },
-    placeholderTitle: {
-      fontSize: typography.sizes.sm,
-      fontWeight: typography.fontWeights.bold,
-      color: colors.text.primary,
-      textAlign: 'center',
-      marginBottom: spacing.xs + 2,
-    },
-    placeholderSubtitle: {
-      fontSize: typography.sizes.xs,
-      color: colors.text.secondary,
-      textAlign: 'center',
-      lineHeight: 18,
     },
     searchButton: {
       width: 36,

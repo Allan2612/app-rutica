@@ -2,7 +2,9 @@
 
 // Cards
 export * from './PromotionCard';
+export * from './PromotionPublicCard';
 export * from './PromotionsList';
+export * from './PromotionsPublicList';
 export * from './PromotionFormView';
 export * from './UserPromotionCard';
 

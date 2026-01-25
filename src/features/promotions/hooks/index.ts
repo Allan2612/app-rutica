@@ -15,3 +15,6 @@ export {
 
 // Wizard Hook
 export { useCreatePromotionWizard } from './useCreatePromotionWizard';
+
+// Public Promotions Hook
+export { usePromotions, PROMOTIONS_PUBLIC_KEYS } from './usePromotions';
