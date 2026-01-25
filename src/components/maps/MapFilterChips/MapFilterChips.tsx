@@ -1,8 +1,8 @@
 import { memo, useCallback } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemedColors } from '@/hooks';
-import { MARKER_COLORS, type MarkerType } from '@/features/maps/types';
+import { MARKER_COLORS, USER_MARKER_COLOR, type MarkerType } from '@/features/maps/types';
 import { spacing, typography } from '@/styles/theme';
 
 export interface MarkerFilter {
@@ -20,11 +20,15 @@ const FILTER_OPTIONS: MarkerFilter[] = [
 interface MapFilterChipsProps {
     selectedTypes: MarkerType[];
     onToggle: (type: MarkerType) => void;
+    showUserLocation: boolean;
+    onToggleUserLocation: () => void;
 }
 
 export const MapFilterChips = memo(function MapFilterChips({
     selectedTypes,
     onToggle,
+    showUserLocation,
+    onToggleUserLocation,
 }: MapFilterChipsProps) {
     const colors = useThemedColors();
 
@@ -32,8 +36,8 @@ export const MapFilterChips = memo(function MapFilterChips({
         onToggle(type);
     }, [onToggle]);
 
-    return (
-        <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
+    const renderChips = () => (
+        <>
             {FILTER_OPTIONS.map((filter) => {
                 const isSelected = selectedTypes.includes(filter.type);
                 const markerColor = MARKER_COLORS[filter.type];
@@ -70,17 +74,85 @@ export const MapFilterChips = memo(function MapFilterChips({
                     </TouchableOpacity>
                 );
             })}
+
+            {/* Filtro de Mi Ubicación */}
+            <TouchableOpacity
+                style={[
+                    styles.chip,
+                    {
+                        backgroundColor: showUserLocation ? USER_MARKER_COLOR : colors.background.secondary,
+                        borderColor: USER_MARKER_COLOR,
+                    },
+                ]}
+                onPress={onToggleUserLocation}
+                activeOpacity={0.7}
+            >
+                <Ionicons
+                    name="location"
+                    size={14}
+                    color={showUserLocation ? '#ffffff' : USER_MARKER_COLOR}
+                />
+                <Text
+                    style={[
+                        styles.chipText,
+                        { color: showUserLocation ? '#ffffff' : colors.text.primary },
+                    ]}
+                >
+                    Mi ubicación
+                </Text>
+                {showUserLocation && (
+                    <Ionicons name="checkmark" size={12} color="#ffffff" />
+                )}
+            </TouchableOpacity>
+        </>
+    );
+
+    // En móvil, usar ScrollView horizontal
+    if (Platform.OS !== 'web') {
+        return (
+            <View style={[styles.wrapper, { backgroundColor: colors.background.primary }]}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                    style={styles.scrollView}
+                >
+                    {renderChips()}
+                </ScrollView>
+            </View>
+        );
+    }
+
+    // En web, usar flexbox normal
+    return (
+        <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
+            {renderChips()}
         </View>
     );
 });
 
 const styles = StyleSheet.create({
+    wrapper: {
+        paddingVertical: spacing.xs + 2,
+    },
+    scrollView: {
+        flexGrow: 0,
+        flexShrink: 0,
+    },
+    scrollContent: {
+        paddingHorizontal: spacing.lg,
+        gap: spacing.xs + 2,
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'nowrap',
+    },
     container: {
         flexDirection: 'row',
         justifyContent: 'center',
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.xs + 2,
         gap: spacing.xs + 2,
+        flexWrap: 'wrap',
     },
     chip: {
         flexDirection: 'row',
@@ -90,10 +162,12 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         borderWidth: 1,
         gap: spacing.xs - 2,
+        flexShrink: 0,
     },
     chipText: {
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.medium,
+        flexShrink: 0,
     },
 });
 
