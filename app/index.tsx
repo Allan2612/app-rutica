@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { useAuthStore } from '@/store';
 import { useThemedColors } from '@/hooks';
-import { MapBackground } from '@/components/maps';
+import { MapBackground } from '@/components/ui';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
