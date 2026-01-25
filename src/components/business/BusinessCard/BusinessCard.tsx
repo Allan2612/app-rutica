@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { MapPin, Star } from 'lucide-react-native';
+import { MapPin, Star, Tag } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';

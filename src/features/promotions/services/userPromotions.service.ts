@@ -119,6 +119,7 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             discount_value_prm,
             start_at_prm,
             end_at_prm,
+            payment_reference_prm,
             promotion_images (
                 image_type_pim,
                 bucket_pim,
@@ -166,6 +167,7 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
         endAt: data.end_at_prm,
         categoryIds: (data.promotion_category_map || []).map((pcm: { category_id_pcr: string }) => pcm.category_id_pcr),
         productIds: (data.promotion_products || []).map((pp: { product_id_ppr: string }) => pp.product_id_ppr),
+        paymentReference: data.payment_reference_prm || '',
         coverUrl,
         galleryUrls,
     };

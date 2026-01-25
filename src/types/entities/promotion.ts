@@ -172,6 +172,7 @@ export interface PromotionDetailForEdit {
   endAt: string;
   categoryIds: string[];
   productIds: string[];
+  paymentReference: string;
   coverUrl: string | null;
   galleryUrls: string[];
 }
