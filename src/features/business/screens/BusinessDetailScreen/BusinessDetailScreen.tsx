@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, Store } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useBusinessDetail } from '@/features/business/hooks/useBusinessDetail';
@@ -17,8 +17,7 @@ import { styles } from './styles';
 
 export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
     const colors = useThemedColors();
-    const router = useRouter();
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
 
     const { data: business, isLoading, error } = useBusinessDetail(id);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -30,7 +29,17 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
     };
 
     const handleClose = () => {
-        router.push('/(app)/(tabs)/businesses');
+        // Si viene del mapa, regresar al mapa
+        if (from === 'maps') {
+            router.replace('/(app)/(tabs)/maps');
+            return;
+        }
+        // Intentar regresar normalmente
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            router.replace('/(app)/(tabs)/businesses');
+        }
     };
 
     if (isLoading) {

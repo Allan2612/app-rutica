@@ -148,5 +148,5 @@ export interface UpdateBusinessData {
   tiktok: string | null;
   logoUri?: string | null;
   coverUri?: string | null;
-  galleryUris: string[];
+  galleryUris?: string[];
 }

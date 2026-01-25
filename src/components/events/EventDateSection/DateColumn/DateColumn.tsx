@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { DateTimeInput } from '../DateTimeInput';
+import { SimpleDateTimeInput } from '@/components/ui';
 import { styles } from './styles';
 
 interface DateColumnProps {
@@ -26,25 +26,21 @@ export const DateColumn = memo(function DateColumn({
             <Text style={[styles.label, { color: colors.text.primary }]}>
                 {label} <Text style={{ color: colors.error }}>*</Text>
             </Text>
-            
-            <DateTimeInput
+
+            <SimpleDateTimeInput
                 date={date}
                 onDateChange={onDateChange}
-                icon="calendar-outline"
                 type="date"
-                label={`Fecha de ${label.toLowerCase()}`}
                 error={error}
                 minDate={minDate}
             />
-            
-            <DateTimeInput
+
+            <SimpleDateTimeInput
                 date={date}
                 onDateChange={onDateChange}
-                icon="time-outline"
                 type="time"
-                label={`Hora de ${label.toLowerCase()}`}
             />
-            
+
             {error && (
                 <Text style={[styles.error, { color: colors.error }]}>
                     {error}

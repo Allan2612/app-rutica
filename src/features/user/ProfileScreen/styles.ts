@@ -12,6 +12,8 @@ export const styles = StyleSheet.create({
   headerWrapper: {
     width: '100%',
     maxWidth: 600,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
   },
   headerWithBack: {
     paddingHorizontal: spacing.md,
@@ -22,8 +24,8 @@ export const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   headerContent: {
-    flex: 1,
-    marginRight: 40,
+    width: '100%',
+    alignItems: 'center',
   },
   header: {
     width: '100%',

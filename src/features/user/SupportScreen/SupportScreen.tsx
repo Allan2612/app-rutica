@@ -41,7 +41,7 @@ export const SupportScreen = memo(function SupportScreen() {
         <View style={styles.centerWrapper}>
           {/* Header con botón de retroceso */}
           <View style={styles.headerWithBack}>
-            <BackButton href="/(app)/(tabs)/home" />
+            <BackButton onPress={handleBack} />
             <View style={styles.headerContent}>
               <Text style={[styles.title, { color: colors.text.primary }]}>
                 Soporte

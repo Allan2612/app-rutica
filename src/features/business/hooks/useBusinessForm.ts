@@ -106,12 +106,12 @@ export function useBusinessForm(businessId: string) {
                 }
             );
             const data = await response.json();
-            
+
             if (data && data.address) {
                 const country = data.address.country || '';
                 const countryCode = data.address.country_code?.toLowerCase() || '';
                 const isCostaRica = countryCode === 'cr' || country.toLowerCase().includes('costa rica');
-                
+
                 if (!isCostaRica) {
                     Toast.show({
                         type: 'error',
@@ -122,7 +122,7 @@ export function useBusinessForm(businessId: string) {
                     });
                     return;
                 }
-                
+
                 // Actualizar datos de ubicación si los obtuvimos
                 if (data.address.state) formData.province = data.address.state;
                 if (data.address.county) formData.canton = data.address.county;

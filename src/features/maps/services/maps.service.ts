@@ -1,4 +1,4 @@
-import { generateMapHTML as generateMapHTMLBase, type MapOptions } from '@/components/ui/LocationPicker/mapTemplate';
+import { generateMapHTML as generateMapHTMLBase, type MapOptions } from '@/components/maps/LeafletMap';
 
 interface MapViewOptions {
   theme?: MapOptions['theme'];

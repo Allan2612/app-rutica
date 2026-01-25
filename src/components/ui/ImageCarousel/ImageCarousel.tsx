@@ -17,6 +17,7 @@ export interface ImageCarouselProps {
     images: string[];
     imageWidth?: number;
     aspectRatio?: number;
+    maxHeight?: number;
     showNavButtons?: boolean;
     onImagePress?: (imageUrl: string, index: number) => void;
 }
@@ -25,6 +26,7 @@ export function ImageCarousel({
     images,
     imageWidth = SCREEN_WIDTH,
     aspectRatio = 16 / 9,
+    maxHeight,
     showNavButtons = true,
     onImagePress,
 }: ImageCarouselProps) {
@@ -61,11 +63,15 @@ export function ImageCarousel({
         );
     }
 
+    // Calcular altura basada en aspectRatio, respetando maxHeight si está definido
+    const calculatedHeight = imageWidth / aspectRatio;
+    const finalHeight = maxHeight ? Math.min(calculatedHeight, maxHeight) : calculatedHeight;
+
     const renderItem = ({ item, index }: { item: string; index: number }) => (
         <Pressable onPress={() => handleImagePress(item, index)}>
             <Image
                 source={{ uri: item }}
-                style={[styles.image, { width: imageWidth, aspectRatio }]}
+                style={[styles.image, { width: imageWidth, height: finalHeight }]}
                 resizeMode="cover"
             />
         </Pressable>
