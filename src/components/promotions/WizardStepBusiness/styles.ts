@@ -3,9 +3,10 @@ import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     container: {
-        // Se ajusta al contenido
+        flex: 1,
     },
     content: {
+        flex: 1,
         padding: spacing.md,
         gap: spacing.md,
     },
@@ -35,8 +36,11 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 20,
     },
+    section: {
+        flex: 1,
+    },
     businessScroll: {
-        maxHeight: 250,
+        flex: 1,
     },
     businessGrid: {
         gap: spacing.sm,
@@ -45,6 +49,7 @@ export const styles = StyleSheet.create({
         borderRadius: 12,
         padding: spacing.md,
         borderWidth: 1,
+        width: '100%',
     },
     businessCardContent: {
         flexDirection: 'row',
