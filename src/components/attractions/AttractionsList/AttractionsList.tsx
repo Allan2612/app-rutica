@@ -27,6 +27,7 @@ export const AttractionsList = memo(function AttractionsList({
 
     const renderItem = ({ item }: { item: AttractionListItem }) => (
         <AttractionPost
+            attractionId={item.id}
             name={item.name}
             description={item.description}
             categoryNames={item.categoryNames}
