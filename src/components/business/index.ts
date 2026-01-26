@@ -13,5 +13,8 @@ export * from './ProductCard';
 export * from './ProductImageCarousel';
 export * from './BusinessProducts';
 export * from './BusinessMap';
+export * from './ReviewCard';
+export * from './ReviewModal';
+export * from './ReviewsSection';
 // BusinessesList se importa directamente para evitar referencias circulares
 
