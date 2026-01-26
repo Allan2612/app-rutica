@@ -142,4 +142,90 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.medium,
     },
+    // Reviews section styles
+    reviewsSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        borderTopWidth: 1,
+    },
+    reviewsToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+    },
+    reviewsToggleText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
+    writeReviewButton: {
+        paddingHorizontal: spacing.sm + 2,
+        paddingVertical: spacing.xs + 2,
+        borderRadius: spacing.sm,
+    },
+    writeReviewButtonText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.semibold,
+        color: '#ffffff',
+    },
+    reviewsList: {
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        gap: spacing.sm,
+        borderTopWidth: 1,
+    },
+    reviewItem: {
+        padding: spacing.sm,
+        borderRadius: spacing.sm,
+    },
+    reviewHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    reviewAvatar: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    reviewAvatarText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.bold,
+    },
+    reviewInfo: {
+        flex: 1,
+        marginLeft: spacing.xs,
+    },
+    reviewAuthor: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.semibold,
+    },
+    reviewMeta: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        marginTop: 2,
+    },
+    reviewStars: {
+        flexDirection: 'row',
+        gap: 1,
+    },
+    reviewDate: {
+        fontSize: typography.sizes.xs,
+    },
+    reviewActions: {
+        flexDirection: 'row',
+        gap: spacing.xs,
+    },
+    reviewActionButton: {
+        padding: spacing.xs,
+    },
+    reviewComment: {
+        fontSize: typography.sizes.sm,
+        marginTop: spacing.xs,
+        lineHeight: 18,
+    },
 });
