@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { validateReviewContent } from './contentModeration.service';
 
 export interface EventReviewDisplay {
     id: string;
@@ -97,6 +98,11 @@ export async function createEventReview(
     rating: number,
     comment?: string
 ): Promise<EventReviewDisplay | null> {
+    // Validar contenido antes de crear
+    if (comment) {
+        validateReviewContent(comment);
+    }
+
     const { data, error } = await supabase
         .from('event_reviews')
         .insert({
@@ -141,6 +147,11 @@ export async function updateEventReview(
     rating: number,
     comment?: string
 ): Promise<EventReviewDisplay | null> {
+    // Validar contenido antes de actualizar
+    if (comment) {
+        validateReviewContent(comment);
+    }
+
     const { data, error } = await supabase
         .from('event_reviews')
         .update({
