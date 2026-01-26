@@ -68,8 +68,15 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
   return (
     <SafeAreaView 
       style={[
-        { backgroundColor: colors.background.primary, borderBottomWidth: 1, borderBottomColor: colors.border.light },
-        !showBorder && { borderBottomWidth: 0 }
+        { 
+          backgroundColor: colors.background.primary, 
+          borderBottomWidth: showBorder ? 0 : 0,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: showBorder ? 0.05 : 0,
+          shadowRadius: 3,
+          elevation: showBorder ? 4 : 0,
+        }
       ]} 
       edges={['top']}
     >

@@ -16,6 +16,9 @@ export const MapScreen = memo(function MapScreen() {
   const { coordinates, loading, error, retry } = useMapLocation();
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<MarkerType[]>(ALL_MARKER_TYPES);
+  const [showUserLocation, setShowUserLocation] = useState(true);
+  const webViewRef = useRef<WebView>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const { markers, isLoading: markersLoading } = useMapMarkers({
     limitPerType: 500,
@@ -34,19 +37,62 @@ export const MapScreen = memo(function MapScreen() {
     ? initialMarkersRef.current
     : (!markersLoading ? markers : []);
 
-  const filteredMarkers = useMemo(() => {
-    return allMarkers.filter(marker => selectedTypes.includes(marker.type));
-  }, [allMarkers, selectedTypes]);
+  // Enviar mensaje al mapa para actualizar filtros
+  const updateMapFilters = useCallback((types: MarkerType[], showUser: boolean) => {
+    const message = JSON.stringify({
+      type: 'updateFilters',
+      selectedTypes: types,
+      showUserLocation: showUser,
+    });
+
+    if (Platform.OS === 'web') {
+      iframeRef.current?.contentWindow?.postMessage(message, '*');
+    } else {
+      webViewRef.current?.postMessage(message);
+    }
+  }, []);
 
   const handleToggleType = useCallback((type: MarkerType) => {
     setSelectedTypes(prev => {
-      if (prev.includes(type)) {
-        if (prev.length === 1) return prev;
-        return prev.filter(t => t !== type);
+      const newTypes = prev.includes(type)
+        ? (prev.length === 1 ? prev : prev.filter(t => t !== type))
+        : [...prev, type];
+
+      // Actualizar mapa sin recargar
+      if (isMapLoaded) {
+        updateMapFilters(newTypes, showUserLocation);
       }
-      return [...prev, type];
+
+      return newTypes;
     });
-  }, []);
+  }, [isMapLoaded, showUserLocation, updateMapFilters]);
+
+  const handleToggleUserLocation = useCallback(() => {
+    setShowUserLocation(prev => {
+      const newValue = !prev;
+
+      // Actualizar mapa sin recargar
+      if (isMapLoaded) {
+        updateMapFilters(selectedTypes, newValue);
+      }
+
+      return newValue;
+    });
+  }, [isMapLoaded, selectedTypes, updateMapFilters]);
+
+  // Generar HTML solo una vez con TODOS los marcadores
+  const mapHTML = useMemo(() => {
+    if (!coordinates || allMarkers.length === 0) return '';
+    return generateExploreMapHTML({
+      userLatitude: coordinates.latitude,
+      userLongitude: coordinates.longitude,
+      markers: allMarkers,
+      theme: colors.isDark ? 'dark' : 'light',
+      zoom: 13,
+      showUserMarker: showUserLocation,
+      initialSelectedTypes: selectedTypes,
+    });
+  }, [coordinates, allMarkers, colors.isDark]);
 
   const handleMessage = useCallback((event: WebViewMessageEvent | MessageEvent) => {
     try {
@@ -65,17 +111,6 @@ export const MapScreen = memo(function MapScreen() {
     return () => window.removeEventListener('message', handleWindowMessage);
   }, [handleMessage]);
 
-  const mapHTML = useMemo(() => {
-    if (!coordinates || filteredMarkers.length === 0) return '';
-    return generateExploreMapHTML({
-      userLatitude: coordinates.latitude,
-      userLongitude: coordinates.longitude,
-      markers: filteredMarkers,
-      theme: colors.isDark ? 'dark' : 'light',
-      zoom: 13,
-    });
-  }, [coordinates, filteredMarkers, colors.isDark]);
-
   if (error && !coordinates) return <MapError error={error} onRetry={retry} />;
   if (loading || !coordinates || (markersLoading && allMarkers.length === 0)) {
     return <MapLoading message={markersLoading ? 'Cargando marcadores...' : 'Preparando mapa...'} />;
@@ -86,10 +121,16 @@ export const MapScreen = memo(function MapScreen() {
   if (Platform.OS === 'web') {
     return (
       <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
-        <MapFilterChips selectedTypes={selectedTypes} onToggle={handleToggleType} />
+        <MapFilterChips
+          selectedTypes={selectedTypes}
+          onToggle={handleToggleType}
+          showUserLocation={showUserLocation}
+          onToggleUserLocation={handleToggleUserLocation}
+        />
         <View style={styles.mapContainer}>
           <MapOverlay visible={showOverlay} />
           <iframe
+            ref={iframeRef}
             srcDoc={mapHTML}
             style={{ width: '100%', height: '100%', border: 0, flex: 1 }}
             onLoad={() => setIsMapLoaded(true)}
@@ -101,9 +142,15 @@ export const MapScreen = memo(function MapScreen() {
 
   return (
     <View style={styles.container}>
-      <MapFilterChips selectedTypes={selectedTypes} onToggle={handleToggleType} />
+      <MapFilterChips
+        selectedTypes={selectedTypes}
+        onToggle={handleToggleType}
+        showUserLocation={showUserLocation}
+        onToggleUserLocation={handleToggleUserLocation}
+      />
       <View style={styles.mapContainer}>
         <WebView
+          ref={webViewRef}
           originWhitelist={['*']}
           source={{ html: mapHTML }}
           style={styles.map}

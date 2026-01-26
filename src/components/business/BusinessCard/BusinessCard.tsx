@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { MapPin, Star } from 'lucide-react-native';
+import { MapPin, Star, Tag } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
@@ -16,6 +16,7 @@ export interface BusinessCardProps {
   rating?: number;
   reviewCount?: number;
   isApproved?: boolean;
+  hasActivePromotions?: boolean; // NEW: Indica si tiene promociones activas
   onPress?: () => void;
 }
 
@@ -29,6 +30,7 @@ export const BusinessCard = memo(function BusinessCard({
   rating = 4.5,
   reviewCount = 20,
   isApproved = false,
+  hasActivePromotions = false, // NEW
   onPress,
 }: BusinessCardProps) {
   const colors = useThemedColors();
@@ -46,6 +48,13 @@ export const BusinessCard = memo(function BusinessCard({
           <Image source={{ uri: logoUrl }} style={styles.logoImage} resizeMode="cover" />
         </View>
       ) : null}
+
+      {/* NEW: Promotion Badge */}
+      {hasActivePromotions && (
+        <View style={styles.promotionBadge}>
+          <Tag size={14} color="#000000" strokeWidth={2.5} />
+        </View>
+      )}
 
       {rating > 0 && (
         <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>

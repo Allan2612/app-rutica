@@ -1,7 +1,7 @@
 /**
  * Generador de HTML para el mapa con múltiples marcadores
  */
-import type { MapMarker } from '@/features/maps/types';
+import type { MapMarker, MarkerType } from '@/features/maps/types';
 import { MARKER_COLORS, USER_MARKER_COLOR } from '@/features/maps/types';
 import { getThemeColors, getTileUrl, generateMapStyles, generateMapScript } from './mapStyles';
 
@@ -11,6 +11,8 @@ export interface ExploreMapOptions {
     userLatitude: number;
     userLongitude: number;
     markers: MapMarker[];
+    showUserMarker?: boolean;
+    initialSelectedTypes?: MarkerType[];
 }
 
 /**
@@ -22,7 +24,9 @@ export function generateExploreMapHTML(options: ExploreMapOptions): string {
         zoom = 13,
         userLatitude,
         userLongitude,
-        markers
+        markers,
+        showUserMarker = true,
+        initialSelectedTypes = ['attraction', 'event', 'business'],
     } = options;
 
     const colors = getThemeColors(theme);
@@ -40,7 +44,9 @@ export function generateExploreMapHTML(options: ExploreMapOptions): string {
         userLatitude,
         userLongitude,
         zoom,
-        tileUrl
+        tileUrl,
+        showUserMarker,
+        initialSelectedTypes,
     });
 
     return `

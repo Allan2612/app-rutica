@@ -2,9 +2,10 @@ import { StyleSheet } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
-    scrollContent: {
+    container: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: spacing.sm,
-        paddingVertical: spacing.xs,
     },
     chip: {
         flexDirection: 'row',

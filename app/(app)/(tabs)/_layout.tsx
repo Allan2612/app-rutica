@@ -8,6 +8,11 @@ export default function TabsLayout() {
   const pathname = usePathname();
   const router = useRouter();
 
+  // Ocultar tabs en formularios de creación/edición
+  const shouldHideTabs = pathname.includes('/create') || 
+                         pathname.includes('/edit') || 
+                         pathname.includes('/wizard');
+
   return (
     <Tabs
       screenOptions={{
@@ -15,10 +20,14 @@ export default function TabsLayout() {
         header: () => <HeaderWithSearch />,
         tabBarActiveTintColor: colors.primary[500],
         tabBarInactiveTintColor: colors.text.tertiary,
-        tabBarStyle: {
+        tabBarStyle: shouldHideTabs ? { display: 'none' } : {
           backgroundColor: colors.background.primary,
-          borderTopWidth: 1,
-          borderTopColor: colors.border.light,
+          borderTopWidth: 0,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 3,
+          elevation: 8,
         },
       }}
     >

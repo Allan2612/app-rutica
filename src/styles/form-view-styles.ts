@@ -36,7 +36,7 @@ export const formViewStyles = StyleSheet.create({
     backButton: {
         width: 40,
         height: 40,
-        borderRadius: 10,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },

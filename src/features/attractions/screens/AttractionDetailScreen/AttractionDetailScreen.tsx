@@ -10,16 +10,26 @@ import { useAttractionDetail } from '@/features/attractions/hooks';
 import { ImageCarousel } from '@/components/ui';
 import { BusinessGallery } from '@/components/business';
 import { AttractionHeader } from '@/components/attractions';
-import {styles} from '@/features/attractions/screens/AttractionDetailScreen/styles';
+import { styles } from '@/features/attractions/screens/AttractionDetailScreen/styles';
 
 export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
     const colors = useThemedColors();
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
     const { data: attraction, isLoading, error } = useAttractionDetail(id);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
     const handleClose = () => {
-        router.canGoBack() ? router.back() : router.replace('/(app)/(tabs)/attractions');
+        // Si viene del mapa, regresar al mapa
+        if (from === 'maps') {
+            router.replace('/(app)/(tabs)/maps');
+            return;
+        }
+        // Intentar regresar normalmente
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            router.replace('/(app)/(tabs)/attractions');
+        }
     };
 
     const handleOpenMaps = () => {

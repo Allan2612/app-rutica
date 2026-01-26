@@ -19,7 +19,7 @@ const MONTHS = [
 ];
 
 const currentYear = new Date().getFullYear();
-const YEARS = Array.from({ length: 11 }, (_, i) => currentYear + i);
+const YEARS = [currentYear, currentYear + 1];
 
 export const CalendarPicker = memo(function CalendarPicker({
     selectedDate,

@@ -67,6 +67,9 @@ export interface BusinessListRecord {
     path_bim: string;
     sort_order_bim: number;
   }[] | null;
+  promotions?: {
+    id_prm: string;
+  }[] | null;
 }
 
 export async function uploadImageToStorage(
@@ -224,6 +227,8 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
 export async function getBusinessList(filters: BusinessListFilters = {}): Promise<BusinessListRecord[]> {
   const { searchText, categoryIds } = filters;
 
+  const now = new Date().toISOString();
+  
   let query = supabase
     .from('businesses')
     .select(`
@@ -241,9 +246,19 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
         )
       ),
       locations ( canton_loc, district_loc, province_loc ),
-      business_images ( image_type_bim, bucket_bim, path_bim, sort_order_bim )
+      business_images ( image_type_bim, bucket_bim, path_bim, sort_order_bim ),
+      promotions!business_id_prm (
+        id_prm
+      )
     `);
   // .eq('moderation_status_bus', 'approved'); // Comentado temporalmente para testing
+
+  // Filtrar promociones activas en la relación
+  query = query
+    .eq('promotions.moderation_status_prm', 'approved')
+    .eq('promotions.payment_state_prm', 'paid')
+    .lte('promotions.start_at_prm', now)
+    .gte('promotions.end_at_prm', now);
 
   // Filtrar por categorías usando la tabla de relación
   if (categoryIds && categoryIds.length > 0) {

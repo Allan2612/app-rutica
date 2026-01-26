@@ -18,6 +18,7 @@ export const styles = StyleSheet.create({
     content: {
         padding: spacing.sm,
         gap: spacing.xs,
+        flexShrink: 1,
     },
     name: {
         fontSize: typography.sizes.sm,
@@ -31,5 +32,20 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
         marginTop: spacing.xs - 2,
+    },
+    priceContainer: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 2,
+        marginTop: spacing.xs - 2,
+    },
+    originalPrice: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+        textDecorationLine: 'line-through',
+    },
+    discountedPrice: {
+        fontSize: typography.sizes.base,
+        fontWeight: typography.fontWeights.bold,
     },
 });

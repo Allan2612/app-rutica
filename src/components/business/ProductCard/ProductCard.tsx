@@ -1,16 +1,20 @@
 import { memo, useState } from 'react';
 import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
+import { getActivePromotionForProduct, calculateDiscountedPrice } from '@/utils';
+import type { PromotionListItem } from '@/types/entities';
 import { ProductImageCarousel } from '../ProductImageCarousel';
 import { styles } from './styles';
 
 interface ProductCardProps {
+    productId: string;
     name: string;
     description?: string | null;
     price: number;
     currency: string;
     imageUrl?: string | null;
     imageUrls?: string[];
+    promotions?: PromotionListItem[];
     onImagePress?: (imageUrl: string) => void;
 }
 
@@ -21,18 +25,25 @@ const formatPrice = (value: number, curr: string): string => {
 };
 
 export const ProductCard = memo(function ProductCard({
+    productId,
     name,
     description,
     price,
     currency,
     imageUrl,
     imageUrls = [],
+    promotions,
     onImagePress,
 }: ProductCardProps) {
     const colors = useThemedColors();
     const [cardWidth, setCardWidth] = useState(0);
 
     const images = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
+
+    // Verificar si hay promoción activa para este producto
+    const activePromotion = getActivePromotionForProduct(promotions, productId);
+    const discountedPrice = activePromotion ? calculateDiscountedPrice(price, activePromotion) : null;
+    const hasDiscount = discountedPrice !== null && discountedPrice < price;
 
     const onLayout = (event: any) => {
         const { width } = event.nativeEvent.layout;
@@ -54,9 +65,32 @@ export const ProductCard = memo(function ProductCard({
                     </Text>
                 )}
 
-                <Text style={[styles.price, { color: colors.primary[500] }]}>
-                    {formatPrice(price, currency)}
-                </Text>
+                {hasDiscount ? (
+                    <View style={styles.priceContainer}>
+                        <Text 
+                            style={[styles.originalPrice, { color: colors.text.tertiary }]}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                        >
+                            {formatPrice(price, currency)}
+                        </Text>
+                        <Text 
+                            style={[styles.discountedPrice, { color: colors.success }]}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                        >
+                            {formatPrice(discountedPrice!, currency)}
+                        </Text>
+                    </View>
+                ) : (
+                    <Text 
+                        style={[styles.price, { color: colors.primary[500] }]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                    >
+                        {formatPrice(price, currency)}
+                    </Text>
+                )}
             </View>
         </View>
     );

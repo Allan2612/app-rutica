@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { useAuthStore } from '@/store';
 import { useThemedColors } from '@/hooks';
-import { MapBackground } from '@/components/maps';
+import { MapBackground } from '@/components/ui';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -91,6 +91,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+    overflow: 'hidden',
   },
   content: {
     width: '100%',
@@ -100,8 +102,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   logo: {
-    width: 250,
-    height: 250,
+    width: 180,
+    height: 180,
     marginBottom: 16,
   },
   title: {

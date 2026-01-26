@@ -1,5 +1,5 @@
-import { memo, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { memo } from 'react';
+import { View, Text, Pressable } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
@@ -38,11 +38,7 @@ export const CategorySelector = memo(function CategorySelector({
     }
 
     return (
-        <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-        >
+        <View style={styles.container}>
             {categories.map((category) => {
                 const isSelected = selectedIds.includes(category.id);
 
@@ -75,6 +71,6 @@ export const CategorySelector = memo(function CategorySelector({
                     </Pressable>
                 );
             })}
-        </ScrollView>
+        </View>
     );
 });

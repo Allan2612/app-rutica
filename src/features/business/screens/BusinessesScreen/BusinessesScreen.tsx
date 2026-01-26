@@ -1,12 +1,15 @@
 import { memo, useState } from 'react';
 import { ActivityIndicator, Text, View, useWindowDimensions, Pressable } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { TabSelector, TabOption, SearchFilterModal, SearchFilters } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses } from '@/features/business/hooks/useBusinesses';
+import { usePromotions } from '@/features/promotions/hooks';
 import { useThemedColors } from '@/hooks';
 import { useBusinessesStyles } from './styles';
 import { BusinessesList } from '@/components/business/BusinessesList';
+import { PromotionsPublicList } from '@/components/promotions';
 
 const BUSINESS_TABS: TabOption[] = [
   { id: 'commerces', label: 'Comercios' },
@@ -36,7 +39,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   // Calcular número de columnas según el ancho
   const numColumns = width > 768 ? 3 : width > 600 ? 2 : 1;
   // Key para forzar re-render al cambiar numColumns
-  const listKey = `businesses-${numColumns}-columns`;
+  const businessesListKey = `businesses-${numColumns}-columns`;
+  const promotionsListKey = `promotions-${numColumns}-columns`;
 
   const { data: categories = [] } = useBusinessCategories();
   const {
@@ -50,6 +54,17 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     enabled: activeTab === 'commerces',
   });
 
+  const {
+    data: promotions = [],
+    isLoading: isPromotionsLoading,
+    refetch: refetchPromotions,
+    isRefetching: isPromotionsRefetching,
+  } = usePromotions({
+    searchText: promotionFilters.searchText,
+    categoryIds: promotionFilters.categoryIds,
+    enabled: activeTab === 'promotions',
+  });
+
   const currentFilters = activeTab === 'commerces' ? commerceFilters : promotionFilters;
   const hasActiveFilters = currentFilters.searchText !== '' || currentFilters.categoryIds.length > 0;
 
@@ -58,6 +73,12 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       setCommerceFilters(filters);
     } else {
       setPromotionFilters(filters);
+    }
+  };
+
+  const handlePromotionPress = (promotion: typeof promotions[0]) => {
+    if (promotion.businessId) {
+      router.push(`/(app)/(tabs)/businesses/${promotion.businessId}`);
     }
   };
 
@@ -102,18 +123,24 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
             <BusinessesList
               data={businesses}
               numColumns={numColumns}
-              listKey={listKey}
+              listKey={businessesListKey}
               isRefreshing={isBusinessesRefetching}
               onRefresh={() => refetchBusinesses()}
             />
           )
-        ) : (
-          <View style={styles.placeholder}>
-            <Text style={[styles.placeholderTitle, { color: colors.text.primary }]}>Explora las promociones pronto</Text>
-            <Text style={[styles.placeholderSubtitle, { color: colors.text.secondary }]}>
-              Estamos preparando las mejores ofertas para ti.
-            </Text>
+        ) : isPromotionsLoading ? (
+          <View style={styles.loader}>
+            <ActivityIndicator size="small" color={colors.primary[600]} />
           </View>
+        ) : (
+          <PromotionsPublicList
+            data={promotions}
+            numColumns={numColumns}
+            listKey={promotionsListKey}
+            isRefreshing={isPromotionsRefetching}
+            onRefresh={() => refetchPromotions()}
+            onPromotionPress={handlePromotionPress}
+          />
         )}
       </View>
 

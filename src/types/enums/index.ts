@@ -18,3 +18,6 @@ export type PromoPaymentState = 'unpaid' | 'paid' | 'rejected';
 
 // Tipo de evento
 export type EventType = 'festival' | 'market' | 'concert' | 'workshop' | 'tour' | 'other';
+
+// Tipo de imagen (para diferentes entidades)
+export type ImageType = 'logo' | 'cover' | 'gallery';
