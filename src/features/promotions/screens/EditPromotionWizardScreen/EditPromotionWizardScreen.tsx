@@ -6,6 +6,7 @@ import {
   Platform,
   Pressable,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -311,7 +312,14 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
               },
             ]}
           >
-            <View style={styles.stepContent}>{renderStep}</View>
+            <ScrollView 
+              style={styles.stepScrollView}
+              contentContainerStyle={styles.stepContent}
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
+              {renderStep}
+            </ScrollView>
           </View>
         </View>
 

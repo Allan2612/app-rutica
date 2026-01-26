@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { styles } from './styles';
@@ -240,7 +241,14 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
               },
             ]}
           >
-            <View style={styles.stepContent}>{renderStep}</View>
+            <ScrollView 
+              style={styles.stepScrollView}
+              contentContainerStyle={styles.stepContent}
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
+              {renderStep}
+            </ScrollView>
           </View>
         </View>
 

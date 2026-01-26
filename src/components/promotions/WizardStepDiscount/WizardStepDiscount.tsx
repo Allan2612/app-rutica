@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -57,6 +57,29 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
 
   // Calculate selected products count
   const selectedCount = formData.selectedProductIds.length;
+
+  // Inyectar estilos para ocultar scrollbar en web
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const styleId = 'hide-scrollbar-styles';
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+          .hide-scrollbar::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+          }
+          .hide-scrollbar {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -232,10 +255,75 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
                   No hay productos registrados
                 </Text>
               </View>
+            ) : Platform.OS === 'web' ? (
+              <div 
+                className="hide-scrollbar"
+                style={{
+                  maxHeight: 300,
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                  border: `1px solid ${colors.border.medium}`,
+                  borderRadius: 8,
+                  padding: 8,
+                  scrollbarWidth: 'none' as any,
+                  msOverflowStyle: 'none' as any,
+                }}
+              >
+                {products.map((product: any) => {
+                  const isSelected = formData.selectedProductIds.includes(product.id);
+
+                  return (
+                    <Pressable
+                      key={product.id}
+                      style={[
+                        styles.productCard,
+                        {
+                          backgroundColor: isSelected
+                            ? colors.primary[500]
+                            : colors.background.secondary,
+                          borderColor: isSelected ? colors.primary[500] : colors.border.medium,
+                          borderWidth: 1,
+                        },
+                      ]}
+                      onPress={() => onToggleProduct(product.id)}
+                    >
+                      <View style={styles.productInfo}>
+                        <View
+                          style={[
+                            styles.checkbox,
+                            {
+                              backgroundColor: isSelected
+                                ? '#FFFFFF'
+                                : 'transparent',
+                              borderColor: isSelected
+                                ? '#FFFFFF'
+                                : colors.border.medium,
+                            },
+                          ]}
+                        >
+                          {isSelected && <Check size={12} color={colors.primary[500]} />}
+                        </View>
+                        <Text
+                          style={[styles.productName, { color: isSelected ? '#FFFFFF' : colors.text.primary }]}
+                          numberOfLines={1}
+                        >
+                          {product.name}
+                        </Text>
+                        {product.price && (
+                          <Text
+                            style={[styles.productPrice, { color: isSelected ? '#FFFFFF' : colors.text.secondary }]}
+                          >
+                            ₡{product.price.toLocaleString()}
+                          </Text>
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </div>
             ) : (
-              <ScrollView 
+              <ScrollView
                 style={[styles.productScroll, { borderColor: colors.border.medium }]}
-                contentContainerStyle={styles.productList}
                 showsVerticalScrollIndicator={true}
                 nestedScrollEnabled={true}
               >

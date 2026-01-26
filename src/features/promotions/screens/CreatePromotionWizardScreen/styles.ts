@@ -76,11 +76,13 @@ export const styles = StyleSheet.create({
     card: {
         borderRadius: 16,
         borderWidth: 1,
-        overflow: 'hidden',
-        maxHeight: '100%',
+        flex: 1,
+    },
+    stepScrollView: {
+        flex: 1,
     },
     stepContent: {
-        // El contenido se ajusta automáticamente
+        flexGrow: 1,
     },
     navigationWrapper: {
         paddingHorizontal: spacing.lg,

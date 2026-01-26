@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
@@ -117,12 +117,10 @@ export const styles = StyleSheet.create({
         borderRadius: 8,
         padding: spacing.sm,
     },
-    productList: {
-        gap: spacing.sm,
-    },
     productCard: {
         borderRadius: 12,
         padding: spacing.md,
+        marginBottom: spacing.sm,
     },
     productInfo: {
         flexDirection: 'row',
