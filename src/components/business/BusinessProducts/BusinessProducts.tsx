@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Package } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks/useBusinessProducts';
@@ -77,7 +77,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
     return (
         <View style={styles.container}>
             <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-                Nuestros Productos {mixedCombos.length > 0 && `y Combos`}
+                Nuestros Productos {mixedCombos.length > 0}
             </Text>
 
             <FlatList
@@ -117,7 +117,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
                         ? `combo-${item.data.id}` 
                         : `product-${item.data.id}`
                 }
-                numColumns={3}
+                numColumns={Platform.OS === 'web' ? 3 : 2}
                 columnWrapperStyle={styles.row}
                 scrollEnabled={false}
                 showsVerticalScrollIndicator={false}

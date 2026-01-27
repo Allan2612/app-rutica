@@ -1,10 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { spacing, typography, colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     card: {
         flex: 1,
-        maxWidth: '32%',
+        maxWidth: Platform.OS === 'web' ? '32%' : '48%',
         borderRadius: 12,
         borderWidth: 1,
         overflow: 'hidden',
@@ -58,6 +58,18 @@ export const styles = StyleSheet.create({
     },
     discountedPrice: {
         fontSize: typography.sizes.base,
+        fontWeight: typography.fontWeights.bold,
+    },
+    expanderBadge: {
+        paddingHorizontal: spacing.xs + 2,
+        paddingVertical: 4,
+        borderRadius: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    expanderText: {
+        color: colors.text.inverse,
+        fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
     },
 });

@@ -125,7 +125,11 @@ export const ComboSelection = memo(function ComboSelection({
             )}
           </View>
           {product.price && (
-            <Text style={[styles.productPrice, { color: colors.text.secondary }]}>
+            <Text 
+              style={[styles.productPrice, { color: colors.text.secondary }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               ₡{product.price.toLocaleString()}
             </Text>
           )}

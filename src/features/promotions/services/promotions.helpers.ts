@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '@/lib/supabase/client';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
 const BUCKET_NAME = 'promotions-images';
@@ -53,38 +53,51 @@ export async function uploadPromotionImage(
     imageUri: string,
     imageType: 'flyer'
 ): Promise<string> {
-    let blob: Blob;
-
-    if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
-        const response = await fetch(imageUri);
-        blob = await response.blob();
-    } else {
-        const base64Data = await FileSystem.readAsStringAsync(imageUri, {
-            encoding: 'base64',
-        });
-
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        blob = new Blob([byteArray], { type: 'image/jpeg' });
-    }
-
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(7);
     const filePath = `${promotionId}/${imageType}-${timestamp}-${randomStr}.jpg`;
 
-    const { error } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(filePath, blob, {
-            contentType: 'image/jpeg',
-            upsert: false,
+    if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        
+        const { error } = await supabase.storage
+            .from(BUCKET_NAME)
+            .upload(filePath, blob, {
+                contentType: 'image/jpeg',
+                upsert: false,
+            });
+
+        if (error) throw error;
+    } else {
+        // En mobile usamos base64 directamente con decode
+        const base64Data = await FileSystem.readAsStringAsync(imageUri, {
+            encoding: 'base64',
         });
 
-    if (error) throw error;
+        const { error } = await supabase.storage
+            .from(BUCKET_NAME)
+            .upload(filePath, decode(base64Data), {
+                contentType: 'image/jpeg',
+                upsert: false,
+            });
+
+        if (error) throw error;
+    }
+
     return filePath;
+}
+
+/**
+ * Decodifica base64 a ArrayBuffer para mobile
+ */
+function decode(base64: string): ArrayBuffer {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
 }
 
 /**

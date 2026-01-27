@@ -1,10 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { spacing, typography, colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     card: {
         flex: 1,
-        maxWidth: '32%',
+        maxWidth: Platform.OS === 'web' ? '32%' : '48%',
         borderRadius: 12,
         borderWidth: 2,
         overflow: 'hidden',

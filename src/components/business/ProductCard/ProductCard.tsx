@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import { getAllActivePromotions, calculateDiscountedPrice, isComboPromotion, getPromotionBadgeLabel, formatPrice } from '@/utils';
 import type { PromotionListItem } from '@/types/entities';
@@ -36,6 +36,7 @@ export const ProductCard = memo(function ProductCard({
 }: ProductCardProps) {
     const colors = useThemedColors();
     const [cardWidth, setCardWidth] = useState(0);
+    const [showAllBadges, setShowAllBadges] = useState(false);
 
     const images = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
 
@@ -77,13 +78,23 @@ export const ProductCard = memo(function ProductCard({
         setCardWidth(width);
     };
 
+    const totalBadges = comboPromotions.length + discountPromotions.length;
+    const isMobile = Platform.OS !== 'web';
+    const shouldShowExpander = isMobile && totalBadges > 1 && !showAllBadges;
+    
+    // En mobile mostrar solo el primero, en web mostrar todos
+    const combosToShow = isMobile && !showAllBadges ? comboPromotions.slice(0, totalBadges > 1 ? 1 : comboPromotions.length) : comboPromotions;
+    const discountsToShow = isMobile && !showAllBadges 
+        ? (comboPromotions.length === 0 ? discountPromotions.slice(0, 1) : []) 
+        : discountPromotions;
+
     return (
         <View style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}>
             {/* Badges Container - Múltiples badges para diferentes tipos de promos */}
             {(comboPromotions.length > 0 || discountPromotions.length > 0) && (
                 <View style={styles.badgesContainer}>
                     {/* Combo Badges */}
-                    {comboPromotions.map((comboPromo, index) => {
+                    {combosToShow.map((comboPromo, index) => {
                         const comboLabel = getPromotionBadgeLabel(comboPromo as any);
                         return (
                             <PromoBadge 
@@ -95,7 +106,7 @@ export const ProductCard = memo(function ProductCard({
                     })}
                     
                     {/* Discount Badges */}
-                    {discountPromotions.map((discountPromo, index) => {
+                    {discountsToShow.map((discountPromo, index) => {
                         const discountLabel = getPromotionBadgeLabel(discountPromo as any);
                         return (
                             <PromoBadge 
@@ -105,6 +116,16 @@ export const ProductCard = memo(function ProductCard({
                             />
                         );
                     })}
+                    
+                    {/* Expander button en mobile */}
+                    {shouldShowExpander && (
+                        <Pressable 
+                            style={[styles.expanderBadge, { backgroundColor: colors.primary[500] }]}
+                            onPress={() => setShowAllBadges(true)}
+                        >
+                            <Text style={styles.expanderText}>+{totalBadges - 1}</Text>
+                        </Pressable>
+                    )}
                 </View>
             )}
             
