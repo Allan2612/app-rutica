@@ -1,19 +1,17 @@
-import { memo, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-  ScrollView,
-  Platform,
-} from 'react-native';
-import { Percent, DollarSign, Package, Check, AlertCircle } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { memo, useMemo } from 'react';
+import { View } from 'react-native';
+import { useCategories } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks';
-import type { DiscountType, PromoScope } from '@/types/enums';
-import { formSectionStyles } from '@/styles/form-section-styles';
+import type { PromoScope, DiscountType } from '@/types/enums';
 import type { PromotionWizardFormData, PromotionWizardErrors } from '@/types/entities';
+import {
+  ScopeSelection,
+  DiscountTypeSelector,
+  DiscountValueInput,
+  ProductSelection,
+  CategorySelection,
+  ComboSelection,
+} from './components';
 import { styles } from './styles';
 
 interface WizardStepDiscountProps {
@@ -24,378 +22,109 @@ interface WizardStepDiscountProps {
     value: PromotionWizardFormData[K]
   ) => void;
   onToggleProduct: (productId: string) => void;
+  onToggleScopeCategory: (categoryId: string) => void;
+  onUpdateComboItem: (productId: string, quantity: number, paidQuantity?: number) => void;
+  onToggleComboItem: (productId: string) => void;
 }
-
-const DISCOUNT_TYPES: { value: DiscountType; label: string; icon: any }[] = [
-  {
-    value: 'percentage',
-    label: 'Porcentaje',
-    icon: Percent,
-  },
-  {
-    value: 'fixed',
-    label: 'Monto fijo',
-    icon: DollarSign,
-  },
-];
-
-const SCOPE_OPTIONS: { value: PromoScope; label: string }[] = [
-  { value: 'general', label: 'Todo el negocio' },
-  { value: 'product', label: 'Productos específicos' },
-];
 
 export const WizardStepDiscount = memo(function WizardStepDiscount({
   formData,
   errors,
   onFieldChange,
   onToggleProduct,
+  onToggleScopeCategory,
+  onUpdateComboItem,
 }: WizardStepDiscountProps) {
-  const colors = useThemedColors();
-  const { data: products = [], isLoading } = useBusinessProducts(formData.businessId);
+  const { data: products = [], isLoading: loadingProducts } = useBusinessProducts(formData.businessId);
+  const { data: allCategories = [], isLoading: loadingCategories } = useCategories();
 
-  const showProductSelection = formData.scope === 'product';
-
-  // Calculate selected products count
-  const selectedCount = formData.selectedProductIds.length;
-
-  // Inyectar estilos para ocultar scrollbar en web
-  useEffect(() => {
-    if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const styleId = 'hide-scrollbar-styles';
-      if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
-          .hide-scrollbar::-webkit-scrollbar {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-          }
-          .hide-scrollbar {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-          }
-        `;
-        document.head.appendChild(style);
+  // Get categories that exist in the business's products
+  const productCategories = useMemo(() => {
+    const categoryIds = new Set<string>();
+    products.forEach((product: { id: string; name: string; price?: number; categoryIds?: string[] }) => {
+      if (product.categoryIds) {
+        product.categoryIds.forEach((catId: string) => categoryIds.add(catId));
       }
-    }
-  }, []);
+    });
+    return allCategories.filter((cat) => categoryIds.has(cat.id));
+  }, [products, allCategories]);
+
+  // Handlers for field changes
+  const handleScopeChange = (scope: PromoScope) => {
+    onFieldChange('scope', scope);
+  };
+
+  const handleDiscountTypeChange = (type: DiscountType) => {
+    onFieldChange('discountType', type);
+  };
+
+  const handleDiscountValueChange = (value: number) => {
+    onFieldChange('discountValue', value);
+  };
+
+  // Combo doesn't need discount type/value - it's a bundle deal
+  const isCombo = formData.scope === 'combo';
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Scope Selection */}
-        <View style={formSectionStyles.section}>
-          <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
-            Alcance de la promoción <Text style={formSectionStyles.required}>*</Text>
-          </Text>
-          <View style={styles.scopeRow}>
-            {SCOPE_OPTIONS.map((option) => {
-              const isSelected = formData.scope === option.value;
-              return (
-                <Pressable
-                  key={option.value}
-                  style={[
-                    styles.scopeChip,
-                    {
-                      backgroundColor: isSelected
-                        ? colors.primary[500]
-                        : colors.background.secondary,
-                      borderColor: isSelected ? colors.primary[500] : colors.border.medium,
-                    },
-                  ]}
-                  onPress={() => onFieldChange('scope', option.value)}
-                >
-                  {isSelected && <Check size={14} color="#FFFFFF" />}
-                  <Text
-                    style={[
-                      styles.scopeLabel,
-                      { color: isSelected ? '#FFFFFF' : colors.text.primary },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
+        <ScopeSelection
+          selectedScope={formData.scope}
+          onScopeChange={handleScopeChange}
+        />
 
-        {/* Discount Type */}
-        <View style={formSectionStyles.section}>
-          <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
-            Tipo de descuento <Text style={formSectionStyles.required}>*</Text>
-          </Text>
+        {/* Discount Type - NOT shown for combo */}
+        {!isCombo && (
+          <DiscountTypeSelector
+            selectedType={formData.discountType}
+            onTypeChange={handleDiscountTypeChange}
+          />
+        )}
 
-          <View style={styles.discountTypeRow}>
-            {DISCOUNT_TYPES.map((type) => {
-              const isSelected = formData.discountType === type.value;
-              const Icon = type.icon;
-
-              return (
-                <Pressable
-                  key={type.value}
-                  style={[
-                    styles.discountTypeCard,
-                    {
-                      backgroundColor: isSelected
-                        ? colors.primary[500]
-                        : colors.background.secondary,
-                      borderColor: isSelected ? colors.primary[500] : colors.border.medium,
-                      borderWidth: 1,
-                    },
-                  ]}
-                  onPress={() => onFieldChange('discountType', type.value)}
-                >
-                  <Icon
-                    size={20}
-                    color={isSelected ? '#FFFFFF' : colors.text.tertiary}
-                  />
-                  <Text
-                    style={[
-                      styles.discountTypeLabel,
-                      { color: isSelected ? '#FFFFFF' : colors.text.primary },
-                    ]}
-                  >
-                    {type.label}
-                  </Text>
-                  {isSelected && <Check size={16} color="#FFFFFF" />}
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Discount Value */}
-        <View style={formSectionStyles.section}>
-          <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
-            {formData.discountType === 'percentage'
-              ? 'Porcentaje de descuento'
-              : 'Monto de descuento (₡)'}{' '}
-            <Text style={formSectionStyles.required}>*</Text>
-          </Text>
-
-          <View style={styles.inputWithUnit}>
-            <TextInput
-              style={[
-                formSectionStyles.input,
-                styles.discountInput,
-                {
-                  backgroundColor: colors.background.secondary,
-                  borderColor: errors.discountValue ? colors.error : colors.border.medium,
-                  color: colors.text.primary,
-                },
-              ]}
-              value={formData.discountValue > 0 ? String(formData.discountValue) : ''}
-              onChangeText={(text) => {
-                const numValue = parseFloat(text) || 0;
-                onFieldChange('discountValue', numValue);
-              }}
-              placeholder={
-                formData.discountType === 'percentage' ? 'Ej: 20' : 'Ej: 5000'
-              }
-              placeholderTextColor={colors.text.tertiary}
-              keyboardType="numeric"
-            />
-            <View
-              style={[
-                styles.unitBadge,
-                { backgroundColor: colors.background.tertiary },
-              ]}
-            >
-              <Text style={[styles.unitText, { color: colors.text.secondary }]}>
-                {formData.discountType === 'percentage' ? '%' : '₡'}
-              </Text>
-            </View>
-          </View>
-
-          {errors.discountValue && (
-            <View style={styles.errorContainer}>
-              <AlertCircle size={14} color={colors.error} />
-              <Text style={[styles.errorText, { color: colors.error }]}>
-                {errors.discountValue}
-              </Text>
-            </View>
-          )}
-
-          {formData.discountType === 'percentage' && formData.discountValue > 0 && (
-            <Text style={[styles.helperText, { color: colors.text.secondary }]}>
-              Los clientes recibirán un {formData.discountValue}% de descuento
-            </Text>
-          )}
-        </View>
+        {/* Discount Value - NOT shown for combo */}
+        {!isCombo && (
+          <DiscountValueInput
+            discountType={formData.discountType}
+            discountValue={formData.discountValue}
+            onValueChange={handleDiscountValueChange}
+            error={errors.discountValue}
+          />
+        )}
 
         {/* Product Selection (only if scope is PRODUCT) */}
-        {showProductSelection && (
-          <View style={formSectionStyles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
-                Productos a aplicar <Text style={formSectionStyles.required}>*</Text>
-              </Text>
-              {selectedCount > 0 && (
-                <View
-                  style={[styles.countBadge, { backgroundColor: colors.primary[500] }]}
-                >
-                  <Text style={styles.countText}>{selectedCount}</Text>
-                </View>
-              )}
-            </View>
+        {formData.scope === 'product' && (
+          <ProductSelection
+            products={products}
+            selectedProductIds={formData.selectedProductIds}
+            isLoading={loadingProducts}
+            onToggleProduct={onToggleProduct}
+            error={errors.selectedProductIds}
+          />
+        )}
 
-            {isLoading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color={colors.primary[500]} />
-                <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-                  Cargando productos...
-                </Text>
-              </View>
-            ) : products.length === 0 ? (
-              <View style={styles.emptyContainer}>
-                <Package size={24} color={colors.text.tertiary} />
-                <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-                  No hay productos registrados
-                </Text>
-              </View>
-            ) : Platform.OS === 'web' ? (
-              <div 
-                className="hide-scrollbar"
-                style={{
-                  maxHeight: 300,
-                  overflowY: 'auto',
-                  WebkitOverflowScrolling: 'touch',
-                  border: `1px solid ${colors.border.medium}`,
-                  borderRadius: 8,
-                  padding: 8,
-                  scrollbarWidth: 'none' as any,
-                  msOverflowStyle: 'none' as any,
-                }}
-              >
-                {products.map((product: any) => {
-                  const isSelected = formData.selectedProductIds.includes(product.id);
+        {/* Category Selection (only if scope is CATEGORY) */}
+        {formData.scope === 'category' && (
+          <CategorySelection
+            categories={productCategories}
+            selectedCategoryIds={formData.scopeCategoryIds}
+            isLoading={loadingCategories || loadingProducts}
+            onToggleCategory={onToggleScopeCategory}
+            error={errors.scopeCategoryIds}
+          />
+        )}
 
-                  return (
-                    <Pressable
-                      key={product.id}
-                      style={[
-                        styles.productCard,
-                        {
-                          backgroundColor: isSelected
-                            ? colors.primary[500]
-                            : colors.background.secondary,
-                          borderColor: isSelected ? colors.primary[500] : colors.border.medium,
-                          borderWidth: 1,
-                        },
-                      ]}
-                      onPress={() => onToggleProduct(product.id)}
-                    >
-                      <View style={styles.productInfo}>
-                        <View
-                          style={[
-                            styles.checkbox,
-                            {
-                              backgroundColor: isSelected
-                                ? '#FFFFFF'
-                                : 'transparent',
-                              borderColor: isSelected
-                                ? '#FFFFFF'
-                                : colors.border.medium,
-                            },
-                          ]}
-                        >
-                          {isSelected && <Check size={12} color={colors.primary[500]} />}
-                        </View>
-                        <Text
-                          style={[styles.productName, { color: isSelected ? '#FFFFFF' : colors.text.primary }]}
-                          numberOfLines={1}
-                        >
-                          {product.name}
-                        </Text>
-                        {product.price && (
-                          <Text
-                            style={[styles.productPrice, { color: isSelected ? '#FFFFFF' : colors.text.secondary }]}
-                          >
-                            ₡{product.price.toLocaleString()}
-                          </Text>
-                        )}
-                      </View>
-                    </Pressable>
-                  );
-                })}
-              </div>
-            ) : (
-              <ScrollView
-                style={[styles.productScroll, { borderColor: colors.border.medium }]}
-                showsVerticalScrollIndicator={true}
-                nestedScrollEnabled={true}
-              >
-                {products.map((product: any) => {
-                  const isSelected = formData.selectedProductIds.includes(product.id);
-
-                  return (
-                    <Pressable
-                      key={product.id}
-                      style={[
-                        styles.productCard,
-                        {
-                          backgroundColor: isSelected
-                            ? colors.primary[500]
-                            : colors.background.secondary,
-                          borderColor: isSelected ? colors.primary[500] : colors.border.medium,
-                          borderWidth: 1,
-                        },
-                      ]}
-                      onPress={() => onToggleProduct(product.id)}
-                    >
-                      <View style={styles.productInfo}>
-                        <View
-                          style={[
-                            styles.checkbox,
-                            {
-                              backgroundColor: isSelected
-                                ? '#FFFFFF'
-                                : 'transparent',
-                              borderColor: isSelected
-                                ? '#FFFFFF'
-                                : colors.border.medium,
-                            },
-                          ]}
-                        >
-                          {isSelected && <Check size={12} color={colors.primary[500]} />}
-                        </View>
-                        <Text
-                          style={[styles.productName, { color: isSelected ? '#FFFFFF' : colors.text.primary }]}
-                          numberOfLines={1}
-                        >
-                          {product.name}
-                        </Text>
-                        {product.price && (
-                          <Text
-                            style={[styles.productPrice, { color: isSelected ? '#FFFFFF' : colors.text.secondary }]}
-                          >
-                            ₡{product.price.toLocaleString()}
-                          </Text>
-                        )}
-                      </View>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            )}
-
-            {errors.selectedProductIds && (
-              <View style={styles.errorContainer}>
-                <AlertCircle size={14} color={colors.error} />
-                <Text style={[styles.errorText, { color: colors.error }]}>
-                  {errors.selectedProductIds}
-                </Text>
-              </View>
-            )}
-          </View>
+        {/* Combo Selection (only if scope is COMBO) */}
+        {formData.scope === 'combo' && (
+          <ComboSelection
+            products={products}
+            comboItems={formData.comboItems}
+            isLoading={loadingProducts}
+            onUpdateComboItem={onUpdateComboItem}
+            error={errors.comboItems}
+          />
         )}
       </View>
     </View>
   );
 });
-
-
-
-

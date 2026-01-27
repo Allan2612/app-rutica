@@ -60,6 +60,8 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       wizard.updateField('endDate', new Date(promotionData.endAt));
       wizard.updateField('selectedCategoryIds', promotionData.categoryIds);
       wizard.updateField('selectedProductIds', promotionData.productIds);
+      wizard.updateField('scopeCategoryIds', promotionData.scopeCategoryIds);
+      wizard.updateField('comboItems', promotionData.comboItems);
       wizard.updateField('coverUri', promotionData.coverUrl);
       wizard.updateField('paymentReference', promotionData.paymentReference || '');
     }
@@ -104,6 +106,8 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       endAt: wizard.formData.endDate.toISOString(),
       categoryIds: wizard.formData.selectedCategoryIds,
       productIds: wizard.formData.selectedProductIds,
+      scopeCategoryIds: wizard.formData.scopeCategoryIds,
+      comboItems: wizard.formData.comboItems,
       coverUri: wizard.formData.coverUri,
       paymentReference: wizard.formData.paymentReference,
     };
@@ -173,6 +177,9 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
             errors={wizard.errors}
             onFieldChange={wizard.updateField}
             onToggleProduct={wizard.toggleProductSelection}
+            onToggleScopeCategory={wizard.toggleScopeCategorySelection}
+            onUpdateComboItem={wizard.updateComboItem}
+            onToggleComboItem={wizard.toggleComboItem}
           />
         );
       case 'dates':

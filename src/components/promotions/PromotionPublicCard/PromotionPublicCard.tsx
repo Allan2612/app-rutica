@@ -11,6 +11,8 @@ import { Tag, Store, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { getPromotionBadgeLabel } from '@/utils/promotionHelpers';
+import { PromoBadge } from '@/components/ui';
 import type { PromotionListItem } from '@/types/entities';
 import { styles } from './styles';
 
@@ -25,11 +27,8 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
 }: PromotionPublicCardProps) {
     const colors = useThemedColors();
 
-    // Formatear descuento
-    const isPercentage = promotion.discountType === 'percentage';
-    const discountDisplay = isPercentage
-        ? `${promotion.discountValue}%`
-        : `₡${promotion.discountValue.toLocaleString()}`;
+    // Obtener label del badge
+    const badgeLabel = getPromotionBadgeLabel(promotion);
 
     // Formatear fechas
     const formatDate = (dateString: string) => {
@@ -83,10 +82,9 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                 </View>
             )}
 
-            {/* Discount Badge - Protagonista */}
-            <View style={styles.discountBadge}>
-                <Tag size={16} color="#000000" strokeWidth={2.5} />
-                <Text style={styles.discountText}>{discountDisplay}</Text>
+            {/* Badge de promoción */}
+            <View style={styles.badgeContainer}>
+                <PromoBadge label={badgeLabel} size="large" />
             </View>
 
             {/* Ending Soon Badge */}

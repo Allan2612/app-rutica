@@ -171,7 +171,7 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                         <ReviewsSection
                             businessId={business.id}
                             businessName={business.name}
-                            businessLogo={business.logoUrl}
+                            businessLogo={business.logoUrl ?? undefined}
                         />
 
                     </View>

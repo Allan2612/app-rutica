@@ -74,6 +74,7 @@ export type {
   PromotionRecord,
   PromotionWizardFormData,
   PromotionWizardErrors,
+  ComboItemData,
   WizardStepId,
 } from './promotion';
 

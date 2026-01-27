@@ -1,5 +1,6 @@
 export * from './BackButton';
 export * from './StatusBadge';
+export * from './PromoBadge';
 export * from './CategoryChips';
 export * from '../events/DescriptionSection';
 // LocationPicker y MapBackground movidos a @/components/maps

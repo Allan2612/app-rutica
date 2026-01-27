@@ -1,8 +1,10 @@
 import { memo, useMemo } from 'react';
 import { View, Text, Image, Dimensions } from 'react-native';
-import { Building2, Calendar, Tag, Percent, DollarSign } from 'lucide-react-native';
+import { Building2, Calendar, Tag } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useUserBusinesses } from '@/features/business/hooks';
+import { PromoBadge } from '@/components/ui';
+import { getPromotionBadgeLabel } from '@/utils';
 import type { PromotionWizardFormData } from '@/types/entities';
 import { styles } from './styles';
 
@@ -37,16 +39,15 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
     return `${formatDate(formData.startDate)} - ${formatDate(formData.endDate)}`;
   }, [formData.startDate, formData.endDate]);
 
-  // Format discount
-  const discountText = useMemo(() => {
-    if (formData.discountValue <= 0) return null;
-    if (formData.discountType === 'percentage') {
-      return `${formData.discountValue}%`;
-    }
-    return `₡${formData.discountValue.toLocaleString()}`;
-  }, [formData.discountType, formData.discountValue]);
-
-  const DiscountIcon = formData.discountType === 'percentage' ? Percent : DollarSign;
+  // Obtener label del badge usando el helper
+  const badgeLabel = useMemo(() => {
+    return getPromotionBadgeLabel({
+      scope: formData.scope,
+      discountType: formData.discountType,
+      discountValue: formData.discountValue,
+      comboItems: formData.comboItems
+    } as any);
+  }, [formData.scope, formData.discountType, formData.discountValue, formData.comboItems]);
 
   if (compact) {
     return (
@@ -73,13 +74,10 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
               <Tag size={20} color={colors.text.tertiary} />
             </View>
           )}
-          {discountText && (
-            <View
-              style={[styles.discountBadgeCompact, { backgroundColor: colors.primary[500] }]}
-            >
-              <Text style={styles.discountTextCompact}>{discountText}</Text>
-            </View>
-          )}
+          {/* Badge */}
+          <View style={styles.badgeContainer}>
+            <PromoBadge label={badgeLabel} size="small" />
+          </View>
         </View>
 
         <View style={styles.compactInfo}>
@@ -125,13 +123,10 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
           </View>
         )}
 
-        {/* Discount Badge */}
-        {discountText && (
-          <View style={[styles.discountBadge, { backgroundColor: colors.primary[500] }]}>
-            <DiscountIcon size={16} color="#FFFFFF" />
-            <Text style={styles.discountText}>{discountText}</Text>
-          </View>
-        )}
+        {/* Badge */}
+        <View style={styles.badgeContainer}>
+          <PromoBadge label={badgeLabel} size="medium" />
+        </View>
 
         {/* Scope Badge */}
         <View
@@ -143,7 +138,11 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
           <Text style={styles.scopeText}>
             {formData.scope === 'general'
               ? 'Todo el negocio'
-              : `${formData.selectedProductIds.length} producto(s)`}
+              : formData.scope === 'product'
+              ? `${formData.selectedProductIds.length} producto(s)`
+              : formData.scope === 'category'
+              ? `${formData.scopeCategoryIds.length} categoría(s)`
+              : `Combo (${formData.comboItems.length} productos)`}
           </Text>
         </View>
       </View>

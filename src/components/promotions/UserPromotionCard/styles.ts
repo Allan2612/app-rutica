@@ -24,23 +24,11 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    discountBadge: {
+    badgeContainer: {
         position: 'absolute',
         top: spacing.sm + 4,
         left: spacing.sm + 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: spacing.sm + 2,
-        paddingVertical: spacing.xs + 2,
-        borderRadius: 14,
-        elevation: 3,
         zIndex: 10,
-    },
-    discountText: {
-        color: '#000000',
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.fontWeights.bold,
     },
     topRightBadges: {
         position: 'absolute',

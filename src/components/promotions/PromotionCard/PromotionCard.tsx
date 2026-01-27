@@ -9,6 +9,8 @@ import { Image } from 'expo-image';
 import { Calendar, Store, Tag } from 'lucide-react-native';
 import { PromotionListItem } from '@/types/entities';
 import { useThemedColors } from '@/hooks';
+import { getPromotionBadgeLabel } from '@/utils/promotionHelpers';
+import { PromoBadge } from '@/components/ui';
 import { styles } from './styles';
 
 interface PromotionCardProps {
@@ -19,17 +21,10 @@ interface PromotionCardProps {
 export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
   const colors = useThemedColors();
   
+  const badgeLabel = getPromotionBadgeLabel(promotion as any);
+  
   const handlePress = () => {
     onPress?.(promotion);
-  };
-
-  const formatDiscount = () => {
-    if (promotion.discountType === 'percentage') {
-      return `${promotion.discountValue}%`;
-    } else if (promotion.discountType === 'fixed') {
-      return `₡${promotion.discountValue}`;
-    }
-    return '';
   };
 
   const formatDateRange = () => {
@@ -63,15 +58,10 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
           </View>
         )}
 
-        {/* Badge de descuento */}
-        {promotion.discountType !== 'none' && (
-          <View style={[styles.discountBadge, { backgroundColor: colors.primary[500] }]}>
-            <Text style={styles.discountText}>{formatDiscount()}</Text>
-            {promotion.discountType === 'percentage' && (
-              <Text style={styles.discountLabel}>OFF</Text>
-            )}
-          </View>
-        )}
+        {/* Badge */}
+        <View style={styles.badgeContainer}>
+          <PromoBadge label={badgeLabel} size="medium" />
+        </View>
       </View>
 
       {/* Contenido */}

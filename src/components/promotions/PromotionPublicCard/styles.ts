@@ -26,31 +26,11 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    discountBadge: {
+    badgeContainer: {
         position: 'absolute',
         top: spacing.sm + 4,
         left: spacing.sm + 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: spacing.sm + 4,
-        paddingVertical: spacing.xs + 4,
-        backgroundColor: '#fbbf24', // Amarillo vibrante
-        borderRadius: 14,
-        elevation: 4,
         zIndex: 10,
-    },
-    discountText: {
-        color: '#000000',
-        fontSize: typography.sizes.lg,
-        fontWeight: typography.fontWeights.bold,
-        letterSpacing: -0.5,
-    },
-    discountLabel: {
-        color: '#000000',
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.fontWeights.bold,
-        marginLeft: 2,
     },
     urgencyBadge: {
         position: 'absolute',

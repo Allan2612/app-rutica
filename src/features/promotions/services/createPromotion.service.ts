@@ -72,6 +72,42 @@ export async function createPromotionComplete(
             }
         }
 
+        // 3b. Vincular categorías de scope (si scope es 'category')
+        // Usa la tabla promotion_scope_categories para almacenar las categorías a las que aplica
+        if (data.scope === 'category' && data.scopeCategoryIds && data.scopeCategoryIds.length > 0) {
+            const scopeCategoryMaps = data.scopeCategoryIds.map((categoryId) => ({
+                promotion_id_psc: promotionId,
+                category_id_psc: categoryId,
+            }));
+
+            const { error: scopeCategoryError } = await supabase
+                .from('promotion_scope_categories')
+                .insert(scopeCategoryMaps);
+
+            if (scopeCategoryError) {
+                console.error('Error linking scope categories:', scopeCategoryError);
+            }
+        }
+
+        // 3c. Crear items de combo (si scope es 'combo')
+        if (data.scope === 'combo' && data.comboItems && data.comboItems.length > 0) {
+            const comboItemInserts = data.comboItems.map((item) => ({
+                id_pci: generateUUID(),
+                promotion_id_pci: promotionId,
+                product_id_pci: item.productId,
+                quantity_pci: item.quantity,
+                paid_quantity_pci: item.paidQuantity ?? null,
+            }));
+
+            const { error: comboError } = await supabase
+                .from('promotion_combo_items')
+                .insert(comboItemInserts);
+
+            if (comboError) {
+                console.error('Error creating combo items:', comboError);
+            }
+        }
+
         // 4. Subir y registrar imagen de cover
         if (data.coverUri && isNewImage(data.coverUri)) {
             try {
@@ -136,6 +172,8 @@ export async function createPromotionComplete(
         await supabase.from('promotion_images').delete().eq('promotion_id_pim', promotionId);
         await supabase.from('promotion_category_map').delete().eq('promotion_id_pcr', promotionId);
         await supabase.from('promotion_products').delete().eq('promotion_id_ppr', promotionId);
+        await supabase.from('promotion_scope_categories').delete().eq('promotion_id_psc', promotionId);
+        await supabase.from('promotion_combo_items').delete().eq('promotion_id_pci', promotionId);
         await supabase.from('promotions').delete().eq('id_prm', promotionId);
         
         throw error;

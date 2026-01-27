@@ -73,16 +73,21 @@ export async function getUserBusinessReview(
             rating_brv,
             comment_brv,
             created_at_brv,
-            profiles (
+            profiles!user_id_brv (
                 first_name_prf,
                 last_name1_prf
             )
         `)
         .eq('business_id_brv', businessId)
         .eq('user_id_brv', userId)
-        .single();
+        .maybeSingle();
 
-    if (error || !data) {
+    if (error) {
+        console.error('Error fetching user business review:', error);
+        return null;
+    }
+    
+    if (!data) {
         return null;
     }
 

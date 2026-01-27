@@ -6,18 +6,21 @@
 
 import { memo } from 'react';
 import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
-import { Edit2, Trash2, Tag, Calendar, Clock, DollarSign, Percent } from 'lucide-react-native';
+import { Edit2, Trash2, Tag, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
-import { StatusBadge } from '@/components/ui';
-import type { DiscountType } from '@/types/enums';
+import { StatusBadge, PromoBadge } from '@/components/ui';
+import { getPromotionBadgeLabel } from '@/utils';
+import type { DiscountType, PromoScope } from '@/types/enums';
 import { styles } from './styles';
 
 export interface UserPromotionCardProps {
   title: string;
   description?: string | null;
+  scope?: PromoScope;
   discountType: DiscountType | string;
   discountValue: number;
+  comboItems?: { productId: string; quantity: number; paidQuantity?: number }[];
   startAt: string;
   endAt: string;
   businessName?: string;
@@ -31,8 +34,10 @@ export interface UserPromotionCardProps {
 
 export const UserPromotionCard = memo(function UserPromotionCard({
   title,
+  scope,
   discountType,
   discountValue,
+  comboItems,
   startAt,
   endAt,
   businessName,
@@ -59,14 +64,13 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   const endDate = new Date(endAt);
   const isExpired = endDate < now;
 
-  // Discount display
-  const isPercentage = discountType === 'percentage';
-  const discountDisplay = isPercentage
-    ? `${discountValue}%`
-    : `₡${discountValue.toLocaleString()}`;
-
-  // Usar Tag icon para ambos casos
-  const DiscountIcon = Tag;
+  // Obtener label del badge
+  const badgeLabel = getPromotionBadgeLabel({ 
+    scope, 
+    discountType, 
+    discountValue, 
+    comboItems 
+  } as any);
 
   return (
     <Pressable
@@ -89,10 +93,9 @@ export const UserPromotionCard = memo(function UserPromotionCard({
         </View>
       )}
 
-      {/* Discount Badge - Top Left */}
-      <View style={[styles.discountBadge, { backgroundColor: '#fbbf24' }]}>
-        <DiscountIcon size={14} color="#000000" strokeWidth={2.5} />
-        <Text style={styles.discountText}>{discountDisplay}</Text>
+      {/* Badge - Top Left */}
+      <View style={styles.badgeContainer}>
+        <PromoBadge label={badgeLabel} size="medium" />
       </View>
 
       {/* Status & Payment Badges - Top Right */}

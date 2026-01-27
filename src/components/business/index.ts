@@ -10,6 +10,7 @@ export * from './SocialButtons';
 export * from './CoverImage';
 export * from './ImageViewerModal';
 export * from './ProductCard';
+export * from './ProductComboCard';
 export * from './ProductImageCarousel';
 export * from './BusinessProducts';
 export * from './BusinessMap';

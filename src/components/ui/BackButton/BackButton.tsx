@@ -8,6 +8,8 @@ import { styles } from './styles';
 interface BackButtonProps {
   /** Ruta personalizada a la que navegar. Si no se proporciona, usa router.back() */
   href?: string;
+  /** Handler personalizado para el evento onPress */
+  onPress?: () => void;
   /** Color personalizado para el ícono */
   color?: string;
   /** Tamaño del ícono */
@@ -27,13 +29,16 @@ interface BackButtonProps {
  */
 export const BackButton = memo(function BackButton({
   href,
+  onPress,
   color,
   size = 24,
 }: BackButtonProps) {
   const colors = useThemedColors();
 
   const handlePress = () => {
-    if (href) {
+    if (onPress) {
+      onPress();
+    } else if (href) {
       router.push(href);
     } else {
       router.back();

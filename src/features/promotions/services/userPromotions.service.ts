@@ -49,6 +49,17 @@ export async function getUserPromotions(userId: string): Promise<PromotionListIt
                     id_cat,
                     name_cat
                 )
+            ),
+            promotion_products (
+                product_id_ppr
+            ),
+            promotion_scope_categories (
+                category_id_psc
+            ),
+            promotion_combo_items (
+                product_id_pci,
+                quantity_pci,
+                paid_quantity_pci
             )
         `)
         .eq('created_by_prm', userId)
@@ -95,6 +106,14 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
             ),
             promotion_products (
                 product_id_ppr
+            ),
+            promotion_scope_categories (
+                category_id_psc
+            ),
+            promotion_combo_items (
+                product_id_pci,
+                quantity_pci,
+                paid_quantity_pci
             )
         `)
         .eq('business_id_prm', businessId)
@@ -133,6 +152,11 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             ),
             promotion_products (
                 product_id_ppr
+            ),
+            promotion_combo_items (
+                product_id_pci,
+                quantity_pci,
+                paid_quantity_pci
             )
         `)
         .eq('id_prm', promotionId)
@@ -170,6 +194,12 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
         endAt: data.end_at_prm,
         categoryIds: (data.promotion_category_map || []).map((pcm: { category_id_pcr: string }) => pcm.category_id_pcr),
         productIds: (data.promotion_products || []).map((pp: { product_id_ppr: string }) => pp.product_id_ppr),
+        scopeCategoryIds: [], // TODO: Implementar tabla promotion_product_categories en la BD
+        comboItems: (data.promotion_combo_items || []).map((pci: { product_id_pci: string; quantity_pci: number; paid_quantity_pci?: number }) => ({
+            productId: pci.product_id_pci,
+            quantity: pci.quantity_pci,
+            paidQuantity: pci.paid_quantity_pci ?? undefined,
+        })),
         paymentReference: data.payment_reference_prm || '',
         coverUrl,
         galleryUrls,
@@ -227,7 +257,19 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
         .delete()
         .eq('promotion_id_ppr', promotionId);
 
-    // 7. Eliminar la promoción
+    // 7. Eliminar categorías de scope
+    await supabase
+        .from('promotion_scope_categories')
+        .delete()
+        .eq('promotion_id_psc', promotionId);
+
+    // 8. Eliminar items de combo
+    await supabase
+        .from('promotion_combo_items')
+        .delete()
+        .eq('promotion_id_pci', promotionId);
+
+    // 9. Eliminar la promoción
     const { error: deleteError } = await supabase
         .from('promotions')
         .delete()
@@ -259,10 +301,24 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         ?.map((pcm) => pcm.categories?.name_cat)
         .filter((name): name is string => !!name) ?? [];
 
-    // Extraer IDs de productos
+    // Extraer IDs de productos (para scope: 'product')
     const productIds = record.promotion_products
         ?.map((pp) => pp.product_id_ppr)
         .filter((id): id is string => !!id) ?? [];
+
+    // Extraer IDs de categorías de scope (para scope: 'category')
+    const scopeCategoryIds = (record as any).promotion_scope_categories
+        ?.map((psc: any) => psc.category_id_psc)
+        .filter((id: string): id is string => !!id) ?? [];
+
+    // Extraer items de combo (para scope: 'combo')
+    const comboItems = (record as any).promotion_combo_items
+        ?.map((pci: any) => ({
+            productId: pci.product_id_pci,
+            quantity: pci.quantity_pci,
+            paidQuantity: pci.paid_quantity_pci ?? undefined,
+        }))
+        .filter((item: any) => item.productId) ?? [];
 
     // Determinar si está activa (aprobada y en rango de fechas)
     const now = new Date();
@@ -289,6 +345,8 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         imageUrl,
         categoryNames,
         productIds,
+        scopeCategoryIds,
+        comboItems,
         isActive,
         createdAt: record.created_at_prm,
     };
