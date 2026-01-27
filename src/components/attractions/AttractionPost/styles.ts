@@ -89,8 +89,6 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
-        borderTopWidth: 1,
-        borderTopColor: colors.border.light,
     },
     footerItem: {
         flexDirection: 'row',

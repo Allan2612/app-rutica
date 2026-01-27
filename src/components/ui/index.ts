@@ -11,7 +11,7 @@ export * from './CategorySearchBar';
 export * from './CategorySelector';
 export * from './SingleImagePicker';
 export * from './MultipleImagePicker';
-export * from './ImageCarousel';
+export * from './GenericCarousel';
 export * from './TikTokIcon';
 export * from './SearchFilterModal';
 export * from './UnifiedDateTimeModal';

@@ -17,5 +17,6 @@ export * from './BusinessMap';
 export * from './ReviewCard';
 export * from './ReviewModal';
 export * from './ReviewsSection';
+export * from './BusinessPromotionsCarousel';
 // BusinessesList se importa directamente para evitar referencias circulares
 

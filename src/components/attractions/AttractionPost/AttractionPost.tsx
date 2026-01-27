@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Pressable, View, Dimensions, Platform } from 'react-native';
 import { Mountain } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { ImageCarousel } from '@/components/ui';
+import { GenericCarousel } from '@/components/ui';
 import { ReviewModal } from '@/components/business/ReviewModal';
 import { ConfirmDeleteDialog } from '@/components/manage/ConfirmDeleteDialog';
 import { useAuthStore } from '@/store';
 import { AttractionContent } from './AttractionContent';
 import { AttractionFooter } from './AttractionFooter';
+import { Image } from 'expo-image';
 import { ReviewsSectionControls } from './ReviewsSectionControls';
 import { ReviewsList } from './ReviewsList';
 import { useAttractionPostReviews } from './useAttractionPostReviews';
@@ -103,7 +104,20 @@ export function AttractionPost({
 
             <View style={{ width: carouselWidth, alignSelf: 'center' }}>
                 {imageUrls.length > 0 ? (
-                    <ImageCarousel images={imageUrls} imageWidth={carouselWidth} aspectRatio={16 / 9} />
+                    <GenericCarousel
+                        items={imageUrls}
+                        renderItem={(image) => (
+                            <Image
+                                source={{ uri: image }}
+                                style={{ width: carouselWidth, aspectRatio: 16 / 9 }}
+                                contentFit="cover"
+                            />
+                        )}
+                        showNavigation={true}
+                        showIndicators={true}
+                        enableImageModal={true}
+                        autoScroll={false}
+                    />
                 ) : (
                     <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
                         <Mountain size={48} color={colors.text.tertiary} />

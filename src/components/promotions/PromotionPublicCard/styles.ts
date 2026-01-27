@@ -3,8 +3,13 @@
  * Diseño atractivo con énfasis en el descuento
  */
 
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
+
+const { width } = Dimensions.get('window');
+const isWeb = Platform.OS === 'web';
+const MAX_WIDTH = isWeb ? 500 : width - 48;
+const CARD_WIDTH = Math.min(width - 96, MAX_WIDTH);
 
 export const styles = StyleSheet.create({
     card: {
@@ -12,8 +17,8 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         overflow: 'hidden',
         marginBottom: spacing.md,
-        flex: 1,
-        minHeight: 280,
+        height: 280,
+        width: CARD_WIDTH,
         justifyContent: 'flex-end',
         elevation: 2,
     },
@@ -70,6 +75,11 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF',
         lineHeight: 22,
     },
+    businessCategoryRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+    },
     businessRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -78,7 +88,6 @@ export const styles = StyleSheet.create({
     businessName: {
         fontSize: typography.sizes.sm,
         color: 'rgba(255,255,255,0.9)',
-        flex: 1,
     },
     dateRow: {
         flexDirection: 'row',
@@ -93,7 +102,6 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'nowrap',
         gap: spacing.xs,
-        marginTop: spacing.xs,
         overflow: 'hidden',
     },
     categoryChip: {
