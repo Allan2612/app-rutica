@@ -11,7 +11,7 @@ import { Tag, Store, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
-import { getPromotionBadgeLabel } from '@/utils/promotionHelpers';
+import { getPromotionBadgeLabel, formatDate } from '@/utils';
 import { PromoBadge } from '@/components/ui';
 import type { PromotionListItem } from '@/types/entities';
 import { styles } from './styles';
@@ -29,15 +29,6 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
 
     // Obtener label del badge
     const badgeLabel = getPromotionBadgeLabel(promotion);
-
-    // Formatear fechas
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-CR', {
-            day: 'numeric',
-            month: 'long',
-        });
-    };
 
     // Calcular días restantes
     const now = new Date();

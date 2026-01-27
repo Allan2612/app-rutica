@@ -153,6 +153,9 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             promotion_products (
                 product_id_ppr
             ),
+            promotion_scope_categories (
+                category_id_psc
+            ),
             promotion_combo_items (
                 product_id_pci,
                 quantity_pci,
@@ -194,7 +197,7 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
         endAt: data.end_at_prm,
         categoryIds: (data.promotion_category_map || []).map((pcm: { category_id_pcr: string }) => pcm.category_id_pcr),
         productIds: (data.promotion_products || []).map((pp: { product_id_ppr: string }) => pp.product_id_ppr),
-        scopeCategoryIds: [], // TODO: Implementar tabla promotion_product_categories en la BD
+        scopeCategoryIds: (data.promotion_scope_categories || []).map((psc: { category_id_psc: string }) => psc.category_id_psc),
         comboItems: (data.promotion_combo_items || []).map((pci: { product_id_pci: string; quantity_pci: number; paid_quantity_pci?: number }) => ({
             productId: pci.product_id_pci,
             quantity: pci.quantity_pci,

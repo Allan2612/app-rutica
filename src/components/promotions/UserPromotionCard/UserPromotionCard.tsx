@@ -10,7 +10,7 @@ import { Edit2, Trash2, Tag, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge, PromoBadge } from '@/components/ui';
-import { getPromotionBadgeLabel } from '@/utils';
+import { getPromotionBadgeLabel, formatDate } from '@/utils';
 import type { DiscountType, PromoScope } from '@/types/enums';
 import { styles } from './styles';
 
@@ -49,15 +49,6 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   isDeleting = false,
 }: UserPromotionCardProps) {
   const colors = useThemedColors();
-
-  // Format dates
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-CR', {
-      day: 'numeric',
-      month: 'long',
-    });
-  };
 
   // Check if promotion is active
   const now = new Date();

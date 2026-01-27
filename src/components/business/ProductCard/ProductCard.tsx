@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { getAllActivePromotions, calculateDiscountedPrice, isComboPromotion, getPromotionBadgeLabel } from '@/utils';
+import { getAllActivePromotions, calculateDiscountedPrice, isComboPromotion, getPromotionBadgeLabel, formatPrice } from '@/utils';
 import type { PromotionListItem } from '@/types/entities';
 import { ProductImageCarousel } from '../ProductImageCarousel';
 import { CategoryChips, PromoBadge } from '@/components/ui';
@@ -20,12 +20,6 @@ interface ProductCardProps {
     promotions?: PromotionListItem[];
     onImagePress?: (imageUrl: string) => void;
 }
-
-const formatPrice = (value: number, curr: string): string => {
-    if (curr === 'CRC') return `₡${value.toLocaleString('es-CR')}`;
-    if (curr === 'USD') return `$${value.toFixed(2)}`;
-    return `${curr} ${value}`;
-};
 
 export const ProductCard = memo(function ProductCard({
     productId,

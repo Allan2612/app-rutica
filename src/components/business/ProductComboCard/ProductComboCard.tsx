@@ -9,7 +9,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Package } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useThemedColors } from '@/hooks';
-import { getPromotionBadgeLabel } from '@/utils';
+import { getPromotionBadgeLabel, formatPrice } from '@/utils';
 import { PromoBadge } from '@/components/ui';
 import type { PromotionListItem } from '@/types/entities';
 import { styles } from './styles';
@@ -26,10 +26,6 @@ interface ProductComboCardProps {
     products: Product[];
     onPress?: () => void;
 }
-
-const formatPrice = (value: number): string => {
-    return `₡${value.toLocaleString('es-CR')}`;
-};
 
 export const ProductComboCard = memo(function ProductComboCard({
     promotion,

@@ -1,9 +1,9 @@
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { Layers, Minus, Plus, AlertCircle, Package, Lightbulb } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useHideScrollbar } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
-import { comboSelectionStyles as styles } from './styles';
+import { styles } from './ComboSelection/styles';
 import { ComboHelpModal } from './ComboHelpModal';
 
 interface Product {
@@ -82,28 +82,8 @@ export const ComboSelection = memo(function ComboSelection({
     return item ? { quantity: item.quantity, paidQuantity: item.paidQuantity } : { quantity: 0 };
   };
 
-  // Inject styles to hide scrollbar on web
-  useEffect(() => {
-    if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const styleId = 'hide-scrollbar-styles';
-      if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
-          .hide-scrollbar::-webkit-scrollbar {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-          }
-          .hide-scrollbar {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-          }
-        `;
-        document.head.appendChild(style);
-      }
-    }
-  }, []);
+  // Hook para ocultar scrollbar en web
+  useHideScrollbar();
 
   const renderProductCard = (product: Product) => {
     const { quantity, paidQuantity } = getQuantityInfo(product.id);

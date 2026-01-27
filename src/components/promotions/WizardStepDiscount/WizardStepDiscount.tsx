@@ -4,14 +4,12 @@ import { useCategories } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks';
 import type { PromoScope, DiscountType } from '@/types/enums';
 import type { PromotionWizardFormData, PromotionWizardErrors } from '@/types/entities';
-import {
-  ScopeSelection,
-  DiscountTypeSelector,
-  DiscountValueInput,
-  ProductSelection,
-  CategorySelection,
-  ComboSelection,
-} from './components';
+import { ScopeSelection } from './ScopeSelection';
+import { DiscountTypeSelector } from './DiscountTypeSelector';
+import { DiscountValueInput } from './DiscountValueInput';
+import { ProductSelection } from './ProductSelection';
+import { CategorySelection } from './CategorySelection';
+import { ComboSelection } from './ComboSelection';
 import { styles } from './styles';
 
 interface WizardStepDiscountProps {

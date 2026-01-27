@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { X, Package, ShoppingBag, Plus, ArrowRight, Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { comboHelpModalStyles as styles } from './styles';
+import { styles } from './ComboHelpModal/styles';
 
 interface ComboHelpModalProps {
     visible: boolean;

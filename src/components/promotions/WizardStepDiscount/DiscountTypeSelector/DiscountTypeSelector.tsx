@@ -4,7 +4,7 @@ import { Percent, DollarSign, Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
 import type { DiscountType } from '@/types/enums';
-import { discountTypeSelectorStyles as styles } from './styles';
+import { styles } from './styles';
 
 interface DiscountTypeOption {
   value: DiscountType;

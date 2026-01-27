@@ -1,9 +1,9 @@
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { Package, Check, AlertCircle } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useHideScrollbar } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
-import { productSelectionStyles as styles } from './styles';
+import { styles } from './styles';
 
 interface Product {
   id: string;
@@ -29,28 +29,8 @@ export const ProductSelection = memo(function ProductSelection({
   const colors = useThemedColors();
   const selectedCount = selectedProductIds.length;
 
-  // Inject styles to hide scrollbar on web
-  useEffect(() => {
-    if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const styleId = 'hide-scrollbar-styles';
-      if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
-          .hide-scrollbar::-webkit-scrollbar {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-          }
-          .hide-scrollbar {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-          }
-        `;
-        document.head.appendChild(style);
-      }
-    }
-  }, []);
+  // Hook para ocultar scrollbar en web
+  useHideScrollbar();
 
   const renderProductCard = (product: Product) => {
     const isSelected = selectedProductIds.includes(product.id);

@@ -7,6 +7,8 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { Tag } from 'lucide-react-native';
+import { colors } from '@/styles/theme/colors';
+import { BADGE_ICON_SIZES } from '@/styles/theme';
 import { styles } from './styles';
 
 export interface PromoBadgeProps {
@@ -32,13 +34,13 @@ export const PromoBadge = memo(function PromoBadge({
     ? styles.text_large
     : styles.text_medium;
 
-  const iconSize = size === 'small' ? 11 : size === 'large' ? 14 : 13;
+  const iconSize = BADGE_ICON_SIZES[size];
 
   return (
     <View style={[styles.badge, sizeStyle]}>
       <Tag 
         size={iconSize} 
-        color="#000000" 
+        color={colors.promo.badgeText} 
         strokeWidth={2.5} 
       />
       <Text style={[styles.text, textSizeStyle]}>{label}</Text>

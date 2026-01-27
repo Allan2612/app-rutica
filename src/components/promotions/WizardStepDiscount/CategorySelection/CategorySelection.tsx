@@ -3,7 +3,7 @@ import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Tag, Check, AlertCircle } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
-import { categorySelectionStyles as styles } from './styles';
+import { styles } from './styles';
 
 interface Category {
   id: string;

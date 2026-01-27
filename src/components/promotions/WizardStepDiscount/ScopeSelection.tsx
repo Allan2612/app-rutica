@@ -4,7 +4,7 @@ import { Package, Tag, Layers, Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
 import type { PromoScope } from '@/types/enums';
-import { scopeSelectionStyles } from './styles';
+import { styles } from './ScopeSelection/styles';
 
 interface ScopeOption {
   value: PromoScope;
@@ -46,7 +46,7 @@ export const ScopeSelection = memo(function ScopeSelection({
       <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
         Alcance de la promoción <Text style={formSectionStyles.required}>*</Text>
       </Text>
-      <View style={scopeSelectionStyles.grid}>
+      <View style={styles.grid}>
         {SCOPE_OPTIONS.map((option) => {
           const isSelected = selectedScope === option.value;
           const ScopeIcon = SCOPE_ICONS[option.value];
@@ -55,7 +55,7 @@ export const ScopeSelection = memo(function ScopeSelection({
             <Pressable
               key={option.value}
               style={[
-                scopeSelectionStyles.card,
+                styles.card,
                 {
                   backgroundColor: isSelected
                     ? colors.primary[500]
@@ -65,13 +65,13 @@ export const ScopeSelection = memo(function ScopeSelection({
               ]}
               onPress={() => onScopeChange(option.value)}
             >
-              <View style={scopeSelectionStyles.cardHeader}>
+              <View style={styles.cardHeader}>
                 <ScopeIcon size={18} color={isSelected ? '#FFFFFF' : colors.text.tertiary} />
                 {isSelected && <Check size={14} color="#FFFFFF" />}
               </View>
               <Text
                 style={[
-                  scopeSelectionStyles.cardTitle,
+                  styles.cardTitle,
                   { color: isSelected ? '#FFFFFF' : colors.text.primary },
                 ]}
               >
@@ -79,7 +79,7 @@ export const ScopeSelection = memo(function ScopeSelection({
               </Text>
               <Text
                 style={[
-                  scopeSelectionStyles.cardDescription,
+                  styles.cardDescription,
                   { color: isSelected ? 'rgba(255,255,255,0.8)' : colors.text.secondary },
                 ]}
                 numberOfLines={2}

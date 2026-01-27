@@ -4,6 +4,7 @@ import { Edit2, MapPin, CalendarDays, Trash2 } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { formatDate, formatPrice, DATE_FORMAT_OPTIONS } from '@/utils';
 import { styles } from './styles';
 
 export interface UserEventCardProps {
@@ -47,19 +48,12 @@ export const UserEventCard = memo(function UserEventCard({
 }: UserEventCardProps) {
     const colors = useThemedColors();
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('es-CR', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        });
-    };
+    const formatEventDate = (dateString: string) => formatDate(dateString, DATE_FORMAT_OPTIONS.withYear);
 
-    const formatPrice = () => {
+    const formatEventPrice = () => {
         if (isFree) return 'Gratis';
         if (!price) return 'Precio no definido';
-        const symbol = currency === 'CRC' || !currency ? '₡' : currency === 'USD' ? '$' : currency;
-        return `${symbol}${price.toLocaleString('es-CR')}`;
+        return formatPrice(price, currency || 'CRC');
     };
 
     return (
@@ -139,7 +133,7 @@ export const UserEventCard = memo(function UserEventCard({
                     <View style={styles.infoRow}>
                         <CalendarDays size={14} color={colors.text.secondary} strokeWidth={2} />
                         <Text style={[styles.infoText, { color: colors.text.secondary }]}>
-                            {formatDate(startDate)} - {formatDate(endDate)}
+                            {formatEventDate(startDate)} - {formatEventDate(endDate)}
                         </Text>
                     </View>
 
@@ -155,7 +149,7 @@ export const UserEventCard = memo(function UserEventCard({
 
                     {/* Precio */}
                     <Text style={[styles.price, { color: isFree ? colors.success : colors.primary[600] }]}>
-                        {formatPrice()}
+                        {formatEventPrice()}
                     </Text>
 
                     {/* Capacidad */}

@@ -4,7 +4,7 @@ import { AlertCircle } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
 import type { DiscountType } from '@/types/enums';
-import { discountValueInputStyles as styles } from './styles';
+import { styles } from './styles';
 
 interface DiscountValueInputProps {
   discountType: DiscountType;
