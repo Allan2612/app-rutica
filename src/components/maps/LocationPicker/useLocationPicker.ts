@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import * as Location from 'expo-location';
 import Toast from 'react-native-toast-message';
 import { COSTA_RICA_CENTER } from '@/utils/geoHelpers';
+import { useReverseGeocode } from './useReverseGeocode';
 import type { LocationData, LocationPickerProps } from './types';
 
 const DEFAULT_LAT = COSTA_RICA_CENTER.latitude;
@@ -22,6 +23,7 @@ export function useLocationPicker({
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [mapKey, setMapKey] = useState(0);
     const hasInitializedFromProps = useRef(false);
+    const { reverseGeocode } = useReverseGeocode();
 
     // Actualizar coordenadas cuando cambian las props iniciales
     useEffect(() => {
@@ -56,10 +58,17 @@ export function useLocationPicker({
             setLongitude(newLng);
             setMapKey((prev) => prev + 1);
 
-            onLocationSelect({
-                latitude: newLat,
-                longitude: newLng,
-            });
+            // Obtener datos de geocodificación inversa
+            try {
+                const geoData = await reverseGeocode(newLat, newLng);
+                onLocationSelect(geoData);
+            } catch {
+                // Si falla la geocodificación, pasar solo las coordenadas
+                onLocationSelect({
+                    latitude: newLat,
+                    longitude: newLng,
+                });
+            }
         } catch {
             Toast.show({
                 type: 'error',
@@ -71,13 +80,21 @@ export function useLocationPicker({
         } finally {
             setLoadingLocation(false);
         }
-    }, [onLocationSelect]);
+    }, [onLocationSelect, reverseGeocode]);
 
-    const handleLocationChange = useCallback((data: LocationData) => {
+    const handleLocationChange = useCallback(async (data: LocationData) => {
         setLatitude(data.latitude);
         setLongitude(data.longitude);
-        onLocationSelect(data);
-    }, [onLocationSelect]);
+
+        // Obtener datos de geocodificación inversa
+        try {
+            const geoData = await reverseGeocode(data.latitude, data.longitude);
+            onLocationSelect(geoData);
+        } catch {
+            // Si falla la geocodificación, pasar solo las coordenadas
+            onLocationSelect(data);
+        }
+    }, [onLocationSelect, reverseGeocode]);
 
     const handleMapLoadEnd = useCallback(() => {
         setLoading(false);

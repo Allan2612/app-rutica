@@ -48,6 +48,7 @@ export const EventsList = memo(function EventsList({
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
                 <EventPost
+                    eventId={item.id}
                     name={item.name}
                     description={item.description}
                     startAt={item.startAt}

@@ -9,7 +9,7 @@ import { useThemedColors } from '@/hooks';
 import { useEventDetail } from '@/features/events/hooks';
 import { ImageCarousel } from '@/components/ui';
 import { BusinessGallery, ContactSection } from '@/components/business';
-import { EventHeader } from '@/components/events';
+import { EventHeader, EventReviewsSection } from '@/components/events';
 import { styles } from './styles';
 
 export const EventDetailScreen = memo(function EventDetailScreen() {
@@ -128,6 +128,12 @@ export const EventDetailScreen = memo(function EventDetailScreen() {
                             instagram={event.socialLinks.instagram}
                             tiktok={event.socialLinks.tiktok}
                             onContactPress={handleOpenLink}
+                        />
+
+                        <EventReviewsSection
+                            eventId={id}
+                            eventName={event.name}
+                            eventImage={event.coverImage}
                         />
                     </View>
                 </View>

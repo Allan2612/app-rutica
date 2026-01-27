@@ -9,7 +9,7 @@ import { useThemedColors } from '@/hooks';
 import { useAttractionDetail } from '@/features/attractions/hooks';
 import { ImageCarousel } from '@/components/ui';
 import { BusinessGallery } from '@/components/business';
-import { AttractionHeader } from '@/components/attractions';
+import { AttractionHeader, AttractionReviewsSection } from '@/components/attractions';
 import { styles } from '@/features/attractions/screens/AttractionDetailScreen/styles';
 
 export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
@@ -110,6 +110,13 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
                                 onImagePress={(imageUrl) => setExpandedImage(imageUrl)}
                             />
                         )}
+
+                        {/* Reviews Section */}
+                        <AttractionReviewsSection
+                            attractionId={id}
+                            attractionName={attraction.name}
+                            attractionImage={attraction.coverImage ?? undefined}
+                        />
                     </View>
                 </View>
             </ScrollView>

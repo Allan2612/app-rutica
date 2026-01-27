@@ -19,8 +19,7 @@ export function useReviewsActions(businessId: string, onCloseModal: () => void) 
     const updateReview = useUpdateBusinessReview();
     const deleteReview = useDeleteBusinessReview();
 
-    const isBuyer = role === 'buyer';
-    const canWriteReview = !!user && isBuyer && !userReview;
+    const canWriteReview = !!user && !userReview;
     const hasReviews = reviews && reviews.length > 0;
     const isSubmitting = createReview.isPending || updateReview.isPending;
     const isDeleting = deleteReview.isPending;

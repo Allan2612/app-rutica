@@ -6,8 +6,8 @@ export const styles = StyleSheet.create({
         marginTop: spacing.xl,
     },
     title: {
-        fontSize: 24,
-        fontWeight: '700',
+        fontSize: typography.sizes['2xl'],
+        fontWeight: typography.fontWeights.bold,
         marginBottom: spacing.lg,
         textAlign: 'center',
         letterSpacing: -0.3,
