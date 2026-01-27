@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { validateReviewContent } from './contentModeration.service';
 
 /**
  * Reseña con datos del autor para mostrar en UI
@@ -116,6 +117,11 @@ export async function createBusinessReview(
     rating: number,
     comment?: string
 ): Promise<BusinessReviewDisplay | null> {
+    // Validar contenido antes de crear
+    if (comment) {
+        validateReviewContent(comment);
+    }
+
     const { data, error } = await supabase
         .from('business_reviews')
         .insert({
@@ -172,6 +178,11 @@ export async function updateBusinessReview(
     rating: number,
     comment?: string
 ): Promise<BusinessReviewDisplay | null> {
+    // Validar contenido antes de actualizar
+    if (comment) {
+        validateReviewContent(comment);
+    }
+
     const { data, error } = await supabase
         .from('business_reviews')
         .update({

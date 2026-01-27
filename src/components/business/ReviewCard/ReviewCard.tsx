@@ -97,7 +97,7 @@ export const ReviewCard = memo(function ReviewCard({
                         onPress={onDelete}
                         disabled={isDeleting}
                     >
-                        <Trash2 size={16} color={colors.error} />
+                        <Trash2 size={16} color="#dc2626" />
                         <Text style={[styles.deleteButtonText, { color: colors.error }]}>
                             {isDeleting ? 'Eliminando...' : 'Eliminar'}
                         </Text>
