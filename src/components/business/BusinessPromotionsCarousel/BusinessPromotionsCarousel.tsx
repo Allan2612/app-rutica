@@ -61,17 +61,19 @@ export const BusinessPromotionsCarousel = memo(function BusinessPromotionsCarous
         <View style={styles.container}>
             <View style={styles.headerRow}>
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-                    Promociones Activas
+                    Promociones
                 </Text>
             </View>
 
             <GenericCarousel
                 items={activePromotions}
                 renderItem={(promotion) => (
-                    <PromotionPublicCard
-                        promotion={promotion}
-                        onPress={onPromotionPress ? () => handlePress(promotion) : undefined}
-                    />
+                    <View style={styles.cardWrapper}>
+                        <PromotionPublicCard
+                            promotion={promotion}
+                            onPress={onPromotionPress ? () => handlePress(promotion) : undefined}
+                        />
+                    </View>
                 )}
                 showNavigation={true}
                 showIndicators={true}

@@ -75,7 +75,7 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
 
             {/* Badge de promoción */}
             <View style={styles.badgeContainer}>
-                <PromoBadge label={badgeLabel} size="large" />
+                <PromoBadge label={badgeLabel} size="medium" />
             </View>
 
             {/* Ending Soon Badge */}
@@ -102,6 +102,13 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                 <Text style={styles.title} numberOfLines={2}>
                     {promotion.title}
                 </Text>
+
+                {/* Description */}
+                {promotion.description && (
+                    <Text style={styles.description} numberOfLines={2}>
+                        {promotion.description}
+                    </Text>
+                )}
 
                 {/* Business Name with Categories */}
                 {promotion.businessName && (

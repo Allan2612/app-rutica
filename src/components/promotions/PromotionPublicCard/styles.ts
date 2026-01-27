@@ -3,24 +3,22 @@
  * Diseño atractivo con énfasis en el descuento
  */
 
-import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
-
-const { width } = Dimensions.get('window');
-const isWeb = Platform.OS === 'web';
-const MAX_WIDTH = isWeb ? 500 : width - 48;
-const CARD_WIDTH = Math.min(width - 96, MAX_WIDTH);
 
 export const styles = StyleSheet.create({
     card: {
         borderRadius: spacing.md,
         borderWidth: 1,
         overflow: 'hidden',
-        marginBottom: spacing.md,
-        height: 280,
-        width: CARD_WIDTH,
+        width: '100%',
+        minHeight: 280,
         justifyContent: 'flex-end',
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     heroFull: {
         ...StyleSheet.absoluteFillObject,
@@ -33,22 +31,26 @@ export const styles = StyleSheet.create({
     },
     badgeContainer: {
         position: 'absolute',
-        top: spacing.sm + 4,
-        left: spacing.sm + 4,
+        top: spacing.sm,
+        left: spacing.sm,
         zIndex: 10,
     },
     urgencyBadge: {
         position: 'absolute',
-        top: spacing.sm + 4,
-        right: spacing.sm + 4,
+        top: spacing.sm,
+        right: spacing.sm,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        paddingHorizontal: spacing.sm + 2,
-        paddingVertical: spacing.xs + 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 12,
         elevation: 3,
         zIndex: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
     },
     urgencyText: {
         color: '#FFFFFF',
@@ -65,34 +67,42 @@ export const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: spacing.md,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.sm + 2,
         zIndex: 8,
-        gap: spacing.xs,
+        gap: spacing.xs - 2,
     },
     title: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
         color: '#FFFFFF',
-        lineHeight: 22,
+        lineHeight: 20,
+        marginBottom: 2,
+    },
+    description: {
+        fontSize: typography.sizes.xs,
+        color: 'rgba(255,255,255,0.85)',
+    
     },
     businessCategoryRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.xs,
+        gap: spacing.xs - 2,
+        flexWrap: 'wrap',
     },
     businessRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.xs,
+        gap: spacing.xs - 2,
     },
     businessName: {
-        fontSize: typography.sizes.sm,
+        fontSize: typography.sizes.xs + 1,
         color: 'rgba(255,255,255,0.9)',
+        flexShrink: 1,
     },
     dateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.xs,
+        gap: spacing.xs - 2,
     },
     dateText: {
         fontSize: typography.sizes.xs,
@@ -100,14 +110,14 @@ export const styles = StyleSheet.create({
     },
     categoriesRow: {
         flexDirection: 'row',
-        flexWrap: 'nowrap',
-        gap: spacing.xs,
+        flexWrap: 'wrap',
+        gap: spacing.xs - 2,
         overflow: 'hidden',
     },
     categoryChip: {
-        borderRadius: spacing.sm + 4,
-        paddingHorizontal: spacing.sm + 2,
-        paddingVertical: spacing.xs,
+        borderRadius: spacing.sm + 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs - 1,
     },
     categoryText: {
         fontSize: typography.sizes.xs,

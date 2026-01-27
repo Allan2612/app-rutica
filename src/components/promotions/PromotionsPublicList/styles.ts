@@ -7,16 +7,15 @@ import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     listContent: {
-        padding: spacing.md,
-    },
-    emptyList: {
-        flexGrow: 1,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.md,
     },
     cardWrapper: {
-        marginBottom: spacing.md,
+        marginBottom: spacing.sm,
     },
     columnWrapper: {
-        justifyContent: 'flex-start',
+        justifyContent: 'space-around',
+        gap: spacing.sm,
     },
     emptyContainer: {
         flex: 1,
