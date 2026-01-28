@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { Business, BusinessWithRelations, Location } from '@/types/entities';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
 // Función para generar UUID v4

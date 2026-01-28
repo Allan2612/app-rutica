@@ -15,12 +15,14 @@ const createInitialFormData = (): PromotionWizardFormData => ({
   description: '',
   scope: 'general' as PromoScope,
 
-  // Step 2 - Discount
+  // Step 2 - Discount + Products/Categories/Combo
   discountType: 'percentage' as DiscountType,
   discountValue: 0,
-  selectedProductIds: [],
+  selectedProductIds: [],    // Para scope: 'product'
+  scopeCategoryIds: [],      // Para scope: 'category'
+  comboItems: [],            // Para scope: 'combo'
 
-  // Step 3 - Dates & Categories
+  // Step 3 - Dates & Categories (para filtrado de la promoción)
   startDate: new Date(),
   endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
   selectedCategoryIds: [],
@@ -40,6 +42,8 @@ const createInitialErrors = (): PromotionWizardErrors => ({
   discountType: undefined,
   discountValue: undefined,
   selectedProductIds: undefined,
+  scopeCategoryIds: undefined,
+  comboItems: undefined,
   startDate: undefined,
   endDate: undefined,
   selectedCategoryIds: undefined,
@@ -71,19 +75,44 @@ const validateInfoStep = (formData: PromotionWizardFormData): PromotionWizardErr
 const validateDiscountStep = (formData: PromotionWizardFormData): PromotionWizardErrors => {
   const errors: PromotionWizardErrors = {};
 
-  if (formData.discountValue <= 0) {
-    errors.discountValue = 'El valor del descuento debe ser mayor a 0';
+  // Para combo, no se requiere discount type/value
+  const isCombo = formData.scope === 'combo';
+
+  if (!isCombo) {
+    if (formData.discountValue <= 0) {
+      errors.discountValue = 'El valor del descuento debe ser mayor a 0';
+    }
+
+    if (formData.discountType === 'percentage' && formData.discountValue > 100) {
+      errors.discountValue = 'El porcentaje no puede ser mayor a 100%';
+    }
   }
 
-  if (formData.discountType === 'percentage' && formData.discountValue > 100) {
-    errors.discountValue = 'El porcentaje no puede ser mayor a 100%';
-  }
-
+  // Validación para scope: 'product'
   if (
     formData.scope === 'product' &&
     formData.selectedProductIds.length === 0
   ) {
     errors.selectedProductIds = 'Debe seleccionar al menos un producto';
+  }
+
+  // Validación para scope: 'category'
+  if (
+    formData.scope === 'category' &&
+    formData.scopeCategoryIds.length === 0
+  ) {
+    errors.scopeCategoryIds = 'Debe seleccionar al menos una categoría de productos';
+  }
+
+  // Validación para scope: 'combo'
+  if (formData.scope === 'combo') {
+    const totalQuantity = formData.comboItems.reduce((sum, item) => sum + item.quantity, 0);
+    if (totalQuantity < 2) {
+      errors.comboItems = 'Un combo debe incluir al menos 2 unidades en total';
+    }
+    if (formData.comboItems.length === 0) {
+      errors.comboItems = 'Debe agregar al menos un producto al combo';
+    }
   }
 
   return errors;
@@ -285,11 +314,15 @@ export function useCreatePromotionWizard() {
       ...prev,
       businessId,
       selectedProductIds: [], // Reset products when business changes
+      scopeCategoryIds: [],   // Reset scope categories when business changes
+      comboItems: [],         // Reset combo items when business changes
     }));
     setErrors((prev) => ({
       ...prev,
       businessId: undefined,
       selectedProductIds: undefined,
+      scopeCategoryIds: undefined,
+      comboItems: undefined,
     }));
   }, []);
 
@@ -307,7 +340,7 @@ export function useCreatePromotionWizard() {
     setErrors((prev) => ({ ...prev, selectedProductIds: undefined }));
   }, []);
 
-  // Toggle category selection
+  // Toggle category selection (for promotion filtering categories)
   const toggleCategorySelection = useCallback((categoryId: string) => {
     setFormData((prev) => {
       const isSelected = prev.selectedCategoryIds.includes(categoryId);
@@ -319,6 +352,71 @@ export function useCreatePromotionWizard() {
       };
     });
     setErrors((prev) => ({ ...prev, selectedCategoryIds: undefined }));
+  }, []);
+
+  // Toggle scope category selection (for 'category' scope - which product categories the promotion applies to)
+  const toggleScopeCategorySelection = useCallback((categoryId: string) => {
+    setFormData((prev) => {
+      const isSelected = prev.scopeCategoryIds.includes(categoryId);
+      return {
+        ...prev,
+        scopeCategoryIds: isSelected
+          ? prev.scopeCategoryIds.filter((id) => id !== categoryId)
+          : [...prev.scopeCategoryIds, categoryId],
+      };
+    });
+    setErrors((prev) => ({ ...prev, scopeCategoryIds: undefined }));
+  }, []);
+
+  // Add/Update/Remove combo item
+  const updateComboItem = useCallback((productId: string, quantity: number, paidQuantity?: number) => {
+    setFormData((prev) => {
+      const existingIndex = prev.comboItems.findIndex(item => item.productId === productId);
+      
+      if (quantity <= 0) {
+        // Remove item if quantity is 0 or less
+        return {
+          ...prev,
+          comboItems: prev.comboItems.filter(item => item.productId !== productId),
+        };
+      }
+      
+      if (existingIndex >= 0) {
+        // Update existing item
+        const newComboItems = [...prev.comboItems];
+        newComboItems[existingIndex] = { productId, quantity, paidQuantity };
+        return { ...prev, comboItems: newComboItems };
+      }
+      
+      // Add new item
+      return {
+        ...prev,
+        comboItems: [...prev.comboItems, { productId, quantity, paidQuantity }],
+      };
+    });
+    setErrors((prev) => ({ ...prev, comboItems: undefined }));
+  }, []);
+
+  // Toggle combo item (add with quantity 1 or remove)
+  const toggleComboItem = useCallback((productId: string) => {
+    setFormData((prev) => {
+      const existingItem = prev.comboItems.find(item => item.productId === productId);
+      
+      if (existingItem) {
+        // Remove item
+        return {
+          ...prev,
+          comboItems: prev.comboItems.filter(item => item.productId !== productId),
+        };
+      }
+      
+      // Add new item with quantity 1
+      return {
+        ...prev,
+        comboItems: [...prev.comboItems, { productId, quantity: 1 }],
+      };
+    });
+    setErrors((prev) => ({ ...prev, comboItems: undefined }));
   }, []);
 
   return {
@@ -349,5 +447,8 @@ export function useCreatePromotionWizard() {
     handleBusinessChange,
     toggleProductSelection,
     toggleCategorySelection,
+    toggleScopeCategorySelection,
+    updateComboItem,
+    toggleComboItem,
   };
 }

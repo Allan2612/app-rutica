@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     card: {
@@ -26,21 +26,10 @@ export const styles = StyleSheet.create({
     placeholderText: {
         fontSize: typography.sizes.xs,
     },
-    discountBadge: {
+    badgeContainer: {
         position: 'absolute',
         top: spacing.md,
         right: spacing.md,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 20,
-    },
-    discountText: {
-        color: '#FFFFFF',
-        fontSize: typography.sizes.base,
-        fontWeight: typography.fontWeights.bold,
     },
     scopeBadge: {
         position: 'absolute',
@@ -51,7 +40,7 @@ export const styles = StyleSheet.create({
         borderRadius: 6,
     },
     scopeText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: 11,
         fontWeight: typography.fontWeights.medium,
     },
@@ -127,19 +116,6 @@ export const styles = StyleSheet.create({
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    discountBadgeCompact: {
-        position: 'absolute',
-        bottom: spacing.xs,
-        right: spacing.xs,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 10,
-    },
-    discountTextCompact: {
-        color: '#FFFFFF',
-        fontSize: 10,
-        fontWeight: typography.fontWeights.bold,
     },
     compactInfo: {
         flex: 1,

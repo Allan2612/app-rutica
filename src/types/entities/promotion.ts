@@ -155,8 +155,10 @@ export interface PromotionListItem {
   businessId: string;
   businessName: string | null;
   imageUrl: string | null;
-  categoryNames: string[];
-  productIds: string[];
+  categoryNames: string[];              // Categorías de la promoción (para filtrado)
+  productIds: string[];                 // Para scope: 'product'
+  scopeCategoryIds: string[];           // Para scope: 'category'
+  comboItems: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
   isActive: boolean;
   createdAt: string;
 }
@@ -173,6 +175,8 @@ export interface PromotionDetailForEdit {
   endAt: string;
   categoryIds: string[];
   productIds: string[];
+  scopeCategoryIds: string[];        // Para scope: 'category'
+  comboItems: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
   paymentReference: string;
   coverUrl: string | null;
   galleryUrls: string[];
@@ -187,8 +191,10 @@ export interface CreatePromotionData {
   discountValue?: number;
   startAt: string;
   endAt: string;
-  categoryIds?: string[];
-  productIds?: string[];
+  categoryIds?: string[];           // Categorías de la promoción (para filtrado)
+  productIds?: string[];            // Para scope: 'product'
+  scopeCategoryIds?: string[];      // Para scope: 'category' (categorías de productos a las que aplica)
+  comboItems?: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
   coverUri?: string | null;
   galleryUris?: string[];
   paymentReference?: string; // Número de referencia SINPE
@@ -204,9 +210,20 @@ export interface UpdatePromotionData {
   endAt?: string;
   categoryIds?: string[];
   productIds?: string[];
+  scopeCategoryIds?: string[];        // Para scope: 'category'
+  comboItems?: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
   coverUri?: string | null;
   galleryUris?: string[];
   paymentReference?: string;
+}
+
+// ============================================
+// Combo Item for Wizard (simplified version)
+// ============================================
+export interface ComboItemData {
+  productId: string;
+  quantity: number;
+  paidQuantity?: number;  // Cantidad que paga (para 2x1, 3x2, etc.)
 }
 
 // ============================================
@@ -219,12 +236,14 @@ export interface PromotionWizardFormData {
   description: string;
   scope: PromoScope;
 
-  // Step 2: Discount + Products
+  // Step 2: Discount + Products/Categories/Combo
   discountType: DiscountType;
   discountValue: number;
-  selectedProductIds: string[];
+  selectedProductIds: string[];        // Para scope: 'product'
+  scopeCategoryIds: string[];          // Para scope: 'category' (categorías de productos a las que aplica)
+  comboItems: ComboItemData[];         // Para scope: 'combo'
 
-  // Step 3: Dates + Categories
+  // Step 3: Dates + Categories (categorías de la promoción para filtrado)
   startDate: Date;
   endDate: Date;
   selectedCategoryIds: string[];
@@ -244,6 +263,8 @@ export interface PromotionWizardErrors {
   discountType?: string;
   discountValue?: string;
   selectedProductIds?: string;
+  scopeCategoryIds?: string;
+  comboItems?: string;
   startDate?: string;
   endDate?: string;
   selectedCategoryIds?: string;

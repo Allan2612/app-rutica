@@ -12,7 +12,8 @@ import {
     CoverImage,
     ImageViewerModal,
     BusinessMap,
-    ReviewsSection
+    ReviewsSection,
+    BusinessPromotionsCarousel,
 } from '@/components/business';
 import { styles } from './styles';
 
@@ -121,27 +122,8 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                             />
                         )}
 
-                        {/* Promotions Section - Próximamente */}
-                        <View style={{ marginTop: 32 }}>
-                            <Text style={{
-                                fontSize: 24,
-                                fontWeight: '700',
-                                color: colors.text.primary,
-                                marginBottom: 12,
-                                textAlign: 'center',
-                                letterSpacing: -0.3,
-                            }}>
-                                Promociones
-                            </Text>
-                            <Text style={{
-                                fontSize: 14,
-                                color: colors.text.secondary,
-                                textAlign: 'center',
-                                lineHeight: 20,
-                            }}>
-                                Próximamente
-                            </Text>
-                        </View>
+                        {/* Promotions Carousel */}
+                        <BusinessPromotionsCarousel businessId={business.id} />
 
                         {/* Products Section */}
                         <BusinessProducts businessId={business.id} onImagePress={setSelectedImage} />

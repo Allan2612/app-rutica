@@ -7,7 +7,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, Mountain, X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useAttractionDetail } from '@/features/attractions/hooks';
-import { ImageCarousel } from '@/components/ui';
+import { GenericCarousel } from '@/components/ui';
 import { BusinessGallery } from '@/components/business';
 import { AttractionHeader, AttractionReviewsSection } from '@/components/attractions';
 import { styles } from '@/features/attractions/screens/AttractionDetailScreen/styles';
@@ -73,7 +73,19 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {attraction.coverImage && (
-                    <ImageCarousel images={[attraction.coverImage]} aspectRatio={16 / 9} maxHeight={280} />
+                    <GenericCarousel
+                        items={[attraction.coverImage]}
+                        renderItem={(image) => (
+                            <Image
+                                source={{ uri: image }}
+                                style={{ width: '100%', aspectRatio: 16 / 9, maxHeight: 280 }}
+                                resizeMode="cover"
+                            />
+                        )}
+                        showNavigation={false}
+                        showIndicators={false}
+                        autoScroll={false}
+                    />
                 )}
 
                 <Pressable

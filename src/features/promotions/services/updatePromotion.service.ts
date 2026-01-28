@@ -100,7 +100,62 @@ export async function updatePromotionComplete(
         }
     }
 
-    // 5. Gestionar imagen de cover
+    // 5. Actualizar scopeCategoryIds (para scope: 'category')
+    // TODO: Descomentar cuando se cree la tabla promotion_product_categories en la BD
+    /*
+    if (data.scopeCategoryIds !== undefined) {
+        // Eliminar categorías de scope existentes
+        await supabase
+            .from('promotion_product_categories')
+            .delete()
+            .eq('promotion_id_ppc', promotionId);
+
+        // Insertar nuevas categorías de scope
+        if (data.scopeCategoryIds.length > 0) {
+            const scopeCategoryMaps = data.scopeCategoryIds.map((categoryId) => ({
+                promotion_id_ppc: promotionId,
+                category_id_ppc: categoryId,
+            }));
+
+            const { error: scopeCategoryError } = await supabase
+                .from('promotion_product_categories')
+                .insert(scopeCategoryMaps);
+
+            if (scopeCategoryError) {
+                console.error('Error updating scope categories:', scopeCategoryError);
+            }
+        }
+    }
+    */
+
+    // 6. Actualizar comboItems (para scope: 'combo')
+    if (data.comboItems !== undefined) {
+        // Eliminar items de combo existentes
+        await supabase
+            .from('promotion_combo_items')
+            .delete()
+            .eq('promotion_id_pci', promotionId);
+
+        // Insertar nuevos items de combo
+        if (data.comboItems.length > 0) {
+            const comboItemMaps = data.comboItems.map((item) => ({
+                promotion_id_pci: promotionId,
+                product_id_pci: item.productId,
+                quantity_pci: item.quantity,
+                paid_quantity_pci: item.paidQuantity ?? null,
+            }));
+
+            const { error: comboError } = await supabase
+                .from('promotion_combo_items')
+                .insert(comboItemMaps);
+
+            if (comboError) {
+                console.error('Error updating combo items:', comboError);
+            }
+        }
+    }
+
+    // 7. Gestionar imagen de cover
     if (data.coverUri !== undefined) {
         // Obtener imagen de cover actual
         const { data: currentCover } = await supabase
@@ -145,7 +200,7 @@ export async function updatePromotionComplete(
         // Si no es nueva imagen (URL existente), no hacemos nada
     }
 
-    // 6. Gestionar imágenes de galería
+    // 8. Gestionar imágenes de galería
     if (data.galleryUris !== undefined) {
         // Obtener imágenes de galería actuales
         const { data: currentGallery } = await supabase

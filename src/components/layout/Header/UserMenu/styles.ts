@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
     borderRadius: spacing.sm + 4,
     minWidth: 240,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.shadow,
       offsetX: 0,
       offsetY: 2,
       opacity: 0.25,
@@ -74,7 +74,7 @@ export const styles = StyleSheet.create({
   },
   menuItemTextDanger: {
     fontSize: typography.sizes.sm,
-    color: '#ef4444',
+    color: colors.error,
     fontWeight: typography.fontWeights.medium,
   },
 });

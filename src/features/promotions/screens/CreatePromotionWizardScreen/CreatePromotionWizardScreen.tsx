@@ -73,6 +73,8 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
       endAt: wizard.formData.endDate.toISOString(),
       categoryIds: wizard.formData.selectedCategoryIds,
       productIds: wizard.formData.selectedProductIds,
+      scopeCategoryIds: wizard.formData.scopeCategoryIds,
+      comboItems: wizard.formData.comboItems,
       coverUri: wizard.formData.coverUri,
       paymentReference: wizard.formData.paymentReference,
     };
@@ -139,6 +141,9 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
             errors={wizard.errors}
             onFieldChange={wizard.updateField}
             onToggleProduct={wizard.toggleProductSelection}
+            onToggleScopeCategory={wizard.toggleScopeCategorySelection}
+            onUpdateComboItem={wizard.updateComboItem}
+            onToggleComboItem={wizard.toggleComboItem}
           />
         );
       case 'dates':

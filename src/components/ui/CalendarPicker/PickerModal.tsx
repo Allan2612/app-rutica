@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
-import { styles } from './CalendarPicker.styles';
+import { styles } from './styles';
 
 interface PickerModalProps {
     visible: boolean;

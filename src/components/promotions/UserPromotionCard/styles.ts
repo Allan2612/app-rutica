@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 /**
  * Estilos para UserPromotionCard
@@ -24,23 +24,11 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    discountBadge: {
+    badgeContainer: {
         position: 'absolute',
         top: spacing.sm + 4,
         left: spacing.sm + 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: spacing.sm + 2,
-        paddingVertical: spacing.xs + 2,
-        borderRadius: 14,
-        elevation: 3,
         zIndex: 10,
-    },
-    discountText: {
-        color: '#000000',
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.fontWeights.bold,
     },
     topRightBadges: {
         position: 'absolute',
@@ -96,7 +84,7 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
-        color: '#FFFFFF',
+        color: colors.text.inverse,
     },
     businessName: {
         fontSize: typography.sizes.xs,
@@ -121,7 +109,7 @@ export const styles = StyleSheet.create({
     expiredText: {
         fontSize: 10,
         fontWeight: typography.fontWeights.semibold,
-        color: '#FFFFFF',
+        color: colors.text.inverse,
     },
     actions: {
         flexDirection: 'column',
@@ -136,7 +124,7 @@ export const styles = StyleSheet.create({
         elevation: 4,
     },
     editButton: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.background.primary,
     },
     deleteButton: {
         backgroundColor: 'rgba(239, 68, 68, 0.95)',

@@ -10,11 +10,13 @@ export * from './SocialButtons';
 export * from './CoverImage';
 export * from './ImageViewerModal';
 export * from './ProductCard';
+export * from './ProductComboCard';
 export * from './ProductImageCarousel';
 export * from './BusinessProducts';
 export * from './BusinessMap';
 export * from './ReviewCard';
 export * from './ReviewModal';
 export * from './ReviewsSection';
+export * from './BusinessPromotionsCarousel';
 // BusinessesList se importa directamente para evitar referencias circulares
 

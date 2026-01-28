@@ -4,7 +4,7 @@
  */
 
 import { memo, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, useWindowDimensions } from 'react-native';
+import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { Tag } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { PromotionPublicCard } from '../PromotionPublicCard';
@@ -29,34 +29,17 @@ export const PromotionsPublicList = memo(function PromotionsPublicList({
     onPromotionPress,
 }: PromotionsPublicListProps) {
     const colors = useThemedColors();
-    const { width } = useWindowDimensions();
-
-    // Calcular gap entre columnas
-    const gap = 12;
-    const horizontalPadding = 16;
-    const columnWidth = (width - horizontalPadding * 2 - gap * (numColumns - 1)) / numColumns;
 
     const renderItem = useCallback(
-        ({ item, index }: { item: PromotionListItem; index: number }) => {
-            const isLastInRow = (index + 1) % numColumns === 0;
-            return (
-                <View
-                    style={[
-                        styles.cardWrapper,
-                        {
-                            width: numColumns > 1 ? columnWidth : '100%',
-                            marginRight: isLastInRow ? 0 : gap,
-                        },
-                    ]}
-                >
-                    <PromotionPublicCard
-                        promotion={item}
-                        onPress={onPromotionPress}
-                    />
-                </View>
-            );
-        },
-        [numColumns, columnWidth, gap, onPromotionPress]
+        ({ item }: { item: PromotionListItem }) => (
+            <View style={[styles.cardWrapper, { width: numColumns === 1 ? '100%' : numColumns === 2 ? '48%' : '32%' }]}>
+                <PromotionPublicCard
+                    promotion={item}
+                    onPress={onPromotionPress}
+                />
+            </View>
+        ),
+        [numColumns, onPromotionPress]
     );
 
     const renderEmpty = useCallback(
@@ -83,10 +66,7 @@ export const PromotionsPublicList = memo(function PromotionsPublicList({
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             numColumns={numColumns}
-            contentContainerStyle={[
-                styles.listContent,
-                data.length === 0 && styles.emptyList,
-            ]}
+            contentContainerStyle={styles.listContent}
             columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={renderEmpty}

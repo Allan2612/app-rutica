@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     container: {
@@ -24,8 +25,8 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: '#e0e0e0',
-        backgroundColor: '#f5f5f5',
+        borderColor: colors.border.medium,
+        backgroundColor: colors.background.secondary,
     },
     image: {
         width: '100%',
@@ -42,7 +43,7 @@ export const styles = StyleSheet.create({
         zIndex: 2,
     },
     orderText: {
-        color: '#fff',
+        color: colors.text.inverse,
         fontWeight: 'bold',
         fontSize: 12,
     },
@@ -67,7 +68,7 @@ export const styles = StyleSheet.create({
         zIndex: 2,
     },
     primaryText: {
-        color: '#fff',
+        color: colors.text.inverse,
         fontWeight: 'bold',
         fontSize: 12,
     },

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     container: {
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         borderRadius: 8,
         overflow: 'hidden',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: colors.background.secondary,
     },
     image: {
         width: '100%',

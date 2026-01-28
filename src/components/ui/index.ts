@@ -1,5 +1,6 @@
 export * from './BackButton';
 export * from './StatusBadge';
+export * from './PromoBadge';
 export * from './CategoryChips';
 export * from '../events/DescriptionSection';
 // LocationPicker y MapBackground movidos a @/components/maps
@@ -10,7 +11,7 @@ export * from './CategorySearchBar';
 export * from './CategorySelector';
 export * from './SingleImagePicker';
 export * from './MultipleImagePicker';
-export * from './ImageCarousel';
+export * from './GenericCarousel';
 export * from './TikTokIcon';
 export * from './SearchFilterModal';
 export * from './UnifiedDateTimeModal';

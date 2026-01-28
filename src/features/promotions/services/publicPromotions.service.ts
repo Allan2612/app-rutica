@@ -47,6 +47,16 @@ interface PublicPromotionRecord {
             name_cat: string;
         } | null;
     }[];
+    promotion_products?: {
+        product_id_ppr: string;
+    }[] | null;
+    promotion_scope_categories?: {
+        category_id_psc: string;
+    }[] | null;
+    promotion_combo_items?: {
+        product_id_pci: string;
+        quantity_pci: number;
+    }[] | null;
 }
 
 // ============================================
@@ -92,6 +102,17 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                     id_cat,
                     name_cat
                 )
+            ),
+            promotion_products (
+                product_id_ppr
+            ),
+            promotion_scope_categories (
+                category_id_psc
+            ),
+            promotion_combo_items (
+                product_id_pci,
+                quantity_pci,
+                paid_quantity_pci
             )
         `)
         // Solo promociones aprobadas y pagadas
@@ -164,6 +185,25 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         ?.map(pcm => pcm.categories?.name_cat)
         .filter((name): name is string => !!name) ?? [];
 
+    // Obtener IDs de productos (para scope: 'product')
+    const productIds = record.promotion_products
+        ?.map(pp => pp.product_id_ppr)
+        .filter(Boolean) ?? [];
+
+    // Obtener IDs de categorías de scope (para scope: 'category')
+    const scopeCategoryIds = record.promotion_scope_categories
+        ?.map(psc => psc.category_id_psc)
+        .filter(Boolean) ?? [];
+
+    // Obtener items de combo (para scope: 'combo')
+    const comboItems = record.promotion_combo_items
+        ?.map(pci => ({
+            productId: pci.product_id_pci,
+            quantity: pci.quantity_pci,
+            paidQuantity: (pci as any).paid_quantity_pci ?? undefined,
+        }))
+        .filter(item => item.productId) ?? [];
+
     // Determinar si está activa
     const now = new Date();
     const startAt = new Date(record.start_at_prm);
@@ -185,6 +225,9 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         businessName: record.businesses?.name_bus ?? null,
         imageUrl,
         categoryNames,
+        productIds,
+        scopeCategoryIds,
+        comboItems,
         isActive,
         createdAt: record.created_at_prm,
     };

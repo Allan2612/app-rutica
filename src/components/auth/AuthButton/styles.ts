@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     ...getShadowStyle({
-      color: '#10b981',
+      color: colors.primary[500],
       offsetX: 0,
       offsetY: 6,
       opacity: 0.25,

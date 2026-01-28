@@ -4,18 +4,21 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     card: {
         borderRadius: spacing.md,
         borderWidth: 1,
         overflow: 'hidden',
-        marginBottom: spacing.md,
-        flex: 1,
+        width: '100%',
         minHeight: 280,
         justifyContent: 'flex-end',
         elevation: 2,
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     heroFull: {
         ...StyleSheet.absoluteFillObject,
@@ -26,47 +29,31 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    discountBadge: {
+    badgeContainer: {
         position: 'absolute',
-        top: spacing.sm + 4,
-        left: spacing.sm + 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: spacing.sm + 4,
-        paddingVertical: spacing.xs + 4,
-        backgroundColor: '#fbbf24', // Amarillo vibrante
-        borderRadius: 14,
-        elevation: 4,
+        top: spacing.sm,
+        left: spacing.sm,
         zIndex: 10,
-    },
-    discountText: {
-        color: '#000000',
-        fontSize: typography.sizes.lg,
-        fontWeight: typography.fontWeights.bold,
-        letterSpacing: -0.5,
-    },
-    discountLabel: {
-        color: '#000000',
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.fontWeights.bold,
-        marginLeft: 2,
     },
     urgencyBadge: {
         position: 'absolute',
-        top: spacing.sm + 4,
-        right: spacing.sm + 4,
+        top: spacing.sm,
+        right: spacing.sm,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        paddingHorizontal: spacing.sm + 2,
-        paddingVertical: spacing.xs + 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 12,
         elevation: 3,
         zIndex: 10,
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
     },
     urgencyText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
     },
@@ -80,30 +67,42 @@ export const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: spacing.md,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.sm + 2,
         zIndex: 8,
-        gap: spacing.xs,
+        gap: spacing.xs - 2,
     },
     title: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
-        color: '#FFFFFF',
-        lineHeight: 22,
+        color: colors.text.inverse,
+        lineHeight: 20,
+        marginBottom: 2,
+    },
+    description: {
+        fontSize: typography.sizes.xs,
+        color: 'rgba(255,255,255,0.85)',
+    
+    },
+    businessCategoryRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs - 2,
+        flexWrap: 'wrap',
     },
     businessRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.xs,
+        gap: spacing.xs - 2,
     },
     businessName: {
-        fontSize: typography.sizes.sm,
+        fontSize: typography.sizes.xs + 1,
         color: 'rgba(255,255,255,0.9)',
-        flex: 1,
+        flexShrink: 1,
     },
     dateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.xs,
+        gap: spacing.xs - 2,
     },
     dateText: {
         fontSize: typography.sizes.xs,
@@ -111,15 +110,14 @@ export const styles = StyleSheet.create({
     },
     categoriesRow: {
         flexDirection: 'row',
-        flexWrap: 'nowrap',
-        gap: spacing.xs,
-        marginTop: spacing.xs,
+        flexWrap: 'wrap',
+        gap: spacing.xs - 2,
         overflow: 'hidden',
     },
     categoryChip: {
-        borderRadius: spacing.sm + 4,
-        paddingHorizontal: spacing.sm + 2,
-        paddingVertical: spacing.xs,
+        borderRadius: spacing.sm + 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs - 1,
     },
     categoryText: {
         fontSize: typography.sizes.xs,

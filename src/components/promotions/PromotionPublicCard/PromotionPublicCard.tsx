@@ -11,6 +11,8 @@ import { Tag, Store, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { getPromotionBadgeLabel, formatDate } from '@/utils';
+import { PromoBadge } from '@/components/ui';
 import type { PromotionListItem } from '@/types/entities';
 import { styles } from './styles';
 
@@ -25,20 +27,8 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
 }: PromotionPublicCardProps) {
     const colors = useThemedColors();
 
-    // Formatear descuento
-    const isPercentage = promotion.discountType === 'percentage';
-    const discountDisplay = isPercentage
-        ? `${promotion.discountValue}%`
-        : `₡${promotion.discountValue.toLocaleString()}`;
-
-    // Formatear fechas
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-CR', {
-            day: 'numeric',
-            month: 'long',
-        });
-    };
+    // Obtener label del badge
+    const badgeLabel = getPromotionBadgeLabel(promotion);
 
     // Calcular días restantes
     const now = new Date();
@@ -83,10 +73,9 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                 </View>
             )}
 
-            {/* Discount Badge - Protagonista */}
-            <View style={styles.discountBadge}>
-                <Tag size={16} color="#000000" strokeWidth={2.5} />
-                <Text style={styles.discountText}>{discountDisplay}</Text>
+            {/* Badge de promoción */}
+            <View style={styles.badgeContainer}>
+                <PromoBadge label={badgeLabel} size="medium" />
             </View>
 
             {/* Ending Soon Badge */}
@@ -114,13 +103,54 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                     {promotion.title}
                 </Text>
 
-                {/* Business Name */}
+                {/* Description */}
+                {promotion.description && (
+                    <Text style={styles.description} numberOfLines={2}>
+                        {promotion.description}
+                    </Text>
+                )}
+
+                {/* Business Name with Categories */}
                 {promotion.businessName && (
-                    <View style={styles.businessRow}>
+                    <View style={styles.businessCategoryRow}>
                         <Store size={14} color="rgba(255,255,255,0.9)" strokeWidth={1.75} />
                         <Text style={styles.businessName} numberOfLines={1}>
                             {promotion.businessName}
                         </Text>
+                        {promotion.categoryNames.length > 0 && (
+                            <>
+                                {promotion.categoryNames.slice(0, 1).map((catName, index) => {
+                                    const categoryColor = getCategoryColorScheme(`cat-${index}`);
+                                    return (
+                                        <View
+                                            key={index}
+                                            style={[
+                                                styles.categoryChip,
+                                                { backgroundColor: categoryColor.backgroundColor },
+                                            ]}
+                                        >
+                                            <Text
+                                                style={[styles.categoryText, { color: categoryColor.textColor }]}
+                                            >
+                                                {catName}
+                                            </Text>
+                                        </View>
+                                    );
+                                })}
+                                {promotion.categoryNames.length > 1 && (
+                                    <View
+                                        style={[
+                                            styles.categoryChip,
+                                            { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+                                        ]}
+                                    >
+                                        <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
+                                            +{promotion.categoryNames.length - 1}
+                                        </Text>
+                                    </View>
+                                )}
+                            </>
+                        )}
                     </View>
                 )}
 
@@ -131,42 +161,6 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                         {formatDate(promotion.startAt)} - {formatDate(promotion.endAt)}
                     </Text>
                 </View>
-
-                {/* Categories */}
-                {promotion.categoryNames.length > 0 && (
-                    <View style={styles.categoriesRow}>
-                        {promotion.categoryNames.slice(0, 2).map((catName, index) => {
-                            const categoryColor = getCategoryColorScheme(`cat-${index}`);
-                            return (
-                                <View
-                                    key={index}
-                                    style={[
-                                        styles.categoryChip,
-                                        { backgroundColor: categoryColor.backgroundColor },
-                                    ]}
-                                >
-                                    <Text
-                                        style={[styles.categoryText, { color: categoryColor.textColor }]}
-                                    >
-                                        {catName}
-                                    </Text>
-                                </View>
-                            );
-                        })}
-                        {promotion.categoryNames.length > 2 && (
-                            <View
-                                style={[
-                                    styles.categoryChip,
-                                    { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
-                                ]}
-                            >
-                                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
-                                    +{promotion.categoryNames.length - 2}
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-                )}
             </View>
         </Pressable>
     );

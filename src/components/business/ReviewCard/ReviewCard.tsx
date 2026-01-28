@@ -2,6 +2,8 @@ import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Star, Pencil, Trash2 } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { formatDate, DATE_FORMAT_OPTIONS } from '@/utils';
+import { colors as themeColors } from '@/styles/theme/colors';
 import { styles } from './styles';
 
 interface ReviewCardProps {
@@ -27,15 +29,6 @@ export const ReviewCard = memo(function ReviewCard({
 }: ReviewCardProps) {
     const colors = useThemedColors();
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-CR', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-        });
-    };
-
     const renderStars = () => {
         const stars = [];
         for (let i = 1; i <= 5; i++) {
@@ -43,8 +36,8 @@ export const ReviewCard = memo(function ReviewCard({
                 <Star
                     key={i}
                     size={16}
-                    color="#fbbf24"
-                    fill={i <= rating ? '#fbbf24' : 'transparent'}
+                    color={themeColors.promo.badge}
+                    fill={i <= rating ? themeColors.promo.badge : 'transparent'}
                     strokeWidth={1.5}
                 />
             );
@@ -68,7 +61,7 @@ export const ReviewCard = memo(function ReviewCard({
                     </View>
                 </View>
                 <Text style={[styles.date, { color: colors.text.tertiary }]}>
-                    {formatDate(createdAt)}
+                    {formatDate(createdAt, DATE_FORMAT_OPTIONS.full)}
                 </Text>
             </View>
 

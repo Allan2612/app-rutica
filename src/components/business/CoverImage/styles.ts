@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     coverImageContainer: {
         width: '100%',
         height: 280,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: colors.background.secondary,
     },
     coverImage: {
         width: '100%',
@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     placeholderCover: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#e0e0e0',
+        backgroundColor: colors.border.medium,
     },
     logoContainer: {
         position: 'absolute',
@@ -36,8 +36,8 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 10,
         borderWidth: 4,
-        borderColor: '#fff',
-        backgroundColor: '#fff',
+        borderColor: colors.background.primary,
+        backgroundColor: colors.background.primary,
     },
     logo: {
         width: '100%',
@@ -65,11 +65,11 @@ export const styles = StyleSheet.create({
     ratingValue: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#1f2937',
+        color: colors.text.primary,
     },
     ratingCount: {
         fontSize: 12,
         fontWeight: '500',
-        color: '#6b7280',
+        color: colors.text.secondary,
     },
 });

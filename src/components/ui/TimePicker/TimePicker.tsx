@@ -1,7 +1,7 @@
 import { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { styles, ITEM_HEIGHT, VISIBLE_ITEMS } from './TimePicker.styles';
+import { styles, ITEM_HEIGHT, VISIBLE_ITEMS } from './styles';
 
 interface TimePickerProps {
     selectedTime: { hours: number; minutes: number };

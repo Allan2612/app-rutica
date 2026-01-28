@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -45,7 +45,7 @@ export const styles = StyleSheet.create({
   buttonText: {
     fontSize: typography.sizes.base,
     fontWeight: typography.fontWeights.semibold,
-    color: '#ffffff',
+    color: colors.text.inverse,
   },
   buttonTextSecondary: {
     fontSize: typography.sizes.base,

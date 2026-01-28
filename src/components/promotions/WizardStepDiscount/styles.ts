@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     container: {
@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
         padding: spacing.md,
         gap: spacing.md,
     },
+    // Legacy - keeping for backwards compatibility
     scopeRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -26,6 +27,33 @@ export const styles = StyleSheet.create({
     scopeLabel: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.medium,
+    },
+    // New scope grid layout
+    scopeGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.sm,
+    },
+    scopeCard: {
+        width: '48%',
+        minWidth: 140,
+        borderRadius: 12,
+        padding: spacing.md,
+        borderWidth: 1,
+        gap: spacing.xs,
+    },
+    scopeCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    scopeCardTitle: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.semibold,
+    },
+    scopeCardDescription: {
+        fontSize: typography.sizes.xs,
+        lineHeight: 16,
     },
     discountTypeRow: {
         flexDirection: 'row',
@@ -88,7 +116,7 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
     },
     countText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.semibold,
     },
@@ -142,5 +170,56 @@ export const styles = StyleSheet.create({
     },
     productPrice: {
         fontSize: typography.sizes.sm,
+    },
+    // Category selection styles
+    categoryGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.sm,
+    },
+    categoryChipLarge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    categoryChipLabel: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
+    // Combo selection styles
+    comboProductCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderRadius: 12,
+        padding: spacing.md,
+        marginBottom: spacing.sm,
+        borderWidth: 1,
+    },
+    comboProductInfo: {
+        flex: 1,
+        gap: 2,
+    },
+    quantityControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
+    },
+    quantityButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    quantityText: {
+        fontSize: typography.sizes.base,
+        fontWeight: typography.fontWeights.semibold,
+        minWidth: 24,
+        textAlign: 'center',
     },
 });

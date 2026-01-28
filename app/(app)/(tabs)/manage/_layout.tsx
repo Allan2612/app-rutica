@@ -8,7 +8,7 @@ export default function ManageLayout() {
       <Stack.Screen name="attractions" />
       <Stack.Screen name="businesses" />
       <Stack.Screen name="promotions" />
-      <Stack.Screen name="admin" />
+      <Stack.Screen name="admin/index" />
     </Stack>
   );
 }

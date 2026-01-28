@@ -89,8 +89,6 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
-        borderTopWidth: 1,
-        borderTopColor: colors.border.light,
     },
     footerItem: {
         flexDirection: 'row',
@@ -135,7 +133,7 @@ export const styles = StyleSheet.create({
         borderRadius: 16,
     },
     writeReviewButtonText: {
-        color: '#fff',
+        color: colors.text.inverse,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.semibold,
     },

@@ -49,12 +49,7 @@ export const BusinessCard = memo(function BusinessCard({
         </View>
       ) : null}
 
-      {/* NEW: Promotion Badge */}
-      {hasActivePromotions && (
-        <View style={styles.promotionBadge}>
-          <Tag size={14} color="#000000" strokeWidth={2.5} />
-        </View>
-      )}
+     
 
       {rating > 0 && (
         <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
@@ -81,8 +76,13 @@ export const BusinessCard = memo(function BusinessCard({
               resizeMode="contain"
             />
           )}
+          {/* NEW: Promotion Badge */}
+          {hasActivePromotions && (
+            <View style={styles.promotionBadge}>
+              <Tag size={12} color="#000000" strokeWidth={2.5} />
+            </View>
+          )}
         </View>
-
         <View style={styles.metaRow}>
           {categoryNames.length > 0 && categoryNames.slice(0, 2).map((catName, index) => {
             const categoryColor = getCategoryColorScheme(categoryIds[index]);

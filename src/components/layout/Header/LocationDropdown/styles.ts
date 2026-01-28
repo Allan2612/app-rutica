@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -14,7 +15,7 @@ export const styles = StyleSheet.create({
     maxWidth: 500,
     maxHeight: '80%',
     borderRadius: 16,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

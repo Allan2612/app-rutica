@@ -2,6 +2,7 @@ export * from './colors';
 export * from './shadows';
 export * from './spacing';
 export * from './typography';
+export * from './promotions';
 
 import { colors } from './colors';
 import { shadows } from './shadows';

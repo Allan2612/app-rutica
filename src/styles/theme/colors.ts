@@ -82,6 +82,18 @@ export const colors = {
   // Modal/overlay colors
   overlay: {
     dark: 'rgba(0, 0, 0, 0.95)',
+    light: 'rgba(255, 255, 255, 0.8)',
+    medium: 'rgba(255, 255, 255, 0.9)',
+    gradient: {
+      transparent: 'rgba(0, 0, 0, 0)',
+      dark: 'rgba(0, 0, 0, 0.85)',
+    },
+  },
+
+  // Colores de promociones/badges
+  promo: {
+    badge: '#fbbf24',       // Amarillo del badge
+    badgeText: '#000000',   // Texto del badge
   },
 
   // Shadow color

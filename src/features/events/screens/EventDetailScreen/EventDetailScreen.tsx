@@ -1,13 +1,10 @@
-/**
- * Pantalla de detalle de evento
- */
 import { memo, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking, Platform, Modal, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, PartyPopper, X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useEventDetail } from '@/features/events/hooks';
-import { ImageCarousel } from '@/components/ui';
+import { GenericCarousel } from '@/components/ui';
 import { BusinessGallery, ContactSection } from '@/components/business';
 import { EventHeader, EventReviewsSection } from '@/components/events';
 import { styles } from './styles';
@@ -76,7 +73,19 @@ export const EventDetailScreen = memo(function EventDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {event.coverImage && (
-                    <ImageCarousel images={[event.coverImage]} aspectRatio={16 / 9} maxHeight={280} />
+                    <GenericCarousel
+                        items={[event.coverImage]}
+                        renderItem={(image) => (
+                            <Image
+                                source={{ uri: image }}
+                                style={{ width: '100%', aspectRatio: 16 / 9, maxHeight: 280 }}
+                                resizeMode="cover"
+                            />
+                        )}
+                        showNavigation={false}
+                        showIndicators={false}
+                        autoScroll={false}
+                    />
                 )}
 
                 <Pressable
@@ -133,7 +142,7 @@ export const EventDetailScreen = memo(function EventDetailScreen() {
                         <EventReviewsSection
                             eventId={id}
                             eventName={event.name}
-                            eventImage={event.coverImage}
+                            eventImage={event.coverImage ?? undefined}
                         />
                     </View>
                 </View>

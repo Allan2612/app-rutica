@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
   editButtonText: {
     fontSize: typography.sizes.base,
     fontWeight: typography.fontWeights.semibold,
-    color: '#ffffff',
+    color: colors.text.inverse,
     textAlign: 'center',
   },
 });
