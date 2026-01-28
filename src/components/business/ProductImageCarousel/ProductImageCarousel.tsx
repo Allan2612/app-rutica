@@ -34,7 +34,8 @@ export const ProductImageCarousel = memo(function ProductImageCarousel({
     }).current;
 
     const handlePrevImage = () => {
-        if (currentIndex > 0 && cardWidth > 0) {
+        const width = cardWidth || 300; // Fallback width
+        if (currentIndex > 0) {
             const newIndex = currentIndex - 1;
             setCurrentIndex(newIndex);
             flatListRef.current?.scrollToIndex({
@@ -46,7 +47,8 @@ export const ProductImageCarousel = memo(function ProductImageCarousel({
     };
 
     const handleNextImage = () => {
-        if (currentIndex < images.length - 1 && cardWidth > 0) {
+        const width = cardWidth || 300; // Fallback width
+        if (currentIndex < images.length - 1) {
             const newIndex = currentIndex + 1;
             setCurrentIndex(newIndex);
             flatListRef.current?.scrollToIndex({
@@ -70,7 +72,7 @@ export const ProductImageCarousel = memo(function ProductImageCarousel({
 
     const renderImage = ({ item }: { item: string }) => (
         <Pressable
-            style={[styles.imageContainer, { width: cardWidth || 100 }]}
+            style={[styles.imageContainer, { width: cardWidth > 0 ? cardWidth : 300 }]}
             onPress={() => onImagePress?.(item)}
         >
             <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />
@@ -95,13 +97,16 @@ export const ProductImageCarousel = memo(function ProductImageCarousel({
                 keyExtractor={(item, index) => `image-${index}`}
                 onViewableItemsChanged={onViewableItemsChanged}
                 viewabilityConfig={viewabilityConfig}
-                snapToInterval={cardWidth}
+                snapToInterval={cardWidth > 0 ? cardWidth : 300}
                 decelerationRate="fast"
-                getItemLayout={(data, index) => ({
-                    length: cardWidth,
-                    offset: cardWidth * index,
-                    index,
-                })}
+                getItemLayout={(data, index) => {
+                    const width = cardWidth > 0 ? cardWidth : 300;
+                    return {
+                        length: width,
+                        offset: width * index,
+                        index,
+                    };
+                }}
                 onScrollToIndexFailed={onScrollToIndexFailed}
             />
 

@@ -1,19 +1,12 @@
-import { StyleSheet, Dimensions, Platform } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import { colors, spacing } from "@/styles/theme";
 
 const isWeb = Platform.OS === "web";
-const { width } = Dimensions.get("window");
-const MAX_WIDTH = isWeb ? 500 : width - 48;
-const CARD_WIDTH = Math.min(width - 96, MAX_WIDTH);
 
 export const styles = StyleSheet.create({
   carouselContainer: {
     position: "relative",
-    alignItems: "center",
-  },
-  cardContainer: {
-    width: CARD_WIDTH,
-    alignItems: "center",
+    width: "100%",
   },
   navButton: {
     position: "absolute",
@@ -43,6 +36,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: spacing.md,
     gap: spacing.xs,
+    width: "100%",
   },
   indicator: {
     width: 8,

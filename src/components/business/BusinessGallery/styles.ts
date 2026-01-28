@@ -1,26 +1,17 @@
-import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
-const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
-const MAX_WIDTH = isWeb ? 500 : width - 48;
-const IMAGE_WIDTH = Math.min(width - 96, MAX_WIDTH);
 
 export const styles = StyleSheet.create({
     gallerySection: {
         marginTop: spacing.xl,
         marginBottom: spacing.lg,
-        ...(isWeb && { alignItems: 'center' }),
-    },
-    imageContainer: {
-        width: IMAGE_WIDTH,
-        height: 220,
-        borderRadius: 16,
-        overflow: 'hidden',
+        width: '100%',
     },
     image: {
-        width: IMAGE_WIDTH,
-        height: 280,
+        width: '100%',
+        height: '100%',
         borderRadius: 16,
     },
     sectionTitle: {
@@ -29,5 +20,6 @@ export const styles = StyleSheet.create({
         marginBottom: spacing.lg,
         textAlign: 'center',
         letterSpacing: -0.3,
+        paddingHorizontal: spacing.lg,
     },
 });

@@ -68,12 +68,10 @@ export const BusinessPromotionsCarousel = memo(function BusinessPromotionsCarous
             <GenericCarousel
                 items={activePromotions}
                 renderItem={(promotion) => (
-                    <View style={styles.cardWrapper}>
-                        <PromotionPublicCard
-                            promotion={promotion}
-                            onPress={onPromotionPress ? () => handlePress(promotion) : undefined}
-                        />
-                    </View>
+                    <PromotionPublicCard
+                        promotion={promotion}
+                        onPress={onPromotionPress ? () => handlePress(promotion) : undefined}
+                    />
                 )}
                 showNavigation={true}
                 showIndicators={true}

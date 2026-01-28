@@ -1,8 +1,12 @@
-import { memo, useState, useEffect, ReactNode, useRef } from 'react';
-import { View, Pressable, Animated, Modal, Image } from 'react-native';
+import { memo, useState, useRef, ReactNode, useCallback } from 'react';
+import { View, Pressable, Modal, Image, Dimensions, Platform } from 'react-native';
+import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
+import { useSharedValue } from 'react-native-reanimated';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface GenericCarouselProps<T> {
     items: T[];
@@ -30,57 +34,30 @@ export const GenericCarousel = memo(function GenericCarousel<T>({
     const colors = useThemedColors();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
-    const slideAnim = useRef(new Animated.Value(0)).current;
+    const carouselRef = useRef<ICarouselInstance>(null);
+    const progressValue = useSharedValue<number>(0);
 
-    const animateSlide = (toValue: number) => {
-        Animated.parallel([
-            Animated.timing(slideAnim, {
-                toValue: toValue * -50,
-                duration: 400,
-                useNativeDriver: true,
-            }),
-        ]).start(() => {
-            slideAnim.setValue(toValue * 50);
-            Animated.parallel([
-                Animated.timing(slideAnim, {
-                    toValue: 0,
-                    duration: 400,
-                    useNativeDriver: true,
-                }),
-            ]).start();
-        });
-    };
+    const carouselWidth = Platform.OS === 'web' ? Math.min(SCREEN_WIDTH, 600) : SCREEN_WIDTH;
 
-    useEffect(() => {
-        if (!autoScroll || items.length <= 1) {
-            return;
+    const onProgressChange = useCallback((offsetProgress: number, absoluteProgress: number) => {
+        progressValue.value = absoluteProgress;
+        const newIndex = Math.round(absoluteProgress) % items.length;
+        if (newIndex !== currentIndex) {
+            setCurrentIndex(newIndex);
+            onIndexChange?.(newIndex);
         }
-
-        const interval = setInterval(() => {
-            setCurrentIndex((prevIndex) => {
-                const nextIndex = (prevIndex + 1) % items.length;
-                animateSlide(1);
-                return nextIndex;
-            });
-        }, autoScrollInterval);
-
-        return () => clearInterval(interval);
-    }, [autoScroll, autoScrollInterval, items.length]);
+    }, [currentIndex, items.length, onIndexChange, progressValue]);
 
     const goToPrevious = () => {
-        const newIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
-        animateSlide(-1);
-        setCurrentIndex(newIndex);
+        carouselRef.current?.prev();
     };
 
     const goToNext = () => {
-        const newIndex = (currentIndex + 1) % items.length;
-        animateSlide(1);
-        setCurrentIndex(newIndex);
+        carouselRef.current?.next();
     };
 
     const goToIndex = (index: number) => {
-        setCurrentIndex(index);
+        carouselRef.current?.scrollTo({ index, animated: true });
     };
 
     const handleItemPress = (item: T, index: number) => {
@@ -97,35 +74,49 @@ export const GenericCarousel = memo(function GenericCarousel<T>({
 
     return (
         <View style={styles.carouselContainer}>
-            {/* Botón Anterior */}
-            {showNavigation && items.length > 1 && (
-                <Pressable
-                    style={[styles.navButton, styles.navButtonLeft, { backgroundColor: colors.background.primary }]}
-                    onPress={goToPrevious}
-                >
-                    <ChevronLeft size={24} color={colors.text.primary} strokeWidth={2.5} />
-                </Pressable>
-            )}
+            {/* Carrusel */}
+            <View style={{ width: carouselWidth, alignSelf: 'center', position: 'relative' }}>
+                <Carousel
+                    ref={carouselRef}
+                    width={carouselWidth}
+                    height={280}
+                    data={items}
+                    autoPlay={autoScroll && items.length > 1}
+                    autoPlayInterval={autoScrollInterval}
+                    loop={items.length > 1}
+                    scrollAnimationDuration={600}
+                    onProgressChange={onProgressChange}
+                    renderItem={({ item, index }) => (
+                        <Pressable
+                            onPress={() => handleItemPress(item, index)}
+                            disabled={!onItemPress && !enableImageModal}
+                            style={{ width: carouselWidth, height: '100%' }}
+                        >
+                            {renderItem(item, index)}
+                        </Pressable>
+                    )}
+                />
 
-            {/* Item actual */}
-            <View style={styles.cardContainer}>
-                <Pressable 
-                    onPress={() => handleItemPress(items[currentIndex], currentIndex)}
-                    disabled={!onItemPress && !enableImageModal}
-                >
-                    {renderItem(items[currentIndex], currentIndex)}
-                </Pressable>
+                {/* Botón Anterior */}
+                {showNavigation && items.length > 1 && (
+                    <Pressable
+                        style={[styles.navButton, styles.navButtonLeft, { backgroundColor: colors.background.primary }]}
+                        onPress={goToPrevious}
+                    >
+                        <ChevronLeft size={24} color={colors.text.primary} strokeWidth={2.5} />
+                    </Pressable>
+                )}
+
+                {/* Botón Siguiente */}
+                {showNavigation && items.length > 1 && (
+                    <Pressable
+                        style={[styles.navButton, styles.navButtonRight, { backgroundColor: colors.background.primary }]}
+                        onPress={goToNext}
+                    >
+                        <ChevronRight size={24} color={colors.text.primary} strokeWidth={2.5} />
+                    </Pressable>
+                )}
             </View>
-
-            {/* Botón Siguiente */}
-            {showNavigation && items.length > 1 && (
-                <Pressable
-                    style={[styles.navButton, styles.navButtonRight, { backgroundColor: colors.background.primary }]}
-                    onPress={goToNext}
-                >
-                    <ChevronRight size={24} color={colors.text.primary} strokeWidth={2.5} />
-                </Pressable>
-            )}
 
             {/* Indicadores de página */}
             {showIndicators && items.length > 1 && (
