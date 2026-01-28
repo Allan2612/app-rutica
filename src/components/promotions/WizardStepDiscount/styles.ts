@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     container: {
@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
     },
     countText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.semibold,
     },

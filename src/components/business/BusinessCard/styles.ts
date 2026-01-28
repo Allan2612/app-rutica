@@ -127,7 +127,7 @@ export const styles = StyleSheet.create({
         marginLeft: spacing.xs + 2,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
-        color: '#000',
+        color: colors.text.primary,
     },
     ratingCount: {
         marginLeft: spacing.xs,
@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
         width: 18,
         height: 18,
         borderRadius: 10,
-        backgroundColor: '#fbbf24',
+        backgroundColor: colors.promo.badge,
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: '0px 2px 4px rgba(251, 191, 36, 0.3)',

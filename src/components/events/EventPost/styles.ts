@@ -168,7 +168,7 @@ export const styles = StyleSheet.create({
     writeReviewButtonText: {
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.semibold,
-        color: '#ffffff',
+        color: colors.text.inverse,
     },
     reviewsList: {
         paddingHorizontal: spacing.md,

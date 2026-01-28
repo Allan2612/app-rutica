@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
-import { styles } from './CalendarPicker.styles';
+import { styles } from './styles';
 
 const DAYS_OF_WEEK = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 

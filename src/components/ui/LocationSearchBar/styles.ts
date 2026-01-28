@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     maxHeight: 500,
     borderWidth: 1,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.shadow,
       offsetY: 4,
       opacity: 0.15,
       radius: 24,
@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
     maxHeight: 500,
     borderWidth: 1,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.shadow,
       offsetY: 4,
       opacity: 0.15,
       radius: 24,

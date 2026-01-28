@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { getShadowStyle } from '@/utils/shadowHelper';
 
 export const styles = StyleSheet.create({
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 480,
     ...getShadowStyle({
-      color: '#000',
+      color: colors.shadow,
       offsetX: 0,
       offsetY: 8,
       opacity: 0.1,

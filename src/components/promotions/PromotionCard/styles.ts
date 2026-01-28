@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: spacing.md,
     borderWidth: 1,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 200,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.background.secondary,
   },
   imagePlaceholder: {
     width: '100%',

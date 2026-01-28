@@ -77,10 +77,10 @@ export const styles = StyleSheet.create({
         borderRadius: 6,
         minWidth: 32,
         alignItems: 'center',
-        backgroundColor: '#10B981',
+        backgroundColor: colors.primary[500],
     },
     quantityText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.bold,
         letterSpacing: 0.2,

@@ -142,7 +142,7 @@ export const EventDetailScreen = memo(function EventDetailScreen() {
                         <EventReviewsSection
                             eventId={id}
                             eventName={event.name}
-                            eventImage={event.coverImage}
+                            eventImage={event.coverImage ?? undefined}
                         />
                     </View>
                 </View>

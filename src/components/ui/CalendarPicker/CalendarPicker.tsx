@@ -5,7 +5,7 @@ import { CalendarHeader } from './CalendarHeader';
 import { CalendarWeekDays } from './CalendarWeekDays';
 import { CalendarDaysGrid } from './CalendarDaysGrid';
 import { PickerModal } from './PickerModal';
-import { styles } from './CalendarPicker.styles';
+import { styles } from './styles';
 
 interface CalendarPickerProps {
     selectedDate: Date;

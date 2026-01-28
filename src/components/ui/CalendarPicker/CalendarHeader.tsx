@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react-native';
-import { styles } from './CalendarPicker.styles';
+import { styles } from './styles';
 
 interface CalendarHeaderProps {
     month: number;

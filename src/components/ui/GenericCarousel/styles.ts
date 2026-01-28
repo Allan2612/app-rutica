@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions, Platform } from "react-native";
-import { spacing } from "@/styles/theme";
+import { colors, spacing } from "@/styles/theme";
 
 const isWeb = Platform.OS === "web";
 const { width } = Dimensions.get("window");
@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 10,
     elevation: 4,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,

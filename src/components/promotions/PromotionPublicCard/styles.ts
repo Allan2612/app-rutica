@@ -4,7 +4,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     card: {
@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
         minHeight: 280,
         justifyContent: 'flex-end',
         elevation: 2,
-        shadowColor: '#000',
+        shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -47,13 +47,13 @@ export const styles = StyleSheet.create({
         borderRadius: 12,
         elevation: 3,
         zIndex: 10,
-        shadowColor: '#000',
+        shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
     },
     urgencyText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
     },
@@ -74,7 +74,7 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         lineHeight: 20,
         marginBottom: 2,
     },

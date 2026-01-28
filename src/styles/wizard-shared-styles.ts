@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 import { PROMO_UI } from '@/styles/theme';
 
 /**
@@ -20,7 +20,7 @@ export const sectionHeaderStyles = StyleSheet.create({
         borderRadius: 10,
     },
     countText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.semibold,
     },

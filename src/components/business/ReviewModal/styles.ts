@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     overlay: {
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         ...Platform.select({
             ios: {
-                shadowColor: '#000',
+                shadowColor: colors.shadow,
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.25,
                 shadowRadius: 12,

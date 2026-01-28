@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 /**
  * Estilos para UserPromotionCard
@@ -84,7 +84,7 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
-        color: '#FFFFFF',
+        color: colors.text.inverse,
     },
     businessName: {
         fontSize: typography.sizes.xs,
@@ -109,7 +109,7 @@ export const styles = StyleSheet.create({
     expiredText: {
         fontSize: 10,
         fontWeight: typography.fontWeights.semibold,
-        color: '#FFFFFF',
+        color: colors.text.inverse,
     },
     actions: {
         flexDirection: 'column',
@@ -124,7 +124,7 @@ export const styles = StyleSheet.create({
         elevation: 4,
     },
     editButton: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.background.primary,
     },
     deleteButton: {
         backgroundColor: 'rgba(239, 68, 68, 0.95)',

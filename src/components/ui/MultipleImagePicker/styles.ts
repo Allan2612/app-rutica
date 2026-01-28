@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     container: {
@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     orderText: {
-        color: '#fff',
+        color: colors.text.inverse,
         fontSize: 12,
         fontWeight: typography.fontWeights.bold,
     },

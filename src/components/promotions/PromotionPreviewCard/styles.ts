@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { colors, spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     card: {
@@ -40,7 +40,7 @@ export const styles = StyleSheet.create({
         borderRadius: 6,
     },
     scopeText: {
-        color: '#FFFFFF',
+        color: colors.text.inverse,
         fontSize: 11,
         fontWeight: typography.fontWeights.medium,
     },
