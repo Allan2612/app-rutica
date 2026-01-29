@@ -1,23 +1,67 @@
-// Rol del usuario en el sistema
-export type UserRole = 'buyer' | 'seller' | 'admin';
+// ============================================
+// ENUMS - Alineados con BD V3
+// ============================================
 
-// Estado de moderación para negocios, atracciones, promociones
+/**
+ * Rol del usuario en el sistema
+ * DB: public.user_role
+ */
+export type UserRole = 'user' | 'seller' | 'admin' | 'premium';
+
+/**
+ * Estado de moderación para negocios, eventos, atracciones, promociones
+ * DB: public.moderation_status
+ */
 export type ModerationStatus = 'pending' | 'approved' | 'rejected';
 
-// Alcance de una promoción
-export type PromoScope = 'general' | 'product' | 'category' | 'combo';
+/**
+ * Alcance de una promoción
+ * DB: public.promotion_scope
+ */
+export type PromotionScope = 'all' | 'products' | 'categories' | 'combo';
 
-// Tipo de descuento
-export type DiscountType = 'none' | 'percentage' | 'fixed';
+/**
+ * Tipo de descuento
+ * DB: public.discount_type
+ */
+export type DiscountType = 'percentage' | 'fixed';
 
-// Tipo de posicionamiento/promoción destacada
-export type PlacementType = 'none' | 'search_boost' | 'featured';
+/**
+ * Estado de pago de una promoción
+ * DB: public.payment_state
+ */
+export type PaymentState = 'pending' | 'paid' | 'rejected';
 
-// Estado de pago de una promoción
-export type PromoPaymentState = 'unpaid' | 'paid' | 'rejected';
+/**
+ * Tipo de interacción para analytics
+ * DB: public.interaction_type
+ */
+export type InteractionType =
+  // Views
+  | 'view_business'
+  | 'view_event'
+  | 'view_attraction'
+  | 'view_review'
+  // CTA / Contact
+  | 'contact_click'
+  | 'call_click'
+  | 'email_click'
+  | 'website_click'
+  | 'map_click'
+  | 'share_click'
+  // Social channels
+  | 'whatsapp_click'
+  | 'instagram_click'
+  | 'facebook_click'
+  | 'tiktok_click'
+  | 'youtube_click';
 
-// Tipo de evento
-export type EventType = 'festival' | 'market' | 'concert' | 'workshop' | 'tour' | 'other';
-
-// Tipo de imagen (para diferentes entidades)
-export type ImageType = 'logo' | 'cover' | 'gallery';
+/**
+ * Prefijos de imagen válidos por entidad
+ * (No es enum de BD, pero se usa para validación)
+ */
+export type AttractionImagePrefix = 'cover' | 'gallery';
+export type BusinessImagePrefix = 'logo' | 'cover' | 'gallery';
+export type EventImagePrefix = 'cover' | 'gallery';
+export type ProductImagePrefix = 'main' | 'secondary';
+export type PromotionImagePrefix = 'flyer';

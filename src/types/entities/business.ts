@@ -1,72 +1,112 @@
 import { ModerationStatus } from '@/types/enums';
-import { Location } from './location';
+import { LocationWithHierarchy } from './location';
 import { Profile } from './profile';
 import { Category } from './category';
 
+// ============================================
+// Business - Tabla: businesses (bus)
+// ============================================
+
+/**
+ * Social links como JSON
+ */
+export interface BusinessSocialLinks {
+  facebook?: string;
+  instagram?: string;
+  tiktok?: string;
+  youtube?: string;
+  whatsapp?: string;
+}
+
+/**
+ * Negocio - Row type
+ */
 export interface Business {
-  id_BUS: string;
-  owner_id_BUS: string;
-  name_BUS: string;
-  description_BUS: string | null;
-  category_id_BUS: string | null;
-  location_id_BUS: string | null;
-
-  whatsapp_phone_BUS: string | null;
-  contact_phone_BUS: string | null;
-  contact_email_BUS: string | null;
-  website_BUS: string | null;
-
-  moderation_status_BUS: ModerationStatus;
-  reviewed_by_BUS: string | null;
-  reviewed_at_BUS: string | null;
-  moderation_note_BUS: string | null;
-
-  is_active_BUS: boolean;
-  created_at_BUS: string;
-  updated_at_BUS: string;
+  id_bus: string;
+  owner_id_bus: string | null;
+  name_bus: string | null;
+  description_bus: string | null;
+  location_id_bus: string | null;
+  social_links_bus: BusinessSocialLinks | null;
+  contact_phone_bus: string | null;
+  contact_email_bus: string | null;
+  website_bus: string | null;
+  moderation_status_bus: ModerationStatus | null;
+  reviewed_by_bus: string | null;
+  reviewed_at_bus: string | null;
+  moderation_note_bus: string | null;
+  avg_rating_bus: number;
+  reviews_count_bus: number;
+  is_active_bus: boolean;
+  created_at_bus: string;
+  updated_at_bus: string;
 }
 
-export interface BusinessWithRelations extends Business {
-  owner?: Profile;
-  categories?: Category[];  // Cambiado: ahora usa Category[] en lugar de BusinessCategory
-  location?: Location;
-  images?: BusinessImage[];
-  social_links?: BusinessSocialLink[];
-}
-
+/**
+ * Imagen de negocio - Tabla: business_images (bim)
+ * Path format: <business_id>/<prefix>-<uuid>.ext
+ * Prefijos válidos: logo, cover, gallery
+ */
 export interface BusinessImage {
-  id_BIM: string;
-  business_id_BIM: string;
-  bucket_BIM: string;
-  path_BIM: string;
-  sort_order_BIM: number;
-  created_at_BIM: string;
+  id_bim: string;
+  business_id_bim: string;
+  path_bim: string;
+  sort_order_bim: number | null;
+  created_at_bim: string;
 }
 
-export interface BusinessSocialLink {
-  id_BSL: string;
-  business_id_BSL: string;
-  platform_BSL: string;
-  url_BSL: string;
+/**
+ * Negocio con relaciones
+ */
+export interface BusinessWithRelations extends Business {
+  owner?: Profile | null;
+  categories?: Category[];
+  location?: LocationWithHierarchy | null;
+  images?: BusinessImage[];
+  reviewed_by?: Profile | null;
 }
 
-export interface BusinessInsert extends Omit<Business, 'id_BUS' | 'created_at_BUS' | 'updated_at_BUS' | 'moderation_status_BUS' | 'is_active_BUS'> {
-  id_BUS?: string;
-  moderation_status_BUS?: ModerationStatus;
-  is_active_BUS?: boolean;
+// ============================================
+// Insert/Update Types
+// ============================================
+
+export interface BusinessInsert {
+  owner_id_bus: string;
+  name_bus: string;
+  description_bus?: string | null;
+  location_id_bus?: string | null;
+  social_links_bus?: BusinessSocialLinks | null;
+  contact_phone_bus?: string | null;
+  contact_email_bus?: string | null;
+  website_bus?: string | null;
+  // moderation_status_bus se setea automáticamente a 'pending'
 }
 
-export interface BusinessUpdate extends Partial<Omit<Business, 'id_BUS' | 'owner_id_BUS' | 'created_at_BUS'>> { }
-
-export interface BusinessImageInsert extends Omit<BusinessImage, 'id_BIM' | 'created_at_BIM'> {
-  id_BIM?: string;
+export interface BusinessUpdate {
+  name_bus?: string;
+  description_bus?: string | null;
+  location_id_bus?: string | null;
+  social_links_bus?: BusinessSocialLinks | null;
+  contact_phone_bus?: string | null;
+  contact_email_bus?: string | null;
+  website_bus?: string | null;
+  is_active_bus?: boolean;
+  // Campos de moderación solo editables por admin (protegidos por trigger)
 }
 
-export interface BusinessSocialLinkInsert extends Omit<BusinessSocialLink, 'id_BSL'> {
-  id_BSL?: string;
+export interface BusinessImageInsert {
+  business_id_bim: string;
+  path_bim: string;
+  sort_order_bim?: number | null;
 }
 
-// Types for user business management
+// ============================================
+// UI Types (para listados y formularios)
+// ============================================
+
+/**
+ * Item de lista de negocios del usuario
+ */
 export interface UserBusinessListItem {
   id: string;
   name: string;
@@ -74,79 +114,90 @@ export interface UserBusinessListItem {
   categoryNames: string[];
   categoryIds: string[];
   locationLabel: string | null;
-  imageUrl: string | null;
   logoUrl: string | null;
-  moderationStatus: 'pending' | 'approved' | 'rejected';
+  coverUrl: string | null;
+  moderationStatus: ModerationStatus;
   isActive: boolean;
+  avgRating: number;
+  reviewsCount: number;
   createdAt: string;
 }
 
-export interface BusinessRecord {
-  id_bus: string;
-  name_bus: string;
-  description_bus: string | null;
-  moderation_status_bus: string;
-  is_active_bus: boolean;
-  created_at_bus: string;
-  locations: {
-    canton_loc: string | null;
-    district_loc: string | null;
-    province_loc: string | null;
-  }[] | null;
-  business_images: {
-    image_type_bim: string;
-    bucket_bim: string;
-    path_bim: string;
-    sort_order_bim: number;
-  }[] | null;
-  business_category_map: {
-    categories: {
-      id_cat: string;
-      name_cat: string;
-    } | null;
-  }[];
-}
-
+/**
+ * Datos para edición de negocio
+ */
 export interface BusinessDetailForEdit {
   id: string;
   name: string;
   description: string | null;
   categoryIds: string[];
-  province: string | null;
-  canton: string | null;
-  district: string | null;
+  districtId: string | null;
   address: string | null;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   phone: string | null;
   email: string | null;
   website: string | null;
-  facebook: string | null;
-  instagram: string | null;
-  tiktok: string | null;
+  socialLinks: BusinessSocialLinks | null;
   logoUrl: string | null;
   coverUrl: string | null;
   galleryUrls: string[];
 }
 
-export interface UpdateBusinessData {
+/**
+ * Datos para crear/actualizar negocio desde formulario
+ */
+export interface BusinessFormData {
   name: string;
   description: string | null;
   categoryIds: string[];
-  country: string | null;
-  province: string | null;
-  canton: string | null;
-  district: string | null;
+  districtId: string | null;
   address: string | null;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   phone: string | null;
   email: string | null;
   website: string | null;
-  facebook: string | null;
-  instagram: string | null;
-  tiktok: string | null;
+  socialLinks: BusinessSocialLinks | null;
   logoUri?: string | null;
   coverUri?: string | null;
   galleryUris?: string[];
+}
+
+// ============================================
+// Helpers
+// ============================================
+
+/**
+ * Extrae la URL del logo de las imágenes
+ */
+export function getBusinessLogoUrl(images: BusinessImage[] | undefined, baseUrl: string): string | null {
+  const logo = images?.find(img => img.path_bim.includes('/logo-'));
+  return logo ? `${baseUrl}/${logo.path_bim}` : null;
+}
+
+/**
+ * Extrae la URL del cover de las imágenes
+ */
+export function getBusinessCoverUrl(images: BusinessImage[] | undefined, baseUrl: string): string | null {
+  const cover = images?.find(img => img.path_bim.includes('/cover-'));
+  return cover ? `${baseUrl}/${cover.path_bim}` : null;
+}
+
+/**
+ * Extrae las URLs de galería ordenadas
+ */
+export function getBusinessGalleryUrls(images: BusinessImage[] | undefined, baseUrl: string): string[] {
+  if (!images) return [];
+  return images
+    .filter(img => img.path_bim.includes('/gallery-'))
+    .sort((a, b) => (a.sort_order_bim ?? 0) - (b.sort_order_bim ?? 0))
+    .map(img => `${baseUrl}/${img.path_bim}`);
+}
+
+/**
+ * Verifica si un negocio está aprobado y activo
+ */
+export function isBusinessPublic(business: Business): boolean {
+  return business.moderation_status_bus === 'approved' && business.is_active_bus;
 }

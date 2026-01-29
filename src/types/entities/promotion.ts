@@ -1,172 +1,206 @@
-import { PromoScope, DiscountType, PlacementType, ModerationStatus, PromoPaymentState, ImageType } from '@/types/enums';
+import { PromotionScope, DiscountType, ModerationStatus, PaymentState } from '@/types/enums';
 import { Business } from './business';
 import { Product } from './product';
 import { Profile } from './profile';
 import { Category } from './category';
 
 // ============================================
-// Base Promotion Entity
+// Promotion - Tabla: promotions (prm)
 // ============================================
+
+/**
+ * Promoción - Row type
+ */
 export interface Promotion {
-  id_PRM: string;
-  business_id_PRM: string;
-  created_by_PRM: string;
-
-  scope_PRM: PromoScope;
-  title_PRM: string;
-  description_PRM: string | null;
-
-  discount_type_PRM: DiscountType;
-  discount_value_PRM: number;
-
-  start_at_PRM: string;
-  end_at_PRM: string;
-
-  placement_PRM: PlacementType;
-  placement_score_PRM: number;
-
-  moderation_status_PRM: ModerationStatus;
-  reviewed_by_PRM: string | null;
-  reviewed_at_PRM: string | null;
-  moderation_note_PRM: string | null;
-
-  payment_state_PRM: PromoPaymentState;
-  payment_reference_PRM: string | null;
-  payment_note_PRM: string | null;
-
-  created_at_PRM: string;
-  updated_at_PRM: string;
+  id_prm: string;
+  business_id_prm: string | null;
+  created_by_prm: string | null;
+  scope_prm: PromotionScope | null;
+  title_prm: string | null;
+  description_prm: string | null;
+  discount_type_prm: DiscountType | null;
+  discount_value_prm: number;
+  start_at_prm: string | null;
+  end_at_prm: string | null;
+  moderation_status_prm: ModerationStatus | null;
+  reviewed_by_prm: string | null;
+  reviewed_at_prm: string | null;
+  moderation_note_prm: string | null;
+  payment_state_prm: PaymentState | null;
+  payment_reference_prm: string | null;
+  payment_note_admin_prm: string | null;
+  payment_note_seller_prm: string | null;
+  is_active_prm: boolean;
+  created_at_prm: string;
+  updated_at_prm: string;
 }
 
-// ============================================
-// Promotion with Relations (Joined data)
-// ============================================
+/**
+ * Imagen de promoción - Tabla: promotion_images (pim)
+ * Path format: <promotion_id>/<prefix>-<uuid>.ext
+ * Prefijos válidos: flyer
+ */
+export interface PromotionImage {
+  id_pim: string;
+  promotion_id_pim: string;
+  path_pim: string;
+  created_at_pim: string;
+}
+
+/**
+ * Mapeo promoción-producto - Tabla: promotion_products (ppr)
+ */
+export interface PromotionProduct {
+  promotion_id_ppr: string;
+  product_id_ppr: string;
+}
+
+/**
+ * Mapeo promoción-categorías de scope - Tabla: promotion_scope_categories (psc)
+ * Cuando scope='categories', estas son las categorías de productos a las que aplica
+ */
+export interface PromotionScopeCategory {
+  promotion_id_psc: string;
+  category_id_psc: string;
+  created_at_psc: string;
+}
+
+/**
+ * Item de combo - Tabla: promotion_combo_items (pci)
+ */
+export interface PromotionComboItem {
+  id_pci: string;
+  promotion_id_pci: string;
+  product_id_pci: string;
+  quantity_pci: number;
+  paid_quantity_pci: number | null; // Para 2x1, 3x2, etc.
+  created_at_pci: string;
+}
+
+/**
+ * Promoción con relaciones
+ */
 export interface PromotionWithRelations extends Promotion {
-  business?: Business;
-  created_by?: Profile;
-  reviewed_by?: Profile;
+  business?: Business | null;
+  created_by?: Profile | null;
+  reviewed_by?: Profile | null;
   products?: Product[];
-  categories?: Category[];
+  categories?: Category[]; // Categorías para filtrado de la promoción
+  scope_categories?: Category[]; // Categorías de productos aplicables (cuando scope='categories')
   images?: PromotionImage[];
   combo_items?: PromotionComboItem[];
 }
 
 // ============================================
-// Promotion Image Entity
+// Insert/Update Types
 // ============================================
-export interface PromotionImage {
-  id_PIM: string;
-  promotion_id_PIM: string;
-  image_type_PIM: ImageType;
-  bucket_PIM: string;
-  path_PIM: string;
-  created_at_PIM: string;
+
+export interface PromotionInsert {
+  business_id_prm: string;
+  created_by_prm: string;
+  scope_prm: PromotionScope;
+  title_prm: string;
+  description_prm?: string | null;
+  discount_type_prm?: DiscountType; // default 'percentage'
+  discount_value_prm?: number; // default 0
+  start_at_prm: string;
+  end_at_prm: string;
+  payment_reference_prm?: string | null;
+  // moderation_status_prm se setea a 'pending'
+  // payment_state_prm se setea a 'pending'
 }
 
-export interface PromotionImageInsert extends Omit<PromotionImage, 'id_PIM' | 'created_at_PIM'> {
-  id_PIM?: string;
+export interface PromotionUpdate {
+  scope_prm?: PromotionScope;
+  title_prm?: string;
+  description_prm?: string | null;
+  discount_type_prm?: DiscountType;
+  discount_value_prm?: number;
+  start_at_prm?: string;
+  end_at_prm?: string;
+  payment_reference_prm?: string | null;
+  // Campos de moderación y pago solo editables por admin
 }
 
-// ============================================
-// Promotion Product Map (Many-to-Many)
-// ============================================
-export interface PromotionProduct {
-  promotion_id_PPR: string;
-  product_id_PPR: string;
+export interface PromotionImageInsert {
+  promotion_id_pim: string;
+  path_pim: string;
 }
 
 export interface PromotionProductInsert {
-  promotion_id_PPR: string;
-  product_id_PPR: string;
+  promotion_id_ppr: string;
+  product_id_ppr: string;
+}
+
+export interface PromotionScopeCategoryInsert {
+  promotion_id_psc: string;
+  category_id_psc: string;
+}
+
+export interface PromotionComboItemInsert {
+  promotion_id_pci: string;
+  product_id_pci: string;
+  quantity_pci: number;
+  paid_quantity_pci?: number | null;
 }
 
 // ============================================
-// Promotion Category Map (Many-to-Many)
+// UI Types (para listados y formularios)
 // ============================================
-export interface PromotionCategory {
-  promotion_id_PCR: string;
-  category_id_PCR: string;
-}
 
-export interface PromotionCategoryInsert {
-  promotion_id_PCR: string;
-  category_id_PCR: string;
-}
-
-// ============================================
-// Promotion Combo Item (for combo-type promotions)
-// ============================================
-export interface PromotionComboItem {
-  id_PCI: string;
-  promotion_id_PCI: string;
-  product_id_PCI: string;
-  quantity_PCI: number;
-}
-
-export interface PromotionComboItemInsert extends Omit<PromotionComboItem, 'id_PCI'> {
-  id_PCI?: string;
-}
-
-// ============================================
-// Insert/Update Types
-// ============================================
-export interface PromotionInsert extends Omit<
-  Promotion,
-  | 'id_PRM'
-  | 'created_at_PRM'
-  | 'updated_at_PRM'
-  | 'discount_type_PRM'
-  | 'discount_value_PRM'
-  | 'placement_PRM'
-  | 'placement_score_PRM'
-  | 'moderation_status_PRM'
-  | 'payment_state_PRM'
-  | 'reviewed_by_PRM'
-  | 'reviewed_at_PRM'
-  | 'moderation_note_PRM'
-> {
-  id_PRM?: string;
-  discount_type_PRM?: DiscountType;
-  discount_value_PRM?: number;
-  placement_PRM?: PlacementType;
-  placement_score_PRM?: number;
-  moderation_status_PRM?: ModerationStatus;
-  payment_state_PRM?: PromoPaymentState;
-}
-
-export interface PromotionUpdate extends Partial<
-  Omit<Promotion, 'id_PRM' | 'business_id_PRM' | 'created_by_PRM' | 'created_at_PRM'>
-> {}
-
-// ============================================
-// List/View Types for UI
-// ============================================
+/**
+ * Item de lista de promociones
+ */
 export interface PromotionListItem {
   id: string;
   title: string;
   description: string | null;
-  scope: PromoScope;
+  scope: PromotionScope;
   discountType: DiscountType;
   discountValue: number;
-  startAt: string;
-  endAt: string;
+  startAt: string | null;
+  endAt: string | null;
   moderationStatus: ModerationStatus;
-  paymentState: PromoPaymentState;
+  paymentState: PaymentState;
   businessId: string;
   businessName: string | null;
-  imageUrl: string | null;
-  categoryNames: string[];              // Categorías de la promoción (para filtrado)
-  productIds: string[];                 // Para scope: 'product'
-  scopeCategoryIds: string[];           // Para scope: 'category'
-  comboItems: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
+  coverUrl: string | null;
+  categoryNames: string[];
+  productIds: string[];
+  scopeCategoryIds: string[];
+  comboItems: ComboItemData[];
   isActive: boolean;
   createdAt: string;
 }
 
+/**
+ * Datos para edición de promoción
+ */
 export interface PromotionDetailForEdit {
   id: string;
   businessId: string;
-  scope: PromoScope;
+  scope: PromotionScope;
+  title: string;
+  description: string | null;
+  discountType: DiscountType;
+  discountValue: number;
+  startAt: string | null;
+  endAt: string | null;
+  categoryIds: string[];
+  productIds: string[];
+  scopeCategoryIds: string[];
+  comboItems: ComboItemData[];
+  paymentReference: string | null;
+  coverUrl: string | null;
+  galleryUrls: string[];
+}
+
+/**
+ * Datos para crear/actualizar promoción desde formulario
+ */
+export interface PromotionFormData {
+  businessId: string;
+  scope: PromotionScope;
   title: string;
   description: string | null;
   discountType: DiscountType;
@@ -175,75 +209,42 @@ export interface PromotionDetailForEdit {
   endAt: string;
   categoryIds: string[];
   productIds: string[];
-  scopeCategoryIds: string[];        // Para scope: 'category'
-  comboItems: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
-  paymentReference: string;
-  coverUrl: string | null;
-  galleryUrls: string[];
-}
-
-export interface CreatePromotionData {
-  businessId: string;
-  scope: PromoScope;
-  title: string;
-  description?: string;
-  discountType?: DiscountType;
-  discountValue?: number;
-  startAt: string;
-  endAt: string;
-  categoryIds?: string[];           // Categorías de la promoción (para filtrado)
-  productIds?: string[];            // Para scope: 'product'
-  scopeCategoryIds?: string[];      // Para scope: 'category' (categorías de productos a las que aplica)
-  comboItems?: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
+  scopeCategoryIds: string[];
+  comboItems: ComboItemData[];
   coverUri?: string | null;
   galleryUris?: string[];
-  paymentReference?: string; // Número de referencia SINPE
-}
-
-export interface UpdatePromotionData {
-  scope?: PromoScope;
-  title?: string;
-  description?: string;
-  discountType?: DiscountType;
-  discountValue?: number;
-  startAt?: string;
-  endAt?: string;
-  categoryIds?: string[];
-  productIds?: string[];
-  scopeCategoryIds?: string[];        // Para scope: 'category'
-  comboItems?: { productId: string; quantity: number; paidQuantity?: number }[];  // Para scope: 'combo'
-  coverUri?: string | null;
-  galleryUris?: string[];
-  paymentReference?: string;
+  paymentReference?: string | null;
 }
 
 // ============================================
-// Combo Item for Wizard (simplified version)
+// Combo Item Data | null; // Para 2x1 (quantity=2, paidQuantity=1), 3x2 (quantity=3, paidQuantity=2), etc.
 // ============================================
+
 export interface ComboItemData {
   productId: string;
   quantity: number;
-  paidQuantity?: number;  // Cantidad que paga (para 2x1, 3x2, etc.)
+  paidQuantity?: number;
 }
 
 // ============================================
-// Wizard Form Data Types
+// Wizard Types
 // ============================================
+
 export interface PromotionWizardFormData {
   // Step 1: Business + Basic Info
   businessId: string;
   title: string;
   description: string;
-  scope: PromoScope;
+  scope: PromotionScope;
 
   // Step 2: Discount + Products/Categories/Combo
   discountType: DiscountType;
   discountValue: number;
-  selectedProductIds: string[];        // Para scope: 'product'
-  scopeCategoryIds: string[];          // Para scope: 'category' (categorías de productos a las que aplica)
-  comboItems: ComboItemData[];         // Para scope: 'combo'
+  selectedProductIds: string[];
+  scopeCategoryIds: string[];
+  comboItems: ComboItemData[];
 
-  // Step 3: Dates + Categories (categorías de la promoción para filtrado)
+  // Step 3: Dates + Categories
   startDate: Date;
   endDate: Date;
   selectedCategoryIds: string[];
@@ -284,44 +285,66 @@ export const WIZARD_STEPS = [
 export type WizardStepId = 'business' | 'info' | 'discount' | 'dates' | 'image' | 'payment';
 
 // ============================================
-// Database Record Types (for service layer mapping)
+// Helpers
 // ============================================
-export interface PromotionRecord {
-  id_prm: string;
-  business_id_prm: string;
-  created_by_prm: string;
-  scope_prm: string;
-  title_prm: string;
-  description_prm: string | null;
-  discount_type_prm: string;
-  discount_value_prm: number;
-  start_at_prm: string;
-  end_at_prm: string;
-  moderation_status_prm: string;
-  reviewed_by_prm: string | null;
-  reviewed_at_prm: string | null;
-  moderation_note_prm: string | null;
-  payment_state_prm: string;
-  payment_reference_prm: string | null;
-  payment_note_prm: string | null;
-  created_at_prm: string;
-  updated_at_prm: string;
-  businesses?: {
-    id_bus: string;
-    name_bus: string;
-  } | null;
-  promotion_images?: {
-    image_type_pim: string;
-    bucket_pim: string;
-    path_pim: string;
-  }[] | null;
-  promotion_category_map?: {
-    categories: {
-      id_cat: string;
-      name_cat: string;
-    } | null;
-  }[];
-  promotion_products?: {
-    product_id_ppr: string;
-  }[];
+
+/**
+ * Extrae la URL del flyer de las imágenes
+ */
+export function getPromotionCoverUrl(images: PromotionImage[] | undefined, baseUrl: string): string | null {
+  const flyer = images?.find(img => img.path_pim.includes('/flyer-'));
+  return flyer ? `${baseUrl}/${flyer.path_pim}` : null;
+}
+
+/**
+ * Extrae todas las URLs de flyers (por si hay múltiples)
+ */
+export function getPromotionGalleryUrls(images: PromotionImage[] | undefined, baseUrl: string): string[] {
+  if (!images) return [];
+  return images
+    .filter(img => img.path_pim.includes('/flyer-'))
+    .map(img => `${baseUrl}/${img.path_pim}`);
+}
+
+/**
+ * Verifica si una promoción está aprobada y pagada
+ */
+export function isPromotionActive(promotion: Promotion): boolean {
+  return (
+    promotion.moderation_status_prm === 'approved' &&
+    promotion.payment_state_prm === 'paid' &&
+    promotion.is_active_prm
+  );
+}
+
+/**
+ * Verifica si una promoción está vigente (fecha actual dentro del rango)
+ */
+export function isPromotionCurrent(promotion: Promotion): boolean {
+  const now = new Date();
+  const start = promotion.start_at_prm ? new Date(promotion.start_at_prm) : null;
+  const end = promotion.end_at_prm ? new Date(promotion.end_at_prm) : null;
+  if (!start || !end) return false;
+  return start <= now && now <= end;
+}
+
+/**
+ * Verifica si una promoción está visible públicamente (activa + vigente)
+ */
+export function isPromotionPublic(promotion: Promotion): boolean {
+  return isPromotionActive(promotion) && isPromotionCurrent(promotion);
+}
+
+/**
+ * Calcula el precio con descuento
+ */
+export function calculateDiscountedPrice(
+  originalPrice: number,
+  discountType: DiscountType,
+  discountValue: number
+): number {
+  if (discountType === 'percentage') {
+    return originalPrice * (1 - discountValue / 100);
+  }
+  return Math.max(0, originalPrice - discountValue);
 }
