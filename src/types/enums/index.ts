@@ -5,8 +5,13 @@
 /**
  * Rol del usuario en el sistema
  * DB: public.user_role
+ * - buyer: usuario comprador básico
+ * - user: usuario estándar (alias legacy)
+ * - seller: vendedor con negocios
+ * - admin: administrador
+ * - premium: usuario con suscripción premium
  */
-export type UserRole = 'user' | 'seller' | 'admin' | 'premium';
+export type UserRole = 'buyer' | 'user' | 'seller' | 'admin' | 'premium';
 
 /**
  * Estado de moderación para negocios, eventos, atracciones, promociones
