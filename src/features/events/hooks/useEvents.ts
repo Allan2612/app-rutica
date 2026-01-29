@@ -40,8 +40,8 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
     );
 
     const imageUrls = sortedImages
-        .filter(img => img?.bucket_eim && img?.path_eim)
-        .map(img => getImageUrl(img.bucket_eim, img.path_eim));
+        .filter(img => img?.path_eim)
+        .map(img => getImageUrl('events-images', img.path_eim));
 
     // Obtener categorías
     const categories = item.event_category_map
@@ -50,11 +50,11 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
     const categoryNames = categories.map(cat => cat.name_cat);
     const categoryIds = categories.map(cat => cat.id_cat);
 
-    // Ubicación con provincia
+    // Ubicación con estructura jerárquica normalizada
     const locationParts = [
-        item.locations?.province_loc,
-        item.locations?.canton_loc,
-        item.locations?.district_loc
+        item.locations?.districts?.name_dst,
+        item.locations?.districts?.cantons?.name_ctn,
+        item.locations?.districts?.cantons?.provinces?.name_prv
     ].filter(Boolean);
 
     // Nombre del autor
