@@ -25,10 +25,15 @@ export const BusinessPromotionsCarousel = memo(function BusinessPromotionsCarous
             if (promo.moderationStatus !== 'approved' || promo.paymentState !== 'paid') {
                 return false;
             }
-            
+
+            // Validar que las fechas existan
+            if (!promo.startAt || !promo.endAt) {
+                return false;
+            }
+
             const startDate = new Date(promo.startAt);
             const endDate = new Date(promo.endAt);
-            
+
             return now >= startDate && now <= endDate;
         });
     }, [promotions]);

@@ -8,7 +8,7 @@ import {
     SocialLinksSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
-import type { CategoryItem } from '@/types/entities';
+import type { Category } from '@/types/entities';
 
 interface BusinessFormData {
     name: string;
@@ -41,7 +41,7 @@ interface BusinessFormViewProps {
     subtitle: string;
     formData: BusinessFormData;
     errors: BusinessFormErrors;
-    categories: CategoryItem[];
+    categories: Category[];
     loadingCategories: boolean;
     isSubmitting: boolean;
     hasChanges: boolean;
