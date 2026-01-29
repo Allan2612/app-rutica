@@ -4,8 +4,19 @@
  */
 
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
 import type { PromotionListItem } from '@/types/entities';
 import { getImageUrl } from './promotions.helpers';
+
+// Database type aliases
+type PromotionRow = Database['public']['Tables']['promotions']['Row'];
+type BusinessRow = Database['public']['Tables']['businesses']['Row'];
+type BusinessImageRow = Database['public']['Tables']['business_images']['Row'];
+type PromotionImageRow = Database['public']['Tables']['promotion_images']['Row'];
+type CategoryRow = Database['public']['Tables']['categories']['Row'];
+type PromotionProductRow = Database['public']['Tables']['promotion_products']['Row'];
+type PromotionScopeCategoryRow = Database['public']['Tables']['promotion_scope_categories']['Row'];
+type PromotionComboItemRow = Database['public']['Tables']['promotion_combo_items']['Row'];
 
 // ============================================
 // Types
@@ -31,14 +42,10 @@ interface PublicPromotionRecord {
         id_bus: string;
         name_bus: string;
         business_images?: {
-            image_type_bim: string;
-            bucket_bim: string;
             path_bim: string;
         }[] | null;
     } | null;
     promotion_images: {
-        image_type_pim: string;
-        bucket_pim: string;
         path_pim: string;
     }[] | null;
     promotion_category_map: {
@@ -56,6 +63,7 @@ interface PublicPromotionRecord {
     promotion_combo_items?: {
         product_id_pci: string;
         quantity_pci: number;
+        paid_quantity_pci: number | null;
     }[] | null;
 }
 
@@ -70,7 +78,7 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
     const { searchText, categoryIds } = filters;
     const now = new Date().toISOString();
 
-    let query = supabase
+    let query = (supabase as any)
         .from('promotions')
         .select(`
             id_prm,
@@ -87,14 +95,10 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                 id_bus,
                 name_bus,
                 business_images (
-                    image_type_bim,
-                    bucket_bim,
                     path_bim
                 )
             ),
             promotion_images (
-                image_type_pim,
-                bucket_pim,
                 path_pim
             ),
             promotion_category_map (
@@ -161,22 +165,30 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
  */
 function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
     // Obtener imagen de la promoción (flyer)
-    const promoImage = record.promotion_images?.find(img => img.image_type_pim === 'flyer');
+    // En V3, el tipo de imagen se extrae del path (flyer-*, cover-*, logo-*)
+    const promoImage = record.promotion_images?.find(img => {
+        const prefix = img.path_pim.split('/').pop()?.split('-')[0];
+        return prefix === 'flyer';
+    });
     let imageUrl: string | null = null;
 
     if (promoImage) {
-        imageUrl = getImageUrl(promoImage.bucket_pim, promoImage.path_pim);
+        // Bucket para promociones es 'promotions-images'
+        imageUrl = getImageUrl('promotions-images', promoImage.path_pim);
     } else {
         // Fallback: usar imagen del negocio
-        const businessCover = record.businesses?.business_images?.find(
-            img => img.image_type_bim === 'cover'
-        );
-        const businessLogo = record.businesses?.business_images?.find(
-            img => img.image_type_bim === 'logo'
-        );
+        const businessCover = record.businesses?.business_images?.find(img => {
+            const prefix = img.path_bim.split('/').pop()?.split('-')[0];
+            return prefix === 'cover';
+        });
+        const businessLogo = record.businesses?.business_images?.find(img => {
+            const prefix = img.path_bim.split('/').pop()?.split('-')[0];
+            return prefix === 'logo';
+        });
         const businessImg = businessCover || businessLogo;
         if (businessImg) {
-            imageUrl = getImageUrl(businessImg.bucket_bim, businessImg.path_bim);
+            // Bucket para negocios es 'business-images'
+            imageUrl = getImageUrl('business-images', businessImg.path_bim);
         }
     }
 
@@ -200,7 +212,7 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         ?.map(pci => ({
             productId: pci.product_id_pci,
             quantity: pci.quantity_pci,
-            paidQuantity: (pci as any).paid_quantity_pci ?? undefined,
+            paidQuantity: pci.paid_quantity_pci ?? undefined,
         }))
         .filter(item => item.productId) ?? [];
 
@@ -223,7 +235,7 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         paymentState: 'paid',
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
-        imageUrl,
+        coverUrl: imageUrl,
         categoryNames,
         productIds,
         scopeCategoryIds,

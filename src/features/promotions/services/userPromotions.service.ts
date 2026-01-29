@@ -4,13 +4,58 @@
  */
 
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
 import type {
     PromotionListItem,
-    PromotionRecord,
     PromotionDetailForEdit,
 } from '@/types/entities';
-import { ModerationStatus, PromoScope, DiscountType, PromoPaymentState } from '@/types/enums';
+import { ModerationStatus, PromotionScope, DiscountType, PaymentState } from '@/types/enums';
 import { getImageUrl, deletePromotionImage } from './promotions.helpers';
+
+const BUCKET_NAME = 'promotions-images';
+
+// ============================================
+// Types
+// ============================================
+
+interface PromotionRecord {
+    id_prm: string;
+    business_id_prm: string;
+    scope_prm: string;
+    title_prm: string;
+    description_prm: string | null;
+    discount_type_prm: string;
+    discount_value_prm: number;
+    start_at_prm: string;
+    end_at_prm: string;
+    moderation_status_prm: string;
+    payment_state_prm: string;
+    created_at_prm: string;
+    businesses: {
+        id_bus: string;
+        name_bus: string;
+    } | null;
+    promotion_images?: {
+        path_pim: string;
+    }[] | null;
+    promotion_category_map?: {
+        categories: {
+            id_cat: string;
+            name_cat: string;
+        } | null;
+    }[] | null;
+    promotion_products?: {
+        product_id_ppr: string;
+    }[] | null;
+    promotion_scope_categories?: {
+        category_id_psc: string;
+    }[] | null;
+    promotion_combo_items?: {
+        product_id_pci: string;
+        quantity_pci: number;
+        paid_quantity_pci: number | null;
+    }[] | null;
+}
 
 // ============================================
 // GET - Obtener promociones del usuario
@@ -40,8 +85,6 @@ export async function getUserPromotions(userId: string): Promise<PromotionListIt
                 name_bus
             ),
             promotion_images (
-                image_type_pim,
-                bucket_pim,
                 path_pim
             ),
             promotion_category_map (
@@ -94,8 +137,6 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
                 name_bus
             ),
             promotion_images (
-                image_type_pim,
-                bucket_pim,
                 path_pim
             ),
             promotion_category_map (
@@ -143,8 +184,6 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             end_at_prm,
             payment_reference_prm,
             promotion_images (
-                image_type_pim,
-                bucket_pim,
                 path_pim
             ),
             promotion_category_map (
@@ -168,42 +207,48 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
     if (error) throw error;
 
     // Verificar que el usuario es el dueño
-    if (data.created_by_prm !== userId) {
+    if ((data as any).created_by_prm !== userId) {
         throw new Error('No tienes permisos para ver esta promoción');
     }
 
-    // Procesar imágenes
-    const images = data.promotion_images || [];
-    const coverImage = images.find((img: { image_type_pim: string }) => img.image_type_pim === 'flyer');
-    const galleryImages = images.filter((img: { image_type_pim: string }) => img.image_type_pim === 'flyer');
+    // Procesar imágenes - filtrar por prefijo del path
+    const images = (data as any).promotion_images || [];
+    const coverImage = images.find((img: any) => {
+        const prefix = img.path_pim.split('/').pop()?.split('-')[0];
+        return prefix === 'flyer';
+    });
+    const galleryImages = images.filter((img: any) => {
+        const prefix = img.path_pim.split('/').pop()?.split('-')[0];
+        return prefix === 'flyer';
+    });
 
     const coverUrl = coverImage
-        ? getImageUrl(coverImage.bucket_pim, coverImage.path_pim)
+        ? getImageUrl(BUCKET_NAME, coverImage.path_pim)
         : null;
 
-    const galleryUrls = galleryImages.map((img: { bucket_pim: string; path_pim: string }) =>
-        getImageUrl(img.bucket_pim, img.path_pim)
+    const galleryUrls = galleryImages.map((img: any) =>
+        getImageUrl(BUCKET_NAME, img.path_pim)
     );
 
     return {
-        id: data.id_prm,
-        businessId: data.business_id_prm,
-        scope: data.scope_prm as PromoScope,
-        title: data.title_prm,
-        description: data.description_prm,
-        discountType: data.discount_type_prm as DiscountType,
-        discountValue: data.discount_value_prm,
-        startAt: data.start_at_prm,
-        endAt: data.end_at_prm,
-        categoryIds: (data.promotion_category_map || []).map((pcm: { category_id_pcr: string }) => pcm.category_id_pcr),
-        productIds: (data.promotion_products || []).map((pp: { product_id_ppr: string }) => pp.product_id_ppr),
-        scopeCategoryIds: (data.promotion_scope_categories || []).map((psc: { category_id_psc: string }) => psc.category_id_psc),
-        comboItems: (data.promotion_combo_items || []).map((pci: { product_id_pci: string; quantity_pci: number; paid_quantity_pci?: number }) => ({
+        id: (data as any).id_prm,
+        businessId: (data as any).business_id_prm,
+        scope: (data as any).scope_prm as PromotionScope,
+        title: (data as any).title_prm,
+        description: (data as any).description_prm,
+        discountType: (data as any).discount_type_prm as DiscountType,
+        discountValue: (data as any).discount_value_prm,
+        startAt: (data as any).start_at_prm,
+        endAt: (data as any).end_at_prm,
+        categoryIds: ((data as any).promotion_category_map || []).map((pcm: { category_id_pcr: string }) => pcm.category_id_pcr),
+        productIds: ((data as any).promotion_products || []).map((pp: { product_id_ppr: string }) => pp.product_id_ppr),
+        scopeCategoryIds: ((data as any).promotion_scope_categories || []).map((psc: { category_id_psc: string }) => psc.category_id_psc),
+        comboItems: ((data as any).promotion_combo_items || []).map((pci: { product_id_pci: string; quantity_pci: number; paid_quantity_pci?: number }) => ({
             productId: pci.product_id_pci,
             quantity: pci.quantity_pci,
             paidQuantity: pci.paid_quantity_pci ?? undefined,
         })),
-        paymentReference: data.payment_reference_prm || '',
+        paymentReference: (data as any).payment_reference_prm || '',
         coverUrl,
         galleryUrls,
     };
@@ -218,7 +263,7 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
  */
 export async function deleteUserPromotion(promotionId: string, userId: string): Promise<void> {
     // 1. Verificar permisos
-    const { data: promotion, error: fetchError } = await supabase
+    const { data: promotion, error: fetchError } = await (supabase as any)
         .from('promotions')
         .select('created_by_prm')
         .eq('id_prm', promotionId)
@@ -232,12 +277,12 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
     // 2. Obtener imágenes para eliminar del storage
     const { data: images } = await supabase
         .from('promotion_images')
-        .select('bucket_pim, path_pim')
+        .select('path_pim')
         .eq('promotion_id_pim', promotionId);
 
     // 3. Eliminar imágenes del storage
     if (images && images.length > 0) {
-        for (const img of images) {
+        for (const img of images as any) {
             await deletePromotionImage(img.path_pim);
         }
     }
@@ -289,14 +334,15 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
  * Mapea un registro de BD a un item de lista para UI
  */
 function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
-    // Obtener imagen de cover si existe
-    const coverImage = record.promotion_images?.find(
-        (img) => img.image_type_pim === 'flyer'
-    );
+    // Obtener imagen de cover si existe - filtrar por prefijo del path
+    const coverImage = record.promotion_images?.find((img) => {
+        const prefix = img.path_pim.split('/').pop()?.split('-')[0];
+        return prefix === 'flyer';
+    });
 
-    let imageUrl: string | null = null;
+    let coverUrl: string | null = null;
     if (coverImage) {
-        imageUrl = getImageUrl(coverImage.bucket_pim, coverImage.path_pim);
+        coverUrl = getImageUrl(BUCKET_NAME, coverImage.path_pim);
     }
 
     // Extraer nombres de categorías
@@ -336,16 +382,16 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         id: record.id_prm,
         title: record.title_prm,
         description: record.description_prm,
-        scope: record.scope_prm as PromoScope,
+        scope: record.scope_prm as PromotionScope,
         discountType: record.discount_type_prm as DiscountType,
         discountValue: record.discount_value_prm,
         startAt: record.start_at_prm,
         endAt: record.end_at_prm,
         moderationStatus: record.moderation_status_prm as ModerationStatus,
-        paymentState: record.payment_state_prm as PromoPaymentState,
+        paymentState: record.payment_state_prm as PaymentState,
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
-        imageUrl,
+        coverUrl,
         categoryNames,
         productIds,
         scopeCategoryIds,

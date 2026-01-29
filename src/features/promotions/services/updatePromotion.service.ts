@@ -4,7 +4,8 @@
  */
 
 import { supabase } from '@/lib/supabase/client';
-import type { UpdatePromotionData } from '@/types/entities';
+import type { Database } from '@/lib/supabase/database.types';
+import type { PromotionFormData } from '@/types/entities';
 import { generateUUID, isNewImage, uploadPromotionImage, deletePromotionImage, extractPathFromUrl } from './promotions.helpers';
 
 const BUCKET_NAME = 'promotions-images';
@@ -15,10 +16,10 @@ const BUCKET_NAME = 'promotions-images';
 export async function updatePromotionComplete(
     promotionId: string,
     userId: string,
-    data: UpdatePromotionData
+    data: Partial<PromotionFormData>
 ): Promise<void> {
     // 1. Verificar permisos
-    const { data: promotion, error: fetchError } = await supabase
+    const { data: promotion, error: fetchError } = await (supabase as any)
         .from('promotions')
         .select('created_by_prm')
         .eq('id_prm', promotionId)
@@ -43,7 +44,7 @@ export async function updatePromotionComplete(
     if (data.endAt !== undefined) updatePayload.end_at_prm = data.endAt;
     if (data.paymentReference !== undefined) updatePayload.payment_reference_prm = data.paymentReference;
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
         .from('promotions')
         .update(updatePayload)
         .eq('id_prm', promotionId);
@@ -60,12 +61,12 @@ export async function updatePromotionComplete(
 
         // Insertar nuevas categorías
         if (data.categoryIds.length > 0) {
-            const categoryMaps = data.categoryIds.map((categoryId) => ({
+            const categoryMaps = data.categoryIds.map((categoryId: string) => ({
                 promotion_id_pcr: promotionId,
                 category_id_pcr: categoryId,
             }));
 
-            const { error: categoryError } = await supabase
+            const { error: categoryError } = await (supabase as any)
                 .from('promotion_category_map')
                 .insert(categoryMaps);
 
@@ -85,12 +86,12 @@ export async function updatePromotionComplete(
 
         // Insertar nuevos productos
         if (data.productIds.length > 0) {
-            const productMaps = data.productIds.map((productId) => ({
+            const productMaps = data.productIds.map((productId: string) => ({
                 promotion_id_ppr: promotionId,
                 product_id_ppr: productId,
             }));
 
-            const { error: productError } = await supabase
+            const { error: productError } = await (supabase as any)
                 .from('promotion_products')
                 .insert(productMaps);
 
@@ -100,25 +101,23 @@ export async function updatePromotionComplete(
         }
     }
 
-    // 5. Actualizar scopeCategoryIds (para scope: 'category')
-    // TODO: Descomentar cuando se cree la tabla promotion_product_categories en la BD
-    /*
+    // 5. Actualizar scopeCategoryIds (para scope: 'categories')
     if (data.scopeCategoryIds !== undefined) {
         // Eliminar categorías de scope existentes
         await supabase
-            .from('promotion_product_categories')
+            .from('promotion_scope_categories')
             .delete()
-            .eq('promotion_id_ppc', promotionId);
+            .eq('promotion_id_psc', promotionId);
 
         // Insertar nuevas categorías de scope
         if (data.scopeCategoryIds.length > 0) {
-            const scopeCategoryMaps = data.scopeCategoryIds.map((categoryId) => ({
-                promotion_id_ppc: promotionId,
-                category_id_ppc: categoryId,
+            const scopeCategoryMaps = data.scopeCategoryIds.map((categoryId: string) => ({
+                promotion_id_psc: promotionId,
+                category_id_psc: categoryId,
             }));
 
-            const { error: scopeCategoryError } = await supabase
-                .from('promotion_product_categories')
+            const { error: scopeCategoryError } = await (supabase as any)
+                .from('promotion_scope_categories')
                 .insert(scopeCategoryMaps);
 
             if (scopeCategoryError) {
@@ -126,7 +125,6 @@ export async function updatePromotionComplete(
             }
         }
     }
-    */
 
     // 6. Actualizar comboItems (para scope: 'combo')
     if (data.comboItems !== undefined) {
@@ -138,14 +136,14 @@ export async function updatePromotionComplete(
 
         // Insertar nuevos items de combo
         if (data.comboItems.length > 0) {
-            const comboItemMaps = data.comboItems.map((item) => ({
+            const comboItemMaps = data.comboItems.map((item: any) => ({
                 promotion_id_pci: promotionId,
                 product_id_pci: item.productId,
                 quantity_pci: item.quantity,
                 paid_quantity_pci: item.paidQuantity ?? null,
             }));
 
-            const { error: comboError } = await supabase
+            const { error: comboError } = await (supabase as any)
                 .from('promotion_combo_items')
                 .insert(comboItemMaps);
 
@@ -157,13 +155,16 @@ export async function updatePromotionComplete(
 
     // 7. Gestionar imagen de cover
     if (data.coverUri !== undefined) {
-        // Obtener imagen de cover actual
-        const { data: currentCover } = await supabase
+        // Obtener imagen de cover actual (flyer-*)
+        const { data: allImages } = await supabase
             .from('promotion_images')
             .select('id_pim, path_pim')
-            .eq('promotion_id_pim', promotionId)
-            .eq('image_type_pim', 'flyer')
-            .single();
+            .eq('promotion_id_pim', promotionId);
+        
+        const currentCover = (allImages as any)?.find((img: any) => {
+            const prefix = img.path_pim.split('/').pop()?.split('-')[0];
+            return prefix === 'flyer';
+        }) ?? null;
 
         if (data.coverUri === null) {
             // Eliminar cover existente
@@ -187,13 +188,11 @@ export async function updatePromotionComplete(
             // Subir nueva imagen
             const coverPath = await uploadPromotionImage(promotionId, data.coverUri, 'flyer');
             
-            await supabase
+            await (supabase as any)
                 .from('promotion_images')
                 .insert({
                     id_pim: generateUUID(),
                     promotion_id_pim: promotionId,
-                    image_type_pim: 'flyer',
-                    bucket_pim: BUCKET_NAME,
                     path_pim: coverPath,
                 });
         }
@@ -205,16 +204,15 @@ export async function updatePromotionComplete(
         // Obtener imágenes de galería actuales
         const { data: currentGallery } = await supabase
             .from('promotion_images')
-            .select('id_pim, path_pim, bucket_pim')
-            .eq('promotion_id_pim', promotionId)
-            .eq('image_type_pim', 'flyer');
+            .select('id_pim, path_pim')
+            .eq('promotion_id_pim', promotionId);
 
-        const currentPaths = currentGallery?.map(img => img.path_pim) ?? [];
+        const currentPaths = (currentGallery as any)?.map((img: any) => img.path_pim) ?? [];
         const newUris = data.galleryUris;
 
         // Determinar qué imágenes eliminar (las que no están en newUris como URL)
-        for (const img of currentGallery ?? []) {
-            const imgUrl = supabase.storage.from(img.bucket_pim).getPublicUrl(img.path_pim).data.publicUrl;
+        for (const img of (currentGallery as any) ?? []) {
+            const imgUrl = supabase.storage.from(BUCKET_NAME).getPublicUrl(img.path_pim).data.publicUrl;
             if (!newUris.includes(imgUrl)) {
                 await deletePromotionImage(img.path_pim);
                 await supabase
@@ -227,15 +225,13 @@ export async function updatePromotionComplete(
         // Subir nuevas imágenes
         for (const uri of newUris) {
             if (isNewImage(uri)) {
-const galleryPath = await uploadPromotionImage(promotionId, uri, 'flyer');
+                const galleryPath = await uploadPromotionImage(promotionId, uri, 'flyer');
                 
-                await supabase
+                await (supabase as any)
                     .from('promotion_images')
                     .insert({
                         id_pim: generateUUID(),
                         promotion_id_pim: promotionId,
-                        image_type_pim: 'flyer',
-                        bucket_pim: BUCKET_NAME,
                         path_pim: galleryPath,
                     });
             }

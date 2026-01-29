@@ -4,17 +4,16 @@
  */
 
 import { supabase } from '@/lib/supabase/client';
-import type { CreatePromotionData } from '@/types/entities';
+import type { PromotionFormData } from '@/types/entities';
+import type { Database } from '@/lib/supabase/database.types';
 import { generateUUID, isNewImage, uploadPromotionImage } from './promotions.helpers';
-
-const BUCKET_NAME = 'promotions-images';
 
 /**
  * Crea una nueva promoción con toda su información
  */
 export async function createPromotionComplete(
     userId: string,
-    data: CreatePromotionData
+    data: PromotionFormData
 ): Promise<string> {
     const promotionId = generateUUID();
 
@@ -29,60 +28,60 @@ export async function createPromotionComplete(
                 scope_prm: data.scope,
                 title_prm: data.title,
                 description_prm: data.description ?? null,
-                discount_type_prm: data.discountType ?? 'none',
+                discount_type_prm: data.discountType ?? 'percentage',
                 discount_value_prm: data.discountValue ?? 0,
                 start_at_prm: data.startAt,
                 end_at_prm: data.endAt,
                 payment_reference_prm: data.paymentReference ?? null,
                 moderation_status_prm: 'pending',
-                payment_state_prm: 'unpaid',
-            });
+                payment_state_prm: 'pending',
+            } as any);
 
         if (promotionError) throw promotionError;
 
         // 2. Vincular categorías
         if (data.categoryIds && data.categoryIds.length > 0) {
-            const categoryMaps = data.categoryIds.map((categoryId) => ({
+            const categoryMaps = data.categoryIds.map((categoryId: string) => ({
                 promotion_id_pcr: promotionId,
                 category_id_pcr: categoryId,
             }));
 
             const { error: categoryError } = await supabase
                 .from('promotion_category_map')
-                .insert(categoryMaps);
+                .insert(categoryMaps as any);
 
             if (categoryError) {
                 console.error('Error linking categories:', categoryError);
             }
         }
 
-        // 3. Vincular productos (si scope es 'product')
-        if (data.scope === 'product' && data.productIds && data.productIds.length > 0) {
-            const productMaps = data.productIds.map((productId) => ({
+        // 3. Vincular productos (si scope es 'products')
+        if (data.scope === 'products' && data.productIds && data.productIds.length > 0) {
+            const productMaps = data.productIds.map((productId: string) => ({
                 promotion_id_ppr: promotionId,
                 product_id_ppr: productId,
             }));
 
             const { error: productError } = await supabase
                 .from('promotion_products')
-                .insert(productMaps);
+                .insert(productMaps as any);
 
             if (productError) {
                 console.error('Error linking products:', productError);
             }
         }
 
-        // 3b. Vincular categorías de scope (si scope es 'category')
+        // 3b. Vincular categorías de scope (si scope es 'categories')
         // Usa la tabla promotion_scope_categories para almacenar las categorías a las que aplica
-        if (data.scope === 'category' && data.scopeCategoryIds && data.scopeCategoryIds.length > 0) {
-            const scopeCategoryMaps = data.scopeCategoryIds.map((categoryId) => ({
+        if (data.scope === 'categories' && data.scopeCategoryIds && data.scopeCategoryIds.length > 0) {
+            const scopeCategoryMaps = data.scopeCategoryIds.map((categoryId: string) => ({
                 promotion_id_psc: promotionId,
                 category_id_psc: categoryId,
             }));
 
             const { error: scopeCategoryError } = await supabase
                 .from('promotion_scope_categories')
-                .insert(scopeCategoryMaps);
+                .insert(scopeCategoryMaps as any);
 
             if (scopeCategoryError) {
                 console.error('Error linking scope categories:', scopeCategoryError);
@@ -91,7 +90,7 @@ export async function createPromotionComplete(
 
         // 3c. Crear items de combo (si scope es 'combo')
         if (data.scope === 'combo' && data.comboItems && data.comboItems.length > 0) {
-            const comboItemInserts = data.comboItems.map((item) => ({
+            const comboItemInserts = data.comboItems.map((item: { productId: string; quantity: number; paidQuantity?: number }) => ({
                 id_pci: generateUUID(),
                 promotion_id_pci: promotionId,
                 product_id_pci: item.productId,
@@ -101,7 +100,7 @@ export async function createPromotionComplete(
 
             const { error: comboError } = await supabase
                 .from('promotion_combo_items')
-                .insert(comboItemInserts);
+                .insert(comboItemInserts as any);
 
             if (comboError) {
                 console.error('Error creating combo items:', comboError);
@@ -116,14 +115,12 @@ export async function createPromotionComplete(
                 const imageInsert = {
                     id_pim: generateUUID(),
                     promotion_id_pim: promotionId,
-                    image_type_pim: 'flyer',
-                    bucket_pim: BUCKET_NAME,
                     path_pim: coverPath,
                 };
                 
                 const { error: imgInsertError } = await supabase
                     .from('promotion_images')
-                    .insert(imageInsert);
+                    .insert(imageInsert as any);
                 
                 if (imgInsertError) {
                     console.error('[createPromotion] Error inserting cover image:', imgInsertError);
@@ -145,14 +142,12 @@ export async function createPromotionComplete(
                         const imageInsert = {
                             id_pim: generateUUID(),
                             promotion_id_pim: promotionId,
-                            image_type_pim: 'flyer',
-                            bucket_pim: BUCKET_NAME,
                             path_pim: galleryPath,
                         };
                         
                         const { error: imgInsertError } = await supabase
                             .from('promotion_images')
-                            .insert(imageInsert);
+                            .insert(imageInsert as any);
                         
                         if (imgInsertError) {
                             console.error('[createPromotion] Error inserting gallery image:', imgInsertError);
