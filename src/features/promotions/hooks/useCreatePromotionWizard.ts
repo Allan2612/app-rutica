@@ -5,7 +5,7 @@ import {
   WizardStepId,
   WIZARD_STEPS,
 } from '@/types/entities';
-import type { PromoScope, DiscountType } from '@/types/enums';
+import type { PromotionScope, DiscountType } from '@/types/enums';
 
 // ---------- Initial State ----------
 const createInitialFormData = (): PromotionWizardFormData => ({
@@ -13,7 +13,7 @@ const createInitialFormData = (): PromotionWizardFormData => ({
   businessId: '',
   title: '',
   description: '',
-  scope: 'general' as PromoScope,
+  scope: 'all' as PromotionScope,
 
   // Step 2 - Discount + Products/Categories/Combo
   discountType: 'percentage' as DiscountType,
@@ -88,17 +88,17 @@ const validateDiscountStep = (formData: PromotionWizardFormData): PromotionWizar
     }
   }
 
-  // Validación para scope: 'product'
+  // Validación para scope: 'products'
   if (
-    formData.scope === 'product' &&
+    formData.scope === 'products' &&
     formData.selectedProductIds.length === 0
   ) {
     errors.selectedProductIds = 'Debe seleccionar al menos un producto';
   }
 
-  // Validación para scope: 'category'
+  // Validación para scope: 'categories'
   if (
-    formData.scope === 'category' &&
+    formData.scope === 'categories' &&
     formData.scopeCategoryIds.length === 0
   ) {
     errors.scopeCategoryIds = 'Debe seleccionar al menos una categoría de productos';

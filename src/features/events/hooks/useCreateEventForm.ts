@@ -11,9 +11,7 @@ interface FormData {
     selectedCategoryIds: string[];
     coverUri: string | null;
     galleryUris: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    districtId: string | null;
     address: string | null;
     coordinates: { latitude: number; longitude: number } | null;
     startDate: Date;
@@ -43,9 +41,7 @@ const initialFormData: FormData = {
     selectedCategoryIds: [],
     coverUri: null,
     galleryUris: [],
-    province: null,
-    canton: null,
-    district: null,
+    districtId: null,
     address: null,
     coordinates: null,
     startDate: new Date(),
@@ -103,9 +99,7 @@ export function useCreateEventForm() {
         
         setFormData((prev) => ({
             ...prev,
-            province: location.province || null,
-            canton: location.canton || null,
-            district: location.district || null,
+            districtId: location.districtId || null,
             address: location.address || null,
             coordinates:
                 location.latitude && location.longitude
@@ -128,7 +122,7 @@ export function useCreateEventForm() {
             newErrors.categories = 'Selecciona al menos una categoría';
         }
 
-        if (!formData.coordinates) {
+        if (!formData.coordinates || !formData.districtId) {
             newErrors.location = 'Selecciona una ubicación en el mapa';
         }
 
@@ -163,9 +157,7 @@ export function useCreateEventForm() {
                 price: !formData.isFree && formData.price ? parseFloat(formData.price) : undefined,
                 currency: !formData.isFree && formData.price ? 'CRC' : undefined,
                 capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
-                province: formData.province ?? undefined,
-                canton: formData.canton ?? undefined,
-                district: formData.district ?? undefined,
+                districtId: formData.districtId!,
                 address: formData.address?.trim() ?? undefined,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
