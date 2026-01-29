@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase/client';
 
+// ============================================
+// Constants
+// ============================================
+
+const STORAGE_BUCKET = 'attraction-images';
+
+// ============================================
+// Types
+// ============================================
+
 export interface AttractionListFilters {
     searchText?: string;
     categoryIds?: string[];
@@ -19,59 +29,104 @@ export interface AttractionListRecord {
         first_name_prf: string;
         last_name1_prf: string;
     } | null;
-    attraction_category_map?: {
+    attraction_category_map?:
+    | {
         categories: {
             id_cat: string;
             name_cat: string;
         } | null;
-    }[] | null;
+    }[]
+    | null;
     locations?: {
-        canton_loc: string | null;
-        district_loc: string | null;
-        province_loc: string | null;
+        address_loc: string | null;
         latitude_loc: number | null;
         longitude_loc: number | null;
+        districts?: {
+            name_dst: string;
+            cantons?: {
+                name_ctn: string;
+                provinces?: {
+                    name_prv: string;
+                };
+            };
+        };
     } | null;
-    attraction_images?: {
-        bucket_aim: string;
+    attraction_images?:
+    | {
         path_aim: string;
         sort_order_aim: number;
-    }[] | null;
+    }[]
+    | null;
 }
 
-export function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+// ============================================
+// Helpers
+// ============================================
+
+export function getImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
     return data.publicUrl;
 }
 
-export async function getAttractionsList(filters: AttractionListFilters = {}): Promise<AttractionListRecord[]> {
+/**
+ * Extrae el tipo de imagen del path (V3)
+ * Path format: <entity_id>/<prefix>-<uuid>.ext
+ */
+function getImageTypeFromPath(path: string): string {
+    if (!path) return '';
+    const filename = path.split('/').pop() || '';
+    return filename.split('-')[0];
+}
+
+// ============================================
+// Service Functions
+// ============================================
+
+export async function getAttractionsList(
+    filters: AttractionListFilters = {}
+): Promise<AttractionListRecord[]> {
     const { searchText, categoryIds } = filters;
 
-    let query = supabase
-        .from('attractions')
-        .select(`
-            id_atr,
-            name_atr,
-            description_atr,
-            moderation_status_atr,
-            is_active_atr,
-            avg_rating_atr,
-            reviews_count_atr,
-            created_at_atr,
-            submitted_by_atr,
-            profiles!submitted_by_atr (
-                first_name_prf,
-                last_name1_prf
-            ),
-            attraction_category_map!inner (
-                categories!inner (
-                    id_cat,
-                    name_cat
-                )
-            ),
-            locations ( canton_loc, district_loc, province_loc, latitude_loc, longitude_loc ),
-            attraction_images ( bucket_aim, path_aim, sort_order_aim )
-        `);
+    let query = supabase.from('attractions').select(`
+      id_atr,
+      name_atr,
+      description_atr,
+      moderation_status_atr,
+      is_active_atr,
+      avg_rating_atr,
+      reviews_count_atr,
+      created_at_atr,
+      submitted_by_atr,
+      profiles!attractions_submitted_by_atr_fkey (
+        first_name_prf,
+        last_name1_prf
+      ),
+      attraction_category_map!inner (
+        categories!inner (
+          id_cat,
+          name_cat
+        )
+      ),
+      locations!attractions_location_id_atr_fkey (
+        address_loc,
+        latitude_loc,
+        longitude_loc,
+        districts!locations_district_id_fkey (
+          name_dst,
+          cantons!districts_canton_id_fkey (
+            name_ctn,
+            provinces!cantons_province_id_fkey (
+              name_prv
+            )
+          )
+        )
+      ),
+      attraction_images (
+        path_aim,
+        sort_order_aim
+      )
+    `);
 
     // Filtrar por categorías si se especifican
     if (categoryIds && categoryIds.length > 0) {
@@ -88,6 +143,7 @@ export async function getAttractionsList(filters: AttractionListFilters = {}): P
     const { data, error } = await query;
 
     if (error) {
+        console.error('[getAttractionsList] Error:', error);
         return [];
     }
 

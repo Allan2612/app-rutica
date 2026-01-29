@@ -29,9 +29,10 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
         (a, b) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0)
     );
 
+    // V3: Solo path_aim, usar getImageUrl con un solo argumento
     const imageUrls = sortedImages
-        .filter(img => img?.bucket_aim && img?.path_aim)
-        .map(img => getImageUrl(img.bucket_aim, img.path_aim));
+        .filter(img => img?.path_aim)
+        .map(img => getImageUrl(img.path_aim));
 
     // Obtener categorías
     const categories = item.attraction_category_map
@@ -40,11 +41,16 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
     const categoryNames = categories.map(cat => cat.name_cat);
     const categoryIds = categories.map(cat => cat.id_cat);
 
-    // Ubicación con provincia (San José, Pérez Zeledón, Pejibaye)
+    // V3: Ubicación con jerarquía normalizada (districts -> cantons -> provinces)
+    const locationData = item.locations;
+    const districtData = locationData?.districts;
+    const cantonData = districtData?.cantons;
+    const provinceData = cantonData?.provinces;
+
     const locationParts = [
-        item.locations?.province_loc,
-        item.locations?.canton_loc,
-        item.locations?.district_loc
+        provinceData?.name_prv,
+        cantonData?.name_ctn,
+        districtData?.name_dst
     ].filter(Boolean);
 
     // Nombre del autor

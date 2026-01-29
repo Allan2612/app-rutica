@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase/client';
 
+// ============================================
+// Constants
+// ============================================
+
+const STORAGE_BUCKET = 'attraction-images';
+
+// ============================================
+// Types
+// ============================================
+
 export interface UserAttraction {
     id_atr: string;
     name_atr: string;
@@ -8,14 +18,22 @@ export interface UserAttraction {
     is_active_atr: boolean;
     created_at_atr: string;
     attraction_images?: Array<{
-        bucket_aim: string;
         path_aim: string;
         sort_order_aim: number;
     }>;
     locations?: {
-        province_loc: string | null;
-        canton_loc: string | null;
-        district_loc: string | null;
+        address_loc: string | null;
+        latitude_loc: number | null;
+        longitude_loc: number | null;
+        districts?: {
+            name_dst: string;
+            cantons?: {
+                name_ctn: string;
+                provinces?: {
+                    name_prv: string;
+                };
+            };
+        };
     } | null;
     attraction_category_map?: Array<{
         categories: {
@@ -25,40 +43,65 @@ export interface UserAttraction {
     }>;
 }
 
-function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+// ============================================
+// Helpers
+// ============================================
+
+export function getImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
     return data.publicUrl;
 }
+
+// ============================================
+// Service Functions
+// ============================================
 
 export async function getUserAttractions(userId: string): Promise<UserAttraction[]> {
     try {
         const { data, error } = await supabase
             .from('attractions')
-            .select(`
-                *,
-                attraction_images (
-                    bucket_aim,
-                    path_aim,
-                    sort_order_aim
-                ),
-                locations (
-                    province_loc,
-                    canton_loc,
-                    district_loc
-                ),
-                attraction_category_map (
-                    categories (
-                        id_cat,
-                        name_cat
-                    )
-                )
-            `)
+            .select(
+                `
+        id_atr,
+        name_atr,
+        description_atr,
+        moderation_status_atr,
+        is_active_atr,
+        created_at_atr,
+        attraction_images (
+          path_aim,
+          sort_order_aim
+        ),
+        locations!attractions_location_id_atr_fkey (
+          address_loc,
+          latitude_loc,
+          longitude_loc,
+          districts!locations_district_id_fkey (
+            name_dst,
+            cantons!districts_canton_id_fkey (
+              name_ctn,
+              provinces!cantons_province_id_fkey (
+                name_prv
+              )
+            )
+          )
+        ),
+        attraction_category_map (
+          categories (
+            id_cat,
+            name_cat
+          )
+        )
+      `
+            )
             .eq('submitted_by_atr', userId)
             .order('created_at_atr', { ascending: false });
 
         if (error) throw error;
-        return data || [];
+        return (data || []) as unknown as UserAttraction[];
     } catch (error) {
+        console.error('[getUserAttractions] Error:', error);
         throw error;
     }
 }

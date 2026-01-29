@@ -3,11 +3,11 @@
  * Este archivo se mantiene por compatibilidad pero redirige al servicio centralizado
  */
 import { getCategories } from '@/services/categories.service';
-import { CategoryItem } from '@/types/entities';
+import { Category } from '@/types/entities';
 
 /**
  * @deprecated Use getCategories from '@/services/categories.service' instead
  */
-export async function getAttractionCategories(): Promise<CategoryItem[]> {
+export async function getAttractionCategories(): Promise<Category[]> {
     return getCategories();
 }
