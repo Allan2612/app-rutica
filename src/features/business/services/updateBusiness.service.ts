@@ -1,6 +1,9 @@
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+
+const BUCKET_NAME = 'business-images';
 
 function generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -15,10 +18,7 @@ export interface BusinessDetailForEdit {
     name: string;
     description: string | null;
     categoryIds: string[];
-    country: string | null;
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    districtId: string | null;
     address: string | null;
     latitude: number;
     longitude: number;
@@ -37,10 +37,7 @@ export interface UpdateBusinessData {
     name: string;
     description: string | null;
     categoryIds: string[];
-    country: string | null;
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    districtId: string;
     address: string | null;
     latitude: number;
     longitude: number;
@@ -55,8 +52,8 @@ export interface UpdateBusinessData {
     galleryUris?: string[];
 }
 
-function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+function getImageUrl(path: string): string {
+    const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
     return data.publicUrl;
 }
 
@@ -78,7 +75,7 @@ export async function getBusinessForEdit(
     businessId: string,
     userId: string
 ): Promise<BusinessDetailForEdit> {
-    const { data: businessData, error: businessError } = await supabase
+    const { data: businessData, error: businessError } = await (supabase as any)
         .from('businesses')
         .select(`
             id_bus,
@@ -96,23 +93,23 @@ export async function getBusinessForEdit(
 
     if (businessError) throw businessError;
     if (!businessData) throw new Error('No se encontró el negocio');
-    if (businessData.owner_id_bus !== userId) {
+    if ((businessData as any).owner_id_bus !== userId) {
         throw new Error('No tienes permiso para editar este negocio');
     }
 
     let locationData = null;
-    if (businessData.location_id_bus) {
+    if ((businessData as any).location_id_bus) {
         const { data: loc } = await supabase
             .from('locations')
-            .select('*')
-            .eq('id_loc', businessData.location_id_bus)
+            .select('district_id_loc, address_loc, latitude_loc, longitude_loc')
+            .eq('id_loc', (businessData as any).location_id_bus)
             .single();
         locationData = loc;
     }
 
     const { data: images } = await supabase
         .from('business_images')
-        .select('*')
+        .select('id_bim, path_bim, sort_order_bim')
         .eq('business_id_bim', businessId)
         .order('sort_order_bim', { ascending: true });
 
@@ -121,46 +118,36 @@ export async function getBusinessForEdit(
         .select('category_id_bcm')
         .eq('business_id_bcm', businessId);
 
-    const logoImage = images?.find((img) => img.image_type_bim === 'logo');
-    const coverImage = images?.find((img) => img.image_type_bim === 'cover');
-    const galleryImages = images?.filter((img) => img.image_type_bim === 'gallery') || [];
+    // V3: sort_order=0 es logo, sort_order=1 es cover, >1 es gallery
+    const logoImage = (images as any)?.find((img: any) => img.sort_order_bim === 0);
+    const coverImage = (images as any)?.find((img: any) => img.sort_order_bim === 1);
+    const galleryImages = (images as any)?.filter((img: any) => img.sort_order_bim > 1) || [];
 
-    const logoUrl =
-        logoImage?.bucket_bim && logoImage?.path_bim
-            ? getImageUrl(logoImage.bucket_bim, logoImage.path_bim)
-            : null;
-
-    const coverUrl =
-        coverImage?.bucket_bim && coverImage?.path_bim
-            ? getImageUrl(coverImage.bucket_bim, coverImage.path_bim)
-            : null;
-
-    const galleryUrls = galleryImages.map((img) => getImageUrl(img.bucket_bim, img.path_bim));
+    const logoUrl = logoImage?.path_bim ? getImageUrl(logoImage.path_bim) : null;
+    const coverUrl = coverImage?.path_bim ? getImageUrl(coverImage.path_bim) : null;
+    const galleryUrls = galleryImages.map((img: any) => getImageUrl(img.path_bim));
 
     const categoryIds = (categoryMaps ?? [])
         .map((bcm: any) => bcm.category_id_bcm)
         .filter((id: string) => !!id);
 
-    const socialLinks = businessData.social_links_bus || {};
+    const socialLinks = (businessData as any).social_links_bus || {};
 
     return {
-        id: businessData.id_bus,
-        name: businessData.name_bus,
-        description: businessData.description_bus,
+        id: (businessData as any).id_bus,
+        name: (businessData as any).name_bus,
+        description: (businessData as any).description_bus,
         categoryIds,
-        country: locationData?.country_loc ?? 'Costa Rica',
-        province: locationData?.province_loc ?? null,
-        canton: locationData?.canton_loc ?? null,
-        district: locationData?.district_loc ?? null,
-        address: locationData?.address_loc ?? null,
-        latitude: locationData?.latitude_loc ?? 0,
-        longitude: locationData?.longitude_loc ?? 0,
-        phone: businessData.contact_phone_bus,
-        email: businessData.contact_email_bus,
-        website: businessData.website_bus,
-        facebook: socialLinks.facebook ?? null,
-        instagram: socialLinks.instagram ?? null,
-        tiktok: socialLinks.tiktok ?? null,
+        districtId: (locationData as any)?.district_id_loc ?? null,
+        address: (locationData as any)?.address_loc ?? null,
+        latitude: (locationData as any)?.latitude_loc ?? 0,
+        longitude: (locationData as any)?.longitude_loc ?? 0,
+        phone: (businessData as any).contact_phone_bus,
+        email: (businessData as any).contact_email_bus,
+        website: (businessData as any).website_bus,
+        facebook: (socialLinks as any).facebook ?? null,
+        instagram: (socialLinks as any).instagram ?? null,
+        tiktok: (socialLinks as any).tiktok ?? null,
         logoUrl,
         coverUrl,
         galleryUrls,
@@ -175,30 +162,27 @@ export async function updateBusinessComplete(
     userId: string,
     data: UpdateBusinessData
 ): Promise<void> {
-    const { data: business } = await supabase
+    const { data: business } = await (supabase as any)
         .from('businesses')
         .select('owner_id_bus, location_id_bus')
         .eq('id_bus', businessId)
         .single();
 
-    if (!business || business.owner_id_bus !== userId) {
+    if (!business || (business as any).owner_id_bus !== userId) {
         throw new Error('No tienes permiso para editar este negocio');
     }
 
-    // Actualizar ubicación
-    if (business.location_id_bus) {
-        await supabase
+    // Actualizar ubicación (V3: solo district_id, address y coordenadas)
+    if ((business as any).location_id_bus) {
+        await (supabase as any)
             .from('locations')
             .update({
-                country_loc: data.country ?? 'Costa Rica',
-                province_loc: data.province ?? null,
-                canton_loc: data.canton ?? null,
-                district_loc: data.district ?? null,
+                district_id_loc: data.districtId,
                 address_loc: data.address ?? null,
                 latitude_loc: data.latitude,
                 longitude_loc: data.longitude,
             })
-            .eq('id_loc', business.location_id_bus);
+            .eq('id_loc', (business as any).location_id_bus);
     }
 
     // Preparar social links
@@ -208,7 +192,7 @@ export async function updateBusinessComplete(
     if (data.tiktok) socialLinks.tiktok = data.tiktok;
 
     // Actualizar datos del negocio
-    const { error: businessError } = await supabase
+    const { error: businessError } = await (supabase as any)
         .from('businesses')
         .update({
             name_bus: data.name,
@@ -226,11 +210,11 @@ export async function updateBusinessComplete(
     await supabase.from('business_category_map').delete().eq('business_id_bcm', businessId);
 
     if (data.categoryIds.length > 0) {
-        const categoryMaps = data.categoryIds.map((catId) => ({
+        const categoryMaps = data.categoryIds.map((catId: string) => ({
             business_id_bcm: businessId,
             category_id_bcm: catId,
         }));
-        await supabase.from('business_category_map').insert(categoryMaps);
+        await (supabase as any).from('business_category_map').insert(categoryMaps);
     }
 
     // Manejar imágenes
@@ -244,17 +228,17 @@ async function handleImageUpdates(businessId: string, data: UpdateBusinessData):
     // Obtener imágenes actuales
     const { data: currentImages } = await supabase
         .from('business_images')
-        .select('*')
+        .select('id_bim, path_bim, sort_order_bim')
         .eq('business_id_bim', businessId);
 
-    // === MANEJO DE LOGO ===
-    const currentLogo = currentImages?.find((img) => img.image_type_bim === 'logo');
+    // === MANEJO DE LOGO (sort_order=0) ===
+    const currentLogo = (currentImages as any)?.find((img: any) => img.sort_order_bim === 0);
     
     if (data.logoUri === null) {
         // Usuario eliminó el logo explícitamente
         if (currentLogo) {
             // Eliminar del bucket
-            await supabase.storage.from('business-images').remove([currentLogo.path_bim]);
+            await supabase.storage.from(BUCKET_NAME).remove([currentLogo.path_bim]);
             // Eliminar registro de BD
             await supabase.from('business_images').delete().eq('id_bim', currentLogo.id_bim);
         }
@@ -262,7 +246,7 @@ async function handleImageUpdates(businessId: string, data: UpdateBusinessData):
         // Usuario seleccionó un logo nuevo para reemplazar
         if (currentLogo) {
             // Eliminar la imagen vieja del bucket
-            await supabase.storage.from('business-images').remove([currentLogo.path_bim]);
+            await supabase.storage.from(BUCKET_NAME).remove([currentLogo.path_bim]);
             // Eliminar registro viejo
             await supabase.from('business_images').delete().eq('id_bim', currentLogo.id_bim);
         }
@@ -270,14 +254,14 @@ async function handleImageUpdates(businessId: string, data: UpdateBusinessData):
         await uploadImage(data.logoUri, businessId, 'logo', 0);
     }
 
-    // === MANEJO DE COVER ===
-    const currentCover = currentImages?.find((img) => img.image_type_bim === 'cover');
+    // === MANEJO DE COVER (sort_order=1) ===
+    const currentCover = (currentImages as any)?.find((img: any) => img.sort_order_bim === 1);
     
     if (data.coverUri === null) {
         // Usuario eliminó el cover explícitamente
         if (currentCover) {
             // Eliminar del bucket
-            await supabase.storage.from('business-images').remove([currentCover.path_bim]);
+            await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_bim]);
             // Eliminar registro de BD
             await supabase.from('business_images').delete().eq('id_bim', currentCover.id_bim);
         }
@@ -285,7 +269,7 @@ async function handleImageUpdates(businessId: string, data: UpdateBusinessData):
         // Usuario seleccionó una imagen nueva para reemplazar
         if (currentCover) {
             // Eliminar la imagen vieja del bucket
-            await supabase.storage.from('business-images').remove([currentCover.path_bim]);
+            await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_bim]);
             // Eliminar registro viejo
             await supabase.from('business_images').delete().eq('id_bim', currentCover.id_bim);
         }
@@ -293,26 +277,26 @@ async function handleImageUpdates(businessId: string, data: UpdateBusinessData):
         await uploadImage(data.coverUri, businessId, 'cover', 1);
     }
 
-    // === MANEJO DE GALERÍA ===
+    // === MANEJO DE GALERÍA (sort_order>1) ===
     if (data.galleryUris !== undefined) {
-        const currentGallery = currentImages?.filter((img) => img.image_type_bim === 'gallery') || [];
+        const currentGallery = (currentImages as any)?.filter((img: any) => img.sort_order_bim > 1) || [];
         
         // Separar las imágenes existentes (URLs de supabase) de las nuevas
         const existingGalleryUrls = data.galleryUris.filter(uri => !isNewImage(uri));
         const newGalleryUris = data.galleryUris.filter(uri => isNewImage(uri));
 
         // Encontrar imágenes que se eliminaron (estaban antes pero ya no están en el array)
-        const imagesToDelete = currentGallery.filter(currentImg => {
-            const currentUrl = getImageUrl('business-images', currentImg.path_bim);
+        const imagesToDelete = currentGallery.filter((currentImg: any) => {
+            const currentUrl = getImageUrl(currentImg.path_bim);
             return !existingGalleryUrls.includes(currentUrl);
         });
 
         // Eliminar del bucket y BD las imágenes que ya no están
         if (imagesToDelete.length > 0) {
-            const pathsToDelete = imagesToDelete.map(img => img.path_bim);
-            await supabase.storage.from('business-images').remove(pathsToDelete);
+            const pathsToDelete = imagesToDelete.map((img: any) => img.path_bim);
+            await supabase.storage.from(BUCKET_NAME).remove(pathsToDelete);
             
-            const idsToDelete = imagesToDelete.map(img => img.id_bim);
+            const idsToDelete = imagesToDelete.map((img: any) => img.id_bim);
             await supabase.from('business_images').delete().in('id_bim', idsToDelete);
         }
 
@@ -375,7 +359,7 @@ async function uploadImage(
     const contentType = fileExt === 'png' ? 'image/png' : fileExt === 'webp' ? 'image/webp' : 'image/jpeg';
 
     const { error: uploadError } = await supabase.storage
-        .from('business-images')
+        .from(BUCKET_NAME)
         .upload(filePath, arrayBuffer, {
             contentType,
             upsert: false,
@@ -383,11 +367,9 @@ async function uploadImage(
 
     if (uploadError) throw uploadError;
 
-    const { error: insertError } = await supabase.from('business_images').insert({
+    const { error: insertError } = await (supabase as any).from('business_images').insert({
         id_bim: generateUUID(),
         business_id_bim: businessId,
-        image_type_bim: type,
-        bucket_bim: 'business-images',
         path_bim: filePath,
         sort_order_bim: sortOrder,
     });
