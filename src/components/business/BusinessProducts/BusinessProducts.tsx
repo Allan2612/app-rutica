@@ -27,13 +27,18 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
             if (promo.moderationStatus !== 'approved' || promo.paymentState !== 'paid') {
                 return false;
             }
-            
+
+            // Validar que las fechas existan
+            if (!promo.startAt || !promo.endAt) {
+                return false;
+            }
+
             const startDate = new Date(promo.startAt);
             const endDate = new Date(promo.endAt);
             if (now < startDate || now > endDate) {
                 return false;
             }
-            
+
             // Es combo Y tiene múltiples productos O un producto con cantidad > 1
             return isComboPromotion(promo) && promo.comboItems.length > 0;
         });
@@ -42,17 +47,17 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
     // Combinar productos regulares + combos mixtos
     const allItems = useMemo(() => {
         const items: Array<{ type: 'product' | 'combo'; data: any }> = [];
-        
+
         // Agregar productos regulares
         products.forEach(product => {
             items.push({ type: 'product', data: product });
         });
-        
+
         // Agregar combos mixtos como productos especiales
         mixedCombos.forEach(combo => {
             items.push({ type: 'combo', data: combo });
         });
-        
+
         return items;
     }, [products, mixedCombos]);
 
@@ -96,7 +101,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
                             />
                         );
                     }
-                    
+
                     return (
                         <ProductCard
                             productId={item.data.id}
@@ -112,9 +117,9 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
                         />
                     );
                 }}
-                keyExtractor={(item) => 
-                    item.type === 'combo' 
-                        ? `combo-${item.data.id}` 
+                keyExtractor={(item) =>
+                    item.type === 'combo'
+                        ? `combo-${item.data.id}`
                         : `product-${item.data.id}`
                 }
                 numColumns={Platform.OS === 'web' ? 3 : 2}

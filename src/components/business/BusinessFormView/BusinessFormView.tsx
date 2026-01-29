@@ -8,8 +8,8 @@ import {
     SocialLinksSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
-import type { CategoryOption } from '@/types/entities';
 
+import type { CategoryOption } from '@/types/entities';
 interface BusinessFormData {
     name: string;
     description: string;
