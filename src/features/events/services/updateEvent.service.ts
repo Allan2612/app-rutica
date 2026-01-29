@@ -1,6 +1,9 @@
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+
+const BUCKET_NAME = 'events-images';
 
 function generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -15,9 +18,7 @@ export interface EventDetailForEdit {
     name: string;
     description: string | null;
     categoryIds: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    districtId: string | null;
     address: string | null;
     latitude: number;
     longitude: number;
@@ -42,9 +43,7 @@ export interface UpdateEventData {
     name: string;
     description: string | null;
     categoryIds: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    districtId: string;
     address: string | null;
     latitude: number;
     longitude: number;
@@ -88,7 +87,7 @@ export async function getEventById(
     eventId: string,
     userId: string
 ): Promise<EventDetailForEdit> {
-    const { data: eventData, error: eventError } = await supabase
+    const { data: eventData, error: eventError } = await (supabase as any)
         .from('events')
         .select(`
             id_evt,
@@ -121,7 +120,7 @@ export async function getEventById(
     if (eventData.location_id_evt) {
         const { data: loc } = await supabase
             .from('locations')
-            .select('*')
+            .select('district_id_loc, address_loc, latitude_loc, longitude_loc')
             .eq('id_loc', eventData.location_id_evt)
             .single();
         locationData = loc;
@@ -129,7 +128,7 @@ export async function getEventById(
 
     const { data: images } = await supabase
         .from('event_images')
-        .select('*')
+        .select('id_eim, path_eim, sort_order_eim')
         .eq('event_id_eim', eventId)
         .order('sort_order_eim', { ascending: true });
 
@@ -138,20 +137,20 @@ export async function getEventById(
         .select('category_id_ecm')
         .eq('event_id_ecm', eventId);
 
-    const sortedImages = (images || []).sort(
-        (a, b) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0)
+    const sortedImages = ((images as any) || []).sort(
+        (a: any, b: any) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0)
     );
 
     // sort_order_eim: 0 = cover, 1-3 = gallery
-    const coverImage = sortedImages.find((img) => img.sort_order_eim === 0);
-    const galleryImages = sortedImages.filter((img) => img.sort_order_eim > 0);
+    const coverImage = sortedImages.find((img: any) => img.sort_order_eim === 0);
+    const galleryImages = sortedImages.filter((img: any) => img.sort_order_eim > 0);
 
     const coverUrl =
-        coverImage?.bucket_eim && coverImage?.path_eim
-            ? getImageUrl(coverImage.bucket_eim, coverImage.path_eim)
+        coverImage?.path_eim
+            ? getImageUrl(BUCKET_NAME, coverImage.path_eim)
             : null;
 
-    const galleryUrls = galleryImages.map((img) => getImageUrl(img.bucket_eim, img.path_eim));
+    const galleryUrls = galleryImages.map((img: any) => getImageUrl(BUCKET_NAME, img.path_eim));
 
     const categoryIds = (categoryMaps ?? [])
         .map((ecm: any) => ecm.category_id_ecm)
@@ -164,12 +163,10 @@ export async function getEventById(
         name: eventData.name_evt,
         description: eventData.description_evt,
         categoryIds,
-        province: locationData?.province_loc ?? null,
-        canton: locationData?.canton_loc ?? null,
-        district: locationData?.district_loc ?? null,
-        address: locationData?.address_loc ?? null,
-        latitude: locationData?.latitude_loc ?? 0,
-        longitude: locationData?.longitude_loc ?? 0,
+        districtId: (locationData as any)?.district_id_loc ?? null,
+        address: (locationData as any)?.address_loc ?? null,
+        latitude: (locationData as any)?.latitude_loc ?? 0,
+        longitude: (locationData as any)?.longitude_loc ?? 0,
         startDate: new Date(eventData.start_at_evt),
         endDate: new Date(eventData.end_at_evt),
         isFree: eventData.is_free_evt,
@@ -180,9 +177,9 @@ export async function getEventById(
         email: eventData.contact_email_evt,
         website: eventData.website_evt,
         ticketUrl: eventData.ticket_url_evt,
-        facebook: socialLinks.facebook ?? null,
-        instagram: socialLinks.instagram ?? null,
-        tiktok: socialLinks.tiktok ?? null,
+        facebook: (socialLinks as any).facebook ?? null,
+        instagram: (socialLinks as any).instagram ?? null,
+        tiktok: (socialLinks as any).tiktok ?? null,
         coverUrl,
         galleryUrls,
     };
@@ -196,7 +193,7 @@ export async function updateEventComplete(
     userId: string,
     data: UpdateEventData
 ): Promise<void> {
-    const { data: event } = await supabase
+    const { data: event } = await (supabase as any)
         .from('events')
         .select('created_by_evt, location_id_evt')
         .eq('id_evt', eventId)
@@ -206,14 +203,12 @@ export async function updateEventComplete(
         throw new Error('No tienes permiso para editar este evento');
     }
 
-    // 1. Actualizar ubicación
+    // 1. Actualizar ubicación (V3: solo district_id, address y coordenadas)
     if (event.location_id_evt) {
-        await supabase
+        await (supabase as any)
             .from('locations')
             .update({
-                province_loc: data.province ?? null,
-                canton_loc: data.canton ?? null,
-                district_loc: data.district ?? null,
+                district_id_loc: data.districtId,
                 address_loc: data.address ?? null,
                 latitude_loc: data.latitude,
                 longitude_loc: data.longitude,
@@ -228,7 +223,7 @@ export async function updateEventComplete(
     if (data.tiktok) socialLinks.tiktok = data.tiktok;
 
     // 3. Actualizar evento
-    await supabase
+    await (supabase as any)
         .from('events')
         .update({
             name_evt: data.name,
@@ -254,12 +249,12 @@ export async function updateEventComplete(
         .eq('event_id_ecm', eventId);
 
     if (data.categoryIds.length > 0) {
-        const categoryMaps = data.categoryIds.map((categoryId) => ({
+        const categoryMaps = data.categoryIds.map((categoryId: string) => ({
             event_id_ecm: eventId,
             category_id_ecm: categoryId,
         }));
 
-        await supabase.from('event_category_map').insert(categoryMaps);
+        await (supabase as any).from('event_category_map').insert(categoryMaps);
     }
 
     // 5. Manejar imágenes si se proporcionan
@@ -272,17 +267,17 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
     // Obtener imágenes actuales
     const { data: currentImages } = await supabase
         .from('event_images')
-        .select('*')
+        .select('id_eim, path_eim, sort_order_eim')
         .eq('event_id_eim', eventId);
 
     // === MANEJO DE COVER (sort_order_eim = 0) ===
-    const currentCover = currentImages?.find((img) => img.sort_order_eim === 0);
+    const currentCover = (currentImages as any)?.find((img: any) => img.sort_order_eim === 0);
     
     if (data.coverImage === null) {
         // Usuario eliminó el cover explícitamente
         if (currentCover) {
             // Eliminar del bucket
-            await supabase.storage.from('events-images').remove([currentCover.path_eim]);
+            await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_eim]);
             // Eliminar registro de BD
             await supabase.from('event_images').delete().eq('id_eim', currentCover.id_eim);
         }
@@ -290,7 +285,7 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
         // Usuario seleccionó una imagen nueva para reemplazar
         if (currentCover) {
             // Eliminar la imagen vieja del bucket
-            await supabase.storage.from('events-images').remove([currentCover.path_eim]);
+            await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_eim]);
             // Eliminar registro viejo
             await supabase.from('event_images').delete().eq('id_eim', currentCover.id_eim);
         }
@@ -301,24 +296,24 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
 
     // === MANEJO DE GALERÍA (sort_order_eim > 0) ===
     if (data.galleryImages !== undefined) {
-        const currentGallery = currentImages?.filter((img) => img.sort_order_eim > 0) || [];
+        const currentGallery = (currentImages as any)?.filter((img: any) => img.sort_order_eim > 0) || [];
         
         // Separar las imágenes existentes (URLs de supabase) de las nuevas
         const existingGalleryUrls = data.galleryImages.filter(uri => !isNewImage(uri));
         const newGalleryUris = data.galleryImages.filter(uri => isNewImage(uri));
 
         // Encontrar imágenes que se eliminaron (estaban antes pero ya no están en el array)
-        const imagesToDelete = currentGallery.filter(currentImg => {
-            const currentUrl = getImageUrl('events-images', currentImg.path_eim);
+        const imagesToDelete = currentGallery.filter((currentImg: any) => {
+            const currentUrl = getImageUrl(BUCKET_NAME, currentImg.path_eim);
             return !existingGalleryUrls.includes(currentUrl);
         });
 
         // Eliminar del bucket y BD las imágenes que ya no están
         if (imagesToDelete.length > 0) {
-            const pathsToDelete = imagesToDelete.map(img => img.path_eim);
-            await supabase.storage.from('events-images').remove(pathsToDelete);
+            const pathsToDelete = imagesToDelete.map((img: any) => img.path_eim);
+            await supabase.storage.from(BUCKET_NAME).remove(pathsToDelete);
             
-            const idsToDelete = imagesToDelete.map(img => img.id_eim);
+            const idsToDelete = imagesToDelete.map((img: any) => img.id_eim);
             await supabase.from('event_images').delete().in('id_eim', idsToDelete);
         }
 
@@ -380,7 +375,7 @@ async function uploadImage(
     const contentType = fileExt === 'png' ? 'image/png' : fileExt === 'webp' ? 'image/webp' : 'image/jpeg';
 
     const { error: uploadError } = await supabase.storage
-        .from('events-images')
+        .from(BUCKET_NAME)
         .upload(filePath, uploadData, {
             contentType,
             upsert: false,
@@ -388,10 +383,9 @@ async function uploadImage(
 
     if (uploadError) throw uploadError;
 
-    const { error: insertError } = await supabase.from('event_images').insert({
+    const { error: insertError } = await (supabase as any).from('event_images').insert({
+        id_eim: generateUUID(),
         event_id_eim: eventId,
-        image_type_eim: 'image',
-        bucket_eim: 'events-images',
         path_eim: filePath,
         sort_order_eim: sortOrder,
     });

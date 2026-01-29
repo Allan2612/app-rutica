@@ -1,6 +1,9 @@
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+
+const BUCKET_NAME = 'events-images';
 
 function generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -23,10 +26,8 @@ export interface CreateEventData {
     currency?: string;
     capacity?: number;
 
-    // Location
-    province?: string;
-    canton?: string;
-    district?: string;
+    // Location (V3: usa distrito normalizado)
+    districtId: string; // UUID del distrito en la tabla districts
     address?: string;
     latitude: number;
     longitude: number;
@@ -93,7 +94,7 @@ async function uploadImage(
 
         const contentType = fileExt === 'png' ? 'image/png' : fileExt === 'webp' ? 'image/webp' : 'image/jpeg';
 
-        const { error } = await supabase.storage.from('events-images').upload(filePath, uploadData, {
+        const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, uploadData, {
             contentType,
             upsert: false,
         });
@@ -113,15 +114,12 @@ export async function createEventComplete(
     data: CreateEventData
 ): Promise<string> {
     try {
-        // 1. Crear ubicación
-        const { data: location, error: locationError } = await supabase
+        // 1. Crear ubicación (V3: solo district_id, address y coordenadas)
+        const { data: location, error: locationError } = await (supabase as any)
             .from('locations')
             .insert({
                 id_loc: generateUUID(),
-                country_loc: 'Costa Rica',
-                province_loc: data.province ?? null,
-                canton_loc: data.canton ?? null,
-                district_loc: data.district ?? null,
+                district_id_loc: data.districtId,
                 address_loc: data.address ?? null,
                 latitude_loc: data.latitude,
                 longitude_loc: data.longitude,
@@ -139,7 +137,7 @@ export async function createEventComplete(
 
         // 3. Crear evento
         const eventId = generateUUID();
-        const { error: eventError } = await supabase
+        const { error: eventError } = await (supabase as any)
             .from('events')
             .insert({
                 id_evt: eventId,
@@ -171,7 +169,7 @@ export async function createEventComplete(
                 category_id_ecm: catId,
             }));
 
-            const { error: categoryError } = await supabase
+            const { error: categoryError } = await (supabase as any)
                 .from('event_category_map')
                 .insert(categoryMaps);
 
@@ -188,10 +186,9 @@ export async function createEventComplete(
                 (async () => {
                     try {
                         const filePath = await uploadImage(data.coverUri!, eventId, 'cover.jpg');
-                        const { error: insertError } = await supabase.from('event_images').insert({
+                        const { error: insertError } = await (supabase as any).from('event_images').insert({
+                            id_eim: generateUUID(),
                             event_id_eim: eventId,
-                            image_type_eim: 'image',
-                            bucket_eim: 'events-images',
                             path_eim: filePath,
                             sort_order_eim: 0,
                         });
@@ -210,10 +207,9 @@ export async function createEventComplete(
                 (async () => {
                     try {
                         const filePath = await uploadImage(uri, eventId, `gallery-${index}.jpg`);
-                        const { error: insertError } = await supabase.from('event_images').insert({
+                        const { error: insertError } = await (supabase as any).from('event_images').insert({
+                            id_eim: generateUUID(),
                             event_id_eim: eventId,
-                            image_type_eim: 'image',
-                            bucket_eim: 'events-images',
                             path_eim: filePath,
                             sort_order_eim: index + 1,
                         });

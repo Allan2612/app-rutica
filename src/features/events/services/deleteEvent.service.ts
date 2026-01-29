@@ -1,4 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
+
+const BUCKET_NAME = 'events-images';
 
 /**
  * Elimina un evento y todos sus datos relacionados
@@ -7,7 +10,7 @@ import { supabase } from '@/lib/supabase/client';
  */
 export async function deleteUserEvent(eventId: string, userId: string): Promise<void> {
     // 1. Verificar permisos
-    const { data: event, error: eventError } = await supabase
+    const { data: event, error: eventError } = await (supabase as any)
         .from('events')
         .select('created_by_evt, location_id_evt')
         .eq('id_evt', eventId)
@@ -22,7 +25,7 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
         // 2. Obtener todas las imágenes antes de eliminar
         const { data: images, error: queryError } = await supabase
             .from('event_images')
-            .select('bucket_eim, path_eim')
+            .select('path_eim')
             .eq('event_id_eim', eventId);
 
         if (queryError) {
@@ -30,11 +33,11 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
 
         // 3. Eliminar imágenes del bucket de Supabase
         if (images && images.length > 0) {
-            const imagePaths = images.map((img: { bucket_eim: string; path_eim: string }) => img.path_eim);
+            const imagePaths = (images as any).map((img: { path_eim: string }) => img.path_eim);
             
             // Intentar eliminar archivos individuales
             const { error: storageError } = await supabase.storage
-                .from('events-images')
+                .from(BUCKET_NAME)
                 .remove(imagePaths);
 
             if (storageError) {
@@ -43,7 +46,7 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
             // Intentar también listar y eliminar toda la carpeta del evento (fallback)
             try {
                 const { data: folderFiles } = await supabase.storage
-                    .from('events-images')
+                    .from(BUCKET_NAME)
                     .list(eventId, {
                         limit: 100,
                         sortBy: { column: 'name', order: 'asc' }
@@ -52,7 +55,7 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
                 if (folderFiles && folderFiles.length > 0) {
                     const folderPaths = folderFiles.map(file => `${eventId}/${file.name}`);
                     await supabase.storage
-                        .from('events-images')
+                        .from(BUCKET_NAME)
                         .remove(folderPaths);
                 }
             } catch (folderError) {
