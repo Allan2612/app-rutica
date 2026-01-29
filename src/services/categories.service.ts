@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
-import { Category, CategoryItem, categoryToItem } from '@/types/entities';
+import { Category, CategoryOption } from '@/types/entities';
+import type { Database } from '@/lib/supabase/database.types';
 
 /**
  * Servicio centralizado para gestión de categorías
@@ -7,11 +8,13 @@ import { Category, CategoryItem, categoryToItem } from '@/types/entities';
  * usan la misma tabla 'categories'
  */
 
+type CategoryRow = Database['public']['Tables']['categories']['Row'];
+
 /**
  * Obtiene todas las categorías del sistema (versión transformada para UI)
- * @returns Array de CategoryItem con {id, name}
+ * @returns Array de CategoryOption con {id, name}
  */
-export async function getCategories(): Promise<CategoryItem[]> {
+export async function getCategories(): Promise<CategoryOption[]> {
     const { data, error } = await supabase
         .from('categories')
         .select('id_cat, name_cat')
@@ -21,7 +24,7 @@ export async function getCategories(): Promise<CategoryItem[]> {
         return [];
     }
 
-    return (data ?? []).map((row: any) => ({
+    return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
         id: row.id_cat,
         name: row.name_cat,
     }));
@@ -47,7 +50,7 @@ export async function getCategoriesRaw(): Promise<Category[]> {
 /**
  * Obtiene una categoría por ID
  */
-export async function getCategoryById(id: string): Promise<CategoryItem | null> {
+export async function getCategoryById(id: string): Promise<CategoryOption | null> {
     const { data, error } = await supabase
         .from('categories')
         .select('id_cat, name_cat')
@@ -58,16 +61,17 @@ export async function getCategoryById(id: string): Promise<CategoryItem | null> 
         return null;
     }
 
+    const category = data as unknown as CategoryRow;
     return {
-        id: data.id_cat,
-        name: data.name_cat,
+        id: category.id_cat,
+        name: category.name_cat,
     };
 }
 
 /**
  * Busca categorías por nombre
  */
-export async function searchCategories(searchTerm: string): Promise<CategoryItem[]> {
+export async function searchCategories(searchTerm: string): Promise<CategoryOption[]> {
     const { data, error } = await supabase
         .from('categories')
         .select('id_cat, name_cat')
@@ -79,7 +83,7 @@ export async function searchCategories(searchTerm: string): Promise<CategoryItem
         return [];
     }
 
-    return (data ?? []).map((row: any) => ({
+    return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
         id: row.id_cat,
         name: row.name_cat,
     }));
