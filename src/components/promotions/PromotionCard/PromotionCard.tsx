@@ -28,6 +28,7 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
   };
 
   const formatDateRange = () => {
+    if (!promotion.startAt || !promotion.endAt) return 'Sin fechas';
     const start = new Date(promotion.startAt);
     const end = new Date(promotion.endAt);
     return `${start.getDate()} ${start.toLocaleDateString('es-CR', { month: 'short' })} - ${end.getDate()} ${end.toLocaleDateString('es-CR', { month: 'short' })}`;
@@ -44,9 +45,9 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
     >
       <View style={styles.cardContent}>
         {/* Imagen */}
-        {promotion.imageUrl ? (
+        {promotion.coverUrl ? (
           <Image 
-            source={{ uri: promotion.imageUrl }} 
+            source={{ uri: promotion.coverUrl }} 
             style={styles.image}
             contentFit="cover"
             transition={200}

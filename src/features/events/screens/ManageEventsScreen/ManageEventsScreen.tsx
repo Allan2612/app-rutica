@@ -136,12 +136,16 @@ export const ManageEventsScreen = memo(function ManageEventsScreen() {
                                 (a, b) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0)
                             );
                             const coverImage = sortedImages.find(img => img.sort_order_eim === 0);
-                            const imageUrl = coverImage?.bucket_eim && coverImage?.path_eim
-                                ? getImageUrl(coverImage.bucket_eim, coverImage.path_eim)
+                            const imageUrl = coverImage?.path_eim
+                                ? getImageUrl('events-images', coverImage.path_eim)
                                 : null;
 
-                            const location = event.locations?.[0];
-                            const locationParts = [location?.canton_loc, location?.district_loc].filter(Boolean);
+                            // locations puede ser un array o un objeto dependiendo de la query
+                            const locationData = Array.isArray(event.locations) ? event.locations[0] : event.locations;
+                            const locationParts = [
+                                locationData?.districts?.name_dst,
+                                locationData?.districts?.cantons?.name_ctn
+                            ].filter(Boolean);
                             const locationLabel = locationParts.length > 0 ? locationParts.join(', ') : null;
 
                             const categoryNames = (event.event_category_map ?? [])

@@ -11,13 +11,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge, PromoBadge } from '@/components/ui';
 import { getPromotionBadgeLabel, formatDate } from '@/utils';
-import type { DiscountType, PromoScope } from '@/types/enums';
+import type { DiscountType, PromotionScope } from '@/types/enums';
 import { styles } from './styles';
 
 export interface UserPromotionCardProps {
   title: string;
   description?: string | null;
-  scope?: PromoScope;
+  scope?: PromotionScope;
   discountType: DiscountType | string;
   discountValue: number;
   comboItems?: { productId: string; quantity: number; paidQuantity?: number }[];

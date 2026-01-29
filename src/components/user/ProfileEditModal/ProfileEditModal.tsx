@@ -20,10 +20,10 @@ export const ProfileEditModal = memo(function ProfileEditModal({
   onSave,
 }: ProfileEditModalProps) {
   const colors = useThemedColors();
-  const [firstName, setFirstName] = useState(profile.first_name_PRF || '');
-  const [lastName1, setLastName1] = useState(profile.last_name1_PRF || '');
-  const [lastName2, setLastName2] = useState(profile.last_name2_PRF || '');
-  const [phoneNumber, setPhoneNumber] = useState(profile.phone_number_PRF || '');
+  const [firstName, setFirstName] = useState(profile.first_name_prf || '');
+  const [lastName1, setLastName1] = useState(profile.last_name1_prf || '');
+  const [lastName2, setLastName2] = useState(profile.last_name2_prf || '');
+  const [phoneNumber, setPhoneNumber] = useState(profile.phone_number_prf || '');
   const [loading, setLoading] = useState(false);
 
   const handleSave = useCallback(async () => {
@@ -41,10 +41,10 @@ export const ProfileEditModal = memo(function ProfileEditModal({
     try {
       setLoading(true);
       await onSave({
-        first_name_PRF: firstName.trim(),
-        last_name1_PRF: lastName1.trim(),
-        last_name2_PRF: lastName2.trim() || null,
-        phone_number_PRF: phoneNumber.trim() || null,
+        first_name_prf: firstName.trim(),
+        last_name1_prf: lastName1.trim(),
+        last_name2_prf: lastName2.trim() || null,
+        phone_number_prf: phoneNumber.trim() || null,
       });
       Toast.show({
         type: 'success',

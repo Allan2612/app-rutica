@@ -30,7 +30,7 @@ import {
   WizardStepImage,
   WizardStepPayment,
 } from '@/components/promotions';
-import type { UpdatePromotionData } from '@/types/entities';
+import type { PromotionFormData } from '@/types/entities';
 
 interface EditPromotionWizardScreenProps {
   promotionId: string;
@@ -56,8 +56,8 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       wizard.updateField('scope', promotionData.scope);
       wizard.updateField('discountType', promotionData.discountType);
       wizard.updateField('discountValue', promotionData.discountValue);
-      wizard.updateField('startDate', new Date(promotionData.startAt));
-      wizard.updateField('endDate', new Date(promotionData.endAt));
+      wizard.updateField('startDate', promotionData.startAt ? new Date(promotionData.startAt) : new Date());
+      wizard.updateField('endDate', promotionData.endAt ? new Date(promotionData.endAt) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
       wizard.updateField('selectedCategoryIds', promotionData.categoryIds);
       wizard.updateField('selectedProductIds', promotionData.productIds);
       wizard.updateField('scopeCategoryIds', promotionData.scopeCategoryIds);
@@ -94,8 +94,8 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
     },
   });
 
-  // Convert wizard data to UpdatePromotionData
-  const buildUpdateData = useCallback((): UpdatePromotionData => {
+  // Convert wizard data to Partial<PromotionFormData>
+  const buildUpdateData = useCallback((): Partial<PromotionFormData> => {
     return {
       title: wizard.formData.title,
       description: wizard.formData.description,

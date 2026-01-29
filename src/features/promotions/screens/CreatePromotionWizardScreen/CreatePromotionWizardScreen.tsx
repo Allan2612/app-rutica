@@ -25,7 +25,7 @@ import {
   WizardStepImage,
   WizardStepPayment,
 } from '@/components/promotions';
-import type { CreatePromotionData } from '@/types/entities';
+import type { PromotionFormData } from '@/types/entities';
 
 export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardScreen() {
   const colors = useThemedColors();
@@ -60,8 +60,8 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
     },
   });
 
-  // Convert wizard data to CreatePromotionData
-  const buildCreateData = useCallback((): CreatePromotionData => {
+  // Convert wizard data to PromotionFormData
+  const buildCreateData = useCallback((): PromotionFormData => {
     return {
       businessId: wizard.formData.businessId,
       title: wizard.formData.title,
