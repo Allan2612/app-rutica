@@ -74,7 +74,7 @@ export function useCreateBusinessForm() {
         // Validar que la ubicación tenga país y sea Costa Rica
         const country = location.country?.toLowerCase() || '';
         const isCostaRica = country.includes('costa rica') || country === 'cr';
-        
+
         if (!isCostaRica && location.country) {
             // Si tiene país pero no es Costa Rica, rechazar
             Toast.show({
@@ -86,7 +86,7 @@ export function useCreateBusinessForm() {
             });
             return;
         }
-        
+
         setFormData((prev) => ({
             ...prev,
             province: location.province || null,
@@ -139,18 +139,13 @@ export function useCreateBusinessForm() {
                 name: formData.name.trim(),
                 description: formData.description.trim() || undefined,
                 categoryIds: formData.selectedCategoryIds,
-                province: formData.province ?? undefined,
-                canton: formData.canton ?? undefined,
-                district: formData.district ?? undefined,
+                districtId: formData.province || '', // TODO: Este campo necesita ser el ID del distrito, no el nombre de provincia
                 address: formData.address.trim() || undefined,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
                 phone: formData.phone.trim() || undefined,
                 email: formData.email.trim() || undefined,
                 website: formData.website.trim() || undefined,
-                facebook: formData.facebook.trim() || undefined,
-                instagram: formData.instagram.trim() || undefined,
-                tiktok: formData.tiktok.trim() || undefined,
                 logoUri: formData.logoUri,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,

@@ -21,27 +21,37 @@ export interface BusinessListItem {
     hasActivePromotions: boolean;
 }
 
+/**
+ * Extrae el tipo de imagen del path (V3)
+ * Path format: <business_id>/<prefix>-<timestamp>-<random>.<ext>
+ */
+function getImageTypeFromPath(path: string): string {
+    if (!path) return '';
+    const filename = path.split('/').pop() || '';
+    return filename.split('-')[0];
+}
+
 function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
     const sortedImages = [...(item.business_images ?? [])].sort(
         (a, b) => (a?.sort_order_bim ?? 0) - (b?.sort_order_bim ?? 0)
     );
 
-    const coverImage = sortedImages.find((img) => img.image_type_bim === 'cover');
-    const logoImage = sortedImages.find((img) => img.image_type_bim === 'logo');
-    const galleryImage = sortedImages.find((img) => img.image_type_bim === 'gallery');
+    // V3: Identificar por prefix en path
+    const coverImage = sortedImages.find((img) => getImageTypeFromPath(img.path_bim) === 'cover');
+    const logoImage = sortedImages.find((img) => getImageTypeFromPath(img.path_bim) === 'logo');
+    const galleryImage = sortedImages.find((img) => getImageTypeFromPath(img.path_bim) === 'gallery');
 
     // Priorizar cover, luego gallery, luego logo
     const primaryImage = coverImage ?? galleryImage ?? logoImage ?? sortedImages[0];
 
-    const imageUrl =
-        primaryImage?.bucket_bim && primaryImage?.path_bim
-            ? getImageUrl(primaryImage.bucket_bim, primaryImage.path_bim)
-            : null;
+    // V3: Solo path_bim, bucket fijo
+    const imageUrl = primaryImage?.path_bim
+        ? getImageUrl(primaryImage.path_bim)
+        : null;
 
-    const logoUrl =
-        logoImage?.bucket_bim && logoImage?.path_bim
-            ? getImageUrl(logoImage.bucket_bim, logoImage.path_bim)
-            : null;
+    const logoUrl = logoImage?.path_bim
+        ? getImageUrl(logoImage.path_bim)
+        : null;
 
     // Obtener todas las categorías de la relación many-to-many
     const categories = item.business_category_map
@@ -50,7 +60,11 @@ function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
     const categoryNames = categories.map(cat => cat.name_cat);
     const categoryIds = categories.map(cat => cat.id_cat);
 
-    const locationParts = [item.locations?.canton_loc, item.locations?.district_loc].filter(Boolean);
+    // V3: Ubicación con jerarquía normalizada (districts -> cantons)
+    const locationData = item.locations;
+    const districtData = locationData?.districts;
+    const cantonData = districtData?.cantons;
+    const locationParts = [cantonData?.name_ctn, districtData?.name_dst].filter(Boolean);
 
     return {
         id: item.id_bus,

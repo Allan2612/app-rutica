@@ -3,7 +3,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useCategories } from '@/hooks/useCategories';
 import { useBusinessById, useUpdateBusiness } from '@/features/business/hooks/useUserBusinesses';
-import type { UpdateBusinessData } from '@/types/entities/business';
+import type { UpdateBusinessData } from '@/features/business/services/updateBusiness.service';
 
 interface UseBusinessFormProps {
     businessId: string;
@@ -22,15 +22,10 @@ export function useBusinessForm(businessId: string) {
         phone: '',
         email: '',
         website: '',
-        facebook: '',
-        instagram: '',
-        tiktok: '',
         logoUri: null as string | null,
         coverUri: null as string | null,
         galleryUris: [] as string[],
-        province: '',
-        canton: '',
-        district: '',
+        districtId: null as string | null,
         address: '',
         coordinates: null as { latitude: number; longitude: number } | null,
     });
@@ -51,17 +46,14 @@ export function useBusinessForm(businessId: string) {
                 phone: business.phone || '',
                 email: business.email || '',
                 website: business.website || '',
-                facebook: business.facebook || '',
-                instagram: business.instagram || '',
-                tiktok: business.tiktok || '',
                 logoUri: business.logoUrl,
                 coverUri: business.coverUrl,
                 galleryUris: business.galleryUrls,
-                province: business.province || '',
-                canton: business.canton || '',
-                district: business.district || '',
+                districtId: business.districtId,
                 address: business.address || '',
-                coordinates: { latitude: business.latitude, longitude: business.longitude },
+                coordinates: (business.latitude && business.longitude)
+                    ? { latitude: business.latitude, longitude: business.longitude }
+                    : null,
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
@@ -94,46 +86,11 @@ export function useBusinessForm(businessId: string) {
             return;
         }
 
-        // Validar que la ubicación esté en Costa Rica antes de guardar
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${formData.coordinates!.latitude}&lon=${formData.coordinates!.longitude}&addressdetails=1`,
-                {
-                    headers: {
-                        'Accept-Language': 'es',
-                        'User-Agent': 'RuticaApp/1.0',
-                    },
-                }
-            );
-            const data = await response.json();
-
-            if (data && data.address) {
-                const country = data.address.country || '';
-                const countryCode = data.address.country_code?.toLowerCase() || '';
-                const isCostaRica = countryCode === 'cr' || country.toLowerCase().includes('costa rica');
-
-                if (!isCostaRica) {
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Ubicación no válida',
-                        text2: `La ubicación está en ${country}, debe estar en Costa Rica`,
-                        position: 'top',
-                        visibilityTime: 4000,
-                    });
-                    return;
-                }
-
-                // Actualizar datos de ubicación si los obtuvimos
-                if (data.address.state) formData.province = data.address.state;
-                if (data.address.county) formData.canton = data.address.county;
-                if (data.address.city || data.address.town) formData.district = data.address.city || data.address.town;
-                if (data.display_name) formData.address = data.display_name;
-            }
-        } catch (error) {
+        if (!formData.districtId) {
             Toast.show({
                 type: 'error',
-                text1: 'Error de validación',
-                text2: 'No se pudo verificar la ubicación. Intenta de nuevo.',
+                text1: 'Ubicación incompleta',
+                text2: 'Por favor selecciona un distrito válido',
                 position: 'top',
                 visibilityTime: 3000,
             });
@@ -145,19 +102,16 @@ export function useBusinessForm(businessId: string) {
                 name: formData.name.trim(),
                 description: formData.description.trim() || null,
                 categoryIds: formData.selectedCategoryIds,
-                country: 'Costa Rica',
-                province: formData.province || null,
-                canton: formData.canton || null,
-                district: formData.district || null,
+                districtId: formData.districtId,
                 address: formData.address.trim() || null,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
                 phone: formData.phone.trim() || null,
                 email: formData.email.trim() || null,
                 website: formData.website.trim() || null,
-                facebook: formData.facebook.trim() || null,
-                instagram: formData.instagram.trim() || null,
-                tiktok: formData.tiktok.trim() || null,
+                facebook: null,
+                instagram: null,
+                tiktok: null,
                 logoUri: formData.logoUri,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
