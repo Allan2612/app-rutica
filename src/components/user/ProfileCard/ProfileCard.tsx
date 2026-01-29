@@ -23,7 +23,7 @@ export const ProfileCard = memo(function ProfileCard({
   onBack,
 }: ProfileCardProps) {
   const colors = useThemedColors();
-  const translatedRole = roleTranslations[profile.role_PRF] || profile.role_PRF;
+  const translatedRole = profile.role_prf ? (roleTranslations[profile.role_prf] || profile.role_prf) : 'Sin rol';
 
   return (
     <View style={[styles.container, { 
@@ -50,7 +50,7 @@ export const ProfileCard = memo(function ProfileCard({
         <View style={styles.field}>
           <Text style={[styles.label, { color: colors.text.tertiary }]}>Número de Teléfono</Text>
           <Text style={[styles.value, { color: colors.text.primary }]}>
-            {profile.phone_number_PRF || 'Sin teléfono'}
+            {profile.phone_number_prf || 'Sin teléfono'}
           </Text>
         </View>
 
@@ -62,9 +62,9 @@ export const ProfileCard = memo(function ProfileCard({
         <View style={styles.field}>
           <Text style={[styles.label, { color: colors.text.tertiary }]}>Estado</Text>
           <Text style={[styles.value, { 
-            color: profile.is_active_PRF ? colors.primary[500] : colors.text.secondary 
+            color: profile.is_active_prf ? colors.primary[500] : colors.text.secondary 
           }]}>
-            {profile.is_active_PRF ? 'Activo' : 'Inactivo'}
+            {profile.is_active_prf ? 'Activo' : 'Inactivo'}
           </Text>
         </View>
       </View>

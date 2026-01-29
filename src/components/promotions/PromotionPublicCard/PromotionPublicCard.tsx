@@ -32,8 +32,8 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
 
     // Calcular días restantes
     const now = new Date();
-    const endDate = new Date(promotion.endAt);
-    const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const endDate = promotion.endAt ? new Date(promotion.endAt) : null;
+    const daysRemaining = endDate ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
     const isEndingSoon = daysRemaining <= 3 && daysRemaining > 0;
 
     const handlePress = () => {
@@ -53,9 +53,9 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
             disabled={!onPress}
         >
             {/* Hero Image */}
-            {promotion.imageUrl ? (
+            {promotion.coverUrl ? (
                 <Image
-                    source={{ uri: promotion.imageUrl }}
+                    source={{ uri: promotion.coverUrl }}
                     style={styles.heroFull}
                     contentFit="cover"
                     transition={200}
@@ -158,7 +158,7 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                 <View style={styles.dateRow}>
                     <Calendar size={14} color="rgba(255,255,255,0.8)" strokeWidth={1.75} />
                     <Text style={styles.dateText}>
-                        {formatDate(promotion.startAt)} - {formatDate(promotion.endAt)}
+                        {promotion.startAt && promotion.endAt ? `${formatDate(promotion.startAt)} - ${formatDate(promotion.endAt)}` : 'Sin fechas'}
                     </Text>
                 </View>
             </View>
