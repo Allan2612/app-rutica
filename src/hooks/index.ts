@@ -7,4 +7,5 @@ export * from './useLocation';
 export * from './useLocationDetection';
 export * from './useLocationFilters';
 export * from './useThemedColors';
+export * from './useProfilePhoto';
 
