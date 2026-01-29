@@ -19,3 +19,6 @@ export * from './WizardStepPayment';
 export * from './WizardProgressBar';
 export * from './WizardNavigation';
 export * from './PromotionPreviewCard';
+
+// Admin Components
+export * from './PromotionModerationDialog';

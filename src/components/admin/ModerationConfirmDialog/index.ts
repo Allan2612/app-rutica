@@ -1,0 +1,1 @@
+export { ModerationConfirmDialog } from './ModerationConfirmDialog';
