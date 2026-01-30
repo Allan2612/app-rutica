@@ -2,9 +2,16 @@
  * Servicio para obtener el detalle de un evento
  */
 import { supabase } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
+
+// ============================================
+// Constants
+// ============================================
 
 const BUCKET_NAME = 'events-images';
+
+// ============================================
+// Types
+// ============================================
 
 export interface EventDetailData {
     id: string;
@@ -42,10 +49,19 @@ export interface EventDetailData {
     createdAt: string;
 }
 
-function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+// ============================================
+// Helpers
+// ============================================
+
+function getImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
     return data.publicUrl;
 }
+
+// ============================================
+// Service Functions
+// ============================================
 
 export async function getEventDetail(eventId: string): Promise<EventDetailData | null> {
     const { data, error } = await supabase
@@ -81,12 +97,12 @@ export async function getEventDetail(eventId: string): Promise<EventDetailData |
             locations!events_location_id_evt_fkey (
                 latitude_loc,
                 longitude_loc,
-                districts!locations_district_id_loc_fkey (
+                districts!locations_district_id_fkey (
                     id_dst,
                     name_dst,
-                    cantons!districts_canton_id_dst_fkey (
+                    cantons!districts_canton_id_fkey (
                         name_ctn,
-                        provinces!cantons_province_id_ctn_fkey (
+                        provinces!cantons_province_id_fkey (
                             name_prv
                         )
                     )
@@ -105,14 +121,13 @@ export async function getEventDetail(eventId: string): Promise<EventDetailData |
         return null;
     }
 
-    // Procesar imágenes - primera es portada, resto es galería
-    const images = ((data as any).event_images ?? [])
+    // Procesar imágenes - ordenar por sort_order, primera con sort_order=0 es cover
+    const sortedImages = ((data as any).event_images ?? [])
         .sort((a: any, b: any) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0))
-        .filter((img: any) => img.path_eim)
-        .map((img: any) => getImageUrl(BUCKET_NAME, img.path_eim));
+        .filter((img: any) => img.path_eim);
 
-    const coverImage = images.length > 0 ? images[0] : null;
-    const galleryImages = images.slice(1);
+    const coverImage = sortedImages.find((img: any) => img.sort_order_eim === 0);
+    const galleryImages = sortedImages.filter((img: any) => img.sort_order_eim > 0);
 
     // Procesar categorías
     const categories = (data as any).event_category_map?.map((m: any) => m.categories).filter(Boolean) ?? [];
@@ -120,7 +135,7 @@ export async function getEventDetail(eventId: string): Promise<EventDetailData |
     const categoryIds = categories.map((c: any) => c.id_cat);
 
     // Procesar ubicación V3 (normalizada con joins)
-    const location = Array.isArray((data as any).locations) ? (data as any).locations[0] : (data as any).locations;
+    const location = (data as any).locations;
     const district = location?.districts;
     const canton = district?.cantons;
     const province = canton?.provinces;
@@ -167,8 +182,8 @@ export async function getEventDetail(eventId: string): Promise<EventDetailData |
         district: districtName,
         latitude: location?.latitude_loc ?? null,
         longitude: location?.longitude_loc ?? null,
-        coverImage,
-        galleryImages,
+        coverImage: coverImage ? getImageUrl(coverImage.path_eim) : null,
+        galleryImages: galleryImages.map((img: any) => getImageUrl(img.path_eim)),
         authorName,
         contactPhone: (data as any).contact_phone_evt,
         contactEmail: (data as any).contact_email_evt,

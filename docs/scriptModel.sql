@@ -1629,7 +1629,10 @@ create policy "events_update_admin"
 create policy "events_delete_admin"
   on public.events for delete
   using (public.is_admin());
-
+  
+create policy "events_delete_owner"
+  on public.events for delete
+  using (created_by_evt = auth.uid());
 -- ============================================================
 -- 12.8) ATTRACTIONS
 -- ============================================================
@@ -1712,6 +1715,9 @@ create policy "attractions_delete_admin"
   on public.attractions for delete
   using (public.is_admin());
 
+create policy "attractions_delete_owner"
+  on public.attractions for delete
+  using (submitted_by_atr = auth.uid());
 -- ============================================================
 -- 12.9) PRODUCTS
 -- ============================================================

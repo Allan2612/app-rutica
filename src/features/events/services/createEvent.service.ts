@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
 
 const BUCKET_NAME = 'events-images';
 
@@ -26,8 +26,11 @@ export interface CreateEventData {
     currency?: string;
     capacity?: number;
 
-    // Location (V3: usa distrito normalizado)
-    districtId: string; // UUID del distrito en la tabla districts
+    // Location (V3: usa jerarquía de nombres para crear/buscar distrito)
+    country: string;      // Nombre del país
+    province: string;     // Nombre de la provincia
+    canton: string;       // Nombre del cantón
+    district: string;     // Nombre del distrito
     address?: string;
     latitude: number;
     longitude: number;
@@ -114,12 +117,27 @@ export async function createEventComplete(
     data: CreateEventData
 ): Promise<string> {
     try {
-        // 1. Crear ubicación (V3: solo district_id, address y coordenadas)
+        // 1. Validar datos de ubicación
+        const locationHierarchy: LocationHierarchy = {
+            country: data.country,
+            province: data.province,
+            canton: data.canton,
+            district: data.district,
+        };
+
+        if (!validateLocationData(locationHierarchy)) {
+            throw new Error('Datos de ubicación incompletos');
+        }
+
+        // 2. Buscar o crear la jerarquía de ubicación y obtener district_id
+        const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
+
+        // 3. Crear ubicación con las coordenadas
         const { data: location, error: locationError } = await (supabase as any)
             .from('locations')
             .insert({
                 id_loc: generateUUID(),
-                district_id_loc: data.districtId,
+                district_id_loc: districtId,
                 address_loc: data.address ?? null,
                 latitude_loc: data.latitude,
                 longitude_loc: data.longitude,

@@ -165,13 +165,13 @@ export async function getBusinessForEdit(
                 address_loc,
                 latitude_loc,
                 longitude_loc,
-                districts!locations_district_id_loc_fkey (
+                districts!locations_district_id_fkey (
                     name_dst,
-                    cantons!districts_canton_id_dst_fkey (
+                    cantons!districts_canton_id_fkey (
                         name_ctn,
-                        provinces!cantons_province_id_ctn_fkey (
+                        provinces!cantons_province_id_fkey (
                             name_prv,
-                            countries!provinces_country_id_prv_fkey (
+                            countries!provinces_country_id_fkey (
                                 name_cnt
                             )
                         )
