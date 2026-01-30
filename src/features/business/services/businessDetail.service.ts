@@ -5,6 +5,7 @@ const BUCKET_NAME = 'business-images';
 
 export interface BusinessDetailData {
     id: string;
+    ownerId: string;
     name: string;
     description: string | null;
     categoryNames: string[];
@@ -34,6 +35,7 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
         .from('businesses')
         .select(`
       id_bus,
+      owner_id_bus,
       name_bus,
       description_bus,
       moderation_status_bus,
@@ -94,7 +96,7 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
     // V3: sort_order=0 es logo, >0 es gallery
     const logoImage = images.find((img: any) => img.sort_order_bim === 0 || getImageType(img.path_bim) === 'logo');
     const coverImage = images.find((img: any) => getImageType(img.path_bim) === 'cover');
-    const galleryImagesData = images.filter((img: any) => 
+    const galleryImagesData = images.filter((img: any) =>
         img.sort_order_bim > 0 && getImageType(img.path_bim) !== 'cover'
     );
 
@@ -127,7 +129,7 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
     const canton = district?.cantons;
     const province = canton?.provinces;
     const country = province?.countries;
-    
+
     const locationParts = [country?.name_cnt, province?.name_prv, canton?.name_ctn, district?.name_dst].filter(Boolean);
     const locationLabel = locationParts.length ? locationParts.join(', ') : null;
 
@@ -142,6 +144,7 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
 
     return {
         id: (data as any).id_bus,
+        ownerId: (data as any).owner_id_bus,
         name: (data as any).name_bus,
         description: (data as any).description_bus,
         categoryNames,

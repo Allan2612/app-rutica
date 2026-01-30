@@ -2008,11 +2008,10 @@ create policy "business_reviews_insert_auth"
     auth.uid() is not null
     and public.is_active_user()
     and user_id_brv = auth.uid()
-    -- Solo puede reviewear negocios aprobados
+    -- Verificar que el negocio existe y está activo (sin importar estado de aprobación)
     and exists (
       select 1 from public.businesses
       where id_bus = business_id_brv
-        and moderation_status_bus = 'approved'
         and is_active_bus = true
     )
     -- No puede reviewear su propio negocio
