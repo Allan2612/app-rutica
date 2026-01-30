@@ -1,9 +1,10 @@
 import { memo, useCallback } from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { User, LogOut, Settings, UserCircle } from 'lucide-react-native';
+import { User, LogOut, Settings, UserCircle, HelpCircle } from 'lucide-react-native';
 import { useAuthStore } from '@/store';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useProfilePhoto } from '@/hooks';
 import { styles } from './styles';
 
 interface UserMenuProps {
@@ -21,6 +22,7 @@ export const UserMenu = memo(function UserMenu({
 }: UserMenuProps) {
   const signOut = useAuthStore((state) => state.signOut);
   const colors = useThemedColors();
+  const profilePhotoUrl = useProfilePhoto(user?.id);
 
   const handleLogin = useCallback(() => {
     onClose();
@@ -67,9 +69,18 @@ export const UserMenu = memo(function UserMenu({
             <>
               {/* Información del usuario */}
               <View style={styles.menuHeader}>
-                <View style={[styles.menuUserIcon, { backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] }]}>
-                  <User color={colors.primary[500]} size={24} />
-                </View>
+                {profilePhotoUrl ? (
+                  <Image
+                    source={{ uri: profilePhotoUrl }}
+                    style={styles.menuUserIcon}
+                    contentFit="cover"
+                    transition={200}
+                  />
+                ) : (
+                  <View style={[styles.menuUserIcon, { backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] }]}>
+                    <User color={colors.primary[500]} size={24} />
+                  </View>
+                )}
                 <View style={styles.menuUserInfo}>
                   <Text style={[styles.menuUserName, { color: colors.text.primary }]} numberOfLines={1}>
                     {user?.email?.split('@')[0] || 'Usuario'}
@@ -94,7 +105,7 @@ export const UserMenu = memo(function UserMenu({
               </Pressable>
 
               <Pressable style={styles.menuItem} onPress={handleSupport}>
-                <UserCircle color={colors.primary[500]} size={20} />
+                <HelpCircle color={colors.primary[500]} size={20} />
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Soporte</Text>
               </Pressable>
 
@@ -124,7 +135,7 @@ export const UserMenu = memo(function UserMenu({
               </Pressable>
 
               <Pressable style={styles.menuItem} onPress={handleSupport}>
-                <UserCircle color={colors.primary[500]} size={20} />
+                <HelpCircle color={colors.primary[500]} size={20} />
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Soporte</Text>
               </Pressable>
             </>

@@ -6,6 +6,7 @@ import { formSectionStyles as styles } from '@/styles/form-section-styles';
 
 interface LocationSectionProps {
     onLocationSelect: (location: {
+        country?: string;
         province?: string;
         canton?: string;
         district?: string;

@@ -31,6 +31,7 @@ export interface Business {
   contact_phone_bus: string | null;
   contact_email_bus: string | null;
   website_bus: string | null;
+  // Moderación
   moderation_status_bus: ModerationStatus | null;
   reviewed_by_bus: string | null;
   reviewed_at_bus: string | null;
@@ -131,14 +132,19 @@ export interface BusinessDetailForEdit {
   name: string;
   description: string | null;
   categoryIds: string[];
-  districtId: string | null;
+  country: string;
+  province: string;
+  canton: string;
+  district: string;
   address: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  latitude: number;
+  longitude: number;
   phone: string | null;
   email: string | null;
   website: string | null;
-  socialLinks: BusinessSocialLinks | null;
+  facebook: string | null;
+  instagram: string | null;
+  tiktok: string | null;
   logoUrl: string | null;
   coverUrl: string | null;
   galleryUrls: string[];

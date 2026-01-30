@@ -60,11 +60,13 @@ function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
     const categoryNames = categories.map(cat => cat.name_cat);
     const categoryIds = categories.map(cat => cat.id_cat);
 
-    // V3: Ubicación con jerarquía normalizada (districts -> cantons)
+    // V3: Ubicación con jerarquía normalizada (districts -> cantons -> provinces -> countries)
     const locationData = item.locations;
     const districtData = locationData?.districts;
     const cantonData = districtData?.cantons;
-    const locationParts = [cantonData?.name_ctn, districtData?.name_dst].filter(Boolean);
+    const provinceData = cantonData?.provinces;
+    const countryData = provinceData?.countries;
+    const locationParts = [countryData?.name_cnt, provinceData?.name_prv, cantonData?.name_ctn, districtData?.name_dst].filter(Boolean);
 
     return {
         id: item.id_bus,

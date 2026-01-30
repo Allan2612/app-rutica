@@ -1702,7 +1702,12 @@ create policy "attractions_update_admin"
   using (public.is_admin())
   with check (public.is_admin());
 
--- DELETE: Solo admin
+-- DELETE: Quien envió puede eliminar su atracción
+create policy "attractions_delete_owner"
+  on public.attractions for delete
+  using (submitted_by_atr = auth.uid());
+
+-- DELETE: Admin puede eliminar cualquier atracción
 create policy "attractions_delete_admin"
   on public.attractions for delete
   using (public.is_admin());

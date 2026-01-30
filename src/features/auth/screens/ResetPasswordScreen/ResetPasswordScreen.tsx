@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { supabase } from '@/lib/supabase/client';
+import { useAuthStore } from '@/store';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
@@ -61,9 +62,13 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
         visibilityTime: 3000,
       });
 
+      // Limpiar modo recovery y hacer signOut limpio
+      useAuthStore.getState().setRecoveryMode(false);
+      await supabase.auth.signOut();
+
       setTimeout(() => {
         router.replace('/(auth)/login');
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
       Toast.show({
         type: 'error',
