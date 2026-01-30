@@ -266,6 +266,7 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
   query = query
     .eq('promotions.moderation_status_prm', 'approved')
     .eq('promotions.payment_state_prm', 'paid')
+    .eq('promotions.is_active_prm', true)
     .lte('promotions.start_at_prm', now)
     .gte('promotions.end_at_prm', now);
 

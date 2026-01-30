@@ -318,17 +318,14 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
         .eq('promotion_id_pci', promotionId);
 
     // 9. Eliminar la promoción
-    console.log('[deleteUserPromotion] Deleting promotion:', promotionId);
     const { error: deleteError } = await supabase
         .from('promotions')
         .delete()
         .eq('id_prm', promotionId);
 
     if (deleteError) {
-        console.error('[deleteUserPromotion] Error deleting promotion:', deleteError);
         throw deleteError;
     }
-    console.log('[deleteUserPromotion] Promotion deleted successfully');
 }
 
 // ============================================
@@ -339,22 +336,15 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
  * Mapea un registro de BD a un item de lista para UI
  */
 function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
-    console.log('[mapRecordToListItem] Processing promotion:', record.id_prm);
-    console.log('[mapRecordToListItem] Images:', record.promotion_images);
-    
     // Obtener imagen de cover si existe - filtrar por prefijo del path
     const coverImage = record.promotion_images?.find((img) => {
         const prefix = img.path_pim.split('/').pop()?.split('-')[0];
         return prefix === 'flyer';
     });
 
-    console.log('[mapRecordToListItem] Cover image found:', coverImage);
-
-    let coverUrl: string | null = null;
-    if (coverImage) {
-        coverUrl = getImageUrl(BUCKET_NAME, coverImage.path_pim);
-        console.log('[mapRecordToListItem] Cover URL:', coverUrl);
-    }
+    const coverUrl = coverImage
+        ? getImageUrl(BUCKET_NAME, coverImage.path_pim)
+        : null;
 
     // Extraer nombres de categorías
     const categoryNames = record.promotion_category_map
@@ -412,6 +402,5 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         createdAt: record.created_at_prm,
     };
     
-    console.log('[mapRecordToListItem] Final result:', result);
     return result;
 }

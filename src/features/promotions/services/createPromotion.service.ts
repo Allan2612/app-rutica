@@ -109,9 +109,7 @@ export async function createPromotionComplete(
         // 4. Subir y registrar imagen de cover
         if (data.coverUri && isNewImage(data.coverUri)) {
             try {
-                console.log('[createPromotion] Uploading cover image:', data.coverUri);
                 const coverPath = await uploadPromotionImage(promotionId, data.coverUri, 'flyer');
-                console.log('[createPromotion] Cover uploaded to:', coverPath);
                 
                 const imageInsert = {
                     id_pim: generateUUID(),
@@ -124,10 +122,8 @@ export async function createPromotionComplete(
                     .insert(imageInsert as any);
                 
                 if (imgInsertError) {
-                    console.error('[createPromotion] Error inserting cover image:', imgInsertError);
                     throw imgInsertError;
                 }
-                console.log('[createPromotion] Cover image inserted successfully');
             } catch (imgError) {
                 console.error('Error uploading cover image:', imgError);
                 throw imgError; // Re-throw para que se maneje en el catch principal

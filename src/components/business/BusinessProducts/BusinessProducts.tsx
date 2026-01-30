@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, Platform } from 'react-native'
 import { Package } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks/useBusinessProducts';
-import { useBusinessPromotions } from '@/features/promotions/hooks';
+import { useBusinessActivePromotions } from '@/features/promotions/hooks';
 import { getAllActivePromotions, isComboPromotion } from '@/utils';
 import { ProductCard } from '../ProductCard';
 import { ProductComboCard } from '../ProductComboCard';
@@ -17,31 +17,14 @@ interface BusinessProductsProps {
 export const BusinessProducts = memo(function BusinessProducts({ businessId, onImagePress }: BusinessProductsProps) {
     const colors = useThemedColors();
     const { data: products = [], isLoading } = useBusinessProducts(businessId);
-    const { data: promotions = [] } = useBusinessPromotions(businessId);
+    const { data: promotions = [] } = useBusinessActivePromotions(businessId);
 
     // Identificar combos mixtos (múltiples productos diferentes)
     const mixedCombos = useMemo(() => {
-        const now = new Date();
-        return promotions.filter(promo => {
-            // Solo promos aprobadas, pagadas y vigentes
-            if (promo.moderationStatus !== 'approved' || promo.paymentState !== 'paid') {
-                return false;
-            }
-
-            // Validar que las fechas existan
-            if (!promo.startAt || !promo.endAt) {
-                return false;
-            }
-
-            const startDate = new Date(promo.startAt);
-            const endDate = new Date(promo.endAt);
-            if (now < startDate || now > endDate) {
-                return false;
-            }
-
-            // Es combo Y tiene múltiples productos O un producto con cantidad > 1
-            return isComboPromotion(promo) && promo.comboItems.length > 0;
-        });
+        // Solo combos con items
+        return promotions.filter(promo => 
+            isComboPromotion(promo) && promo.comboItems.length > 0
+        );
     }, [promotions]);
 
     // Combinar productos regulares + combos mixtos

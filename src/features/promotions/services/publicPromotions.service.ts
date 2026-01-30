@@ -119,9 +119,10 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                 paid_quantity_pci
             )
         `)
-        // Solo promociones aprobadas y pagadas
+        // Solo promociones aprobadas, pagadas y activas
         .eq('moderation_status_prm', 'approved')
         .eq('payment_state_prm', 'paid')
+        .eq('is_active_prm', true)
         // Solo promociones vigentes
         .lte('start_at_prm', now)
         .gte('end_at_prm', now);
@@ -158,6 +159,70 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
     }
 
     return promotions;
+}
+
+/**
+ * Obtiene las promociones activas de un negocio específico (públicas)
+ * Para mostrar en la vista pública del negocio y aplicar descuentos
+ */
+export async function getBusinessActivePromotions(businessId: string): Promise<PromotionListItem[]> {
+    const now = new Date().toISOString();
+
+    const { data, error } = await (supabase as any)
+        .from('promotions')
+        .select(`
+            id_prm,
+            business_id_prm,
+            scope_prm,
+            title_prm,
+            description_prm,
+            discount_type_prm,
+            discount_value_prm,
+            start_at_prm,
+            end_at_prm,
+            created_at_prm,
+            businesses:business_id_prm (
+                id_bus,
+                name_bus,
+                business_images (
+                    path_bim
+                )
+            ),
+            promotion_images (
+                path_pim
+            ),
+            promotion_category_map (
+                categories (
+                    id_cat,
+                    name_cat
+                )
+            ),
+            promotion_products (
+                product_id_ppr
+            ),
+            promotion_scope_categories (
+                category_id_psc
+            ),
+            promotion_combo_items (
+                product_id_pci,
+                quantity_pci,
+                paid_quantity_pci
+            )
+        `)
+        .eq('business_id_prm', businessId)
+        .eq('moderation_status_prm', 'approved')
+        .eq('payment_state_prm', 'paid')
+        .eq('is_active_prm', true)
+        .lte('start_at_prm', now)
+        .gte('end_at_prm', now)
+        .order('start_at_prm', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching business active promotions:', error);
+        return [];
+    }
+
+    return (data as unknown as PublicPromotionRecord[] || []).map(mapRecordToListItem);
 }
 
 /**
