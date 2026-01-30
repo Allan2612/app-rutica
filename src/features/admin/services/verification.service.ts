@@ -9,7 +9,7 @@ const STORAGE_BUCKETS = {
   profiles: 'profile-images',
   businesses: 'business-images',
   events: 'event-images',
-  attractions: 'attraction-images',
+  attractions: 'attractions-images',
   products: 'product-images',
   promotions: 'promotion-images',
 } as const;

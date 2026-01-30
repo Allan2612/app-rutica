@@ -46,8 +46,10 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
     const districtData = locationData?.districts;
     const cantonData = districtData?.cantons;
     const provinceData = cantonData?.provinces;
+    const countryData = provinceData?.countries;
 
     const locationParts = [
+        countryData?.name_cnt,
         provinceData?.name_prv,
         cantonData?.name_ctn,
         districtData?.name_dst

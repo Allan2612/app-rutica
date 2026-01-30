@@ -22,7 +22,8 @@ async function findOrCreateCountry(countryName: string): Promise<string> {
         .from('countries')
         .select('id_cnt')
         .ilike('name_cnt', countryName)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
     if (existing) {
         return (existing as any).id_cnt;
@@ -49,7 +50,8 @@ async function findOrCreateProvince(provinceName: string, countryId: string): Pr
         .select('id_prv')
         .eq('country_id_prv', countryId)
         .ilike('name_prv', provinceName)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
     if (existing) {
         return (existing as any).id_prv;
@@ -79,7 +81,8 @@ async function findOrCreateCanton(cantonName: string, provinceId: string): Promi
         .select('id_ctn')
         .eq('province_id_ctn', provinceId)
         .ilike('name_ctn', cantonName)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
     if (existing) {
         return (existing as any).id_ctn;
@@ -109,7 +112,8 @@ async function findOrCreateDistrict(districtName: string, cantonId: string): Pro
         .select('id_dst')
         .eq('canton_id_dst', cantonId)
         .ilike('name_dst', districtName)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
     if (existing) {
         return (existing as any).id_dst;

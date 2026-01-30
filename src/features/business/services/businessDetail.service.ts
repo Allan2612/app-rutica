@@ -126,8 +126,9 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
     const district = location?.districts;
     const canton = district?.cantons;
     const province = canton?.provinces;
+    const country = province?.countries;
     
-    const locationParts = [canton?.name_ctn, district?.name_dst].filter(Boolean);
+    const locationParts = [country?.name_cnt, province?.name_prv, canton?.name_ctn, district?.name_dst].filter(Boolean);
     const locationLabel = locationParts.length ? locationParts.join(', ') : null;
 
     // Procesar social links (viene como JSON)

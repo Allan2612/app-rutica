@@ -1,12 +1,13 @@
 import { supabase } from '@/lib/supabase/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
 
 // ============================================
 // Constants
 // ============================================
 
-const STORAGE_BUCKET = 'attraction-images';
+const BUCKET_NAME = 'attractions-images';
 
 // ============================================
 // Helpers
@@ -20,59 +21,6 @@ function generateUUID(): string {
     });
 }
 
-/**
- * Busca el district_id basándose en los nombres de province, canton y district
- * Usa búsqueda case-insensitive con ILIKE
- */
-async function findDistrictId(
-    province: string | null,
-    canton: string | null,
-    district: string | null
-): Promise<string | null> {
-    if (!province || !canton || !district) return null;
-
-    interface DistrictQueryResult {
-        id_dst: string;
-        name_dst: string;
-        cantons: {
-            name_ctn: string;
-            provinces: {
-                name_prv: string;
-            } | null;
-        } | null;
-    }
-
-    const { data, error } = await supabase
-        .from('districts')
-        .select(`
-            id_dst,
-            name_dst,
-            cantons!districts_canton_id_fkey (
-                name_ctn,
-                provinces!cantons_province_id_fkey (
-                    name_prv
-                )
-            )
-        `)
-        .ilike('name_dst', district)
-        .limit(50)
-        .returns<DistrictQueryResult[]>();
-
-    if (error || !data) return null;
-
-    // Filtrar por canton y provincia
-    const match = data.find((d) => {
-        const cantonData = d.cantons;
-        const provinceData = cantonData?.provinces;
-        return (
-            cantonData?.name_ctn?.toLowerCase() === canton.toLowerCase() &&
-            provinceData?.name_prv?.toLowerCase() === province.toLowerCase()
-        );
-    });
-
-    return match?.id_dst ?? null;
-}
-
 // ============================================
 // Types
 // ============================================
@@ -81,10 +29,10 @@ export interface CreateAttractionData {
     name: string;
     description: string | null;
     categoryIds: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
-    districtId?: string | null; // V3: ID del distrito (opcional, se busca si no viene)
+    country: string;         // Nombre del país
+    province: string;        // Nombre de la provincia
+    canton: string;          // Nombre del cantón
+    district: string;        // Nombre del distrito
     address: string | null;
     latitude: number;
     longitude: number;
@@ -144,7 +92,7 @@ async function uploadImage(
         const contentType =
             fileExt === 'png' ? 'image/png' : fileExt === 'webp' ? 'image/webp' : 'image/jpeg';
 
-        const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(filePath, uploadData, {
+        const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, uploadData, {
             contentType,
             upsert: false,
         });
@@ -166,29 +114,37 @@ export async function createAttractionComplete(
     data: CreateAttractionData
 ): Promise<string> {
     try {
-        // 1. Obtener district_id (si no viene, buscarlo por nombres)
-        let districtId = data.districtId;
-        if (!districtId && data.province && data.canton && data.district) {
-            districtId = await findDistrictId(data.province, data.canton, data.district);
+        // 1. Validar datos de ubicación
+        const locationHierarchy: LocationHierarchy = {
+            country: data.country,
+            province: data.province,
+            canton: data.canton,
+            district: data.district,
+        };
+
+        if (!validateLocationData(locationHierarchy)) {
+            throw new Error('Datos de ubicación incompletos');
         }
 
-        if (!districtId) {
-            throw new Error('No se pudo determinar el distrito. Verifica la ubicación seleccionada.');
-        }
+        // 2. Buscar o crear la jerarquía de ubicación y obtener district_id
+        const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
 
-        // 2. Crear ubicación (V3: solo district_id_loc + coords)
-        const locationId = generateUUID();
-        const { error: locationError } = await supabase.from('locations').insert({
-            id_loc: locationId,
-            district_id_loc: districtId,
-            address_loc: data.address ?? null,
-            latitude_loc: data.latitude,
-            longitude_loc: data.longitude,
-        } as never);
+        // 3. Crear registro en locations con las coordenadas
+        const { data: location, error: locationError } = await (supabase as any)
+            .from('locations')
+            .insert({
+                id_loc: generateUUID(),
+                district_id_loc: districtId,
+                address_loc: data.address ?? null,
+                latitude_loc: data.latitude,
+                longitude_loc: data.longitude,
+            })
+            .select()
+            .single();
 
         if (locationError) throw locationError;
 
-        // 3. Crear atracción
+        // 4. Crear atracción
         const attractionId = generateUUID();
 
         const { error: attractionError } = await supabase.from('attractions').insert({
@@ -196,7 +152,7 @@ export async function createAttractionComplete(
             submitted_by_atr: userId,
             name_atr: data.name,
             description_atr: data.description,
-            location_id_atr: locationId,
+            location_id_atr: (location as any).id_loc,
             moderation_status_atr: 'pending',
             is_active_atr: true,
         } as never);
