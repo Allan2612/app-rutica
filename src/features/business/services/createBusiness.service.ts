@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
 
 const BUCKET_NAME = 'business-images';
 
@@ -18,8 +19,11 @@ export interface CreateBusinessData {
     description?: string;
     categoryIds: string[];
 
-    // Location V3: uses districtId FK
-    districtId: string;
+    // Location data (nombres, se buscan/crean automáticamente)
+    country: string;
+    province: string;
+    canton: string;
+    district: string;
     address?: string;
     latitude: number;
     longitude: number;
@@ -40,11 +44,19 @@ export interface CreateBusinessData {
     galleryUris: string[]; // Hasta 3
 }
 
+/**
+ * Sube una imagen al storage y la registra en business_images
+ * @param imageUri - URI local de la imagen
+ * @param businessId - ID del negocio
+ * @param type - Tipo de imagen: 'logo', 'cover', 'gallery'
+ * @param sortOrder - Orden (0=logo, 1=cover, 2+=gallery)
+ */
 async function uploadImage(
     imageUri: string,
     businessId: string,
-    fileName: string
-): Promise<string> {
+    type: 'logo' | 'cover' | 'gallery',
+    sortOrder: number
+): Promise<void> {
     try {
         let blob: Blob;
 
@@ -62,23 +74,43 @@ async function uploadImage(
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
             }
             const byteArray = new Uint8Array(byteNumbers);
-            const fileExt = fileName.split('.').pop() || 'jpg';
-            blob = new Blob([byteArray], { type: `image/${fileExt}` });
+            blob = new Blob([byteArray], { type: 'image/jpeg' });
         }
 
-        const fileExt = fileName.split('.').pop() || 'jpg';
-        const filePath = `${businessId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        // Estructura: {businessId}/logo-{uuid}.jpg, {businessId}/cover-{uuid}.jpg, {businessId}/gallery-{uuid}.jpg
+        const imageId = generateUUID();
+        let filePath: string;
+        if (type === 'gallery') {
+            filePath = `${businessId}/gallery-${imageId}.jpg`;
+        } else {
+            filePath = `${businessId}/${type}-${imageId}.jpg`;
+        }
 
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
             .from(BUCKET_NAME)
             .upload(filePath, blob, {
-                contentType: `image/${fileExt}`,
-                upsert: false,
+                contentType: 'image/jpeg',
+                upsert: true,
             });
 
         if (error) throw error;
-        return filePath;
+
+        // Registrar en business_images
+        const { error: insertError } = await (supabase as any)
+            .from('business_images')
+            .insert({
+                id_bim: generateUUID(),
+                business_id_bim: businessId,
+                path_bim: filePath,
+                sort_order_bim: sortOrder,
+            });
+
+        if (insertError) {
+            console.error(`[uploadImage] Error insertando en business_images:`, insertError);
+            throw insertError;
+        }
     } catch (error) {
+        console.error(`[uploadImage] Error subiendo ${type}:`, error);
         throw error;
     }
 }
@@ -91,12 +123,27 @@ export async function createBusinessComplete(
     data: CreateBusinessData
 ): Promise<string> {
     try {
-        // 1. Crear ubicación (V3: solo district_id, address y coordenadas)
+        // 1. Validar datos de ubicación
+        const locationHierarchy: LocationHierarchy = {
+            country: data.country,
+            province: data.province,
+            canton: data.canton,
+            district: data.district,
+        };
+
+        if (!validateLocationData(locationHierarchy)) {
+            throw new Error('Datos de ubicación incompletos');
+        }
+
+        // 2. Buscar o crear la jerarquía de ubicación y obtener district_id
+        const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
+
+        // 3. Crear registro en locations con las coordenadas
         const { data: location, error: locationError } = await (supabase as any)
             .from('locations')
             .insert({
                 id_loc: generateUUID(),
-                district_id_loc: data.districtId,
+                district_id_loc: districtId,
                 address_loc: data.address ?? null,
                 latitude_loc: data.latitude,
                 longitude_loc: data.longitude,
@@ -106,14 +153,16 @@ export async function createBusinessComplete(
 
         if (locationError) throw locationError;
 
-        // 2. Preparar social links
+        // 4. Preparar social links
         const socialLinks: Record<string, string> = {};
         if (data.facebook) socialLinks.facebook = data.facebook;
         if (data.instagram) socialLinks.instagram = data.instagram;
         if (data.tiktok) socialLinks.tiktok = data.tiktok;
 
-        // 3. Crear negocio
+        // 5. Generar ID del negocio
         const businessId = generateUUID();
+
+        // 6. Crear negocio primero
         const { error: businessError } = await (supabase as any)
             .from('businesses')
             .insert({
@@ -126,13 +175,42 @@ export async function createBusinessComplete(
                 contact_email_bus: data.email ?? null,
                 website_bus: data.website ?? null,
                 social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-                moderation_status_bus: 'pending',
-                is_active_bus: true,
             });
 
         if (businessError) throw businessError;
 
-        // 4. Asociar categorías
+        // 7. Subir imágenes y registrar en business_images
+        // Logo (sort_order = 0)
+        if (data.logoUri) {
+            try {
+                await uploadImage(data.logoUri, businessId, 'logo', 0);
+            } catch (error) {
+                console.error('[createBusiness] Error subiendo logo:', error);
+            }
+        }
+
+        // Cover (sort_order = 1)
+        if (data.coverUri) {
+            try {
+                await uploadImage(data.coverUri, businessId, 'cover', 1);
+            } catch (error) {
+                console.error('[createBusiness] Error subiendo cover:', error);
+            }
+        }
+
+        // Galería (sort_order = 2, 3, 4, 5 - hasta 4 imágenes)
+        if (data.galleryUris && data.galleryUris.length > 0) {
+            const maxGallery = Math.min(data.galleryUris.length, 4);
+            for (let i = 0; i < maxGallery; i++) {
+                try {
+                    await uploadImage(data.galleryUris[i], businessId, 'gallery', 2 + i);
+                } catch (error) {
+                    console.error(`[createBusiness] Error subiendo imagen ${i + 1} de galería:`, error);
+                }
+            }
+        }
+
+        // 8. Crear categorías
         if (data.categoryIds.length > 0) {
             const categoryMaps = data.categoryIds.map((catId: string) => ({
                 business_id_bcm: businessId,
@@ -144,70 +222,13 @@ export async function createBusinessComplete(
                 .insert(categoryMaps);
 
             if (categoryError) {
+                console.error('[createBusiness] Error asociando categorías:', categoryError);
             }
         }
 
-        // 5. Subir imágenes
-        const imagePromises: Promise<void>[] = [];
-
-        // Logo (sort_order=0)
-        if (data.logoUri) {
-            imagePromises.push(
-                (async () => {
-                    try {
-                        const filePath = await uploadImage(data.logoUri!, businessId, 'logo.jpg');
-                        await (supabase as any).from('business_images').insert({
-                            id_bim: generateUUID(),
-                            business_id_bim: businessId,
-                            path_bim: filePath,
-                            sort_order_bim: 0,
-                        });
-                    } catch (error) {
-                    }
-                })()
-            );
-        }
-
-        // Cover
-        if (data.coverUri) {
-            imagePromises.push(
-                (async () => {
-                    try {
-                        const filePath = await uploadImage(data.coverUri!, businessId, 'cover.jpg');
-                        await (supabase as any).from('business_images').insert({
-                            id_bim: generateUUID(),
-                            business_id_bim: businessId,
-                            path_bim: filePath,
-                            sort_order_bim: 1,
-                        });
-                    } catch (error) {
-                    }
-                })()
-            );
-        }
-
-        // Gallery (hasta 3)
-        data.galleryUris.forEach((uri: string, index: number) => {
-            imagePromises.push(
-                (async () => {
-                    try {
-                        const filePath = await uploadImage(uri, businessId, `gallery-${index}.jpg`);
-                        await (supabase as any).from('business_images').insert({
-                            id_bim: generateUUID(),
-                            business_id_bim: businessId,
-                            path_bim: filePath,
-                            sort_order_bim: 2 + index,
-                        });
-                    } catch (error) {
-                    }
-                })()
-            );
-        });
-
-        await Promise.all(imagePromises);
-
         return businessId;
     } catch (error) {
+        console.error('[createBusinessComplete] Error:', error);
         throw error;
     }
 }

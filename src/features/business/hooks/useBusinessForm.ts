@@ -25,7 +25,10 @@ export function useBusinessForm(businessId: string) {
         logoUri: null as string | null,
         coverUri: null as string | null,
         galleryUris: [] as string[],
-        districtId: null as string | null,
+        country: '',
+        province: '',
+        canton: '',
+        district: '',
         address: '',
         coordinates: null as { latitude: number; longitude: number } | null,
     });
@@ -49,7 +52,10 @@ export function useBusinessForm(businessId: string) {
                 logoUri: business.logoUrl,
                 coverUri: business.coverUrl,
                 galleryUris: business.galleryUrls,
-                districtId: business.districtId,
+                country: business.country || 'Costa Rica',
+                province: business.province || '',
+                canton: business.canton || '',
+                district: business.district || '',
                 address: business.address || '',
                 coordinates: (business.latitude && business.longitude)
                     ? { latitude: business.latitude, longitude: business.longitude }
@@ -86,13 +92,13 @@ export function useBusinessForm(businessId: string) {
             return;
         }
 
-        if (!formData.districtId) {
+        if (!formData.country || !formData.province || !formData.canton || !formData.district) {
             Toast.show({
                 type: 'error',
                 text1: 'Ubicación incompleta',
-                text2: 'Por favor selecciona un distrito válido',
+                text2: 'Mueve el pin a una ciudad, distrito o pueblo específico',
                 position: 'top',
-                visibilityTime: 3000,
+                visibilityTime: 4000,
             });
             return;
         }
@@ -102,7 +108,10 @@ export function useBusinessForm(businessId: string) {
                 name: formData.name.trim(),
                 description: formData.description.trim() || null,
                 categoryIds: formData.selectedCategoryIds,
-                districtId: formData.districtId,
+                country: formData.country,
+                province: formData.province,
+                canton: formData.canton,
+                district: formData.district,
                 address: formData.address.trim() || null,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
@@ -142,9 +151,29 @@ export function useBusinessForm(businessId: string) {
     };
 
     const handleLocationSelect = (location: any) => {
-        // Solo guardar coordenadas, la validación se hace al guardar
+        // Actualizar nombres de ubicación, coordenadas y dirección
+        if (location.country) {
+            updateField('country', location.country);
+        }
+        if (location.province) {
+            updateField('province', location.province);
+        }
+        if (location.canton) {
+            updateField('canton', location.canton);
+        }
+        if (location.district) {
+            updateField('district', location.district);
+        }
         if (location.latitude && location.longitude) {
             updateField('coordinates', { latitude: location.latitude, longitude: location.longitude });
+        }
+        if (location.address) {
+            updateField('address', location.address);
+        }
+
+        // Limpiar error de ubicación si existe
+        if (errors.location) {
+            setErrors((e) => ({ ...e, location: '' }));
         }
     };
 

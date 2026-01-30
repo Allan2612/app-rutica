@@ -9,9 +9,10 @@ interface FormData {
     name: string;
     description: string;
     selectedCategoryIds: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    country: string | null;      // Nombre del país
+    province: string | null;     // Nombre de la provincia
+    canton: string | null;       // Nombre del cantón
+    district: string | null;     // Nombre del distrito
     address: string;
     coordinates: { latitude: number; longitude: number } | null;
     phone: string;
@@ -35,6 +36,7 @@ const initialFormData: FormData = {
     name: '',
     description: '',
     selectedCategoryIds: [],
+    country: null,
     province: null,
     canton: null,
     district: null,
@@ -89,6 +91,7 @@ export function useCreateBusinessForm() {
 
         setFormData((prev) => ({
             ...prev,
+            country: location.country || 'Costa Rica',
             province: location.province || null,
             canton: location.canton || null,
             district: location.district || null,
@@ -116,6 +119,8 @@ export function useCreateBusinessForm() {
 
         if (!formData.coordinates) {
             newErrors.location = 'Selecciona una ubicación en el mapa';
+        } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
+            newErrors.location = 'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
         }
 
         setErrors(newErrors);
@@ -139,7 +144,10 @@ export function useCreateBusinessForm() {
                 name: formData.name.trim(),
                 description: formData.description.trim() || undefined,
                 categoryIds: formData.selectedCategoryIds,
-                districtId: formData.province || '', // TODO: Este campo necesita ser el ID del distrito, no el nombre de provincia
+                country: formData.country!,
+                province: formData.province!,
+                canton: formData.canton!,
+                district: formData.district!,
                 address: formData.address.trim() || undefined,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,

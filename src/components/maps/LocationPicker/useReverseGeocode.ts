@@ -61,13 +61,39 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
                     }
                 }
 
+                // Mapeo más completo de campos para Costa Rica
+                // Provincia (state es el campo principal en CR)
+                const provinceName = addr.state || addr.province || addr.region || '';
+
+                // Cantón (county o municipality)
+                const cantonName = addr.county || addr.municipality || addr.city_district || '';
+
+                // Distrito (puede estar en city, town, village, suburb, neighbourhood)
+                const districtName =
+                    addr.suburb ||
+                    addr.neighbourhood ||
+                    addr.village ||
+                    addr.town ||
+                    addr.city ||
+                    addr.hamlet ||
+                    '';
+
+                // Log para debug (puedes removerlo después)
+                console.log('[useReverseGeocode] Campos obtenidos:', {
+                    country,
+                    province: provinceName,
+                    canton: cantonName,
+                    district: districtName,
+                    raw_address: addr
+                });
+
                 return {
                     latitude: lat,
                     longitude: lng,
-                    country: country,
-                    province: addr.state || addr.province || '',
-                    canton: addr.county || addr.municipality || '',
-                    district: addr.city || addr.town || addr.village || '',
+                    country: country || 'Costa Rica',
+                    province: provinceName,
+                    canton: cantonName,
+                    district: districtName,
                     address: data.display_name || '',
                 };
             }

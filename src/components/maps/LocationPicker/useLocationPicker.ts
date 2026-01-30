@@ -89,10 +89,43 @@ export function useLocationPicker({
         // Obtener datos de geocodificación inversa
         try {
             const geoData = await reverseGeocode(data.latitude, data.longitude);
-            onLocationSelect(geoData);
-        } catch {
-            // Si falla la geocodificación, pasar solo las coordenadas
-            onLocationSelect(data);
+
+            // Verificar si tenemos los campos mínimos necesarios
+            const hasRequiredFields = !!(
+                geoData.country &&
+                geoData.province &&
+                geoData.canton &&
+                geoData.district
+            );
+
+            if (!hasRequiredFields) {
+                Toast.show({
+                    type: 'warning',
+                    text1: 'Ubicación incompleta',
+                    text2: 'Intenta seleccionar un punto más específico (ciudad, distrito o pueblo)',
+                    position: 'top',
+                    visibilityTime: 4000,
+                });
+
+                // Aún así pasar los datos para que se guarden las coordenadas
+                onLocationSelect(geoData);
+            } else {
+                onLocationSelect(geoData);
+            }
+        } catch (error: any) {
+            // Si es error de país, re-lanzar
+            if (error?.message?.includes('debe estar en Costa Rica')) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Ubicación no válida',
+                    text2: error.message,
+                    position: 'top',
+                    visibilityTime: 4000,
+                });
+            } else {
+                // Otro tipo de error, pasar solo las coordenadas
+                onLocationSelect(data);
+            }
         }
     }, [onLocationSelect, reverseGeocode]);
 
