@@ -22,6 +22,9 @@ export function useBusinessForm(businessId: string) {
         phone: '',
         email: '',
         website: '',
+        facebook: '',
+        instagram: '',
+        tiktok: '',
         logoUri: null as string | null,
         coverUri: null as string | null,
         galleryUris: [] as string[],
@@ -49,6 +52,9 @@ export function useBusinessForm(businessId: string) {
                 phone: business.phone || '',
                 email: business.email || '',
                 website: business.website || '',
+                facebook: business.facebook || '',
+                instagram: business.instagram || '',
+                tiktok: business.tiktok || '',
                 logoUri: business.logoUrl,
                 coverUri: business.coverUrl,
                 galleryUris: business.galleryUrls,
@@ -118,13 +124,22 @@ export function useBusinessForm(businessId: string) {
                 phone: formData.phone.trim() || null,
                 email: formData.email.trim() || null,
                 website: formData.website.trim() || null,
-                facebook: null,
-                instagram: null,
-                tiktok: null,
+                facebook: formData.facebook.trim() || null,
+                instagram: formData.instagram.trim() || null,
+                tiktok: formData.tiktok.trim() || null,
                 logoUri: formData.logoUri,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
             };
+
+            console.log('[useBusinessForm] Submitting data:', {
+                logoUri: data.logoUri,
+                coverUri: data.coverUri,
+                galleryUris: data.galleryUris,
+                facebook: data.facebook,
+                instagram: data.instagram,
+                tiktok: data.tiktok,
+            });
 
             await updateMutation.mutateAsync({ businessId, data });
             Toast.show({

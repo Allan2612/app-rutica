@@ -140,10 +140,7 @@ export async function getBusinessForEdit(
             contact_phone_bus,
             contact_email_bus,
             website_bus,
-            social_links_bus,
-            logo_path_bus,
-            cover_path_bus,
-            gallery_paths_bus
+            social_links_bus
         `)
         .eq('id_bus', businessId)
         .single();
@@ -279,7 +276,7 @@ export async function updateBusinessComplete(
         // 1. Verificar permisos
         const { data: business } = await (supabase as any)
             .from('businesses')
-            .select('owner_id_bus, location_id_bus, logo_path_bus, cover_path_bus, gallery_paths_bus')
+            .select('owner_id_bus, location_id_bus')
             .eq('id_bus', businessId)
             .single();
 
@@ -287,21 +284,22 @@ export async function updateBusinessComplete(
             throw new Error('No tienes permiso para editar este negocio');
         }
 
-        // 2. Actualizar ubicación
+        // 2. Actualizar o crear ubicación
+        const locationHierarchy: LocationHierarchy = {
+            country: data.country,
+            province: data.province,
+            canton: data.canton,
+            district: data.district,
+        };
+
+        if (!validateLocationData(locationHierarchy)) {
+            throw new Error('Datos de ubicación incompletos');
+        }
+
+        const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
+
         if ((business as any).location_id_bus) {
-            const locationHierarchy: LocationHierarchy = {
-                country: data.country,
-                province: data.province,
-                canton: data.canton,
-                district: data.district,
-            };
-
-            if (!validateLocationData(locationHierarchy)) {
-                throw new Error('Datos de ubicación incompletos');
-            }
-
-            const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
-
+            // Actualizar ubicación existente
             await (supabase as any)
                 .from('locations')
                 .update({
@@ -311,6 +309,26 @@ export async function updateBusinessComplete(
                     longitude_loc: data.longitude,
                 })
                 .eq('id_loc', (business as any).location_id_bus);
+        } else {
+            // Crear nueva ubicación
+            const newLocationId = generateUUID();
+            const { error: locError } = await (supabase as any)
+                .from('locations')
+                .insert({
+                    id_loc: newLocationId,
+                    district_id_loc: districtId,
+                    address_loc: data.address ?? null,
+                    latitude_loc: data.latitude,
+                    longitude_loc: data.longitude,
+                });
+
+            if (locError) throw locError;
+
+            // Actualizar negocio con nueva ubicación
+            await (supabase as any)
+                .from('businesses')
+                .update({ location_id_bus: newLocationId })
+                .eq('id_bus', businessId);
         }
 
         // 3. Manejar imágenes en business_images
@@ -320,33 +338,48 @@ export async function updateBusinessComplete(
             .select('id_bim, path_bim, sort_order_bim')
             .eq('business_id_bim', businessId);
 
+        console.log('[updateBusinessComplete] Current images:', currentImages);
+        console.log('[updateBusinessComplete] Data logoUri:', data.logoUri, 'isNew:', isNewImage(data.logoUri));
+        console.log('[updateBusinessComplete] Data coverUri:', data.coverUri, 'isNew:', isNewImage(data.coverUri));
+        console.log('[updateBusinessComplete] Data galleryUris:', data.galleryUris);
+
         // Logo (sort_order = 0)
         const currentLogo = (currentImages as any)?.find((img: any) => img.sort_order_bim === 0);
+        console.log('[updateBusinessComplete] Current logo:', currentLogo);
+
         if (data.logoUri === null) {
             // Eliminar logo
+            console.log('[updateBusinessComplete] Deleting logo');
             if (currentLogo) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentLogo.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentLogo.id_bim);
             }
         } else if (data.logoUri && isNewImage(data.logoUri)) {
             // Reemplazar logo
+            console.log('[updateBusinessComplete] Uploading new logo');
             if (currentLogo) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentLogo.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentLogo.id_bim);
             }
             await uploadImage(data.logoUri, businessId, 'logo', 0);
+        } else {
+            console.log('[updateBusinessComplete] Keeping existing logo (no change)');
         }
 
         // Cover (sort_order = 1)
         const currentCover = (currentImages as any)?.find((img: any) => img.sort_order_bim === 1);
+        console.log('[updateBusinessComplete] Current cover:', currentCover);
+
         if (data.coverUri === null) {
             // Eliminar cover
+            console.log('[updateBusinessComplete] Deleting cover');
             if (currentCover) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentCover.id_bim);
             }
         } else if (data.coverUri && isNewImage(data.coverUri)) {
             // Reemplazar cover
+            console.log('[updateBusinessComplete] Uploading new cover');
             if (currentCover) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentCover.id_bim);

@@ -219,39 +219,39 @@ export async function getBusinessById(
         if (districtId) {
             const { data: district } = await (supabase as any)
                 .from('districts')
-                .select('name_dis, canton_id_dis')
-                .eq('id_dis', districtId)
+                .select('name_dst, canton_id_dst')
+                .eq('id_dst', districtId)
                 .single();
 
             if (district) {
-                districtName = (district as any).name_dis;
+                districtName = (district as any).name_dst;
 
                 const { data: canton } = await (supabase as any)
                     .from('cantons')
-                    .select('name_can, province_id_can')
-                    .eq('id_can', (district as any).canton_id_dis)
+                    .select('name_ctn, province_id_ctn')
+                    .eq('id_ctn', (district as any).canton_id_dst)
                     .single();
 
                 if (canton) {
-                    cantonName = (canton as any).name_can;
+                    cantonName = (canton as any).name_ctn;
 
                     const { data: province } = await (supabase as any)
                         .from('provinces')
-                        .select('name_pro, country_id_pro')
-                        .eq('id_pro', (canton as any).province_id_can)
+                        .select('name_prv, country_id_prv')
+                        .eq('id_prv', (canton as any).province_id_ctn)
                         .single();
 
                     if (province) {
-                        provinceName = (province as any).name_pro;
+                        provinceName = (province as any).name_prv;
 
                         const { data: country } = await (supabase as any)
                             .from('countries')
-                            .select('name_cou')
-                            .eq('id_cou', (province as any).country_id_pro)
+                            .select('name_cnt')
+                            .eq('id_cnt', (province as any).country_id_prv)
                             .single();
 
                         if (country) {
-                            countryName = (country as any).name_cou;
+                            countryName = (country as any).name_cnt;
                         }
                     }
                 }

@@ -100,7 +100,7 @@ export function useLocationPicker({
 
             if (!hasRequiredFields) {
                 Toast.show({
-                    type: 'warning',
+                    type: 'info',
                     text1: 'Ubicación incompleta',
                     text2: 'Intenta seleccionar un punto más específico (ciudad, distrito o pueblo)',
                     position: 'top',
