@@ -165,6 +165,7 @@ export interface PromotionListItem {
   businessId: string;
   businessName: string | null;
   coverUrl: string | null;
+  imageUrl?: string | null; // Alias para compatibilidad con UserPromotionCard
   categoryNames: string[];
   productIds: string[];
   scopeCategoryIds: string[];

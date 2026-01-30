@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import { View } from 'react-native';
 import { useCategories } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks';
-import type { PromoScope, DiscountType } from '@/types/enums';
+import type { PromotionScope, DiscountType } from '@/types/enums';
 import type { PromotionWizardFormData, PromotionWizardErrors } from '@/types/entities';
 import { ScopeSelection } from './ScopeSelection';
 import { DiscountTypeSelector } from './DiscountTypeSelector';
@@ -48,7 +48,7 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
   }, [products, allCategories]);
 
   // Handlers for field changes
-  const handleScopeChange = (scope: PromoScope) => {
+  const handleScopeChange = (scope: PromotionScope) => {
     onFieldChange('scope', scope);
   };
 
@@ -91,7 +91,7 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
         )}
 
         {/* Product Selection (only if scope is PRODUCT) */}
-        {formData.scope === 'product' && (
+        {formData.scope === 'products' && (
           <ProductSelection
             products={products}
             selectedProductIds={formData.selectedProductIds}
@@ -102,7 +102,7 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
         )}
 
         {/* Category Selection (only if scope is CATEGORY) */}
-        {formData.scope === 'category' && (
+        {formData.scope === 'categories' && (
           <CategorySelection
             categories={productCategories}
             selectedCategoryIds={formData.scopeCategoryIds}

@@ -1881,7 +1881,10 @@ create policy "promotions_update_admin"
 create policy "promotions_delete_admin"
   on public.promotions for delete
   using (public.is_admin());
-
+  
+CREATE POLICY "promotions_delete_owner"
+  ON public.promotions FOR DELETE
+  USING (created_by_prm = auth.uid());
 -- ============================================================
 -- 12.11) CATEGORY MAPS (business, event, attraction, product, promotion)
 -- ============================================================

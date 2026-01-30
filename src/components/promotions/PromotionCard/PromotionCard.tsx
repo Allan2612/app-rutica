@@ -21,6 +21,8 @@ interface PromotionCardProps {
 export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
   const colors = useThemedColors();
   
+  console.log('[PromotionCard] Rendering promotion:', promotion.id, 'coverUrl:', promotion.coverUrl);
+  
   const badgeLabel = getPromotionBadgeLabel(promotion as any);
   
   const handlePress = () => {
@@ -52,6 +54,12 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
             contentFit="cover"
             transition={200}
             cachePolicy="memory-disk"
+            onError={(error) => {
+              console.error('[PromotionCard] Image load error:', error, 'URL:', promotion.coverUrl);
+            }}
+            onLoad={() => {
+              console.log('[PromotionCard] Image loaded successfully:', promotion.coverUrl);
+            }}
           />
         ) : (
           <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
