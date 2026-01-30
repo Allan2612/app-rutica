@@ -134,22 +134,6 @@ export async function createBusinessReview(
         validateReviewContent(comment);
     }
 
-    // Verificar que el usuario no sea el dueño del negocio
-    const { data: business, error: businessError } = await (supabase as any)
-        .from('businesses')
-        .select('owner_id_bus')
-        .eq('id_bus', businessId)
-        .single();
-
-    if (businessError) {
-        console.error('Error checking business ownership:', businessError);
-        throw new Error('No se pudo verificar el negocio');
-    }
-
-    if ((business as any)?.owner_id_bus === userId) {
-        throw new Error('No puedes dejar reseñas si eres el creador del negocio');
-    }
-
     const { data, error } = await supabase
         .from('business_reviews')
         .insert({
