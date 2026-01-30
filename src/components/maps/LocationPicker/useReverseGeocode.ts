@@ -1,38 +1,37 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import type { LocationData } from './types';
+
+// Constantes
+const NOMINATIM_TIMEOUT = 8000;
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse';
+const USER_AGENT = 'RuticaApp/1.0 (Costa Rica Tourism)';
+const COSTA_RICA_IDENTIFIERS = ['cr', 'costa rica'];
 
 interface UseReverseGeocodeReturn {
     reverseGeocode: (lat: number, lng: number, validateCountry?: boolean) => Promise<LocationData>;
-    isLoading: boolean;
-    error: string | null;
 }
 
 /**
  * Hook para geocodificación inversa usando Nominatim (OpenStreetMap)
  */
 export function useReverseGeocode(): UseReverseGeocodeReturn {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
     const reverseGeocode = useCallback(async (
         lat: number,
         lng: number,
         validateCountry: boolean = true
     ): Promise<LocationData> => {
-        setIsLoading(true);
-        setError(null);
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const timeoutId = setTimeout(() => controller.abort(), NOMINATIM_TIMEOUT);
 
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+                `${NOMINATIM_URL}?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
                 {
                     signal: controller.signal,
                     headers: {
                         'Accept-Language': 'es',
-                        'User-Agent': 'RuticaApp/1.0 (Costa Rica Tourism)',
+                        'User-Agent': USER_AGENT,
                     },
                 }
             );
@@ -50,32 +49,45 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
                 const countryCode = addr.country_code?.toLowerCase() || '';
 
                 if (validateCountry) {
-                    const isCostaRica =
-                        countryCode === 'cr' ||
-                        country.toLowerCase().includes('costa rica');
-
-                    if (!isCostaRica) {
-                        const errorMsg = `La ubicación está en ${country || 'otro país'}, debe estar en Costa Rica`;
-                        setError(errorMsg);
-                        throw new Error(errorMsg);
+                    if (!COSTA_RICA_IDENTIFIERS.some(
+                        (id) => countryCode === id || country.toLowerCase().includes(id)
+                    )) {
+                        throw new Error(`La ubicación está en ${country || 'otro país'}, debe estar en Costa Rica`);
                     }
                 }
+
+                // Mapeo más completo de campos para Costa Rica
+                // Provincia (state es el campo principal en CR)
+                const provinceName = addr.state || addr.province || addr.region || '';
+
+                // Cantón (county o municipality)
+                const cantonName = addr.county || addr.municipality || addr.city_district || '';
+
+                // Distrito (jerarquía: city/town/village son distritos, suburb/neighbourhood son barrios)
+                // Orden correcto: primero buscar city/town/village (distrito), luego hamlet
+                // NO usar suburb/neighbourhood porque son subdivisiones del distrito
+                const districtName =
+                    addr.city ||
+                    addr.town ||
+                    addr.village ||
+                    addr.hamlet ||
+                    addr.suburb ||
+                    addr.neighbourhood ||
+                    '';
 
                 return {
                     latitude: lat,
                     longitude: lng,
-                    country: country,
-                    province: addr.state || addr.province || '',
-                    canton: addr.county || addr.municipality || '',
-                    district: addr.city || addr.town || addr.village || '',
+                    country: country || 'Costa Rica',
+                    province: provinceName,
+                    canton: cantonName,
+                    district: districtName,
                     address: data.display_name || '',
                 };
             }
 
             if (validateCountry) {
-                const errorMsg = 'No se pudo verificar que la ubicación esté en Costa Rica';
-                setError(errorMsg);
-                throw new Error(errorMsg);
+                throw new Error('No se pudo verificar que la ubicación esté en Costa Rica');
             }
 
             return {
@@ -94,16 +106,10 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
             ) {
                 throw error;
             }
-
-            console.error('[useReverseGeocode] Error:', error);
-            return {
-                latitude: lat,
-                longitude: lng,
-            };
-        } finally {
-            setIsLoading(false);
+            // Si el error no es de validación, retornar coordenadas sin datos
+            return { latitude: lat, longitude: lng };
         }
     }, []);
 
-    return { reverseGeocode, isLoading, error };
+    return { reverseGeocode };
 }

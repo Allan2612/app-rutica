@@ -8,31 +8,48 @@ export const styles = StyleSheet.create({
     marginVertical: spacing.sm + 4,
     borderWidth: 1,
   },
+  photoContainer: {
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  profilePhoto: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   header: {
     marginBottom: spacing.lg,
+    alignItems: 'center',
   },
   title: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.fontWeights.bold,
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: typography.sizes.sm,
+    textAlign: 'center',
   },
   content: {
     gap: spacing.md,
   },
   field: {
     gap: spacing.xs,
+    alignItems: 'center',
   },
   label: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.fontWeights.medium,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    textAlign: 'center',
   },
   value: {
     fontSize: typography.sizes.base,
+    textAlign: 'center',
   },
   buttonContainer: {
     flexDirection: 'row',

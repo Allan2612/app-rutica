@@ -5,6 +5,35 @@ import { useThemedColors } from '@/hooks';
 import type { VerificationRequest } from '@/features/admin/services/verification.service';
 import { styles } from './styles';
 
+// Interfaces para metadatos tipados
+interface PromotionComboItem {
+  productName: string;
+  quantity: number;
+  paidQuantity?: number;
+  price?: number;
+}
+
+interface PromotionImage {
+  url: string;
+}
+
+interface PromotionMetadata {
+  businessName?: string;
+  businessLocation?: string;
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+  scope?: 'business' | 'category' | 'product';
+  startAt?: string;
+  endAt?: string;
+  paymentReference?: string;
+  paymentState?: 'pending' | 'paid' | 'rejected';
+  paymentNote?: string;
+  moderationNote?: string;
+  categories?: string[];
+  comboItems?: PromotionComboItem[];
+  images?: PromotionImage[];
+}
+
 interface VerificationDetailModalProps {
   visible: boolean;
   request: VerificationRequest | null;
@@ -61,9 +90,11 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
   const renderPromotionDetails = () => {
     if (request.type !== 'promotion' || !request.metadata) return null;
 
+    // Cast metadata a tipo conocido
+    const meta = request.metadata as PromotionMetadata;
+
     const {
       businessName,
-      businessLocation,
       discountType,
       discountValue,
       scope,
@@ -76,7 +107,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
       categories,
       comboItems,
       images,
-    } = request.metadata;
+    } = meta;
 
     const discountStr = discountType === 'percentage'
       ? `${discountValue}%`
@@ -116,14 +147,14 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
               <Text style={[styles.paymentReference, { color: colors.text.primary }]}>
                 {paymentReference}
               </Text>
-              <Text style={[styles.paymentState, { 
-                color: paymentState === 'paid' 
-                  ? colors.success 
+              <Text style={[styles.paymentState, {
+                color: paymentState === 'paid'
+                  ? colors.success
                   : paymentState === 'rejected'
-                  ? colors.error
-                  : colors.warning 
+                    ? colors.error
+                    : colors.warning
               }]}>
-                {paymentStateLabels[paymentState] || paymentState}
+                {paymentState ? (paymentStateLabels[paymentState] || paymentState) : 'Pendiente'}
               </Text>
             </View>
           </View>
@@ -187,14 +218,14 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
             <View style={styles.dateItem}>
               <Text style={[styles.dateLabel, { color: colors.text.secondary }]}>Inicio</Text>
               <Text style={[styles.dateValue, { color: colors.text.primary }]}>
-                {formatDateShort(startAt)}
+                {startAt ? formatDateShort(startAt) : 'No especificado'}
               </Text>
             </View>
             <View style={[styles.dateSeparator, { backgroundColor: colors.border.light }]} />
             <View style={styles.dateItem}>
               <Text style={[styles.dateLabel, { color: colors.text.secondary }]}>Fin</Text>
               <Text style={[styles.dateValue, { color: colors.text.primary }]}>
-                {formatDateShort(endAt)}
+                {endAt ? formatDateShort(endAt) : 'No especificado'}
               </Text>
             </View>
           </View>
@@ -209,7 +240,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
             </Text>
           </View>
           <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-            {SCOPE_LABELS[scope] || scope}
+            {scope ? (SCOPE_LABELS[scope] || scope) : 'No especificado'}
           </Text>
         </View>
 
@@ -223,26 +254,27 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
               </Text>
             </View>
             <View style={styles.categoryList}>
-              {categories.map((cat: string, index: number) => (
-                <View 
-                  key={index} 
+              {categories.map((cat, index) => (
+                <View
+                  key={index}
                   style={[
-                    styles.categoryChip, 
-                    { 
-                      backgroundColor: colors.isDark 
-                        ? 'rgba(59, 130, 246, 0.15)' 
+                    styles.categoryChip,
+                    {
+                      backgroundColor: colors.isDark
+                        ? 'rgba(59, 130, 246, 0.15)'
                         : colors.primary[50],
-                      borderColor: colors.isDark 
-                        ? colors.primary[500] 
+                      borderColor: colors.isDark
+                        ? colors.primary[500]
                         : colors.primary[200],
                     }
                   ]}
                 >
                   <Text style={[
-                    styles.categoryChipText, 
-                    { color: colors.isDark 
-                      ? colors.primary[400] 
-                      : colors.primary[700] 
+                    styles.categoryChipText,
+                    {
+                      color: colors.isDark
+                        ? colors.primary[400]
+                        : colors.primary[700]
                     }
                   ]}>
                     {cat}
@@ -263,8 +295,8 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
               </Text>
             </View>
             <View style={styles.comboList}>
-              {comboItems.map((item: any, index: number) => (
-                <View 
+              {comboItems.map((item, index) => (
+                <View
                   key={index}
                   style={[styles.comboItem, { borderBottomColor: colors.border.light }]}
                 >
@@ -302,7 +334,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
               showsHorizontalScrollIndicator={false}
               style={styles.imageGallery}
             >
-              {images.map((img: any, index: number) => (
+              {images.map((img, index) => (
                 <Image
                   key={index}
                   source={{ uri: img.url }}
@@ -324,11 +356,11 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable 
+      <Pressable
         style={styles.overlay}
         onPress={onClose}
       >
-        <Pressable 
+        <Pressable
           style={[styles.modalContainer, { backgroundColor: colors.background.primary }]}
           onPress={(e) => e.stopPropagation()}
         >
@@ -337,7 +369,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
             <Text style={[styles.title, { color: colors.text.primary }]}>
               Información Detallada
             </Text>
-            <Pressable 
+            <Pressable
               onPress={onClose}
               style={({ pressed }) => [
                 styles.closeButton,
@@ -348,13 +380,13 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
             </Pressable>
           </View>
 
-          <ScrollView 
+          <ScrollView
             style={styles.content}
             showsVerticalScrollIndicator={false}
           >
             {/* Main Image */}
             {request.imageUrl && (
-              <Image 
+              <Image
                 source={{ uri: request.imageUrl }}
                 style={styles.image}
                 resizeMode="cover"
@@ -363,21 +395,23 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
 
             {/* Type Badge - YELLOW for promotions */}
             <View style={[
-              styles.badge, 
-              { backgroundColor: request.type === 'promotion' 
-                ? colors.isDark ? 'rgba(245, 158, 11, 0.2)' : '#fef3c7'
-                : colors.primary[100] 
+              styles.badge,
+              {
+                backgroundColor: request.type === 'promotion'
+                  ? colors.isDark ? 'rgba(245, 158, 11, 0.2)' : '#fef3c7'
+                  : colors.primary[100]
               }
             ]}>
-              <Tag size={14} color={request.type === 'promotion' 
+              <Tag size={14} color={request.type === 'promotion'
                 ? colors.isDark ? '#fbbf24' : '#92400e'
-                : colors.primary[600]} 
+                : colors.primary[600]}
               />
               <Text style={[
-                styles.badgeText, 
-                { color: request.type === 'promotion' 
-                  ? colors.isDark ? '#fbbf24' : '#92400e'
-                  : colors.primary[700] 
+                styles.badgeText,
+                {
+                  color: request.type === 'promotion'
+                    ? colors.isDark ? '#fbbf24' : '#92400e'
+                    : colors.primary[700]
                 }
               ]}>
                 {TYPE_LABELS[request.type]}
@@ -400,7 +434,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
             {renderPromotionDetails()}
 
             {/* Location - Show business location for promotions */}
-            {request.type === 'promotion' && request.metadata?.businessLocation ? (
+            {request.type === 'promotion' && (request.metadata as PromotionMetadata)?.businessLocation ? (
               <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
                 <View style={styles.infoCardHeader}>
                   <MapPin size={18} color={colors.text.secondary} />
@@ -409,7 +443,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
                   </Text>
                 </View>
                 <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-                  {request.metadata.businessLocation}
+                  {(request.metadata as PromotionMetadata).businessLocation}
                 </Text>
               </View>
             ) : request.locationLabel && request.type !== 'promotion' ? (
@@ -459,12 +493,12 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
                   Estado de Moderación
                 </Text>
               </View>
-              <Text style={[styles.statusValue, { 
-                color: request.moderationStatus === 'approved' 
-                  ? colors.success 
-                  : request.moderationStatus === 'rejected' 
-                  ? colors.error 
-                  : colors.warning 
+              <Text style={[styles.statusValue, {
+                color: request.moderationStatus === 'approved'
+                  ? colors.success
+                  : request.moderationStatus === 'rejected'
+                    ? colors.error
+                    : colors.warning
               }]}>
                 {STATUS_LABELS[request.moderationStatus]}
               </Text>
@@ -473,14 +507,14 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
 
           {/* Actions */}
           <View style={[styles.footer, { borderTopColor: colors.border.light }]}>
-            <Pressable 
+            <Pressable
               onPress={onClose}
               style={({ pressed }) => [
                 styles.button,
-                { 
-                  backgroundColor: pressed 
-                    ? colors.primary[600] 
-                    : colors.primary[500] 
+                {
+                  backgroundColor: pressed
+                    ? colors.primary[600]
+                    : colors.primary[500]
                 }
               ]}
             >

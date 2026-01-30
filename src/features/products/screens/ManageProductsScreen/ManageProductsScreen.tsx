@@ -132,7 +132,7 @@ export const ManageProductsScreen = memo(function ManageProductsScreen() {
                                 currency={product.currency}
                                 categoryNames={product.categoryNames}
                                 categoryIds={product.categoryIds}
-                                imageUrl={product.imageUrl}
+                                imageUrl={product.mainImageUrl}
                                 isActive={product.isActive}
                                 onEdit={() => handleEditProduct(product.id)}
                                 onDelete={() => handleDeleteProduct(product.id, product.name)}

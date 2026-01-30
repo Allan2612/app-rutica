@@ -154,6 +154,7 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                             businessId={business.id}
                             businessName={business.name}
                             businessLogo={business.logoUrl ?? undefined}
+                            ownerId={business.ownerId}
                         />
 
                     </View>

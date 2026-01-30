@@ -1,8 +1,10 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { Image } from 'expo-image';
+import { User } from 'lucide-react-native';
 import type { Profile } from '@/types/entities';
 import { getFullName } from '@/types/entities';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useProfilePhoto } from '@/hooks';
 import styles from './styles';
 
 interface ProfileCardProps {
@@ -23,13 +25,32 @@ export const ProfileCard = memo(function ProfileCard({
   onBack,
 }: ProfileCardProps) {
   const colors = useThemedColors();
-  const translatedRole = roleTranslations[profile.role_PRF] || profile.role_PRF;
+  const profilePhotoUrl = useProfilePhoto(profile.id_prf);
+  const translatedRole = profile.role_prf ? (roleTranslations[profile.role_prf] || profile.role_prf) : 'Sin rol';
 
   return (
     <View style={[styles.container, { 
       backgroundColor: colors.background.primary,
       borderColor: colors.border.light,
     }]}>
+      {/* Foto de perfil */}
+      <View style={styles.photoContainer}>
+        {profilePhotoUrl ? (
+          <Image
+            source={{ uri: profilePhotoUrl }}
+            style={styles.profilePhoto}
+            contentFit="cover"
+            transition={200}
+          />
+        ) : (
+          <View style={[styles.profilePhoto, { 
+            backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] 
+          }]}>
+            <User color={colors.primary[500]} size={48} />
+          </View>
+        )}
+      </View>
+
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text.primary }]}>
           Información Personal
@@ -50,7 +71,7 @@ export const ProfileCard = memo(function ProfileCard({
         <View style={styles.field}>
           <Text style={[styles.label, { color: colors.text.tertiary }]}>Número de Teléfono</Text>
           <Text style={[styles.value, { color: colors.text.primary }]}>
-            {profile.phone_number_PRF || 'Sin teléfono'}
+            {profile.phone_number_prf || 'Sin teléfono'}
           </Text>
         </View>
 
@@ -62,9 +83,9 @@ export const ProfileCard = memo(function ProfileCard({
         <View style={styles.field}>
           <Text style={[styles.label, { color: colors.text.tertiary }]}>Estado</Text>
           <Text style={[styles.value, { 
-            color: profile.is_active_PRF ? colors.primary[500] : colors.text.secondary 
+            color: profile.is_active_prf ? colors.primary[500] : colors.text.secondary 
           }]}>
-            {profile.is_active_PRF ? 'Activo' : 'Inactivo'}
+            {profile.is_active_prf ? 'Activo' : 'Inactivo'}
           </Text>
         </View>
       </View>

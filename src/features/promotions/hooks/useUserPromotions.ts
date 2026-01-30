@@ -12,7 +12,7 @@ import {
 } from '../services/userPromotions.service';
 import { updatePromotionComplete } from '../services/updatePromotion.service';
 import { createPromotionComplete } from '../services/createPromotion.service';
-import type { CreatePromotionData, UpdatePromotionData } from '@/types/entities';
+import type { PromotionFormData } from '@/types/entities';
 import { useAuthStore } from '@/store';
 
 // ============================================
@@ -90,7 +90,7 @@ export function useCreatePromotion() {
     const user = useAuthStore((state) => state.user);
 
     return useMutation({
-        mutationFn: (data: CreatePromotionData) => {
+        mutationFn: (data: PromotionFormData) => {
             if (!user?.id) throw new Error('Usuario no autenticado');
             return createPromotionComplete(user.id, data);
         },
@@ -110,7 +110,7 @@ export function useUpdatePromotion() {
     const user = useAuthStore((state) => state.user);
 
     return useMutation({
-        mutationFn: ({ promotionId, data }: { promotionId: string; data: UpdatePromotionData }) => {
+        mutationFn: ({ promotionId, data }: { promotionId: string; data: Partial<PromotionFormData> }) => {
             if (!user?.id) throw new Error('Usuario no autenticado');
             return updatePromotionComplete(promotionId, user.id, data);
         },

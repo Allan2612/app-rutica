@@ -1,9 +1,10 @@
 import { memo, useState, useCallback } from 'react';
-import { Text, View, TouchableOpacity, Pressable } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
+import { Text, View, TouchableOpacity, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
+import { ArrowLeft, Camera, X } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import * as ImagePicker from 'expo-image-picker';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { signUp } from '@/features/auth/services/auth.service';
 import { useThemedColors } from '@/hooks';
@@ -20,8 +21,34 @@ export const RegisterScreen = memo(function RegisterScreen() {
   const [lastName2, setLastName2] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<UserRole>('buyer');
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pickingImage, setPickingImage] = useState(false);
   const colors = useThemedColors();
+
+  const handlePickProfilePhoto = useCallback(async () => {
+    try {
+      setPickingImage(true);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setProfilePhoto(result.assets[0].uri);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+    } finally {
+      setPickingImage(false);
+    }
+  }, []);
+
+  const handleRemoveProfilePhoto = useCallback(() => {
+    setProfilePhoto(null);
+  }, []);
 
   const handleRegister = useCallback(async () => {
     if (!email || !password || !firstName || !lastName1 || !confirmPassword) {
@@ -68,6 +95,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
         lastName2: lastName2 || undefined,
         phone,
         role,
+        profilePhotoUri: profilePhoto || undefined,
       });
 
       Toast.show({
@@ -119,6 +147,69 @@ export const RegisterScreen = memo(function RegisterScreen() {
           </Text>
         }
       >
+        {/* Foto de perfil */}
+        <View style={styles.inputGroup}>
+          <Text style={[styles.label, { color: colors.text.primary }]}>Foto de perfil (opcional)</Text>
+          <View style={{ alignItems: 'center', marginTop: 8 }}>
+            {profilePhoto ? (
+              <View style={{ position: 'relative' }}>
+                <Image
+                  source={{ uri: profilePhoto }}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: 50,
+                    borderWidth: 3,
+                    borderColor: colors.primary[500],
+                  }}
+                />
+                <Pressable
+                  style={{
+                    position: 'absolute',
+                    top: -4,
+                    right: -4,
+                    backgroundColor: colors.error[500],
+                    borderRadius: 12,
+                    width: 24,
+                    height: 24,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  onPress={handleRemoveProfilePhoto}
+                >
+                  <X color="#fff" size={14} />
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable
+                style={({ pressed }) => ({
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  backgroundColor: colors.background.tertiary,
+                  borderWidth: 2,
+                  borderColor: colors.border.medium,
+                  borderStyle: 'dashed',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  opacity: pressed || pickingImage ? 0.5 : 1,
+                })}
+                onPress={handlePickProfilePhoto}
+                disabled={pickingImage || loading}
+              >
+                {pickingImage ? (
+                  <ActivityIndicator size="small" color={colors.primary[500]} />
+                ) : (
+                  <>
+                    <Camera size={28} color={colors.text.tertiary} />
+                    <Text style={{ color: colors.text.tertiary, fontSize: 12, marginTop: 4 }}>Añadir foto</Text>
+                  </>
+                )}
+              </Pressable>
+            )}
+          </View>
+        </View>
+
         {/* Tipo de cuenta */}
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text.primary }]}>Tipo de cuenta</Text>
@@ -141,7 +232,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
                   },
                 ]}
               >
-                Comprador
+                Usuario
               </Text>
               <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>Descubre y explora</Text>
             </TouchableOpacity>
@@ -164,7 +255,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
                   },
                 ]}
               >
-                Vendedor
+                Negocio
               </Text>
               <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>Promociona tu negocio</Text>
             </TouchableOpacity>

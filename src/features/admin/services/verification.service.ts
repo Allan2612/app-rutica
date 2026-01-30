@@ -1,5 +1,18 @@
 import { supabase } from '@/lib/supabase/client';
-import type { ModerationStatus } from '@/types/enums';
+import type { ModerationStatus, PaymentState } from '@/types/enums';
+
+// ============================================
+// Constants - Buckets por entidad (V3)
+// ============================================
+
+const STORAGE_BUCKETS = {
+  profiles: 'profile-images',
+  businesses: 'business-images',
+  events: 'event-images',
+  attractions: 'attractions-images',
+  products: 'product-images',
+  promotions: 'promotion-images',
+} as const;
 
 // ============================================
 // Types for Admin Verification
@@ -20,7 +33,7 @@ export interface VerificationRequest {
   createdAt: string;
   locationLabel: string | null;
   businessId?: string; // For promotions - the associated business ID
-  metadata?: any; // Additional type-specific data
+  metadata?: Record<string, unknown>; // Additional type-specific data
 }
 
 export interface VerificationFilters {
@@ -46,7 +59,7 @@ export interface UpdateModerationData {
   type: VerificationEntityType;
   status?: ModerationStatus;
   note?: string;
-  paymentState?: 'pending' | 'paid' | 'rejected';
+  paymentState?: PaymentState;
   paymentNote?: string;
 }
 
@@ -54,9 +67,51 @@ export interface UpdateModerationData {
 // Helper Functions
 // ============================================
 
+/**
+ * Construye URL pública de imagen desde path
+ * V3: Solo usamos path, bucket es fijo por entidad
+ */
 function getImageUrl(bucket: string, path: string): string {
+  if (!path) return '';
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
+}
+
+/**
+ * Extrae el tipo de imagen del path (V3)
+ * Path format: <entity_id>/<prefix>-<uuid>.ext
+ * Ej: "abc123/cover-xyz.jpg" -> "cover"
+ */
+function getImageTypeFromPath(path: string): string {
+  if (!path) return '';
+  const filename = path.split('/').pop() || '';
+  const prefix = filename.split('-')[0];
+  return prefix;
+}
+
+/**
+ * Formatea la ubicación desde la jerarquía normalizada (V3)
+ */
+function formatLocationFromHierarchy(location: {
+  address_loc?: string | null;
+  districts?: {
+    name_dst?: string;
+    cantons?: {
+      name_ctn?: string;
+      provinces?: {
+        name_prv?: string;
+      };
+    };
+  };
+} | null): string | null {
+  if (!location?.districts) return null;
+
+  const parts = [
+    location.districts?.cantons?.name_ctn,
+    location.districts?.name_dst,
+  ].filter(Boolean);
+
+  return parts.length ? parts.join(', ') : null;
 }
 
 // ============================================
@@ -136,14 +191,19 @@ async function fetchBusinessVerifications(
       moderation_status_bus,
       created_at_bus,
       owner_id_bus,
-      locations (
-        province_loc,
-        canton_loc,
-        district_loc
+      locations!businesses_location_id_bus_fkey (
+        address_loc,
+        districts!locations_district_id_fkey (
+          name_dst,
+          cantons!districts_canton_id_fkey (
+            name_ctn,
+            provinces!cantons_province_id_fkey (
+              name_prv
+            )
+          )
+        )
       ),
       business_images (
-        image_type_bim,
-        bucket_bim,
         path_bim,
         sort_order_bim
       )
@@ -160,7 +220,7 @@ async function fetchBusinessVerifications(
   }
 
   const { data, error } = await query;
-  
+
   if (error) {
     console.error('Error fetching businesses:', error);
     throw error;
@@ -171,13 +231,13 @@ async function fetchBusinessVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0)
     );
-    // Prioritize cover, then logo, then first image
-    const coverImage = sortedImages.find((img: any) => img.image_type_bim === 'cover');
-    const logoImage = sortedImages.find((img: any) => img.image_type_bim === 'logo');
+    // V3: Inferir tipo de imagen del path (cover, logo, gallery)
+    const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'cover');
+    const logoImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'logo');
     const primaryImage = coverImage || logoImage || sortedImages[0];
 
-    const location = Array.isArray(item.locations) ? item.locations[0] : item.locations;
-    const locationParts = [location?.canton_loc, location?.district_loc].filter(Boolean);
+    // V3: Ubicación normalizada
+    const location = item.locations;
 
     return {
       id: item.id_bus,
@@ -187,12 +247,12 @@ async function fetchBusinessVerifications(
       ownerName: 'Propietario',
       ownerEmail: '',
       ownerId: item.owner_id_bus,
-      imageUrl: primaryImage?.bucket_bim && primaryImage?.path_bim 
-        ? getImageUrl(primaryImage.bucket_bim, primaryImage.path_bim) 
+      imageUrl: primaryImage?.path_bim
+        ? getImageUrl(STORAGE_BUCKETS.businesses, primaryImage.path_bim)
         : null,
       moderationStatus: item.moderation_status_bus,
       createdAt: item.created_at_bus,
-      locationLabel: locationParts.length ? locationParts.join(', ') : null,
+      locationLabel: formatLocationFromHierarchy(location),
     };
   });
 }
@@ -214,14 +274,19 @@ async function fetchEventVerifications(
       moderation_status_evt,
       created_at_evt,
       created_by_evt,
-      locations (
-        province_loc,
-        canton_loc,
-        district_loc
+      locations!events_location_id_evt_fkey (
+        address_loc,
+        districts!locations_district_id_fkey (
+          name_dst,
+          cantons!districts_canton_id_fkey (
+            name_ctn,
+            provinces!cantons_province_id_fkey (
+              name_prv
+            )
+          )
+        )
       ),
       event_images (
-        image_type_eim,
-        bucket_eim,
         path_eim,
         sort_order_eim
       )
@@ -248,12 +313,12 @@ async function fetchEventVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_eim || 0) - (b.sort_order_eim || 0)
     );
-    // Prioritize cover, then first image
-    const coverImage = sortedImages.find((img: any) => img.image_type_eim === 'cover');
+    // V3: Inferir tipo de imagen del path (cover, gallery)
+    const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_eim) === 'cover');
     const primaryImage = coverImage || sortedImages[0];
 
+    // V3: Ubicación normalizada
     const location = item.locations;
-    const locationParts = [location?.canton_loc, location?.district_loc].filter(Boolean);
 
     return {
       id: item.id_evt,
@@ -263,12 +328,12 @@ async function fetchEventVerifications(
       ownerName: 'Creador',
       ownerEmail: '',
       ownerId: item.created_by_evt,
-      imageUrl: primaryImage?.bucket_eim && primaryImage?.path_eim 
-        ? getImageUrl(primaryImage.bucket_eim, primaryImage.path_eim) 
+      imageUrl: primaryImage?.path_eim
+        ? getImageUrl(STORAGE_BUCKETS.events, primaryImage.path_eim)
         : null,
       moderationStatus: item.moderation_status_evt,
       createdAt: item.created_at_evt,
-      locationLabel: locationParts.length ? locationParts.join(', ') : null,
+      locationLabel: formatLocationFromHierarchy(location),
     };
   });
 }
@@ -290,13 +355,19 @@ async function fetchAttractionVerifications(
       moderation_status_atr,
       created_at_atr,
       submitted_by_atr,
-      locations (
-        province_loc,
-        canton_loc,
-        district_loc
+      locations!attractions_location_id_atr_fkey (
+        address_loc,
+        districts!locations_district_id_fkey (
+          name_dst,
+          cantons!districts_canton_id_fkey (
+            name_ctn,
+            provinces!cantons_province_id_fkey (
+              name_prv
+            )
+          )
+        )
       ),
       attraction_images (
-        bucket_aim,
         path_aim,
         sort_order_aim
       )
@@ -323,11 +394,12 @@ async function fetchAttractionVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_aim || 0) - (b.sort_order_aim || 0)
     );
-    // Attractions use 'image' type - just take first
-    const primaryImage = sortedImages[0];
+    // V3: Priorizar cover, luego primera imagen
+    const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_aim) === 'cover');
+    const primaryImage = coverImage || sortedImages[0];
 
+    // V3: Ubicación normalizada
     const location = item.locations;
-    const locationParts = [location?.canton_loc, location?.district_loc].filter(Boolean);
 
     return {
       id: item.id_atr,
@@ -337,12 +409,12 @@ async function fetchAttractionVerifications(
       ownerName: 'Colaborador',
       ownerEmail: '',
       ownerId: item.submitted_by_atr,
-      imageUrl: primaryImage?.bucket_aim && primaryImage?.path_aim 
-        ? getImageUrl(primaryImage.bucket_aim, primaryImage.path_aim) 
+      imageUrl: primaryImage?.path_aim
+        ? getImageUrl(STORAGE_BUCKETS.attractions, primaryImage.path_aim)
         : null,
       moderationStatus: item.moderation_status_atr,
       createdAt: item.created_at_atr,
-      locationLabel: locationParts.length ? locationParts.join(', ') : null,
+      locationLabel: formatLocationFromHierarchy(location),
     };
   });
 }
@@ -373,14 +445,21 @@ async function fetchPromotionVerifications(
       scope_prm,
       payment_reference_prm,
       payment_state_prm,
-      payment_note_prm,
-      businesses (
+      payment_note_admin_prm,
+      payment_note_seller_prm,
+      businesses!promotions_business_id_prm_fkey (
         name_bus,
-        locations (
-          province_loc,
-          canton_loc,
-          district_loc,
-          address_loc
+        locations!businesses_location_id_bus_fkey (
+          address_loc,
+          districts!locations_district_id_fkey (
+            name_dst,
+            cantons!districts_canton_id_fkey (
+              name_ctn,
+              provinces!cantons_province_id_fkey (
+                name_prv
+              )
+            )
+          )
         )
       ),
       profiles!promotions_created_by_prm_fkey (
@@ -389,8 +468,6 @@ async function fetchPromotionVerifications(
         last_name2_prf
       ),
       promotion_images (
-        image_type_pim,
-        bucket_pim,
         path_pim
       ),
       promotion_scope_categories (
@@ -428,25 +505,20 @@ async function fetchPromotionVerifications(
 
   return (data || []).map((item: any) => {
     const images = item.promotion_images || [];
-    const coverImage = images.find((img: any) => img.image_type_pim === 'cover');
-    const primaryImage = coverImage || images[0];
+    // V3: Inferir tipo de imagen del path (flyer)
+    const flyerImage = images.find((img: any) => getImageTypeFromPath(img.path_pim) === 'flyer');
+    const primaryImage = flyerImage || images[0];
 
     // Get user full name
     const profile = item.profiles;
-    const fullName = profile 
+    const fullName = profile
       ? [profile.first_name_prf, profile.last_name1_prf, profile.last_name2_prf]
-          .filter(Boolean)
-          .join(' ')
+        .filter(Boolean)
+        .join(' ')
       : 'Usuario';
 
-    // Get business location
-    const businessLocations = item.businesses?.locations;
-    const location = Array.isArray(businessLocations) ? businessLocations[0] : businessLocations;
-    const locationParts = [
-      location?.canton_loc,
-      location?.district_loc,
-      location?.province_loc,
-    ].filter(Boolean);
+    // V3: Ubicación normalizada del negocio
+    const businessLocation = item.businesses?.locations;
 
     // Get categories if scope is category
     const categories = (item.promotion_scope_categories || [])
@@ -461,7 +533,7 @@ async function fetchPromotionVerifications(
         paidQuantity: pci.paid_quantity_pci,
         price: pci.products?.price_prd,
       }))
-      .filter((item: any) => item.productName);
+      .filter((comboItem: any) => comboItem.productName);
 
     return {
       id: item.id_prm,
@@ -471,17 +543,17 @@ async function fetchPromotionVerifications(
       ownerName: fullName,
       ownerEmail: '',
       ownerId: item.created_by_prm,
-      imageUrl: primaryImage?.bucket_pim && primaryImage?.path_pim 
-        ? getImageUrl(primaryImage.bucket_pim, primaryImage.path_pim) 
+      imageUrl: primaryImage?.path_pim
+        ? getImageUrl(STORAGE_BUCKETS.promotions, primaryImage.path_pim)
         : null,
       moderationStatus: item.moderation_status_prm,
       createdAt: item.created_at_prm,
-      locationLabel: locationParts.length ? locationParts.join(', ') : null,
+      locationLabel: formatLocationFromHierarchy(businessLocation),
       businessId: item.business_id_prm,
       // Additional promotion data
       metadata: {
         businessName: item.businesses?.name_bus,
-        businessLocation: locationParts.length ? locationParts.join(', ') : null,
+        businessLocation: formatLocationFromHierarchy(businessLocation),
         discountType: item.discount_type_prm,
         discountValue: item.discount_value_prm,
         scope: item.scope_prm,
@@ -489,13 +561,14 @@ async function fetchPromotionVerifications(
         endAt: item.end_at_prm,
         paymentReference: item.payment_reference_prm,
         paymentState: item.payment_state_prm,
-        paymentNote: item.payment_note_prm,
+        paymentNoteAdmin: item.payment_note_admin_prm,
+        paymentNoteSeller: item.payment_note_seller_prm,
         moderationNote: item.moderation_note_prm,
         categories: categories,
         comboItems: comboItems,
         images: images.map((img: any) => ({
-          type: img.image_type_pim,
-          url: img.bucket_pim && img.path_pim ? getImageUrl(img.bucket_pim, img.path_pim) : null,
+          type: getImageTypeFromPath(img.path_pim),
+          url: img.path_pim ? getImageUrl(STORAGE_BUCKETS.promotions, img.path_pim) : null,
         })).filter((img: any) => img.url),
       },
     };
@@ -541,68 +614,79 @@ export async function updateModerationStatus(data: UpdateModerationData): Promis
   switch (type) {
     case 'business':
       if (status !== undefined) {
-        await supabase
+        const { error } = await supabase
           .from('businesses')
           .update({
             moderation_status_bus: status,
             reviewed_by_bus: user.id,
             reviewed_at_bus: reviewedAt,
             moderation_note_bus: note || null,
-          })
+            updated_at_bus: reviewedAt,
+          } as never)
           .eq('id_bus', id);
+        if (error) throw error;
       }
       break;
 
     case 'event':
       if (status !== undefined) {
-        await supabase
+        const { error } = await supabase
           .from('events')
           .update({
             moderation_status_evt: status,
             reviewed_by_evt: user.id,
             reviewed_at_evt: reviewedAt,
             moderation_note_evt: note || null,
-          })
+            updated_at_evt: reviewedAt,
+          } as never)
           .eq('id_evt', id);
+        if (error) throw error;
       }
       break;
 
     case 'attraction':
       if (status !== undefined) {
-        await supabase
+        const { error } = await supabase
           .from('attractions')
           .update({
             moderation_status_atr: status,
             reviewed_by_atr: user.id,
             reviewed_at_atr: reviewedAt,
             moderation_note_atr: note || null,
-          })
+            updated_at_atr: reviewedAt,
+          } as never)
           .eq('id_atr', id);
+        if (error) throw error;
       }
       break;
 
-    case 'promotion':
-      const updateData: any = {};
-      
+    case 'promotion': {
+      const updatePayload: Record<string, unknown> = {
+        updated_at_prm: reviewedAt,
+      };
+
       if (status !== undefined) {
-        updateData.moderation_status_prm = status;
-        updateData.reviewed_by_prm = user.id;
-        updateData.reviewed_at_prm = reviewedAt;
-        updateData.moderation_note_prm = note || null;
-      }
-      
-      if (paymentState !== undefined) {
-        updateData.payment_state_prm = paymentState;
-        updateData.payment_note_prm = paymentNote || null;
+        updatePayload.moderation_status_prm = status;
+        updatePayload.reviewed_by_prm = user.id;
+        updatePayload.reviewed_at_prm = reviewedAt;
+        updatePayload.moderation_note_prm = note || null;
       }
 
-      if (Object.keys(updateData).length > 0) {
-        await supabase
+      if (paymentState !== undefined) {
+        updatePayload.payment_state_prm = paymentState;
+        // V3: Notas separadas para admin y seller
+        updatePayload.payment_note_admin_prm = paymentNote || null;
+      }
+
+      if (Object.keys(updatePayload).length > 1) { // More than just updated_at
+        const { error } = await supabase
           .from('promotions')
-          .update(updateData)
+          .update(updatePayload as never)
           .eq('id_prm', id);
+        if (error) throw error;
       }
       break;
+    }
   }
 }
 
@@ -613,6 +697,6 @@ export async function getVerificationDetail(
   id: string,
   type: VerificationEntityType
 ): Promise<VerificationRequest | null> {
-  const requests = await fetchByType(type, 'all', '', 1);
+  const requests = await fetchByType(type, 'all', '', 100);
   return requests.find((r) => r.id === id) || null;
 }

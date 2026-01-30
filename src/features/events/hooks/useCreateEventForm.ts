@@ -11,9 +11,10 @@ interface FormData {
     selectedCategoryIds: string[];
     coverUri: string | null;
     galleryUris: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    country: string | null;      // Nombre del país
+    province: string | null;     // Nombre de la provincia
+    canton: string | null;       // Nombre del cantón
+    district: string | null;     // Nombre del distrito
     address: string | null;
     coordinates: { latitude: number; longitude: number } | null;
     startDate: Date;
@@ -43,6 +44,7 @@ const initialFormData: FormData = {
     selectedCategoryIds: [],
     coverUri: null,
     galleryUris: [],
+    country: null,
     province: null,
     canton: null,
     district: null,
@@ -103,6 +105,7 @@ export function useCreateEventForm() {
         
         setFormData((prev) => ({
             ...prev,
+            country: location.country || 'Costa Rica',
             province: location.province || null,
             canton: location.canton || null,
             district: location.district || null,
@@ -130,6 +133,8 @@ export function useCreateEventForm() {
 
         if (!formData.coordinates) {
             newErrors.location = 'Selecciona una ubicación en el mapa';
+        } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
+            newErrors.location = 'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
         }
 
         if (formData.startDate >= formData.endDate) {
@@ -163,9 +168,10 @@ export function useCreateEventForm() {
                 price: !formData.isFree && formData.price ? parseFloat(formData.price) : undefined,
                 currency: !formData.isFree && formData.price ? 'CRC' : undefined,
                 capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
-                province: formData.province ?? undefined,
-                canton: formData.canton ?? undefined,
-                district: formData.district ?? undefined,
+                country: formData.country!,
+                province: formData.province!,
+                canton: formData.canton!,
+                district: formData.district!,
                 address: formData.address?.trim() ?? undefined,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,

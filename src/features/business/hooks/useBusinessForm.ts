@@ -3,7 +3,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useCategories } from '@/hooks/useCategories';
 import { useBusinessById, useUpdateBusiness } from '@/features/business/hooks/useUserBusinesses';
-import type { UpdateBusinessData } from '@/types/entities/business';
+import type { UpdateBusinessData } from '@/features/business/services/updateBusiness.service';
 
 interface UseBusinessFormProps {
     businessId: string;
@@ -28,6 +28,7 @@ export function useBusinessForm(businessId: string) {
         logoUri: null as string | null,
         coverUri: null as string | null,
         galleryUris: [] as string[],
+        country: '',
         province: '',
         canton: '',
         district: '',
@@ -57,11 +58,14 @@ export function useBusinessForm(businessId: string) {
                 logoUri: business.logoUrl,
                 coverUri: business.coverUrl,
                 galleryUris: business.galleryUrls,
+                country: business.country || 'Costa Rica',
                 province: business.province || '',
                 canton: business.canton || '',
                 district: business.district || '',
                 address: business.address || '',
-                coordinates: { latitude: business.latitude, longitude: business.longitude },
+                coordinates: (business.latitude && business.longitude)
+                    ? { latitude: business.latitude, longitude: business.longitude }
+                    : null,
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
@@ -94,48 +98,13 @@ export function useBusinessForm(businessId: string) {
             return;
         }
 
-        // Validar que la ubicación esté en Costa Rica antes de guardar
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${formData.coordinates!.latitude}&lon=${formData.coordinates!.longitude}&addressdetails=1`,
-                {
-                    headers: {
-                        'Accept-Language': 'es',
-                        'User-Agent': 'RuticaApp/1.0',
-                    },
-                }
-            );
-            const data = await response.json();
-
-            if (data && data.address) {
-                const country = data.address.country || '';
-                const countryCode = data.address.country_code?.toLowerCase() || '';
-                const isCostaRica = countryCode === 'cr' || country.toLowerCase().includes('costa rica');
-
-                if (!isCostaRica) {
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Ubicación no válida',
-                        text2: `La ubicación está en ${country}, debe estar en Costa Rica`,
-                        position: 'top',
-                        visibilityTime: 4000,
-                    });
-                    return;
-                }
-
-                // Actualizar datos de ubicación si los obtuvimos
-                if (data.address.state) formData.province = data.address.state;
-                if (data.address.county) formData.canton = data.address.county;
-                if (data.address.city || data.address.town) formData.district = data.address.city || data.address.town;
-                if (data.display_name) formData.address = data.display_name;
-            }
-        } catch (error) {
+        if (!formData.country || !formData.province || !formData.canton || !formData.district) {
             Toast.show({
                 type: 'error',
-                text1: 'Error de validación',
-                text2: 'No se pudo verificar la ubicación. Intenta de nuevo.',
+                text1: 'Ubicación incompleta',
+                text2: 'Mueve el pin a una ciudad, distrito o pueblo específico',
                 position: 'top',
-                visibilityTime: 3000,
+                visibilityTime: 4000,
             });
             return;
         }
@@ -145,10 +114,10 @@ export function useBusinessForm(businessId: string) {
                 name: formData.name.trim(),
                 description: formData.description.trim() || null,
                 categoryIds: formData.selectedCategoryIds,
-                country: 'Costa Rica',
-                province: formData.province || null,
-                canton: formData.canton || null,
-                district: formData.district || null,
+                country: formData.country,
+                province: formData.province,
+                canton: formData.canton,
+                district: formData.district,
                 address: formData.address.trim() || null,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
@@ -162,6 +131,15 @@ export function useBusinessForm(businessId: string) {
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
             };
+
+            console.log('[useBusinessForm] Submitting data:', {
+                logoUri: data.logoUri,
+                coverUri: data.coverUri,
+                galleryUris: data.galleryUris,
+                facebook: data.facebook,
+                instagram: data.instagram,
+                tiktok: data.tiktok,
+            });
 
             await updateMutation.mutateAsync({ businessId, data });
             Toast.show({
@@ -188,9 +166,29 @@ export function useBusinessForm(businessId: string) {
     };
 
     const handleLocationSelect = (location: any) => {
-        // Solo guardar coordenadas, la validación se hace al guardar
+        // Actualizar nombres de ubicación, coordenadas y dirección
+        if (location.country) {
+            updateField('country', location.country);
+        }
+        if (location.province) {
+            updateField('province', location.province);
+        }
+        if (location.canton) {
+            updateField('canton', location.canton);
+        }
+        if (location.district) {
+            updateField('district', location.district);
+        }
         if (location.latitude && location.longitude) {
             updateField('coordinates', { latitude: location.latitude, longitude: location.longitude });
+        }
+        if (location.address) {
+            updateField('address', location.address);
+        }
+
+        // Limpiar error de ubicación si existe
+        if (errors.location) {
+            setErrors((e) => ({ ...e, location: '' }));
         }
     };
 

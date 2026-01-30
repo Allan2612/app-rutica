@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
+import type { Database } from '@/lib/supabase/database.types';
 
 /**
  * Reseña con datos del autor para mostrar en UI
@@ -15,6 +16,16 @@ export interface BusinessReviewDisplay {
 }
 
 /**
+ * Tipo para el resultado del select con profile join
+ */
+type BusinessReviewRow = Database['public']['Tables']['business_reviews']['Row'];
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+
+type BusinessReviewWithProfile = BusinessReviewRow & {
+    profiles: Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf'> | null;
+};
+
+/**
  * Obtiene todas las reseñas de un negocio
  */
 export async function getBusinessReviews(businessId: string): Promise<BusinessReviewDisplay[]> {
@@ -27,7 +38,7 @@ export async function getBusinessReviews(businessId: string): Promise<BusinessRe
             rating_brv,
             comment_brv,
             created_at_brv,
-            profiles (
+            profiles!business_reviews_user_id_brv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
@@ -36,11 +47,10 @@ export async function getBusinessReviews(businessId: string): Promise<BusinessRe
         .order('created_at_brv', { ascending: false });
 
     if (error) {
-        console.error('Error fetching business reviews:', error);
         return [];
     }
 
-    return (data ?? []).map((review: any) => {
+    return ((data as unknown as BusinessReviewWithProfile[]) ?? []).map((review) => {
         const profile = review.profiles;
         const firstName = profile?.first_name_prf ?? '';
         const lastName = profile?.last_name1_prf ?? '';
@@ -48,9 +58,9 @@ export async function getBusinessReviews(businessId: string): Promise<BusinessRe
 
         return {
             id: review.id_brv,
-            businessId: review.business_id_brv,
-            userId: review.user_id_brv,
-            rating: review.rating_brv,
+            businessId: review.business_id_brv ?? '',
+            userId: review.user_id_brv ?? '',
+            rating: review.rating_brv ?? 0,
             comment: review.comment_brv,
             createdAt: review.created_at_brv,
             authorName,
@@ -74,7 +84,7 @@ export async function getUserBusinessReview(
             rating_brv,
             comment_brv,
             created_at_brv,
-            profiles!user_id_brv (
+            profiles!business_reviews_user_id_brv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
@@ -84,26 +94,26 @@ export async function getUserBusinessReview(
         .maybeSingle();
 
     if (error) {
-        console.error('Error fetching user business review:', error);
         return null;
     }
-    
+
     if (!data) {
         return null;
     }
 
-    const profile = (data as any).profiles;
+    const review = data as unknown as BusinessReviewWithProfile;
+    const profile = review.profiles;
     const firstName = profile?.first_name_prf ?? '';
     const lastName = profile?.last_name1_prf ?? '';
     const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     return {
-        id: data.id_brv,
-        businessId: data.business_id_brv,
-        userId: data.user_id_brv,
-        rating: data.rating_brv,
-        comment: data.comment_brv,
-        createdAt: data.created_at_brv,
+        id: review.id_brv,
+        businessId: review.business_id_brv ?? '',
+        userId: review.user_id_brv ?? '',
+        rating: review.rating_brv ?? 0,
+        comment: review.comment_brv,
+        createdAt: review.created_at_brv,
         authorName,
     };
 }
@@ -129,7 +139,7 @@ export async function createBusinessReview(
             user_id_brv: userId,
             rating_brv: rating,
             comment_brv: comment || null,
-        })
+        } as any)
         .select(`
             id_brv,
             business_id_brv,
@@ -141,9 +151,15 @@ export async function createBusinessReview(
         .single();
 
     if (error) {
-        console.error('Error creating business review:', error);
+        // Mejorar mensaje de error RLS
+        if (error.message.includes('row-level security policy')) {
+            throw new Error('No tienes permiso para dejar una reseña en este negocio');
+        }
+
         throw new Error(error.message);
     }
+
+    const review = data as unknown as BusinessReviewRow;
 
     // Actualizar el promedio de rating del negocio
     await updateBusinessRating(businessId);
@@ -155,17 +171,18 @@ export async function createBusinessReview(
         .eq('id_prf', userId)
         .single();
 
-    const firstName = profile?.first_name_prf ?? '';
-    const lastName = profile?.last_name1_prf ?? '';
+    const profileData = profile as unknown as Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf'> | null;
+    const firstName = profileData?.first_name_prf ?? '';
+    const lastName = profileData?.last_name1_prf ?? '';
     const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     return {
-        id: data.id_brv,
-        businessId: data.business_id_brv,
-        userId: data.user_id_brv,
-        rating: data.rating_brv,
-        comment: data.comment_brv,
-        createdAt: data.created_at_brv,
+        id: review.id_brv,
+        businessId: review.business_id_brv ?? '',
+        userId: review.user_id_brv ?? '',
+        rating: review.rating_brv ?? 0,
+        comment: review.comment_brv,
+        createdAt: review.created_at_brv,
         authorName,
     };
 }
@@ -183,12 +200,14 @@ export async function updateBusinessReview(
         validateReviewContent(comment);
     }
 
-    const { data, error } = await supabase
+    const updatePayload: any = {
+        rating_brv: rating,
+        comment_brv: comment || null,
+    };
+
+    const { data, error } = await (supabase as any)
         .from('business_reviews')
-        .update({
-            rating_brv: rating,
-            comment_brv: comment || null,
-        })
+        .update(updatePayload)
         .eq('id_brv', reviewId)
         .select(`
             id_brv,
@@ -201,31 +220,33 @@ export async function updateBusinessReview(
         .single();
 
     if (error) {
-        console.error('Error updating business review:', error);
         throw new Error(error.message);
     }
 
+    const review = data as unknown as BusinessReviewRow;
+
     // Actualizar el promedio de rating del negocio
-    await updateBusinessRating(data.business_id_brv);
+    await updateBusinessRating(review.business_id_brv ?? '');
 
     // Obtener el nombre del usuario
     const { data: profile } = await supabase
         .from('profiles')
         .select('first_name_prf, last_name1_prf')
-        .eq('id_prf', data.user_id_brv)
+        .eq('id_prf', review.user_id_brv ?? '')
         .single();
 
-    const firstName = profile?.first_name_prf ?? '';
-    const lastName = profile?.last_name1_prf ?? '';
+    const profileData = profile as unknown as Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf'> | null;
+    const firstName = profileData?.first_name_prf ?? '';
+    const lastName = profileData?.last_name1_prf ?? '';
     const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     return {
-        id: data.id_brv,
-        businessId: data.business_id_brv,
-        userId: data.user_id_brv,
-        rating: data.rating_brv,
-        comment: data.comment_brv,
-        createdAt: data.created_at_brv,
+        id: review.id_brv,
+        businessId: review.business_id_brv ?? '',
+        userId: review.user_id_brv ?? '',
+        rating: review.rating_brv ?? 0,
+        comment: review.comment_brv,
+        createdAt: review.created_at_brv,
         authorName,
     };
 }
@@ -240,7 +261,6 @@ export async function deleteBusinessReview(reviewId: string, businessId: string)
         .eq('id_brv', reviewId);
 
     if (error) {
-        console.error('Error deleting business review:', error);
         throw new Error(error.message);
     }
 
@@ -250,30 +270,39 @@ export async function deleteBusinessReview(reviewId: string, businessId: string)
 
 /**
  * Actualiza el promedio de rating y conteo de reseñas del negocio
+ * Usa una función SQL con SECURITY DEFINER para bypasear el trigger
  */
 async function updateBusinessRating(businessId: string): Promise<void> {
-    // Obtener todas las reseñas del negocio
-    const { data: reviews, error } = await supabase
-        .from('business_reviews')
-        .select('rating_brv')
-        .eq('business_id_brv', businessId);
+    // Llamar a la función SQL que tiene privilegios para actualizar los campos protegidos
+    const { error } = await (supabase as any).rpc('update_business_rating', {
+        p_business_id: businessId
+    });
 
     if (error) {
-        console.error('Error fetching reviews for rating update:', error);
-        return;
-    }
+        // Fallback: Intentar actualización directa (funcionará si el trigger fue modificado)
+        const { data: reviews, error: reviewsError } = await supabase
+            .from('business_reviews')
+            .select('rating_brv')
+            .eq('business_id_brv', businessId);
 
-    const reviewCount = reviews?.length ?? 0;
-    const avgRating = reviewCount > 0
-        ? reviews.reduce((sum, r) => sum + r.rating_brv, 0) / reviewCount
-        : 0;
+        if (reviewsError) {
+            return;
+        }
 
-    // Actualizar el negocio
-    await supabase
-        .from('businesses')
-        .update({
-            avg_rating_bus: Math.round(avgRating * 10) / 10, // Redondear a 1 decimal
+        const reviewsData = reviews as unknown as Pick<BusinessReviewRow, 'rating_brv'>[] | null;
+        const reviewCount = reviewsData?.length ?? 0;
+        const avgRating = reviewCount > 0
+            ? reviewsData!.reduce((sum, r) => sum + (r.rating_brv ?? 0), 0) / reviewCount
+            : 0;
+
+        const updatePayload: any = {
+            avg_rating_bus: Math.round(avgRating * 10) / 10,
             reviews_count_bus: reviewCount,
-        })
-        .eq('id_bus', businessId);
+        };
+
+        await (supabase as any)
+            .from('businesses')
+            .update(updatePayload)
+            .eq('id_bus', businessId);
+    }
 }

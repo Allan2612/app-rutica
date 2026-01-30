@@ -136,11 +136,11 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
           ]}
         >
           <Text style={styles.scopeText}>
-            {formData.scope === 'general'
+            {formData.scope === 'all'
               ? 'Todo el negocio'
-              : formData.scope === 'product'
+              : formData.scope === 'products'
               ? `${formData.selectedProductIds.length} producto(s)`
-              : formData.scope === 'category'
+              : formData.scope === 'categories'
               ? `${formData.scopeCategoryIds.length} categoría(s)`
               : `Combo (${formData.comboItems.length} productos)`}
           </Text>

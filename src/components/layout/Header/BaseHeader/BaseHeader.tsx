@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, LogIn, MapPin } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useAuthStore, useLocationStore } from '@/store';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useProfilePhoto } from '@/hooks';
 import { UserMenu } from '@/components/layout/Header/UserMenu';
 import { LocationDropdown } from '@/components/layout/Header/LocationDropdown';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
@@ -19,6 +19,7 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
   const { user, isLoading, isAuthenticated } = useAuthStore();
   const { location } = useLocationStore();
   const colors = useThemedColors();
+  const profilePhotoUrl = useProfilePhoto(user?.id);
   const [menuVisible, setMenuVisible] = useState(false);
   const [locationVisible, setLocationVisible] = useState(false);
   const [fontsLoaded] = useFonts({
@@ -126,9 +127,18 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
             {isLoading ? (
               <ActivityIndicator size="small" color={colors.primary[500]} />
             ) : isAuthenticated ? (
-              <View style={[styles.userIconAuthenticated, { backgroundColor: colors.primary[500] }]}>
-                <User color="#fff" size={20} />
-              </View>
+              profilePhotoUrl ? (
+                <Image
+                  source={{ uri: profilePhotoUrl }}
+                  style={styles.userIconAuthenticated}
+                  contentFit="cover"
+                  transition={200}
+                />
+              ) : (
+                <View style={[styles.userIconAuthenticated, { backgroundColor: colors.primary[500] }]}>
+                  <User color="#fff" size={20} />
+                </View>
+              )
             ) : (
               <View style={[styles.userIconGuest, { backgroundColor: colors.background.tertiary }]}>
                 <LogIn color={colors.text.secondary} size={20} />

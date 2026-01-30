@@ -13,6 +13,7 @@ interface AuthState {
   isAuthenticated: boolean;
   _initialized: boolean;
   _isLoadingData: boolean; // Flag interno para evitar cargas simultáneas
+  _isRecoveryMode: boolean; // Flag para modo de recuperación de contraseña
 }
 
 /**
@@ -22,6 +23,7 @@ interface AuthActions {
   setUser: (user: User | null) => void;
   setRole: (role: UserRole | null) => void;
   setLoading: (isLoading: boolean) => void;
+  setRecoveryMode: (isRecovery: boolean) => void;
   loadUserData: () => Promise<void>;
   signOut: () => Promise<void>;
   initialize: () => void;
@@ -57,6 +59,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   _initialized: false,
   _isLoadingData: false,
+  _isRecoveryMode: false,
 
   // Acciones
   setUser: (user) =>
@@ -69,11 +72,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   setLoading: (isLoading) => set({ isLoading }),
 
+  setRecoveryMode: (isRecovery) => set({ _isRecoveryMode: isRecovery }),
+
   /**
    * Carga los datos del usuario autenticado y su perfil
    */
   loadUserData: async () => {
     const state = get();
+    
+    // NO cargar datos si estamos en modo recovery (recuperación de contraseña)
+    if (state._isRecoveryMode) {
+      set({ isLoading: false, _isLoadingData: false });
+      return;
+    }
     
     // Evitar cargas múltiples simultáneas
     if (state._isLoadingData) {
@@ -135,7 +146,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         .from('profiles')
         .select('role_prf')
         .eq('id_prf', authUser.id)
-        .single();
+        .single<{ role_prf: UserRole }>();
 
       if (profileError) {
         // Si el perfil no existe, desloguear
@@ -229,6 +240,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     // Registrar listener antes de cargar datos (evita race conditions)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Manejar recuperación de contraseña - NO autenticar al usuario
+        if (event === 'PASSWORD_RECOVERY') {
+          set({
+            _isRecoveryMode: true,
+            isLoading: false,
+            _isLoadingData: false,
+          });
+          return;
+        }
+        
         if (event === 'SIGNED_OUT') {
           set({
             user: null,
@@ -236,6 +257,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             isAuthenticated: false,
             isLoading: false,
             _isLoadingData: false,
+            _isRecoveryMode: false,
           });
         } else if (event === 'INITIAL_SESSION' && !session) {
           // Si no hay sesión inicial, asegurarse de limpiar el estado
@@ -247,14 +269,23 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             _isLoadingData: false,
           });
         } else if (event === 'SIGNED_IN') {
-          // Solo cargar si NO tenemos usuario ya cargado
+          // NO cargar datos si estamos en modo recovery
           const currentState = get();
+          if (currentState._isRecoveryMode) {
+            set({ isLoading: false, _isLoadingData: false });
+            return;
+          }
+          // Solo cargar si NO tenemos usuario ya cargado
           if (!currentState.user) {
             await get().loadUserData();
           }
         } else if (event === 'TOKEN_REFRESHED') {
-          // Solo refrescar si el usuario cambió, no mostrar spinner
+          // NO cargar datos si estamos en modo recovery
           const currentState = get();
+          if (currentState._isRecoveryMode) {
+            return;
+          }
+          // Solo refrescar si el usuario cambió, no mostrar spinner
           if (session?.user?.id && session.user.id !== currentState.user?.id) {
             await get().loadUserData();
           }
@@ -263,13 +294,24 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             set({ user: session.user });
           }
         } else if (event === 'USER_UPDATED') {
-          // Solo recargar si hay cambios reales en el usuario
+          // Si estamos en modo recovery y se actualizó el usuario (contraseña cambiada),
+          // no recargar datos - la pantalla de reset se encargará
           const currentState = get();
+          if (currentState._isRecoveryMode) {
+            return;
+          }
+          // Solo recargar si hay cambios reales en el usuario
           if (session?.user && JSON.stringify(session.user) !== JSON.stringify(currentState.user)) {
             await get().loadUserData();
           }
         } else if (event === 'INITIAL_SESSION') {
           // Este evento ocurre al iniciar - cargar datos del usuario
+          // NO cargar si estamos en modo recovery
+          const currentState = get();
+          if (currentState._isRecoveryMode) {
+            set({ isLoading: false, _isLoadingData: false });
+            return;
+          }
           if (session?.user) {
             await get().loadUserData();
           }
@@ -302,6 +344,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       subscription.unsubscribe();
       delete (get() as any)._subscription;
     }
-    set({ _initialized: false, _isLoadingData: false });
+    set({ _initialized: false, _isLoadingData: false, _isRecoveryMode: false });
   },
 }));

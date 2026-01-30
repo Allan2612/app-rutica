@@ -838,9 +838,1908 @@ values
     'STANDARD'
   )
 on conflict (id) do nothing;
+-- ============================================================
+-- 11) Indices
+-- ============================================================
 
 -- ============================================================
--- 9) ÍNDICES
--- 11) Políticas
--- (pendientes según tu comentario)
+-- 11.1) LOCATIONS (jerarquía geográfica)
+-- ============================================================
+create index idx_provinces_country_id on public.provinces(country_id_prv);
+create index idx_cantons_province_id on public.cantons(province_id_ctn);
+create index idx_districts_canton_id on public.districts(canton_id_dst);
+create index idx_locations_district_id on public.locations(district_id_loc);
+
+-- Índice para búsquedas por coordenadas (consultas de mapa)
+create index idx_locations_coords on public.locations(latitude_loc, longitude_loc)
+  where latitude_loc is not null and longitude_loc is not null;
+
+-- ============================================================
+-- 11.2) BUSINESSES
+-- ============================================================
+create index idx_businesses_owner_id on public.businesses(owner_id_bus);
+create index idx_businesses_location_id on public.businesses(location_id_bus);
+create index idx_businesses_reviewed_by on public.businesses(reviewed_by_bus)
+  where reviewed_by_bus is not null;
+
+-- Filtros de moderación y estado activo (consultas de listado)
+create index idx_businesses_moderation_status on public.businesses(moderation_status_bus);
+create index idx_businesses_is_active on public.businesses(is_active_bus);
+
+-- Índice compuesto para listados públicos (aprobados y activos)
+create index idx_businesses_public_listing on public.businesses(moderation_status_bus, is_active_bus)
+  where moderation_status_bus = 'approved'::public.moderation_status and is_active_bus = true;
+
+-- Ordenamiento por rating y fecha
+create index idx_businesses_avg_rating on public.businesses(avg_rating_bus desc);
+create index idx_businesses_created_at on public.businesses(created_at_bus desc);
+
+-- ============================================================
+-- 11.3) EVENTS
+-- ============================================================
+create index idx_events_created_by on public.events(created_by_evt);
+create index idx_events_location_id on public.events(location_id_evt);
+create index idx_events_reviewed_by on public.events(reviewed_by_evt)
+  where reviewed_by_evt is not null;
+
+-- Filtros de moderación y estado
+create index idx_events_moderation_status on public.events(moderation_status_evt);
+create index idx_events_is_active on public.events(is_active_evt);
+
+-- Índice compuesto para listados públicos
+create index idx_events_public_listing on public.events(moderation_status_evt, is_active_evt)
+  where moderation_status_evt = 'approved'::public.moderation_status and is_active_evt = true;
+
+-- Filtros por fechas (eventos próximos, pasados, en curso)
+create index idx_events_start_at on public.events(start_at_evt);
+create index idx_events_end_at on public.events(end_at_evt);
+create index idx_events_date_range on public.events(start_at_evt, end_at_evt);
+
+-- Eventos gratuitos
+create index idx_events_is_free on public.events(is_free_evt)
+  where is_free_evt = true;
+
+-- Ordenamiento
+create index idx_events_avg_rating on public.events(avg_rating_evt desc);
+create index idx_events_created_at on public.events(created_at_evt desc);
+
+-- ============================================================
+-- 11.4) ATTRACTIONS
+-- ============================================================
+create index idx_attractions_submitted_by on public.attractions(submitted_by_atr);
+create index idx_attractions_location_id on public.attractions(location_id_atr);
+create index idx_attractions_reviewed_by on public.attractions(reviewed_by_atr)
+  where reviewed_by_atr is not null;
+
+-- Filtros de moderación y estado
+create index idx_attractions_moderation_status on public.attractions(moderation_status_atr);
+create index idx_attractions_is_active on public.attractions(is_active_atr);
+
+-- Índice compuesto para listados públicos
+create index idx_attractions_public_listing on public.attractions(moderation_status_atr, is_active_atr)
+  where moderation_status_atr = 'approved'::public.moderation_status and is_active_atr = true;
+
+-- Ordenamiento
+create index idx_attractions_avg_rating on public.attractions(avg_rating_atr desc);
+create index idx_attractions_created_at on public.attractions(created_at_atr desc);
+
+-- ============================================================
+-- 11.5) PRODUCTS
+-- ============================================================
+create index idx_products_business_id on public.products(business_id_prd);
+create index idx_products_is_active on public.products(is_active_prd);
+
+-- Productos activos de un negocio
+create index idx_products_business_active on public.products(business_id_prd, is_active_prd)
+  where is_active_prd = true;
+
+-- Ordenamiento
+create index idx_products_avg_rating on public.products(avg_rating_prd desc);
+create index idx_products_price on public.products(price_prd);
+create index idx_products_created_at on public.products(created_at_prd desc);
+
+-- ============================================================
+-- 11.6) PROMOTIONS
+-- ============================================================
+create index idx_promotions_business_id on public.promotions(business_id_prm);
+create index idx_promotions_created_by on public.promotions(created_by_prm);
+create index idx_promotions_reviewed_by on public.promotions(reviewed_by_prm)
+  where reviewed_by_prm is not null;
+
+-- Filtros de estado
+create index idx_promotions_moderation_status on public.promotions(moderation_status_prm);
+create index idx_promotions_payment_state on public.promotions(payment_state_prm);
+create index idx_promotions_is_active on public.promotions(is_active_prm);
+create index idx_promotions_scope on public.promotions(scope_prm);
+
+-- Promociones activas y aprobadas (listado público)
+create index idx_promotions_public_listing on public.promotions(moderation_status_prm, payment_state_prm, is_active_prm)
+  where moderation_status_prm = 'approved'::public.moderation_status 
+    and payment_state_prm = 'paid'::public.payment_state 
+    and is_active_prm = true;
+
+-- Filtros por fechas (promociones vigentes)
+create index idx_promotions_start_at on public.promotions(start_at_prm);
+create index idx_promotions_end_at on public.promotions(end_at_prm);
+create index idx_promotions_date_range on public.promotions(start_at_prm, end_at_prm);
+
+create index idx_promotions_created_at on public.promotions(created_at_prm desc);
+
+-- ============================================================
+-- 11.7) CATEGORY MAPS (FKs para JOINs)
+-- ============================================================
+-- Nota: Las PKs compuestas ya indexan (entity_id, category_id)
+-- Estos índices adicionales optimizan búsquedas por categoría
+create index idx_business_category_map_category on public.business_category_map(category_id_bcm);
+create index idx_event_category_map_category on public.event_category_map(category_id_ecm);
+create index idx_attraction_category_map_category on public.attraction_category_map(category_id_acm);
+create index idx_product_category_map_category on public.product_category_map(category_id_pcm);
+create index idx_promotion_category_map_category on public.promotion_category_map(category_id_pcr);
+
+-- ============================================================
+-- 11.8) PROMOTION RELATIONS
+-- ============================================================
+create index idx_promotion_products_product on public.promotion_products(product_id_ppr);
+create index idx_promotion_scope_categories_category on public.promotion_scope_categories(category_id_psc);
+create index idx_promotion_combo_items_promotion on public.promotion_combo_items(promotion_id_pci);
+create index idx_promotion_combo_items_product on public.promotion_combo_items(product_id_pci);
+
+-- ============================================================
+-- 11.9) REVIEWS
+-- ============================================================
+create index idx_business_reviews_business on public.business_reviews(business_id_brv);
+create index idx_business_reviews_user on public.business_reviews(user_id_brv);
+create index idx_business_reviews_created_at on public.business_reviews(created_at_brv desc);
+
+create index idx_event_reviews_event on public.event_reviews(event_id_erv);
+create index idx_event_reviews_user on public.event_reviews(user_id_erv);
+create index idx_event_reviews_created_at on public.event_reviews(created_at_erv desc);
+
+create index idx_attraction_reviews_attraction on public.attraction_reviews(attraction_id_arv);
+create index idx_attraction_reviews_user on public.attraction_reviews(user_id_arv);
+create index idx_attraction_reviews_created_at on public.attraction_reviews(created_at_arv desc);
+
+create index idx_product_reviews_product on public.product_reviews(product_id_prv);
+create index idx_product_reviews_user on public.product_reviews(user_id_prv);
+create index idx_product_reviews_created_at on public.product_reviews(created_at_prv desc);
+
+-- ============================================================
+-- 11.10) IMAGES (búsqueda por entidad)
+-- ============================================================
+create index idx_attraction_images_attraction on public.attraction_images(attraction_id_aim);
+create index idx_attraction_images_sort on public.attraction_images(attraction_id_aim, sort_order_aim);
+
+create index idx_business_images_business on public.business_images(business_id_bim);
+create index idx_business_images_sort on public.business_images(business_id_bim, sort_order_bim);
+
+create index idx_event_images_event on public.event_images(event_id_eim);
+create index idx_event_images_sort on public.event_images(event_id_eim, sort_order_eim);
+
+create index idx_product_images_product on public.product_images(product_id_pim);
+create index idx_product_images_sort on public.product_images(product_id_pim, sort_order_pim);
+
+create index idx_promotion_images_promotion on public.promotion_images(promotion_id_pim);
+
+-- ============================================================
+-- 11.11) LIKES
+-- ============================================================
+-- Nota: PKs compuestas ya indexan (entity_id, user_id)
+-- Estos índices optimizan "mis likes" por usuario
+create index idx_event_likes_user on public.event_likes(user_id_elk);
+create index idx_attraction_likes_user on public.attraction_likes(user_id_alk);
+create index idx_business_likes_user on public.business_likes(user_id_blk);
+
+-- Review likes
+create index idx_event_review_likes_user on public.event_review_likes(user_id_erl);
+create index idx_attraction_review_likes_user on public.attraction_review_likes(user_id_arl);
+create index idx_business_review_likes_user on public.business_review_likes(user_id_brl);
+
+-- ============================================================
+-- 11.12) INTERACTIONS (analytics)
+-- ============================================================
+-- Índices para análisis por entidad
+create index idx_business_interactions_business on public.business_interactions(business_id_bin);
+create index idx_business_interactions_type on public.business_interactions(interaction_type_bin);
+create index idx_business_interactions_created_at on public.business_interactions(created_at_bin desc);
+create index idx_business_interactions_user on public.business_interactions(user_id_bin)
+  where user_id_bin is not null;
+
+create index idx_event_interactions_event on public.event_interactions(event_id_ein);
+create index idx_event_interactions_type on public.event_interactions(interaction_type_ein);
+create index idx_event_interactions_created_at on public.event_interactions(created_at_ein desc);
+create index idx_event_interactions_user on public.event_interactions(user_id_ein)
+  where user_id_ein is not null;
+
+create index idx_attraction_interactions_attraction on public.attraction_interactions(attraction_id_ain);
+create index idx_attraction_interactions_type on public.attraction_interactions(interaction_type_ain);
+create index idx_attraction_interactions_created_at on public.attraction_interactions(created_at_ain desc);
+create index idx_attraction_interactions_user on public.attraction_interactions(user_id_ain)
+  where user_id_ain is not null;
+
+-- Review interactions
+create index idx_business_review_interactions_review on public.business_review_interactions(review_id_bri);
+create index idx_event_review_interactions_review on public.event_review_interactions(review_id_eri);
+create index idx_attraction_review_interactions_review on public.attraction_review_interactions(review_id_ari);
+create index idx_product_review_interactions_review on public.product_review_interactions(review_id_pri);
+
+-- ============================================================
+-- 12) ROW LEVEL SECURITY (RLS) - POLÍTICAS
+-- ============================================================
+
+-- ============================================================
+-- 12.0) FUNCIONES HELPER PARA RLS
+-- ============================================================
+-- IMPORTANTE: Estas funciones usan SECURITY DEFINER para bypass RLS
+-- y set search_path para prevenir ataques de path injection.
+
+-- Obtener el rol del usuario autenticado
+create or replace function public.get_my_role()
+returns public.user_role
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select role_prf from public.profiles where id_prf = auth.uid();
+$$;
+
+-- Verificar si el usuario es admin
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select role_prf = 'admin' and is_active_prf = true
+     from public.profiles
+     where id_prf = auth.uid()),
+    false
+  );
+$$;
+
+-- Verificar si el usuario es seller o admin
+create or replace function public.is_seller_or_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select role_prf in ('seller', 'admin') and is_active_prf = true
+     from public.profiles
+     where id_prf = auth.uid()),
+    false
+  );
+$$;
+
+-- Verificar si el usuario es premium
+create or replace function public.is_premium()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select role_prf = 'premium' and is_active_prf = true
+     from public.profiles
+     where id_prf = auth.uid()),
+    false
+  );
+$$;
+
+-- Verificar si el usuario está activo
+create or replace function public.is_active_user()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select is_active_prf from public.profiles where id_prf = auth.uid()),
+    false
+  );
+$$;
+
+-- Verificar si el usuario es dueño de un negocio específico
+create or replace function public.owns_business(p_business_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select owner_id_bus = auth.uid()
+     from public.businesses
+     where id_bus = p_business_id),
+    false
+  );
+$$;
+
+-- Verificar si el usuario creó un evento específico
+create or replace function public.owns_event(p_event_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select created_by_evt = auth.uid()
+     from public.events
+     where id_evt = p_event_id),
+    false
+  );
+$$;
+
+-- Verificar si el usuario envió una atracción específica
+create or replace function public.owns_attraction(p_attraction_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select submitted_by_atr = auth.uid()
+     from public.attractions
+     where id_atr = p_attraction_id),
+    false
+  );
+$$;
+
+-- Verificar si un producto pertenece a un negocio del usuario
+create or replace function public.owns_product(p_product_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select b.owner_id_bus = auth.uid()
+     from public.products p
+     join public.businesses b on b.id_bus = p.business_id_prd
+     where p.id_prd = p_product_id),
+    false
+  );
+$$;
+
+-- Verificar si una promoción pertenece al usuario
+create or replace function public.owns_promotion(p_promotion_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select created_by_prm = auth.uid()
+     from public.promotions
+     where id_prm = p_promotion_id),
+    false
+  );
+$$;
+
+-- ============================================================
+-- 12.1) HABILITAR RLS EN TODAS LAS TABLAS
+-- ============================================================
+
+alter table public.profiles enable row level security;
+alter table public.profile_premium enable row level security;
+alter table public.categories enable row level security;
+alter table public.countries enable row level security;
+alter table public.provinces enable row level security;
+alter table public.cantons enable row level security;
+alter table public.districts enable row level security;
+alter table public.locations enable row level security;
+alter table public.businesses enable row level security;
+alter table public.events enable row level security;
+alter table public.attractions enable row level security;
+alter table public.products enable row level security;
+alter table public.promotions enable row level security;
+alter table public.business_category_map enable row level security;
+alter table public.event_category_map enable row level security;
+alter table public.attraction_category_map enable row level security;
+alter table public.product_category_map enable row level security;
+alter table public.promotion_category_map enable row level security;
+alter table public.promotion_products enable row level security;
+alter table public.promotion_scope_categories enable row level security;
+alter table public.promotion_combo_items enable row level security;
+alter table public.business_reviews enable row level security;
+alter table public.event_reviews enable row level security;
+alter table public.attraction_reviews enable row level security;
+alter table public.product_reviews enable row level security;
+alter table public.attraction_images enable row level security;
+alter table public.business_images enable row level security;
+alter table public.event_images enable row level security;
+alter table public.product_images enable row level security;
+alter table public.promotion_images enable row level security;
+alter table public.event_likes enable row level security;
+alter table public.attraction_likes enable row level security;
+alter table public.business_likes enable row level security;
+alter table public.event_review_likes enable row level security;
+alter table public.attraction_review_likes enable row level security;
+alter table public.business_review_likes enable row level security;
+alter table public.business_interactions enable row level security;
+alter table public.event_interactions enable row level security;
+alter table public.attraction_interactions enable row level security;
+alter table public.business_review_interactions enable row level security;
+alter table public.event_review_interactions enable row level security;
+alter table public.attraction_review_interactions enable row level security;
+alter table public.product_review_interactions enable row level security;
+
+-- ============================================================
+-- 12.2) PROFILES
+-- ============================================================
+
+-- SELECT: Usuarios pueden ver perfiles activos (info pública básica)
+create policy "profiles_select_public"
+  on public.profiles for select
+  using (is_active_prf = true);
+
+-- SELECT: Usuario ve su propio perfil completo (aunque esté inactivo)
+create policy "profiles_select_own"
+  on public.profiles for select
+  using (id_prf = auth.uid());
+
+-- INSERT: Usuario puede crear su propio perfil al registrarse
+-- El id debe coincidir con auth.uid() y rol inicial debe ser 'user'
+create policy "profiles_insert_own"
+  on public.profiles for insert
+  with check (
+    auth.uid() is not null
+    and id_prf = auth.uid()
+    and role_prf = 'user'
+  );
+
+-- UPDATE: Usuario solo puede actualizar su propio perfil (sin cambiar rol)
+create policy "profiles_update_own"
+  on public.profiles for update
+  using (id_prf = auth.uid())
+  with check (
+    id_prf = auth.uid()
+    -- No puede cambiar su propio rol ni is_active (solo admin puede)
+    and role_prf = (select p.role_prf from public.profiles p where p.id_prf = auth.uid())
+    and is_active_prf = (select p.is_active_prf from public.profiles p where p.id_prf = auth.uid())
+  );
+
+-- UPDATE: Admin puede actualizar cualquier perfil
+create policy "profiles_update_admin"
+  on public.profiles for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- DELETE: Nadie puede eliminar perfiles (soft delete via is_active_prf)
+
+-- ============================================================
+-- 12.3) PROFILE_PREMIUM
+-- ============================================================
+
+-- SELECT: Usuario ve su propia suscripción
+create policy "profile_premium_select_own"
+  on public.profile_premium for select
+  using (profile_id_ppm = auth.uid());
+
+-- SELECT: Admin ve todas las suscripciones
+create policy "profile_premium_select_admin"
+  on public.profile_premium for select
+  using (public.is_admin());
+
+-- INSERT/UPDATE/DELETE: Solo admin gestiona premium
+create policy "profile_premium_insert_admin"
+  on public.profile_premium for insert
+  with check (public.is_admin());
+
+create policy "profile_premium_update_admin"
+  on public.profile_premium for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "profile_premium_delete_admin"
+  on public.profile_premium for delete
+  using (public.is_admin());
+
+-- ============================================================
+-- 12.4) CATEGORIES (lookup table - read only para usuarios)
+-- ============================================================
+
+-- SELECT: Público (todos pueden ver categorías)
+create policy "categories_select_all"
+  on public.categories for select
+  using (true);
+
+-- INSERT/UPDATE/DELETE: Solo admin
+create policy "categories_insert_admin"
+  on public.categories for insert
+  with check (public.is_admin());
+
+create policy "categories_update_admin"
+  on public.categories for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "categories_delete_admin"
+  on public.categories for delete
+  using (public.is_admin());
+
+-- ============================================================
+-- 12.5) LOCATIONS (countries, provinces, cantons, districts, locations)
+-- ============================================================
+
+-- COUNTRIES: Read-only público, admin gestiona
+create policy "countries_select_all"
+  on public.countries for select
+  using (true);
+
+create policy "countries_insert_admin"
+  on public.countries for insert
+  with check (public.is_admin());
+
+create policy "countries_update_admin"
+  on public.countries for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "countries_delete_admin"
+  on public.countries for delete
+  using (public.is_admin());
+
+-- PROVINCES: Read-only público, admin gestiona
+create policy "provinces_select_all"
+  on public.provinces for select
+  using (true);
+
+create policy "provinces_insert_admin"
+  on public.provinces for insert
+  with check (public.is_admin());
+
+create policy "provinces_update_admin"
+  on public.provinces for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "provinces_delete_admin"
+  on public.provinces for delete
+  using (public.is_admin());
+
+-- CANTONS: Read-only público, admin gestiona
+create policy "cantons_select_all"
+  on public.cantons for select
+  using (true);
+
+create policy "cantons_insert_admin"
+  on public.cantons for insert
+  with check (public.is_admin());
+
+create policy "cantons_update_admin"
+  on public.cantons for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "cantons_delete_admin"
+  on public.cantons for delete
+  using (public.is_admin());
+
+-- DISTRICTS: Read-only público, admin gestiona
+create policy "districts_select_all"
+  on public.districts for select
+  using (true);
+
+create policy "districts_insert_admin"
+  on public.districts for insert
+  with check (public.is_admin());
+
+create policy "districts_update_admin"
+  on public.districts for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "districts_delete_admin"
+  on public.districts for delete
+  using (public.is_admin());
+
+-- LOCATIONS: Usuarios autenticados pueden crear, leer público
+create policy "locations_select_all"
+  on public.locations for select
+  using (true);
+
+-- Sellers/admin pueden crear locations (para sus negocios/eventos)
+create policy "locations_insert_authenticated"
+  on public.locations for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+  );
+
+-- UPDATE: Solo admin (locations son referenciadas, no se editan normalmente)
+create policy "locations_update_admin"
+  on public.locations for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- DELETE: Solo admin
+create policy "locations_delete_admin"
+  on public.locations for delete
+  using (public.is_admin());
+
+-- ============================================================
+-- 12.6) BUSINESSES
+-- ============================================================
+
+-- SELECT: Público ve negocios aprobados y activos
+create policy "businesses_select_public"
+  on public.businesses for select
+  using (
+    moderation_status_bus = 'approved'
+    and is_active_bus = true
+  );
+
+-- SELECT: Owner ve sus propios negocios (cualquier estado)
+create policy "businesses_select_own"
+  on public.businesses for select
+  using (owner_id_bus = auth.uid());
+
+-- SELECT: Admin ve todos los negocios
+create policy "businesses_select_admin"
+  on public.businesses for select
+  using (public.is_admin());
+
+-- INSERT: Solo sellers/admin pueden crear negocios
+create policy "businesses_insert_seller"
+  on public.businesses for insert
+  with check (
+    public.is_seller_or_admin()
+    and owner_id_bus = auth.uid()
+    -- Nuevos negocios siempre inician en pending
+    and moderation_status_bus = 'pending'
+    -- No puede auto-aprobar
+    and reviewed_by_bus is null
+    and reviewed_at_bus is null
+  );
+
+-- UPDATE: Owner puede actualizar su negocio (campos limitados)
+-- Nota: En Supabase RLS, no hay acceso directo a OLD. Usamos subquery con el id.
+create policy "businesses_update_own"
+  on public.businesses for update
+  using (owner_id_bus = auth.uid())
+  with check (
+    -- Debe seguir siendo el owner
+    owner_id_bus = auth.uid()
+  );
+
+-- Trigger para proteger campos inmutables en businesses (owner no puede modificar)
+create or replace function public.protect_business_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  -- Si no es admin, proteger campos
+  if not public.is_admin() then
+    -- Campos de moderación
+    new.moderation_status_bus := old.moderation_status_bus;
+    new.reviewed_by_bus := old.reviewed_by_bus;
+    new.reviewed_at_bus := old.reviewed_at_bus;
+    new.moderation_note_bus := old.moderation_note_bus;
+    -- Campos de rating (solo triggers de reviews)
+    new.avg_rating_bus := old.avg_rating_bus;
+    new.reviews_count_bus := old.reviews_count_bus;
+    -- Owner no cambia
+    new.owner_id_bus := old.owner_id_bus;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_business_fields
+  before update on public.businesses
+  for each row
+  execute function public.protect_business_fields();
+
+-- UPDATE: Admin puede actualizar cualquier negocio (moderación)
+create policy "businesses_update_admin"
+  on public.businesses for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- DELETE: Solo admin puede eliminar (owner hace soft delete via is_active)
+create policy "businesses_delete_admin"
+  on public.businesses for delete
+  using (public.is_admin());
+
+-- ============================================================
+-- 12.7) EVENTS
+-- ============================================================
+
+-- SELECT: Público ve eventos aprobados y activos
+create policy "events_select_public"
+  on public.events for select
+  using (
+    moderation_status_evt = 'approved'
+    and is_active_evt = true
+  );
+
+-- SELECT: Creador ve sus propios eventos
+create policy "events_select_own"
+  on public.events for select
+  using (created_by_evt = auth.uid());
+
+-- SELECT: Admin ve todos
+create policy "events_select_admin"
+  on public.events for select
+  using (public.is_admin());
+
+-- INSERT: Sellers/admin pueden crear eventos
+create policy "events_insert_seller"
+  on public.events for insert
+  with check (
+    public.is_seller_or_admin()
+    and created_by_evt = auth.uid()
+    and moderation_status_evt = 'pending'
+    and reviewed_by_evt is null
+    and reviewed_at_evt is null
+  );
+
+-- UPDATE: Creador puede actualizar (campos limitados via trigger)
+create policy "events_update_own"
+  on public.events for update
+  using (created_by_evt = auth.uid())
+  with check (created_by_evt = auth.uid());
+
+-- Trigger para proteger campos inmutables en events
+create or replace function public.protect_event_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then
+    new.moderation_status_evt := old.moderation_status_evt;
+    new.reviewed_by_evt := old.reviewed_by_evt;
+    new.reviewed_at_evt := old.reviewed_at_evt;
+    new.moderation_note_evt := old.moderation_note_evt;
+    new.avg_rating_evt := old.avg_rating_evt;
+    new.reviews_count_evt := old.reviews_count_evt;
+    new.created_by_evt := old.created_by_evt;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_event_fields
+  before update on public.events
+  for each row
+  execute function public.protect_event_fields();
+
+-- UPDATE: Admin puede todo
+create policy "events_update_admin"
+  on public.events for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- DELETE: Solo admin
+create policy "events_delete_admin"
+  on public.events for delete
+  using (public.is_admin());
+  
+create policy "events_delete_owner"
+  on public.events for delete
+  using (created_by_evt = auth.uid());
+-- ============================================================
+-- 12.8) ATTRACTIONS
+-- ============================================================
+
+-- SELECT: Público ve atracciones aprobadas y activas
+create policy "attractions_select_public"
+  on public.attractions for select
+  using (
+    moderation_status_atr = 'approved'
+    and is_active_atr = true
+  );
+
+-- SELECT: Quien envió ve las suyas
+create policy "attractions_select_own"
+  on public.attractions for select
+  using (submitted_by_atr = auth.uid());
+
+-- SELECT: Admin ve todas
+create policy "attractions_select_admin"
+  on public.attractions for select
+  using (public.is_admin());
+
+-- INSERT: Cualquier usuario activo puede sugerir atracciones
+create policy "attractions_insert_user"
+  on public.attractions for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and submitted_by_atr = auth.uid()
+    and moderation_status_atr = 'pending'
+    and reviewed_by_atr is null
+    and reviewed_at_atr is null
+  );
+
+-- UPDATE: Quien envió puede actualizar (campos limitados via trigger)
+create policy "attractions_update_own"
+  on public.attractions for update
+  using (submitted_by_atr = auth.uid())
+  with check (submitted_by_atr = auth.uid());
+
+-- Trigger para proteger campos inmutables en attractions
+create or replace function public.protect_attraction_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then
+    new.moderation_status_atr := old.moderation_status_atr;
+    new.reviewed_by_atr := old.reviewed_by_atr;
+    new.reviewed_at_atr := old.reviewed_at_atr;
+    new.moderation_note_atr := old.moderation_note_atr;
+    new.avg_rating_atr := old.avg_rating_atr;
+    new.reviews_count_atr := old.reviews_count_atr;
+    new.submitted_by_atr := old.submitted_by_atr;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_attraction_fields
+  before update on public.attractions
+  for each row
+  execute function public.protect_attraction_fields();
+
+-- UPDATE: Admin puede todo
+create policy "attractions_update_admin"
+  on public.attractions for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- DELETE: Quien envió puede eliminar su atracción
+create policy "attractions_delete_owner"
+  on public.attractions for delete
+  using (submitted_by_atr = auth.uid());
+
+-- DELETE: Admin puede eliminar cualquier atracción
+create policy "attractions_delete_admin"
+  on public.attractions for delete
+  using (public.is_admin());
+
+create policy "attractions_delete_owner"
+  on public.attractions for delete
+  using (submitted_by_atr = auth.uid());
+-- ============================================================
+-- 12.9) PRODUCTS
+-- ============================================================
+
+-- SELECT: Público ve productos activos de negocios aprobados/activos
+create policy "products_select_public"
+  on public.products for select
+  using (
+    is_active_prd = true
+    and exists (
+      select 1 from public.businesses
+      where id_bus = business_id_prd
+        and moderation_status_bus = 'approved'
+        and is_active_bus = true
+    )
+  );
+
+-- SELECT: Owner del negocio ve todos sus productos
+create policy "products_select_own"
+  on public.products for select
+  using (public.owns_business(business_id_prd));
+
+-- SELECT: Admin ve todos
+create policy "products_select_admin"
+  on public.products for select
+  using (public.is_admin());
+
+-- INSERT: Solo dueño del negocio puede crear productos
+create policy "products_insert_owner"
+  on public.products for insert
+  with check (
+    public.owns_business(business_id_prd)
+    and public.is_seller_or_admin()
+  );
+
+-- UPDATE: Solo dueño del negocio (campos limitados via trigger)
+create policy "products_update_owner"
+  on public.products for update
+  using (public.owns_business(business_id_prd))
+  with check (public.owns_business(business_id_prd));
+
+-- Trigger para proteger campos inmutables en products
+create or replace function public.protect_product_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then
+    new.business_id_prd := old.business_id_prd;
+    new.avg_rating_prd := old.avg_rating_prd;
+    new.reviews_count_prd := old.reviews_count_prd;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_product_fields
+  before update on public.products
+  for each row
+  execute function public.protect_product_fields();
+
+-- UPDATE: Admin puede todo
+create policy "products_update_admin"
+  on public.products for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- DELETE: Owner o admin
+create policy "products_delete_owner"
+  on public.products for delete
+  using (public.owns_business(business_id_prd));
+
+create policy "products_delete_admin"
+  on public.products for delete
+  using (public.is_admin());
+
+-- ============================================================
+-- 12.10) PROMOTIONS
+-- ============================================================
+
+-- SELECT: Público ve promociones aprobadas, pagadas y activas
+create policy "promotions_select_public"
+  on public.promotions for select
+  using (
+    moderation_status_prm = 'approved'
+    and payment_state_prm = 'paid'
+    and is_active_prm = true
+    and exists (
+      select 1 from public.businesses
+      where id_bus = business_id_prm
+        and moderation_status_bus = 'approved'
+        and is_active_bus = true
+    )
+  );
+
+-- SELECT: Creador ve sus promociones
+create policy "promotions_select_own"
+  on public.promotions for select
+  using (created_by_prm = auth.uid());
+
+-- SELECT: Admin ve todas
+create policy "promotions_select_admin"
+  on public.promotions for select
+  using (public.is_admin());
+
+-- INSERT: Seller crea promociones para su negocio
+create policy "promotions_insert_seller"
+  on public.promotions for insert
+  with check (
+    public.is_seller_or_admin()
+    and created_by_prm = auth.uid()
+    and public.owns_business(business_id_prm)
+    and moderation_status_prm = 'pending'
+    and payment_state_prm = 'pending'
+    and reviewed_by_prm is null
+    and reviewed_at_prm is null
+  );
+
+-- UPDATE: Creador puede actualizar (campos limitados via trigger)
+create policy "promotions_update_own"
+  on public.promotions for update
+  using (created_by_prm = auth.uid())
+  with check (created_by_prm = auth.uid());
+
+-- Trigger para proteger campos inmutables en promotions
+create or replace function public.protect_promotion_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then
+    new.business_id_prm := old.business_id_prm;
+    new.created_by_prm := old.created_by_prm;
+    new.moderation_status_prm := old.moderation_status_prm;
+    new.reviewed_by_prm := old.reviewed_by_prm;
+    new.reviewed_at_prm := old.reviewed_at_prm;
+    new.moderation_note_prm := old.moderation_note_prm;
+    new.payment_state_prm := old.payment_state_prm;
+    new.payment_note_admin_prm := old.payment_note_admin_prm;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_promotion_fields
+  before update on public.promotions
+  for each row
+  execute function public.protect_promotion_fields();
+
+-- UPDATE: Admin puede todo
+create policy "promotions_update_admin"
+  on public.promotions for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- DELETE: Solo admin
+create policy "promotions_delete_admin"
+  on public.promotions for delete
+  using (public.is_admin());
+
+CREATE POLICY "promotions_delete_owner"
+  ON public.promotions FOR DELETE
+  USING (created_by_prm = auth.uid());
+-- ============================================================
+-- 12.11) CATEGORY MAPS (business, event, attraction, product, promotion)
+-- ============================================================
+
+-- BUSINESS_CATEGORY_MAP
+create policy "business_category_map_select_all"
+  on public.business_category_map for select
+  using (true);
+
+create policy "business_category_map_insert_owner"
+  on public.business_category_map for insert
+  with check (public.owns_business(business_id_bcm) or public.is_admin());
+
+create policy "business_category_map_delete_owner"
+  on public.business_category_map for delete
+  using (public.owns_business(business_id_bcm) or public.is_admin());
+
+-- EVENT_CATEGORY_MAP
+create policy "event_category_map_select_all"
+  on public.event_category_map for select
+  using (true);
+
+create policy "event_category_map_insert_owner"
+  on public.event_category_map for insert
+  with check (public.owns_event(event_id_ecm) or public.is_admin());
+
+create policy "event_category_map_delete_owner"
+  on public.event_category_map for delete
+  using (public.owns_event(event_id_ecm) or public.is_admin());
+
+-- ATTRACTION_CATEGORY_MAP
+create policy "attraction_category_map_select_all"
+  on public.attraction_category_map for select
+  using (true);
+
+create policy "attraction_category_map_insert_owner"
+  on public.attraction_category_map for insert
+  with check (public.owns_attraction(attraction_id_acm) or public.is_admin());
+
+create policy "attraction_category_map_delete_owner"
+  on public.attraction_category_map for delete
+  using (public.owns_attraction(attraction_id_acm) or public.is_admin());
+
+-- PRODUCT_CATEGORY_MAP
+create policy "product_category_map_select_all"
+  on public.product_category_map for select
+  using (true);
+
+create policy "product_category_map_insert_owner"
+  on public.product_category_map for insert
+  with check (public.owns_product(product_id_pcm) or public.is_admin());
+
+create policy "product_category_map_delete_owner"
+  on public.product_category_map for delete
+  using (public.owns_product(product_id_pcm) or public.is_admin());
+
+-- PROMOTION_CATEGORY_MAP
+create policy "promotion_category_map_select_all"
+  on public.promotion_category_map for select
+  using (true);
+
+create policy "promotion_category_map_insert_owner"
+  on public.promotion_category_map for insert
+  with check (public.owns_promotion(promotion_id_pcr) or public.is_admin());
+
+create policy "promotion_category_map_delete_owner"
+  on public.promotion_category_map for delete
+  using (public.owns_promotion(promotion_id_pcr) or public.is_admin());
+
+-- ============================================================
+-- 12.12) PROMOTION RELATIONS (products, scope_categories, combo_items)
+-- ============================================================
+
+-- PROMOTION_PRODUCTS
+create policy "promotion_products_select_all"
+  on public.promotion_products for select
+  using (true);
+
+create policy "promotion_products_insert_owner"
+  on public.promotion_products for insert
+  with check (public.owns_promotion(promotion_id_ppr) or public.is_admin());
+
+create policy "promotion_products_delete_owner"
+  on public.promotion_products for delete
+  using (public.owns_promotion(promotion_id_ppr) or public.is_admin());
+
+-- PROMOTION_SCOPE_CATEGORIES
+create policy "promotion_scope_categories_select_all"
+  on public.promotion_scope_categories for select
+  using (true);
+
+create policy "promotion_scope_categories_insert_owner"
+  on public.promotion_scope_categories for insert
+  with check (public.owns_promotion(promotion_id_psc) or public.is_admin());
+
+create policy "promotion_scope_categories_delete_owner"
+  on public.promotion_scope_categories for delete
+  using (public.owns_promotion(promotion_id_psc) or public.is_admin());
+
+-- PROMOTION_COMBO_ITEMS
+create policy "promotion_combo_items_select_all"
+  on public.promotion_combo_items for select
+  using (true);
+
+create policy "promotion_combo_items_insert_owner"
+  on public.promotion_combo_items for insert
+  with check (public.owns_promotion(promotion_id_pci) or public.is_admin());
+
+create policy "promotion_combo_items_update_owner"
+  on public.promotion_combo_items for update
+  using (public.owns_promotion(promotion_id_pci) or public.is_admin())
+  with check (public.owns_promotion(promotion_id_pci) or public.is_admin());
+
+create policy "promotion_combo_items_delete_owner"
+  on public.promotion_combo_items for delete
+  using (public.owns_promotion(promotion_id_pci) or public.is_admin());
+
+-- ============================================================
+-- 12.13) REVIEWS
+-- ============================================================
+
+-- BUSINESS_REVIEWS
+create policy "business_reviews_select_all"
+  on public.business_reviews for select
+  using (true);
+
+create policy "business_reviews_insert_auth"
+  on public.business_reviews for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_brv = auth.uid()
+    -- Verificar que el negocio existe y está activo (sin importar estado de aprobación)
+    and exists (
+      select 1 from public.businesses
+      where id_bus = business_id_brv
+        and is_active_bus = true
+    )
+    -- No puede reviewear su propio negocio
+    and not exists (
+      select 1 from public.businesses
+      where id_bus = business_id_brv
+        and owner_id_bus = auth.uid()
+    )
+  );
+
+create policy "business_reviews_update_own"
+  on public.business_reviews for update
+  using (user_id_brv = auth.uid())
+  with check (user_id_brv = auth.uid());
+
+-- Trigger para proteger campos inmutables en business_reviews
+create or replace function public.protect_business_review_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  new.business_id_brv := old.business_id_brv;
+  new.user_id_brv := old.user_id_brv;
+  new.created_at_brv := old.created_at_brv;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_business_review_fields
+  before update on public.business_reviews
+  for each row
+  execute function public.protect_business_review_fields();
+
+create policy "business_reviews_delete_own"
+  on public.business_reviews for delete
+  using (user_id_brv = auth.uid());
+
+create policy "business_reviews_delete_admin"
+  on public.business_reviews for delete
+  using (public.is_admin());
+
+-- EVENT_REVIEWS
+create policy "event_reviews_select_all"
+  on public.event_reviews for select
+  using (true);
+
+create policy "event_reviews_insert_auth"
+  on public.event_reviews for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_erv = auth.uid()
+    -- Verificar que el evento existe y está activo (sin importar estado de aprobación)
+    and exists (
+      select 1 from public.events
+      where id_evt = event_id_erv
+        and is_active_evt = true
+    )
+  );
+
+create policy "event_reviews_update_own"
+  on public.event_reviews for update
+  using (user_id_erv = auth.uid())
+  with check (user_id_erv = auth.uid());
+
+-- Trigger para proteger campos inmutables en event_reviews
+create or replace function public.protect_event_review_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  new.event_id_erv := old.event_id_erv;
+  new.user_id_erv := old.user_id_erv;
+  new.created_at_erv := old.created_at_erv;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_event_review_fields
+  before update on public.event_reviews
+  for each row
+  execute function public.protect_event_review_fields();
+
+create policy "event_reviews_delete_own"
+  on public.event_reviews for delete
+  using (user_id_erv = auth.uid());
+
+create policy "event_reviews_delete_admin"
+  on public.event_reviews for delete
+  using (public.is_admin());
+
+-- ATTRACTION_REVIEWS
+create policy "attraction_reviews_select_all"
+  on public.attraction_reviews for select
+  using (true);
+
+create policy "attraction_reviews_insert_auth"
+  on public.attraction_reviews for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_arv = auth.uid()
+    -- Verificar que la atracción existe y está activa (sin importar estado de aprobación)
+    and exists (
+      select 1 from public.attractions
+      where id_atr = attraction_id_arv
+        and is_active_atr = true
+    )
+  );
+
+create policy "attraction_reviews_update_own"
+  on public.attraction_reviews for update
+  using (user_id_arv = auth.uid())
+  with check (user_id_arv = auth.uid());
+
+-- Trigger para proteger campos inmutables en attraction_reviews
+create or replace function public.protect_attraction_review_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  new.attraction_id_arv := old.attraction_id_arv;
+  new.user_id_arv := old.user_id_arv;
+  new.created_at_arv := old.created_at_arv;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_attraction_review_fields
+  before update on public.attraction_reviews
+  for each row
+  execute function public.protect_attraction_review_fields();
+
+create policy "attraction_reviews_delete_own"
+  on public.attraction_reviews for delete
+  using (user_id_arv = auth.uid());
+
+create policy "attraction_reviews_delete_admin"
+  on public.attraction_reviews for delete
+  using (public.is_admin());
+
+-- PRODUCT_REVIEWS
+create policy "product_reviews_select_all"
+  on public.product_reviews for select
+  using (true);
+
+create policy "product_reviews_insert_auth"
+  on public.product_reviews for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_prv = auth.uid()
+    and exists (
+      select 1 from public.products p
+      join public.businesses b on b.id_bus = p.business_id_prd
+      where p.id_prd = product_id_prv
+        and p.is_active_prd = true
+        and b.moderation_status_bus = 'approved'
+        and b.is_active_bus = true
+    )
+    -- No puede reviewear productos de su propio negocio
+    and not exists (
+      select 1 from public.products p
+      join public.businesses b on b.id_bus = p.business_id_prd
+      where p.id_prd = product_id_prv
+        and b.owner_id_bus = auth.uid()
+    )
+  );
+
+create policy "product_reviews_update_own"
+  on public.product_reviews for update
+  using (user_id_prv = auth.uid())
+  with check (user_id_prv = auth.uid());
+
+-- Trigger para proteger campos inmutables en product_reviews
+create or replace function public.protect_product_review_fields()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  new.product_id_prv := old.product_id_prv;
+  new.user_id_prv := old.user_id_prv;
+  new.created_at_prv := old.created_at_prv;
+  return new;
+end;
+$$;
+
+create trigger trg_protect_product_review_fields
+  before update on public.product_reviews
+  for each row
+  execute function public.protect_product_review_fields();
+
+create policy "product_reviews_delete_own"
+  on public.product_reviews for delete
+  using (user_id_prv = auth.uid());
+
+create policy "product_reviews_delete_admin"
+  on public.product_reviews for delete
+  using (public.is_admin());
+
+-- ============================================================
+-- 12.14) IMAGES
+-- ============================================================
+
+-- ATTRACTION_IMAGES
+create policy "attraction_images_select_all"
+  on public.attraction_images for select
+  using (true);
+
+create policy "attraction_images_insert_owner"
+  on public.attraction_images for insert
+  with check (public.owns_attraction(attraction_id_aim) or public.is_admin());
+
+create policy "attraction_images_update_owner"
+  on public.attraction_images for update
+  using (public.owns_attraction(attraction_id_aim) or public.is_admin())
+  with check (public.owns_attraction(attraction_id_aim) or public.is_admin());
+
+create policy "attraction_images_delete_owner"
+  on public.attraction_images for delete
+  using (public.owns_attraction(attraction_id_aim) or public.is_admin());
+
+-- BUSINESS_IMAGES
+create policy "business_images_select_all"
+  on public.business_images for select
+  using (true);
+
+create policy "business_images_insert_owner"
+  on public.business_images for insert
+  with check (public.owns_business(business_id_bim) or public.is_admin());
+
+create policy "business_images_update_owner"
+  on public.business_images for update
+  using (public.owns_business(business_id_bim) or public.is_admin())
+  with check (public.owns_business(business_id_bim) or public.is_admin());
+
+create policy "business_images_delete_owner"
+  on public.business_images for delete
+  using (public.owns_business(business_id_bim) or public.is_admin());
+
+-- EVENT_IMAGES
+create policy "event_images_select_all"
+  on public.event_images for select
+  using (true);
+
+create policy "event_images_insert_owner"
+  on public.event_images for insert
+  with check (public.owns_event(event_id_eim) or public.is_admin());
+
+create policy "event_images_update_owner"
+  on public.event_images for update
+  using (public.owns_event(event_id_eim) or public.is_admin())
+  with check (public.owns_event(event_id_eim) or public.is_admin());
+
+create policy "event_images_delete_owner"
+  on public.event_images for delete
+  using (public.owns_event(event_id_eim) or public.is_admin());
+
+-- PRODUCT_IMAGES
+create policy "product_images_select_all"
+  on public.product_images for select
+  using (true);
+
+create policy "product_images_insert_owner"
+  on public.product_images for insert
+  with check (public.owns_product(product_id_pim) or public.is_admin());
+
+create policy "product_images_update_owner"
+  on public.product_images for update
+  using (public.owns_product(product_id_pim) or public.is_admin())
+  with check (public.owns_product(product_id_pim) or public.is_admin());
+
+create policy "product_images_delete_owner"
+  on public.product_images for delete
+  using (public.owns_product(product_id_pim) or public.is_admin());
+
+-- PROMOTION_IMAGES
+create policy "promotion_images_select_all"
+  on public.promotion_images for select
+  using (true);
+
+create policy "promotion_images_insert_owner"
+  on public.promotion_images for insert
+  with check (public.owns_promotion(promotion_id_pim) or public.is_admin());
+
+create policy "promotion_images_update_owner"
+  on public.promotion_images for update
+  using (public.owns_promotion(promotion_id_pim) or public.is_admin())
+  with check (public.owns_promotion(promotion_id_pim) or public.is_admin());
+
+create policy "promotion_images_delete_owner"
+  on public.promotion_images for delete
+  using (public.owns_promotion(promotion_id_pim) or public.is_admin());
+
+-- ============================================================
+-- 12.15) LIKES (entidades)
+-- ============================================================
+
+-- EVENT_LIKES
+create policy "event_likes_select_all"
+  on public.event_likes for select
+  using (true);
+
+create policy "event_likes_insert_auth"
+  on public.event_likes for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_elk = auth.uid()
+  );
+
+create policy "event_likes_delete_own"
+  on public.event_likes for delete
+  using (user_id_elk = auth.uid());
+
+-- ATTRACTION_LIKES
+create policy "attraction_likes_select_all"
+  on public.attraction_likes for select
+  using (true);
+
+create policy "attraction_likes_insert_auth"
+  on public.attraction_likes for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_alk = auth.uid()
+  );
+
+create policy "attraction_likes_delete_own"
+  on public.attraction_likes for delete
+  using (user_id_alk = auth.uid());
+
+-- BUSINESS_LIKES
+create policy "business_likes_select_all"
+  on public.business_likes for select
+  using (true);
+
+create policy "business_likes_insert_auth"
+  on public.business_likes for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_blk = auth.uid()
+  );
+
+create policy "business_likes_delete_own"
+  on public.business_likes for delete
+  using (user_id_blk = auth.uid());
+
+-- ============================================================
+-- 12.16) REVIEW LIKES
+-- ============================================================
+
+-- EVENT_REVIEW_LIKES
+create policy "event_review_likes_select_all"
+  on public.event_review_likes for select
+  using (true);
+
+create policy "event_review_likes_insert_auth"
+  on public.event_review_likes for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_erl = auth.uid()
+  );
+
+create policy "event_review_likes_delete_own"
+  on public.event_review_likes for delete
+  using (user_id_erl = auth.uid());
+
+-- ATTRACTION_REVIEW_LIKES
+create policy "attraction_review_likes_select_all"
+  on public.attraction_review_likes for select
+  using (true);
+
+create policy "attraction_review_likes_insert_auth"
+  on public.attraction_review_likes for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_arl = auth.uid()
+  );
+
+create policy "attraction_review_likes_delete_own"
+  on public.attraction_review_likes for delete
+  using (user_id_arl = auth.uid());
+
+-- BUSINESS_REVIEW_LIKES
+create policy "business_review_likes_select_all"
+  on public.business_review_likes for select
+  using (true);
+
+create policy "business_review_likes_insert_auth"
+  on public.business_review_likes for insert
+  with check (
+    auth.uid() is not null
+    and public.is_active_user()
+    and user_id_brl = auth.uid()
+  );
+
+create policy "business_review_likes_delete_own"
+  on public.business_review_likes for delete
+  using (user_id_brl = auth.uid());
+
+-- ============================================================
+-- 12.17) INTERACTIONS (analytics - insert only, read by owner/admin)
+-- ============================================================
+
+-- BUSINESS_INTERACTIONS
+create policy "business_interactions_select_owner"
+  on public.business_interactions for select
+  using (public.owns_business(business_id_bin) or public.is_admin());
+
+create policy "business_interactions_insert_all"
+  on public.business_interactions for insert
+  with check (true); -- Cualquiera puede registrar interacción (incluso anon)
+
+-- No update/delete permitido (audit trail)
+
+-- EVENT_INTERACTIONS
+create policy "event_interactions_select_owner"
+  on public.event_interactions for select
+  using (public.owns_event(event_id_ein) or public.is_admin());
+
+create policy "event_interactions_insert_all"
+  on public.event_interactions for insert
+  with check (true);
+
+-- ATTRACTION_INTERACTIONS
+create policy "attraction_interactions_select_owner"
+  on public.attraction_interactions for select
+  using (public.owns_attraction(attraction_id_ain) or public.is_admin());
+
+create policy "attraction_interactions_insert_all"
+  on public.attraction_interactions for insert
+  with check (true);
+
+-- BUSINESS_REVIEW_INTERACTIONS
+create policy "business_review_interactions_select_admin"
+  on public.business_review_interactions for select
+  using (public.is_admin());
+
+create policy "business_review_interactions_insert_all"
+  on public.business_review_interactions for insert
+  with check (true);
+
+-- EVENT_REVIEW_INTERACTIONS
+create policy "event_review_interactions_select_admin"
+  on public.event_review_interactions for select
+  using (public.is_admin());
+
+create policy "event_review_interactions_insert_all"
+  on public.event_review_interactions for insert
+  with check (true);
+
+-- ATTRACTION_REVIEW_INTERACTIONS
+create policy "attraction_review_interactions_select_admin"
+  on public.attraction_review_interactions for select
+  using (public.is_admin());
+
+create policy "attraction_review_interactions_insert_all"
+  on public.attraction_review_interactions for insert
+  with check (true);
+
+-- PRODUCT_REVIEW_INTERACTIONS
+create policy "product_review_interactions_select_admin"
+  on public.product_review_interactions for select
+  using (public.is_admin());
+
+create policy "product_review_interactions_insert_all"
+  on public.product_review_interactions for insert
+  with check (true);
+
+-- ============================================================
+-- 12.18) STORAGE POLICIES (buckets)
+-- ============================================================
+
+-- Función helper para validar UUID en storage paths
+create or replace function public.is_valid_uuid(p_text text)
+returns boolean
+language plpgsql
+immutable
+as $$
+begin
+  if p_text is null then
+    return false;
+  end if;
+  perform p_text::uuid;
+  return true;
+exception
+  when invalid_text_representation then
+    return false;
+end;
+$$;
+
+-- PROFILES-IMAGES: Usuario sube/elimina su propia foto
+create policy "profiles_images_select_all"
+  on storage.objects for select
+  using (bucket_id = 'profiles-images');
+
+create policy "profiles_images_insert_own"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'profiles-images'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+create policy "profiles_images_update_own"
+  on storage.objects for update
+  using (
+    bucket_id = 'profiles-images'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+create policy "profiles_images_delete_own"
+  on storage.objects for delete
+  using (
+    bucket_id = 'profiles-images'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+-- ATTRACTIONS-IMAGES
+create policy "attractions_images_select_all"
+  on storage.objects for select
+  using (bucket_id = 'attractions-images');
+
+create policy "attractions_images_insert_owner"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'attractions-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_attraction((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "attractions_images_update_owner"
+  on storage.objects for update
+  using (
+    bucket_id = 'attractions-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_attraction((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "attractions_images_delete_owner"
+  on storage.objects for delete
+  using (
+    bucket_id = 'attractions-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_attraction((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+-- BUSINESS-IMAGES
+create policy "business_images_storage_select_all"
+  on storage.objects for select
+  using (bucket_id = 'business-images');
+
+create policy "business_images_storage_insert_owner"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'business-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_business((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "business_images_storage_update_owner"
+  on storage.objects for update
+  using (
+    bucket_id = 'business-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_business((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "business_images_storage_delete_owner"
+  on storage.objects for delete
+  using (
+    bucket_id = 'business-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_business((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+-- EVENTS-IMAGES
+create policy "events_images_storage_select_all"
+  on storage.objects for select
+  using (bucket_id = 'events-images');
+
+create policy "events_images_storage_insert_owner"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'events-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_event((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "events_images_storage_update_owner"
+  on storage.objects for update
+  using (
+    bucket_id = 'events-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_event((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "events_images_storage_delete_owner"
+  on storage.objects for delete
+  using (
+    bucket_id = 'events-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_event((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+-- PRODUCT-IMAGES
+create policy "product_images_storage_select_all"
+  on storage.objects for select
+  using (bucket_id = 'product-images');
+
+create policy "product_images_storage_insert_owner"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'product-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_product((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "product_images_storage_update_owner"
+  on storage.objects for update
+  using (
+    bucket_id = 'product-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_product((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "product_images_storage_delete_owner"
+  on storage.objects for delete
+  using (
+    bucket_id = 'product-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_product((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+-- PROMOTIONS-IMAGES
+create policy "promotions_images_storage_select_all"
+  on storage.objects for select
+  using (bucket_id = 'promotions-images');
+
+create policy "promotions_images_storage_insert_owner"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'promotions-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_promotion((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "promotions_images_storage_update_owner"
+  on storage.objects for update
+  using (
+    bucket_id = 'promotions-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_promotion((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+create policy "promotions_images_storage_delete_owner"
+  on storage.objects for delete
+  using (
+    bucket_id = 'promotions-images'
+    and public.is_valid_uuid((storage.foldername(name))[1])
+    and (
+      public.owns_promotion((storage.foldername(name))[1]::uuid)
+      or public.is_admin()
+    )
+  );
+
+-- ============================================================
+-- FIN DEL SCRIPT
 -- ============================================================

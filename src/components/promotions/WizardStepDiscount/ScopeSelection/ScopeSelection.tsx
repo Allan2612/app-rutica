@@ -3,19 +3,19 @@ import { View, Text, Pressable } from 'react-native';
 import { Package, Tag, Layers, Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
-import type { PromoScope } from '@/types/enums';
+import type { PromotionScope } from '@/types/enums';
 import { styles } from './styles';
 
 interface ScopeOption {
-  value: PromoScope;
+  value: PromotionScope;
   label: string;
   description: string;
 }
 
 const SCOPE_OPTIONS: ScopeOption[] = [
-  { value: 'general', label: 'Todo el negocio', description: 'Aplica a todos los productos' },
-  { value: 'product', label: 'Productos específicos', description: 'Selecciona productos individuales' },
-  { value: 'category', label: 'Por categoría', description: 'Aplica a productos de ciertas categorías' },
+  { value: 'all', label: 'Todo el negocio', description: 'Aplica a todos los productos' },
+  { value: 'products', label: 'Productos específicos', description: 'Selecciona productos individuales' },
+  { value: 'categories', label: 'Por categoría', description: 'Aplica a productos de ciertas categorías' },
   { 
     value: 'combo', 
     label: 'Combo / 2x1', 
@@ -23,16 +23,16 @@ const SCOPE_OPTIONS: ScopeOption[] = [
   },
 ];
 
-const SCOPE_ICONS: Record<PromoScope, typeof Package> = {
-  general: Package,
-  product: Package,
-  category: Tag,
+const SCOPE_ICONS: Record<PromotionScope, typeof Package> = {
+  all: Package,
+  products: Package,
+  categories: Tag,
   combo: Layers,
 };
 
 interface ScopeSelectionProps {
-  selectedScope: PromoScope;
-  onScopeChange: (scope: PromoScope) => void;
+  selectedScope: PromotionScope;
+  onScopeChange: (scope: PromotionScope) => void;
 }
 
 export const ScopeSelection = memo(function ScopeSelection({

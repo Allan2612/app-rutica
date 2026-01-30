@@ -1,9 +1,13 @@
 import { memo, useState, useCallback } from 'react';
-import { View, Text, Modal, Pressable } from 'react-native';
+import { View, Text, Modal, Pressable, Alert } from 'react-native';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import { Camera, User, X } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { AuthInput } from '@/components/auth';
 import type { Profile, ProfileUpdate } from '@/types/entities';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useProfilePhoto } from '@/hooks';
+import { supabase } from '@/lib/supabase';
 import styles from './styles';
 
 interface ProfileEditModalProps {
@@ -20,11 +24,78 @@ export const ProfileEditModal = memo(function ProfileEditModal({
   onSave,
 }: ProfileEditModalProps) {
   const colors = useThemedColors();
-  const [firstName, setFirstName] = useState(profile.first_name_PRF || '');
-  const [lastName1, setLastName1] = useState(profile.last_name1_PRF || '');
-  const [lastName2, setLastName2] = useState(profile.last_name2_PRF || '');
-  const [phoneNumber, setPhoneNumber] = useState(profile.phone_number_PRF || '');
+  const profilePhotoUrl = useProfilePhoto(profile.id_prf);
+  const [firstName, setFirstName] = useState(profile.first_name_prf || '');
+  const [lastName1, setLastName1] = useState(profile.last_name1_prf || '');
+  const [lastName2, setLastName2] = useState(profile.last_name2_prf || '');
+  const [phoneNumber, setPhoneNumber] = useState(profile.phone_number_prf || '');
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const pickImage = useCallback(async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permisos requeridos', 'Se necesita permiso para acceder a tus fotos');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setProfilePhoto(result.assets[0].uri);
+    }
+  }, []);
+
+  const removePhoto = useCallback(() => {
+    setProfilePhoto(null);
+  }, []);
+
+  const uploadProfilePhoto = useCallback(async (uri: string) => {
+    try {
+      // Si existe una foto anterior, eliminarla del bucket
+      if (profile.profile_photo_path_prf) {
+        const { error: deleteError } = await supabase.storage
+          .from('profiles-images')
+          .remove([profile.profile_photo_path_prf]);
+        
+        if (deleteError) {
+          console.warn('Error al eliminar foto anterior:', deleteError);
+        }
+      }
+
+      const fileName = `${profile.id_prf}-${Date.now()}.jpg`;
+      const filePath = `${profile.id_prf}/${fileName}`;
+
+      // Obtener el archivo como blob para web
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      const { error: uploadError } = await supabase.storage
+        .from('profiles-images')
+        .upload(filePath, blob, {
+          contentType: 'image/jpeg',
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ profile_photo_path_prf: filePath } as never)
+        .eq('id_prf', profile.id_prf);
+
+      if (updateError) throw updateError;
+
+      return filePath;
+    } catch (error: any) {
+      throw new Error(error.message || 'Error al subir la foto');
+    }
+  }, [profile.id_prf, profile.profile_photo_path_prf]);
 
   const handleSave = useCallback(async () => {
     if (!firstName.trim() || !lastName1.trim()) {
@@ -40,11 +111,17 @@ export const ProfileEditModal = memo(function ProfileEditModal({
 
     try {
       setLoading(true);
+
+      // Subir foto de perfil si se seleccionó una nueva
+      if (profilePhoto) {
+        await uploadProfilePhoto(profilePhoto);
+      }
+
       await onSave({
-        first_name_PRF: firstName.trim(),
-        last_name1_PRF: lastName1.trim(),
-        last_name2_PRF: lastName2.trim() || null,
-        phone_number_PRF: phoneNumber.trim() || null,
+        first_name_prf: firstName.trim(),
+        last_name1_prf: lastName1.trim(),
+        last_name2_prf: lastName2.trim() || null,
+        phone_number_prf: phoneNumber.trim() || null,
       });
       Toast.show({
         type: 'success',
@@ -65,7 +142,7 @@ export const ProfileEditModal = memo(function ProfileEditModal({
     } finally {
       setLoading(false);
     }
-  }, [firstName, lastName1, lastName2, phoneNumber, onSave, onClose]);
+  }, [firstName, lastName1, lastName2, phoneNumber, profilePhoto, uploadProfilePhoto, onSave, onClose]);
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -84,6 +161,48 @@ export const ProfileEditModal = memo(function ProfileEditModal({
             <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
               Actualiza tu información personal
             </Text>
+          </View>
+
+          {/* Foto de perfil */}
+          <View style={styles.photoSection}>
+            <View style={styles.photoContainer}>
+              {profilePhoto ? (
+                <>
+                  <Image
+                    source={{ uri: profilePhoto }}
+                    style={styles.photo}
+                    contentFit="cover"
+                    transition={200}
+                  />
+                  <Pressable
+                    style={[styles.removeButton, { backgroundColor: colors.error || '#ef4444' }]}
+                    onPress={removePhoto}
+                  >
+                    <X color="#fff" size={16} />
+                  </Pressable>
+                </>
+              ) : profilePhotoUrl ? (
+                <Image
+                  source={{ uri: profilePhotoUrl }}
+                  style={styles.photo}
+                  contentFit="cover"
+                  transition={200}
+                />
+              ) : (
+                <View style={[styles.photo, { 
+                  backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] 
+                }]}>
+                  <User color={colors.primary[500]} size={48} />
+                </View>
+              )}
+              <Pressable
+                style={[styles.cameraButton, { backgroundColor: colors.primary[500] }]}
+                onPress={pickImage}
+                disabled={loading}
+              >
+                <Camera color="#fff" size={20} />
+              </Pressable>
+            </View>
           </View>
 
           <View style={styles.form}>

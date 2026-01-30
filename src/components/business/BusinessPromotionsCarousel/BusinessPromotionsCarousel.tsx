@@ -1,7 +1,7 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { useBusinessPromotions } from '@/features/promotions/hooks';
+import { useBusinessActivePromotions } from '@/features/promotions/hooks';
 import { PromotionPublicCard } from '@/components/promotions';
 import { GenericCarousel } from '@/components/ui';
 import { styles } from './styles';
@@ -16,22 +16,7 @@ export const BusinessPromotionsCarousel = memo(function BusinessPromotionsCarous
     onPromotionPress,
 }: BusinessPromotionsCarouselProps) {
     const colors = useThemedColors();
-    const { data: promotions = [], isLoading } = useBusinessPromotions(businessId);
-
-    // Filtrar solo promociones activas, aprobadas y pagadas
-    const activePromotions = useMemo(() => {
-        const now = new Date();
-        return promotions.filter(promo => {
-            if (promo.moderationStatus !== 'approved' || promo.paymentState !== 'paid') {
-                return false;
-            }
-            
-            const startDate = new Date(promo.startAt);
-            const endDate = new Date(promo.endAt);
-            
-            return now >= startDate && now <= endDate;
-        });
-    }, [promotions]);
+    const { data: activePromotions = [], isLoading } = useBusinessActivePromotions(businessId);
 
     const handlePress = (promotion: any) => {
         if (onPromotionPress) {

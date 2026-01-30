@@ -13,8 +13,12 @@ export {
     useDeletePromotion,
 } from './useUserPromotions';
 
+export {
+    // Public promotions hooks
+    usePromotions,
+    useBusinessActivePromotions,
+    PROMOTIONS_PUBLIC_KEYS,
+} from './usePromotions';
+
 // Wizard Hook
 export { useCreatePromotionWizard } from './useCreatePromotionWizard';
-
-// Public Promotions Hook
-export { usePromotions, PROMOTIONS_PUBLIC_KEYS } from './usePromotions';

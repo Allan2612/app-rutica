@@ -1,107 +1,264 @@
+// ============================================
 // Profile
-export type { Profile, ProfileInsert, ProfileUpdate } from './profile';
-export { getFullName } from './profile';
-
-// Category (Tabla central compartida)
+// ============================================
 export type {
-  Category,
-  CategoryItem,
-  CategoryMap,
-} from './category';
-export { categoryToItem, categoriesToItems } from './category';
+  Profile,
+  ProfilePremium,
+  ProfileWithPremium,
+  ProfileInsert,
+  ProfileUpdate,
+} from './profile';
 
-// Location
-export type { 
-  Location, 
-  LocationInsert, 
-  LocationUpdate,
+export {
+  getFullName,
+  getInitials,
+  canSell,
+  isAdmin,
+  isPremium,
+} from './profile';
+
+// ============================================
+// Location (Normalized hierarchy)
+// ============================================
+export type {
+  Country,
   Province,
   Canton,
   District,
+  Location,
+  LocationWithHierarchy,
+  LocationInsert,
 } from './location';
 
+// ============================================
+// Category
+// ============================================
+export type {
+  Category,
+  CategoryOption,
+  BusinessCategoryMap,
+  EventCategoryMap,
+  AttractionCategoryMap,
+  ProductCategoryMap,
+  PromotionCategoryMap,
+} from './category';
+
+export {
+  categoryToOption,
+  categoriesToOptions,
+} from './category';
+
+// ============================================
 // Business
+// ============================================
 export type {
   Business,
-  BusinessWithRelations,
   BusinessImage,
-  BusinessSocialLink,
+  BusinessSocialLinks,
+  BusinessWithRelations,
   BusinessInsert,
   BusinessUpdate,
   BusinessImageInsert,
-  BusinessSocialLinkInsert,
+  UserBusinessListItem,
+  BusinessDetailForEdit,
+  BusinessFormData,
 } from './business';
 
-// Product
-export type {
-  Product,
-  ProductWithRelations,
-  ProductImage,
-  ProductCategoryMap,
-  ProductInsert,
-  ProductUpdate,
-  ProductImageInsert,
-} from './product';
+export {
+  getBusinessLogoUrl,
+  getBusinessCoverUrl,
+  getBusinessGalleryUrls,
+  isBusinessPublic,
+} from './business';
 
+// ============================================
+// Event
+// ============================================
+export type {
+  Event,
+  EventImage,
+  EventSocialLinks,
+  EventWithRelations,
+  EventInsert,
+  EventUpdate,
+  EventImageInsert,
+  UserEventListItem,
+  EventDetailForEdit,
+  EventFormData,
+} from './event';
+
+export {
+  getEventCoverUrl,
+  getEventGalleryUrls,
+  isEventPublic,
+  isEventPast,
+  isEventOngoing,
+} from './event';
+
+// ============================================
 // Attraction
+// ============================================
 export type {
   Attraction,
-  AttractionWithRelations,
   AttractionImage,
+  AttractionWithRelations,
   AttractionInsert,
   AttractionUpdate,
   AttractionImageInsert,
+  UserAttractionListItem,
+  AttractionDetailForEdit,
+  AttractionFormData,
 } from './attraction';
 
+export {
+  getAttractionCoverImageUrl,
+  getAttractionGalleryUrls,
+  isAttractionPublic,
+} from './attraction';
+
+// ============================================
+// Product
+// ============================================
+export type {
+  Product,
+  ProductImage,
+  ProductWithRelations,
+  ProductInsert,
+  ProductUpdate,
+  ProductImageInsert,
+  ProductListItem,
+  ProductDetailForEdit,
+  ProductFormData,
+} from './product';
+
+export {
+  getProductMainImageUrl,
+  getProductSecondaryImageUrls,
+  getAllProductImageUrls,
+} from './product';
+
+// ============================================
 // Promotion
+// ============================================
 export type {
   Promotion,
-  PromotionWithRelations,
   PromotionImage,
-  PromotionImageInsert,
   PromotionProduct,
-  PromotionProductInsert,
-  PromotionCategory,
-  PromotionCategoryInsert,
+  PromotionScopeCategory,
   PromotionComboItem,
-  PromotionComboItemInsert,
+  PromotionWithRelations,
   PromotionInsert,
   PromotionUpdate,
+  PromotionImageInsert,
+  PromotionProductInsert,
+  PromotionScopeCategoryInsert,
+  PromotionComboItemInsert,
   PromotionListItem,
   PromotionDetailForEdit,
-  CreatePromotionData,
-  UpdatePromotionData,
-  PromotionRecord,
+  PromotionFormData,
+  ComboItemData,
   PromotionWizardFormData,
   PromotionWizardErrors,
-  ComboItemData,
   WizardStepId,
 } from './promotion';
 
-export { WIZARD_STEPS } from './promotion';
+export {
+  WIZARD_STEPS,
+  getPromotionCoverUrl,
+  getPromotionGalleryUrls,
+  isPromotionActive,
+  isPromotionCurrent,
+  isPromotionPublic,
+  calculateDiscountedPrice,
+} from './promotion';
 
+// ============================================
 // Reviews
+// ============================================
 export type {
   BusinessReview,
   BusinessReviewWithRelations,
-  ProductReview,
-  ProductReviewWithRelations,
-  AttractionReview,
-  AttractionReviewWithRelations,
   BusinessReviewInsert,
-  ProductReviewInsert,
-  AttractionReviewInsert,
-} from './review';
-
-// Events
-export type {
-  Event,
-  EventWithRelations,
-  EventImage,
   EventReview,
   EventReviewWithRelations,
-  EventInsert,
-  EventImageInsert,
   EventReviewInsert,
-  EventUpdate,
-} from './event';
+  AttractionReview,
+  AttractionReviewWithRelations,
+  AttractionReviewInsert,
+  ProductReview,
+  ProductReviewWithRelations,
+  ProductReviewInsert,
+  ReviewListItem,
+  ReviewFormData,
+} from './review';
+
+export {
+  formatRating,
+  getRatingLabel,
+  calculateAverageRating,
+} from './review';
+
+// ============================================
+// Likes
+// ============================================
+export type {
+  EventLike,
+  EventLikeWithRelations,
+  AttractionLike,
+  AttractionLikeWithRelations,
+  BusinessLike,
+  BusinessLikeWithRelations,
+  EventReviewLike,
+  EventReviewLikeWithRelations,
+  AttractionReviewLike,
+  AttractionReviewLikeWithRelations,
+  BusinessReviewLike,
+  BusinessReviewLikeWithRelations,
+  ProductReviewLike,
+  ProductReviewLikeWithRelations,
+  EventLikeInsert,
+  AttractionLikeInsert,
+  BusinessLikeInsert,
+  EventReviewLikeInsert,
+  AttractionReviewLikeInsert,
+  BusinessReviewLikeInsert,
+  ProductReviewLikeInsert,
+  LikeState,
+  LikeToggleResult,
+} from './like';
+
+// ============================================
+// Interactions
+// ============================================
+export type {
+  BusinessInteraction,
+  BusinessInteractionWithRelations,
+  EventInteraction,
+  EventInteractionWithRelations,
+  AttractionInteraction,
+  AttractionInteractionWithRelations,
+  BusinessReviewInteraction,
+  BusinessReviewInteractionWithRelations,
+  EventReviewInteraction,
+  EventReviewInteractionWithRelations,
+  AttractionReviewInteraction,
+  AttractionReviewInteractionWithRelations,
+  ProductReviewInteraction,
+  ProductReviewInteractionWithRelations,
+  BusinessInteractionInsert,
+  EventInteractionInsert,
+  AttractionInteractionInsert,
+  BusinessReviewInteractionInsert,
+  EventReviewInteractionInsert,
+  AttractionReviewInteractionInsert,
+  ProductReviewInteractionInsert,
+  InteractionStats,
+  InteractionSummary,
+} from './interaction';
+
+export {
+  isViewInteraction,
+  isSocialInteraction,
+  isContactInteraction,
+  getInteractionLabel,
+} from './interaction';

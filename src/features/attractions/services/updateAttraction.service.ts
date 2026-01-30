@@ -1,20 +1,24 @@
 import { supabase } from '@/lib/supabase/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
 
-function generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
+// ============================================
+// Constants
+// ============================================
+
+const STORAGE_BUCKET = 'attractions-images';
+
+// ============================================
+// Types
+// ============================================
 
 export interface AttractionDetailForEdit {
     id: string;
     name: string;
     description: string | null;
     categoryIds: string[];
+    districtId: string | null; // V3: ID del distrito
     province: string | null;
     canton: string | null;
     district: string | null;
@@ -29,9 +33,10 @@ export interface UpdateAttractionData {
     name: string;
     description: string | null;
     categoryIds: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    country: string;         // Nombre del país
+    province: string;        // Nombre de la provincia
+    canton: string;          // Nombre del cantón
+    district: string;        // Nombre del distrito
     address: string | null;
     latitude: number;
     longitude: number;
@@ -39,8 +44,13 @@ export interface UpdateAttractionData {
     galleryImages?: string[];
 }
 
-function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+// ============================================
+// Helpers
+// ============================================
+
+function getImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
     return data.publicUrl;
 }
 
@@ -53,40 +63,98 @@ function isNewImage(uri: string | null | undefined): boolean {
 }
 
 /**
+ * Extrae el tipo de imagen del path (V3)
+ */
+function getImageTypeFromPath(path: string): string {
+    if (!path) return '';
+    const filename = path.split('/').pop() || '';
+    return filename.split('-')[0];
+}
+
+// ============================================
+// Get Attraction for Edit
+// ============================================
+
+/**
  * Obtiene una atracción por ID para edición
  */
 export async function getAttractionById(
     attractionId: string,
     userId: string
 ): Promise<AttractionDetailForEdit> {
+    interface AttractionEditQueryResult {
+        id_atr: string;
+        name_atr: string;
+        description_atr: string | null;
+        submitted_by_atr: string | null;
+        location_id_atr: string | null;
+        locations: {
+            district_id_loc: string | null;
+            address_loc: string | null;
+            latitude_loc: number | null;
+            longitude_loc: number | null;
+            districts: {
+                id_dst: string;
+                name_dst: string;
+                cantons: {
+                    id_ctn: string;
+                    name_ctn: string;
+                    provinces: {
+                        id_prv: string;
+                        name_prv: string;
+                    } | null;
+                } | null;
+            } | null;
+        } | null;
+        attraction_images: Array<{
+            id_aim: string;
+            path_aim: string;
+            sort_order_aim: number;
+        }> | null;
+        attraction_category_map: Array<{
+            category_id_acm: string;
+        }> | null;
+    }
+
     const { data: attractionData, error: attractionError } = await supabase
         .from('attractions')
-        .select(`
-            id_atr,
-            name_atr,
-            description_atr,
-            submitted_by_atr,
-            location_id_atr,
-            locations (
-                province_loc,
-                canton_loc,
-                district_loc,
-                address_loc,
-                latitude_loc,
-                longitude_loc
-            ),
-            attraction_images (
-                id_aim,
-                bucket_aim,
-                path_aim,
-                sort_order_aim
-            ),
-            attraction_category_map (
-                category_id_acm
+        .select(
+            `
+      id_atr,
+      name_atr,
+      description_atr,
+      submitted_by_atr,
+      location_id_atr,
+      locations!attractions_location_id_atr_fkey (
+        district_id_loc,
+        address_loc,
+        latitude_loc,
+        longitude_loc,
+        districts!locations_district_id_fkey (
+          id_dst,
+          name_dst,
+          cantons!districts_canton_id_fkey (
+            id_ctn,
+            name_ctn,
+            provinces!cantons_province_id_fkey (
+              id_prv,
+              name_prv
             )
-        `)
+          )
+        )
+      ),
+      attraction_images (
+        id_aim,
+        path_aim,
+        sort_order_aim
+      ),
+      attraction_category_map (
+        category_id_acm
+      )
+    `
+        )
         .eq('id_atr', attractionId)
-        .single();
+        .single<AttractionEditQueryResult>();
 
     if (attractionError) throw attractionError;
     if (!attractionData) throw new Error('No se encontró la atracción');
@@ -94,13 +162,21 @@ export async function getAttractionById(
         throw new Error('No tienes permiso para editar esta atracción');
     }
 
-    const location = attractionData.locations as any;
-    const images = (attractionData.attraction_images as any[]) || [];
-    const categoryMaps = (attractionData.attraction_category_map as any[]) || [];
+    const location = attractionData.locations;
+    const images = attractionData.attraction_images || [];
+    const categoryMaps = attractionData.attraction_category_map || [];
 
-    const coverImage = images.find((img) => img.sort_order_aim === 0);
+    // V3: Extraer jerarquía de ubicación
+    const districtData = location?.districts;
+    const cantonData = districtData?.cantons;
+    const provinceData = cantonData?.provinces;
+
+    // V3: Identificar cover por prefix 'cover' o sort_order 0
+    const coverImage = images.find(
+        (img) => getImageTypeFromPath(img.path_aim) === 'cover' || img.sort_order_aim === 0
+    );
     const galleryImages = images
-        .filter((img) => img.sort_order_aim > 0)
+        .filter((img) => img !== coverImage)
         .sort((a, b) => a.sort_order_aim - b.sort_order_aim);
 
     return {
@@ -108,16 +184,21 @@ export async function getAttractionById(
         name: attractionData.name_atr,
         description: attractionData.description_atr,
         categoryIds: categoryMaps.map((cm) => cm.category_id_acm),
-        province: location?.province_loc ?? null,
-        canton: location?.canton_loc ?? null,
-        district: location?.district_loc ?? null,
+        districtId: location?.district_id_loc ?? null,
+        province: provinceData?.name_prv ?? null,
+        canton: cantonData?.name_ctn ?? null,
+        district: districtData?.name_dst ?? null,
         address: location?.address_loc ?? null,
         latitude: location?.latitude_loc ?? 0,
         longitude: location?.longitude_loc ?? 0,
-        coverUrl: coverImage ? getImageUrl(coverImage.bucket_aim, coverImage.path_aim) : null,
-        galleryUrls: galleryImages.map((img) => getImageUrl(img.bucket_aim, img.path_aim)),
+        coverUrl: coverImage ? getImageUrl(coverImage.path_aim) : null,
+        galleryUrls: galleryImages.map((img) => getImageUrl(img.path_aim)),
     };
 }
+
+// ============================================
+// Update Attraction
+// ============================================
 
 /**
  * Actualiza una atracción completa
@@ -135,44 +216,54 @@ export async function updateAttractionComplete(
         .single();
 
     if (attractionError) throw attractionError;
-    if (attraction.submitted_by_atr !== userId) {
+    if ((attraction as any).submitted_by_atr !== userId) {
         throw new Error('No tienes permiso para editar esta atracción');
     }
 
-    // 1. Actualizar ubicación
-    if (attraction.location_id_atr) {
+    // 1. Validar datos de ubicación
+    const locationHierarchy: LocationHierarchy = {
+        country: data.country,
+        province: data.province,
+        canton: data.canton,
+        district: data.district,
+    };
+
+    if (!validateLocationData(locationHierarchy)) {
+        throw new Error('Datos de ubicación incompletos');
+    }
+
+    // 2. Buscar o crear la jerarquía de ubicación y obtener district_id
+    const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
+
+    // 3. Actualizar ubicación
+    if ((attraction as any).location_id_atr) {
         const { error: locationError } = await supabase
             .from('locations')
             .update({
-                province_loc: data.province,
-                canton_loc: data.canton,
-                district_loc: data.district,
+                district_id_loc: districtId,
                 address_loc: data.address,
                 latitude_loc: data.latitude,
                 longitude_loc: data.longitude,
-            })
-            .eq('id_loc', attraction.location_id_atr);
+            } as never)
+            .eq('id_loc', (attraction as any).location_id_atr);
 
         if (locationError) throw locationError;
     }
 
-    // 2. Actualizar atracción
+    // 4. Actualizar atracción
     const { error: updateError } = await supabase
         .from('attractions')
         .update({
             name_atr: data.name,
             description_atr: data.description,
             updated_at_atr: new Date().toISOString(),
-        })
+        } as never)
         .eq('id_atr', attractionId);
 
     if (updateError) throw updateError;
 
-    // 3. Actualizar categorías
-    await supabase
-        .from('attraction_category_map')
-        .delete()
-        .eq('attraction_id_acm', attractionId);
+    // 5. Actualizar categorías
+    await supabase.from('attraction_category_map').delete().eq('attraction_id_acm', attractionId);
 
     if (data.categoryIds.length > 0) {
         const categoryMaps = data.categoryIds.map((catId) => ({
@@ -180,56 +271,71 @@ export async function updateAttractionComplete(
             category_id_acm: catId,
         }));
 
-        await supabase.from('attraction_category_map').insert(categoryMaps);
+        await supabase.from('attraction_category_map').insert(categoryMaps as never);
     }
 
-    // 5. Manejar imágenes
+    // 6. Manejar imágenes
     await handleImageUpdates(attractionId, data);
 }
+
+// ============================================
+// Image Handling
+// ============================================
 
 async function handleImageUpdates(
     attractionId: string,
     data: UpdateAttractionData
 ): Promise<void> {
+    interface AttractionImageRecord {
+        id_aim: string;
+        path_aim: string;
+        sort_order_aim: number;
+        attraction_id_aim: string;
+        created_at_aim: string;
+    }
+
     // Obtener imágenes actuales
     const { data: currentImages } = await supabase
         .from('attraction_images')
         .select('*')
-        .eq('attraction_id_aim', attractionId);
+        .eq('attraction_id_aim', attractionId)
+        .returns<AttractionImageRecord[]>();
 
     const images = currentImages || [];
-    const currentCover = images.find((img) => img.sort_order_aim === 0);
-    const currentGallery = images.filter((img) => img.sort_order_aim > 0);
+
+    // V3: Identificar cover por prefix o sort_order
+    const currentCover = images.find(
+        (img) => getImageTypeFromPath(img.path_aim) === 'cover' || img.sort_order_aim === 0
+    );
+    const currentGallery = images.filter((img) => img !== currentCover);
 
     // Cover
     if (data.coverImage !== undefined) {
         if (isNewImage(data.coverImage)) {
             // Eliminar cover anterior
             if (currentCover) {
-                await supabase.storage.from('attractions-images').remove([currentCover.path_aim]);
+                await supabase.storage.from(STORAGE_BUCKET).remove([currentCover.path_aim]);
                 await supabase.from('attraction_images').delete().eq('id_aim', currentCover.id_aim);
             }
             // Subir nuevo
             await uploadImage(data.coverImage!, attractionId, 'cover', 0);
         } else if (data.coverImage === null && currentCover) {
             // Eliminar cover
-            await supabase.storage.from('attraction-images').remove([currentCover.path_aim]);
+            await supabase.storage.from(STORAGE_BUCKET).remove([currentCover.path_aim]);
             await supabase.from('attraction_images').delete().eq('id_aim', currentCover.id_aim);
         }
     }
 
     // Gallery
     if (data.galleryImages !== undefined) {
-        const existingGalleryUrls = data.galleryImages.filter(
-            (uri) => uri.includes('supabase.co')
-        );
+        const existingGalleryUrls = data.galleryImages.filter((uri) => uri.includes('supabase.co'));
         const newGalleryUris = data.galleryImages.filter((uri) => isNewImage(uri));
 
         // Eliminar imágenes que ya no están
         for (const img of currentGallery) {
-            const imgUrl = getImageUrl(img.bucket_aim, img.path_aim);
+            const imgUrl = getImageUrl(img.path_aim);
             if (!existingGalleryUrls.includes(imgUrl)) {
-                await supabase.storage.from('attractions-images').remove([img.path_aim]);
+                await supabase.storage.from(STORAGE_BUCKET).remove([img.path_aim]);
                 await supabase.from('attraction_images').delete().eq('id_aim', img.id_aim);
             }
         }
@@ -280,15 +386,17 @@ async function uploadImage(
         uploadData = byteArray.buffer;
     }
 
+    // V3: Path format -> <attraction_id>/<prefix>-<timestamp>-<random>.<ext>
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(7);
     const fileName = `${type}-${timestamp}-${random}.${fileExt}`;
     const filePath = `${attractionId}/${fileName}`;
 
-    const contentType = fileExt === 'png' ? 'image/png' : fileExt === 'webp' ? 'image/webp' : 'image/jpeg';
+    const contentType =
+        fileExt === 'png' ? 'image/png' : fileExt === 'webp' ? 'image/webp' : 'image/jpeg';
 
     const { error: uploadError } = await supabase.storage
-        .from('attractions-images')
+        .from(STORAGE_BUCKET)
         .upload(filePath, uploadData, {
             contentType,
             upsert: false,
@@ -296,15 +404,15 @@ async function uploadImage(
 
     if (uploadError) throw uploadError;
 
+    // V3: Solo path_aim, sin bucket_aim ni image_type_aim
     const { error: insertError } = await supabase.from('attraction_images').insert({
         attraction_id_aim: attractionId,
-        image_type_aim: 'image',
-        bucket_aim: 'attractions-images',
         path_aim: filePath,
         sort_order_aim: sortOrder,
-    });
+    } as never);
 
     if (insertError) {
+        console.error('[uploadImage] Insert error:', insertError);
         throw insertError;
     }
 }

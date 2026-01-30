@@ -51,7 +51,7 @@ export function calculateDiscountedPrice(
 
     const { discountType, discountValue } = promotion;
 
-    if (discountType === 'none' || discountValue <= 0) {
+    if (discountValue <= 0) {
         return null;
     }
 
@@ -86,17 +86,17 @@ export function doesPromotionApplyToProduct(
     const { scope, productIds, scopeCategoryIds, comboItems } = promotion;
 
     // Promoción general aplica a todos los productos
-    if (scope === 'general') {
+    if (scope === 'all') {
         return true;
     }
 
     // Promoción específica de producto
-    if (scope === 'product') {
+    if (scope === 'products') {
         return productIds?.includes(productId) ?? false;
     }
 
     // Promoción por categoría - aplica si el producto pertenece a alguna de las categorías del scope
-    if (scope === 'category') {
+    if (scope === 'categories') {
         if (!productCategoryIds || productCategoryIds.length === 0) {
             return false;
         }
@@ -182,6 +182,11 @@ export function getAllActivePromotions(
     for (const promo of promotions) {
         // FILTRAR: Solo mostrar promos aprobadas, pagadas y vigentes
         if (promo.moderationStatus !== 'approved' || promo.paymentState !== 'paid') {
+            continue;
+        }
+
+        // Verificar que las fechas no sean null
+        if (!promo.startAt || !promo.endAt) {
             continue;
         }
 

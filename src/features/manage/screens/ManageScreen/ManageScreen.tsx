@@ -14,8 +14,8 @@ import { styles } from './styles';
 function normalizeRole(value: unknown): UserRole | null {
   if (typeof value !== 'string') return null;
   const normalized = value.trim().toLowerCase();
-  if (normalized === 'buyer' || normalized === 'seller' || normalized === 'admin') {
-    return normalized;
+  if (normalized === 'buyer' || normalized === 'user' || normalized === 'seller' || normalized === 'admin' || normalized === 'premium') {
+    return normalized as UserRole;
   }
   return null;
 }
@@ -60,7 +60,7 @@ export const ManageScreen = memo(function ManageScreen() {
         title: 'Gestionar Negocios',
         description: 'Crea, edita y publica tus negocios.',
         href: '/(app)/(tabs)/manage/businesses',
-        roles: ['seller', 'admin'],
+        roles: ['seller', 'admin', 'premium'] as const,
         icon: (color) => <Store color={color} size={26} strokeWidth={2} />,
       },
       {
@@ -68,7 +68,7 @@ export const ManageScreen = memo(function ManageScreen() {
         title: 'Gestionar Promociones',
         description: 'Promociones para atraer más clientes.',
         href: '/(app)/(tabs)/manage/promotions',
-        roles: ['seller', 'admin'],
+        roles: ['seller', 'admin', 'premium'] as const,
         icon: (color) => <Tag color={color} size={26} strokeWidth={2} />,
       },
       {
@@ -76,7 +76,7 @@ export const ManageScreen = memo(function ManageScreen() {
         title: 'Gestionar Eventos',
         description: 'Organiza y administra eventos.',
         href: '/(app)/(tabs)/manage/events',
-        roles: ['buyer', 'seller', 'admin'],
+        roles: ['buyer', 'seller', 'admin', 'premium'] as const,
         icon: (color) => <CalendarDays color={color} size={26} strokeWidth={2} />,
       },
       {
@@ -84,7 +84,7 @@ export const ManageScreen = memo(function ManageScreen() {
         title: 'Gestionar Atracciones',
         description: 'Crea y mantiene atracciones destacadas.',
         href: '/(app)/(tabs)/manage/attractions',
-        roles: ['buyer', 'seller', 'admin'],
+        roles: ['buyer', 'seller', 'admin', 'premium'] as const,
         icon: (color) => <Landmark color={color} size={26} strokeWidth={2} />,
       },
       {
@@ -92,7 +92,7 @@ export const ManageScreen = memo(function ManageScreen() {
         title: 'Panel de Administración',
         description: 'Herramientas avanzadas y control total.',
         href: '/(app)/(tabs)/manage/admin',
-        roles: ['admin'],
+        roles: ['admin'] as const,
         icon: (color) => <Shield color={color} size={26} strokeWidth={2} />,
         variant: 'admin',
         badgeText: 'Admin',
