@@ -1,9 +1,16 @@
 import { supabase } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
+// ============================================
+// Constants
+// ============================================
+
 const BUCKET_NAME = 'events-images';
+
+// ============================================
+// Helpers
+// ============================================
 
 function generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -13,28 +20,41 @@ function generateUUID(): string {
     });
 }
 
+// ============================================
+// Types
+// ============================================
+
 export interface EventDetailForEdit {
     id: string;
     name: string;
     description: string | null;
     categoryIds: string[];
+    // Location hierarchy (V3)
     districtId: string | null;
+    province: string | null;
+    canton: string | null;
+    district: string | null;
     address: string | null;
     latitude: number;
     longitude: number;
+    // Dates
     startDate: Date;
     endDate: Date;
+    // Pricing
     isFree: boolean;
     price: number | null;
     currency: string | null;
     capacity: number | null;
+    // Contact
     phone: string | null;
     email: string | null;
     website: string | null;
     ticketUrl: string | null;
+    // Social
     facebook: string | null;
     instagram: string | null;
     tiktok: string | null;
+    // Images
     coverUrl: string | null;
     galleryUrls: string[];
 }
@@ -87,7 +107,8 @@ export async function getEventById(
     eventId: string,
     userId: string
 ): Promise<EventDetailForEdit> {
-    const { data: eventData, error: eventError } = await (supabase as any)
+    // 1. Obtener datos del evento
+    const { data: eventData, error: eventError } = await supabase
         .from('events')
         .select(`
             id_evt,
@@ -112,26 +133,54 @@ export async function getEventById(
 
     if (eventError) throw eventError;
     if (!eventData) throw new Error('No se encontró el evento');
-    if (eventData.created_by_evt !== userId) {
+    if ((eventData as any).created_by_evt !== userId) {
         throw new Error('No tienes permiso para editar este evento');
     }
 
-    let locationData = null;
-    if (eventData.location_id_evt) {
+    // 2. Obtener ubicación con jerarquía completa (V3)
+    let locationData: any = null;
+    let districtData: any = null;
+    let cantonData: any = null;
+    let provinceData: any = null;
+
+    if ((eventData as any).location_id_evt) {
         const { data: loc } = await supabase
             .from('locations')
-            .select('district_id_loc, address_loc, latitude_loc, longitude_loc')
-            .eq('id_loc', eventData.location_id_evt)
+            .select(`
+                district_id_loc,
+                address_loc,
+                latitude_loc,
+                longitude_loc,
+                districts!locations_district_id_fkey (
+                    id_dst,
+                    name_dst,
+                    cantons!districts_canton_id_fkey (
+                        id_ctn,
+                        name_ctn,
+                        provinces!cantons_province_id_fkey (
+                            id_prv,
+                            name_prv
+                        )
+                    )
+                )
+            `)
+            .eq('id_loc', (eventData as any).location_id_evt)
             .single();
+        
         locationData = loc;
+        districtData = (loc as any)?.districts;
+        cantonData = districtData?.cantons;
+        provinceData = cantonData?.provinces;
     }
 
+    // 3. Obtener imágenes
     const { data: images } = await supabase
         .from('event_images')
         .select('id_eim, path_eim, sort_order_eim')
         .eq('event_id_eim', eventId)
         .order('sort_order_eim', { ascending: true });
 
+    // 4. Obtener categorías
     const { data: categoryMaps } = await supabase
         .from('event_category_map')
         .select('category_id_ecm')
@@ -156,29 +205,37 @@ export async function getEventById(
         .map((ecm: any) => ecm.category_id_ecm)
         .filter((id: string) => !!id);
 
-    const socialLinks = eventData.social_links_evt || {};
+    const socialLinks = (eventData as any).social_links_evt || {};
 
     return {
-        id: eventData.id_evt,
-        name: eventData.name_evt,
-        description: eventData.description_evt,
+        id: (eventData as any).id_evt,
+        name: (eventData as any).name_evt,
+        description: (eventData as any).description_evt,
         categoryIds,
-        districtId: (locationData as any)?.district_id_loc ?? null,
-        address: (locationData as any)?.address_loc ?? null,
-        latitude: (locationData as any)?.latitude_loc ?? 0,
-        longitude: (locationData as any)?.longitude_loc ?? 0,
-        startDate: new Date(eventData.start_at_evt),
-        endDate: new Date(eventData.end_at_evt),
-        isFree: eventData.is_free_evt,
-        price: eventData.price_evt,
-        currency: eventData.currency_evt,
-        capacity: eventData.capacity_evt,
-        phone: eventData.contact_phone_evt,
-        email: eventData.contact_email_evt,
-        website: eventData.website_evt,
-        ticketUrl: eventData.ticket_url_evt,
-        facebook: (socialLinks as any).facebook ?? null,
-        instagram: (socialLinks as any).instagram ?? null,
+        // Location hierarchy (V3)
+        districtId: locationData?.district_id_loc ?? null,
+        province: provinceData?.name_prv ?? null,
+        canton: cantonData?.name_ctn ?? null,
+        district: districtData?.name_dst ?? null,
+        address: locationData?.address_loc ?? null,
+        latitude: locationData?.latitude_loc ?? 0,
+        longitude: locationData?.longitude_loc ?? 0,
+        // Dates
+        startDate: new Date((eventData as any).start_at_evt),
+        endDate: new Date((eventData as any).end_at_evt),
+        // Pricing
+        isFree: (eventData as any).is_free_evt,
+        price: (eventData as any).price_evt,
+        currency: (eventData as any).currency_evt,
+        capacity: (eventData as any).capacity_evt,
+        // Contact
+        phone: (eventData as any).contact_phone_evt,
+        email: (eventData as any).contact_email_evt,
+        website: (eventData as any).website_evt,
+        ticketUrl: (eventData as any).ticket_url_evt,
+        // Social
+        facebook: socialLinks.facebook ?? null,
+        instagram: socialLinks.instagram ?? null,
         tiktok: (socialLinks as any).tiktok ?? null,
         coverUrl,
         galleryUrls,

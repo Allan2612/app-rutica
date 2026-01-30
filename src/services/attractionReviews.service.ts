@@ -39,7 +39,7 @@ export async function getAttractionReviews(attractionId: string): Promise<Attrac
             rating_arv,
             comment_arv,
             created_at_arv,
-            profiles (
+            profiles!attraction_reviews_user_id_arv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
@@ -51,6 +51,13 @@ export async function getAttractionReviews(attractionId: string): Promise<Attrac
         console.error('Error fetching attraction reviews:', error);
         return [];
     }
+
+    if (!data || data.length === 0) {
+        console.log('No reviews found for attraction:', attractionId);
+        return [];
+    }
+
+    console.log('Reviews data:', data);
 
     return ((data as unknown as AttractionReviewWithProfile[]) ?? []).map((review) => {
         const profile = review.profiles;
@@ -86,14 +93,14 @@ export async function getUserAttractionReview(
             rating_arv,
             comment_arv,
             created_at_arv,
-            profiles (
+            profiles!attraction_reviews_user_id_arv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
         `)
         .eq('attraction_id_arv', attractionId)
         .eq('user_id_arv', userId)
-        .single();
+        .maybeSingle();
 
     if (error || !data) {
         return null;

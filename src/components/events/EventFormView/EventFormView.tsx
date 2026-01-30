@@ -23,7 +23,10 @@ interface EventFormData {
     isFree: boolean;
     price: string;
     capacity: string;
-    districtId: string | null;
+    country: string | null;
+    province: string | null;
+    canton: string | null;
+    district: string | null;
     address: string | null;
     coordinates: { latitude: number; longitude: number } | null;
     phone: string;

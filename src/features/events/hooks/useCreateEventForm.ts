@@ -11,7 +11,10 @@ interface FormData {
     selectedCategoryIds: string[];
     coverUri: string | null;
     galleryUris: string[];
-    districtId: string | null;
+    country: string | null;      // Nombre del país
+    province: string | null;     // Nombre de la provincia
+    canton: string | null;       // Nombre del cantón
+    district: string | null;     // Nombre del distrito
     address: string | null;
     coordinates: { latitude: number; longitude: number } | null;
     startDate: Date;
@@ -41,7 +44,10 @@ const initialFormData: FormData = {
     selectedCategoryIds: [],
     coverUri: null,
     galleryUris: [],
-    districtId: null,
+    country: null,
+    province: null,
+    canton: null,
+    district: null,
     address: null,
     coordinates: null,
     startDate: new Date(),
@@ -99,7 +105,10 @@ export function useCreateEventForm() {
         
         setFormData((prev) => ({
             ...prev,
-            districtId: location.districtId || null,
+            country: location.country || 'Costa Rica',
+            province: location.province || null,
+            canton: location.canton || null,
+            district: location.district || null,
             address: location.address || null,
             coordinates:
                 location.latitude && location.longitude
@@ -122,8 +131,10 @@ export function useCreateEventForm() {
             newErrors.categories = 'Selecciona al menos una categoría';
         }
 
-        if (!formData.coordinates || !formData.districtId) {
+        if (!formData.coordinates) {
             newErrors.location = 'Selecciona una ubicación en el mapa';
+        } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
+            newErrors.location = 'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
         }
 
         if (formData.startDate >= formData.endDate) {
@@ -157,7 +168,10 @@ export function useCreateEventForm() {
                 price: !formData.isFree && formData.price ? parseFloat(formData.price) : undefined,
                 currency: !formData.isFree && formData.price ? 'CRC' : undefined,
                 capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
-                districtId: formData.districtId!,
+                country: formData.country!,
+                province: formData.province!,
+                canton: formData.canton!,
+                district: formData.district!,
                 address: formData.address?.trim() ?? undefined,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,

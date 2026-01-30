@@ -3,8 +3,8 @@ import {
     EventListFilters,
     EventListRecord,
     getEventsList,
-    getImageUrl,
 } from '@/features/events/services/events.service';
+import { getImageUrl } from '@/features/events/services/getUserEvents.service';
 
 export interface EventListItem {
     id: string;
@@ -41,7 +41,7 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
 
     const imageUrls = sortedImages
         .filter(img => img?.path_eim)
-        .map(img => getImageUrl('events-images', img.path_eim));
+        .map(img => getImageUrl(img.path_eim));
 
     // Obtener categorías
     const categories = item.event_category_map

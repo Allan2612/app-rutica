@@ -5,16 +5,11 @@ import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
 import { useUserEvents, useDeleteEvent } from '@/features/events/hooks';
+import { getImageUrl } from '@/features/events/services/getUserEvents.service';
 import { UserEventCard } from '@/components/events';
 import { ConfirmDeleteDialog } from '@/components/manage';
 import { BackButton } from '@/components/ui';
-import { supabase } from '@/lib/supabase/client';
 import { styles } from './styles';
-
-function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    return data.publicUrl;
-}
 
 export const ManageEventsScreen = memo(function ManageEventsScreen() {
     const colors = useThemedColors();
@@ -132,22 +127,24 @@ export const ManageEventsScreen = memo(function ManageEventsScreen() {
                 ) : (
                     <View style={styles.list}>
                         {events.map((event) => {
+                            // Ordenar imágenes y obtener cover
                             const sortedImages = [...(event.event_images ?? [])].sort(
                                 (a, b) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0)
                             );
                             const coverImage = sortedImages.find(img => img.sort_order_eim === 0);
                             const imageUrl = coverImage?.path_eim
-                                ? getImageUrl('events-images', coverImage.path_eim)
+                                ? getImageUrl(coverImage.path_eim)
                                 : null;
 
-                            // locations puede ser un array o un objeto dependiendo de la query
-                            const locationData = Array.isArray(event.locations) ? event.locations[0] : event.locations;
+                            // V3: locations ahora es un objeto con jerarquía de ubicación
+                            const locationData = event.locations;
                             const locationParts = [
                                 locationData?.districts?.name_dst,
                                 locationData?.districts?.cantons?.name_ctn
                             ].filter(Boolean);
                             const locationLabel = locationParts.length > 0 ? locationParts.join(', ') : null;
 
+                            // Categorías
                             const categoryNames = (event.event_category_map ?? [])
                                 .map((ecm) => ecm.categories?.name_cat)
                                 .filter((name): name is string => !!name);

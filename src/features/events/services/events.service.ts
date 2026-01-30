@@ -1,7 +1,14 @@
 import { supabase } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
+
+// ============================================
+// Constants
+// ============================================
 
 const BUCKET_NAME = 'events-images';
+
+// ============================================
+// Types
+// ============================================
 
 export interface EventListFilters {
     searchText?: string;
@@ -49,9 +56,9 @@ export interface EventListRecord {
                 name_ctn: string;
                 provinces?: {
                     name_prv: string;
-                } | null;
-            } | null;
-        } | null;
+                };
+            };
+        };
     } | null;
     event_images?: {
         path_eim: string;
@@ -59,10 +66,19 @@ export interface EventListRecord {
     }[] | null;
 }
 
-export function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+// ============================================
+// Helpers
+// ============================================
+
+export function getEventImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
     return data.publicUrl;
 }
+
+// ============================================
+// Service Functions
+// ============================================
 
 export async function getEventsList(filters: EventListFilters = {}): Promise<EventListRecord[]> {
     const { searchText, categoryIds, upcoming = true } = filters;
@@ -102,12 +118,12 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
             locations!events_location_id_evt_fkey (
                 latitude_loc,
                 longitude_loc,
-                districts!locations_district_id_loc_fkey (
+                districts!locations_district_id_fkey (
                     id_dst,
                     name_dst,
-                    cantons!districts_canton_id_dst_fkey (
+                    cantons!districts_canton_id_fkey (
                         name_ctn,
-                        provinces!cantons_province_id_ctn_fkey (
+                        provinces!cantons_province_id_fkey (
                             name_prv
                         )
                     )
@@ -117,8 +133,7 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
                 path_eim,
                 sort_order_eim
             )
-        `)
-        .eq('is_active_evt', true);
+        `);
 
     // Filtrar solo eventos futuros o en curso
     if (upcoming) {
@@ -155,6 +170,11 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
     if (error) {
         console.error('Error fetching events list:', error);
         throw error;
+    }
+
+    console.log('[getEventsList] Found events:', data?.length || 0, 'filters:', filters);
+    if (data && data.length > 0) {
+        console.log('[getEventsList] First event:', data[0]);
     }
 
     return data as unknown as EventListRecord[];
