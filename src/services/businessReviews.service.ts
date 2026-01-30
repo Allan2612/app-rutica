@@ -38,7 +38,7 @@ export async function getBusinessReviews(businessId: string): Promise<BusinessRe
             rating_brv,
             comment_brv,
             created_at_brv,
-            profiles (
+            profiles!business_reviews_user_id_brv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
@@ -85,7 +85,7 @@ export async function getUserBusinessReview(
             rating_brv,
             comment_brv,
             created_at_brv,
-            profiles!user_id_brv (
+            profiles!business_reviews_user_id_brv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
@@ -98,7 +98,7 @@ export async function getUserBusinessReview(
         console.error('Error fetching user business review:', error);
         return null;
     }
-    
+
     if (!data) {
         return null;
     }
@@ -270,33 +270,56 @@ export async function deleteBusinessReview(reviewId: string, businessId: string)
 
 /**
  * Actualiza el promedio de rating y conteo de reseñas del negocio
+ * Usa una función SQL con SECURITY DEFINER para bypasear el trigger
  */
 async function updateBusinessRating(businessId: string): Promise<void> {
-    // Obtener todas las reseñas del negocio
-    const { data: reviews, error } = await supabase
-        .from('business_reviews')
-        .select('rating_brv')
-        .eq('business_id_brv', businessId);
+    console.log('[updateBusinessRating] Starting update for business:', businessId);
+
+    // Llamar a la función SQL que tiene privilegios para actualizar los campos protegidos
+    const { error } = await (supabase as any).rpc('update_business_rating', {
+        p_business_id: businessId
+    });
 
     if (error) {
-        console.error('Error fetching reviews for rating update:', error);
-        return;
+        console.error('[updateBusinessRating] Error calling RPC function:', error);
+
+        // Fallback: Intentar actualización directa (funcionará si el trigger fue modificado)
+        console.log('[updateBusinessRating] Trying direct update as fallback...');
+
+        const { data: reviews, error: reviewsError } = await supabase
+            .from('business_reviews')
+            .select('rating_brv')
+            .eq('business_id_brv', businessId);
+
+        if (reviewsError) {
+            console.error('[updateBusinessRating] Error fetching reviews:', reviewsError);
+            return;
+        }
+
+        const reviewsData = reviews as unknown as Pick<BusinessReviewRow, 'rating_brv'>[] | null;
+        const reviewCount = reviewsData?.length ?? 0;
+        const avgRating = reviewCount > 0
+            ? reviewsData!.reduce((sum, r) => sum + (r.rating_brv ?? 0), 0) / reviewCount
+            : 0;
+
+        const updatePayload: any = {
+            avg_rating_bus: Math.round(avgRating * 10) / 10,
+            reviews_count_bus: reviewCount,
+        };
+
+        console.log('[updateBusinessRating] Calculated:', { reviewCount, avgRating: updatePayload.avg_rating_bus });
+
+        const { error: updateError } = await (supabase as any)
+            .from('businesses')
+            .update(updatePayload)
+            .eq('id_bus', businessId);
+
+        if (updateError) {
+            console.error('[updateBusinessRating] Error updating business:', updateError);
+        } else {
+            console.log('[updateBusinessRating] Successfully updated business ratings (fallback)');
+        }
+    } else {
+        console.log('[updateBusinessRating] Successfully updated business ratings via RPC');
     }
-
-    const reviewsData = reviews as unknown as Pick<BusinessReviewRow, 'rating_brv'>[] | null;
-    const reviewCount = reviewsData?.length ?? 0;
-    const avgRating = reviewCount > 0
-        ? reviewsData!.reduce((sum, r) => sum + (r.rating_brv ?? 0), 0) / reviewCount
-        : 0;
-
-    const updatePayload: any = {
-        avg_rating_bus: Math.round(avgRating * 10) / 10,
-        reviews_count_bus: reviewCount,
-    };
-
-    // Actualizar el negocio
-    await (supabase as any)
-        .from('businesses')
-        .update(updatePayload)
-        .eq('id_bus', businessId);
 }
