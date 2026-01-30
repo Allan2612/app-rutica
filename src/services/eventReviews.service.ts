@@ -29,7 +29,7 @@ export async function getEventReviews(eventId: string): Promise<EventReviewDispl
             rating_erv,
             comment_erv,
             created_at_erv,
-            profiles (
+            profiles!event_reviews_user_id_erv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
@@ -38,7 +38,6 @@ export async function getEventReviews(eventId: string): Promise<EventReviewDispl
         .order('created_at_erv', { ascending: false });
 
     if (error) {
-        console.error('Error fetching event reviews:', error);
         return [];
     }
 
@@ -73,16 +72,18 @@ export async function getUserEventReview(
             rating_erv,
             comment_erv,
             created_at_erv,
-            profiles (
+            profiles!event_reviews_user_id_erv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
         `)
         .eq('event_id_erv', eventId)
         .eq('user_id_erv', userId)
-        .single();
+        .maybeSingle();
 
-    if (error || !data) return null;
+    if (error || !data) {
+        return null;
+    }
 
     const review = data as unknown as EventReviewWithProfile;
     const profile = review.profiles;
@@ -107,24 +108,31 @@ export async function createEventReview(
     rating: number,
     comment?: string
 ): Promise<EventReviewDisplay | null> {
+    // Verificar sesión de Supabase
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        throw new Error('No hay sesión activa');
+    }
+
     // Validar contenido antes de crear
     if (comment) {
         validateReviewContent(comment);
     }
 
+    const insertData = {
+        event_id_erv: eventId,
+        user_id_erv: userId,
+        rating_erv: rating,
+        comment_erv: comment || null,
+    };
+
     const { data, error } = await supabase
         .from('event_reviews')
-        .insert({
-            event_id_erv: eventId,
-            user_id_erv: userId,
-            rating_erv: rating,
-            comment_erv: comment || null,
-        } as any)
+        .insert(insertData as any)
         .select(`id_erv, event_id_erv, user_id_erv, rating_erv, comment_erv, created_at_erv`)
         .single();
 
     if (error) {
-        console.error('Error creating event review:', error);
         throw new Error(error.message);
     }
 
@@ -177,7 +185,6 @@ export async function updateEventReview(
         .single();
 
     if (error) {
-        console.error('Error updating event review:', error);
         throw new Error(error.message);
     }
 
@@ -214,7 +221,6 @@ export async function deleteEventReview(reviewId: string, eventId: string): Prom
         .eq('id_erv', reviewId);
 
     if (error) {
-        console.error('Error deleting event review:', error);
         throw new Error(error.message);
     }
 
@@ -228,7 +234,6 @@ async function updateEventRating(eventId: string): Promise<void> {
         .eq('event_id_erv', eventId);
 
     if (error) {
-        console.error('Error fetching reviews for rating update:', error);
         return;
     }
 

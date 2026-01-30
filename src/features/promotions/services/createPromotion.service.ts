@@ -5,7 +5,6 @@
 
 import { supabase } from '@/lib/supabase/client';
 import type { PromotionFormData } from '@/types/entities';
-import type { Database } from '@/lib/supabase/database.types';
 import { generateUUID, isNewImage, uploadPromotionImage } from './promotions.helpers';
 
 /**
@@ -123,7 +122,6 @@ export async function createPromotionComplete(
                     .insert(imageInsert as any);
                 
                 if (imgInsertError) {
-                    console.error('[createPromotion] Error inserting cover image:', imgInsertError);
                     throw imgInsertError;
                 }
             } catch (imgError) {

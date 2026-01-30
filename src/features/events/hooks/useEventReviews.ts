@@ -43,8 +43,12 @@ export function useCreateEventReview() {
             comment?: string;
         }) => createEventReview(eventId, userId, rating, comment),
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: [EVENT_REVIEWS_KEY, variables.eventId] });
-            queryClient.invalidateQueries({ queryKey: [USER_EVENT_REVIEW_KEY, variables.eventId, variables.userId] });
+            queryClient.invalidateQueries({ 
+                queryKey: [EVENT_REVIEWS_KEY, variables.eventId]
+            });
+            queryClient.invalidateQueries({ 
+                queryKey: [USER_EVENT_REVIEW_KEY, variables.eventId, variables.userId]
+            });
         },
     });
 }

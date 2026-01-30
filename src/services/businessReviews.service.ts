@@ -47,7 +47,6 @@ export async function getBusinessReviews(businessId: string): Promise<BusinessRe
         .order('created_at_brv', { ascending: false });
 
     if (error) {
-        console.error('Error fetching business reviews:', error);
         return [];
     }
 
@@ -95,7 +94,6 @@ export async function getUserBusinessReview(
         .maybeSingle();
 
     if (error) {
-        console.error('Error fetching user business review:', error);
         return null;
     }
 
@@ -153,8 +151,6 @@ export async function createBusinessReview(
         .single();
 
     if (error) {
-        console.error('Error creating business review:', error);
-
         // Mejorar mensaje de error RLS
         if (error.message.includes('row-level security policy')) {
             throw new Error('No tienes permiso para dejar una reseña en este negocio');
@@ -224,7 +220,6 @@ export async function updateBusinessReview(
         .single();
 
     if (error) {
-        console.error('Error updating business review:', error);
         throw new Error(error.message);
     }
 
@@ -266,7 +261,6 @@ export async function deleteBusinessReview(reviewId: string, businessId: string)
         .eq('id_brv', reviewId);
 
     if (error) {
-        console.error('Error deleting business review:', error);
         throw new Error(error.message);
     }
 
@@ -279,26 +273,19 @@ export async function deleteBusinessReview(reviewId: string, businessId: string)
  * Usa una función SQL con SECURITY DEFINER para bypasear el trigger
  */
 async function updateBusinessRating(businessId: string): Promise<void> {
-    console.log('[updateBusinessRating] Starting update for business:', businessId);
-
     // Llamar a la función SQL que tiene privilegios para actualizar los campos protegidos
     const { error } = await (supabase as any).rpc('update_business_rating', {
         p_business_id: businessId
     });
 
     if (error) {
-        console.error('[updateBusinessRating] Error calling RPC function:', error);
-
         // Fallback: Intentar actualización directa (funcionará si el trigger fue modificado)
-        console.log('[updateBusinessRating] Trying direct update as fallback...');
-
         const { data: reviews, error: reviewsError } = await supabase
             .from('business_reviews')
             .select('rating_brv')
             .eq('business_id_brv', businessId);
 
         if (reviewsError) {
-            console.error('[updateBusinessRating] Error fetching reviews:', reviewsError);
             return;
         }
 
@@ -313,19 +300,9 @@ async function updateBusinessRating(businessId: string): Promise<void> {
             reviews_count_bus: reviewCount,
         };
 
-        console.log('[updateBusinessRating] Calculated:', { reviewCount, avgRating: updatePayload.avg_rating_bus });
-
-        const { error: updateError } = await (supabase as any)
+        await (supabase as any)
             .from('businesses')
             .update(updatePayload)
             .eq('id_bus', businessId);
-
-        if (updateError) {
-            console.error('[updateBusinessRating] Error updating business:', updateError);
-        } else {
-            console.log('[updateBusinessRating] Successfully updated business ratings (fallback)');
-        }
-    } else {
-        console.log('[updateBusinessRating] Successfully updated business ratings via RPC');
     }
 }

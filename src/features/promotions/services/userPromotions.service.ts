@@ -323,7 +323,9 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
         .delete()
         .eq('id_prm', promotionId);
 
-    if (deleteError) throw deleteError;
+    if (deleteError) {
+        throw deleteError;
+    }
 }
 
 // ============================================
@@ -340,10 +342,9 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         return prefix === 'flyer';
     });
 
-    let coverUrl: string | null = null;
-    if (coverImage) {
-        coverUrl = getImageUrl(BUCKET_NAME, coverImage.path_pim);
-    }
+    const coverUrl = coverImage
+        ? getImageUrl(BUCKET_NAME, coverImage.path_pim)
+        : null;
 
     // Extraer nombres de categorías
     const categoryNames = record.promotion_category_map
@@ -378,7 +379,7 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         now >= startDate &&
         now <= endDate;
 
-    return {
+    const result = {
         id: record.id_prm,
         title: record.title_prm,
         description: record.description_prm,
@@ -392,6 +393,7 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
         coverUrl,
+        imageUrl: coverUrl, // Alias para compatibilidad con UserPromotionCard
         categoryNames,
         productIds,
         scopeCategoryIds,
@@ -399,4 +401,6 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         isActive,
         createdAt: record.created_at_prm,
     };
+    
+    return result;
 }
