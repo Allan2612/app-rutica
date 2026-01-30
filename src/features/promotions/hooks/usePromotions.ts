@@ -4,11 +4,16 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getPublicPromotions, PublicPromotionFilters } from '../services/publicPromotions.service';
+import { 
+    getPublicPromotions, 
+    getBusinessActivePromotions,
+    PublicPromotionFilters 
+} from '../services/publicPromotions.service';
 
 export const PROMOTIONS_PUBLIC_KEYS = {
     all: ['public-promotions'] as const,
     list: (filters: PublicPromotionFilters) => ['public-promotions', filters] as const,
+    business: (businessId: string) => ['business-active-promotions', businessId] as const,
 };
 
 export interface UsePromotionsOptions extends PublicPromotionFilters {
@@ -25,6 +30,19 @@ export function usePromotions({ enabled = true, ...filters }: UsePromotionsOptio
         queryKey: PROMOTIONS_PUBLIC_KEYS.list({ searchText, categoryIds }),
         queryFn: () => getPublicPromotions({ searchText, categoryIds }),
         enabled,
+        staleTime: 1000 * 60 * 5, // 5 minutos
+    });
+}
+
+/**
+ * Hook para obtener promociones activas de un negocio específico
+ * Para mostrar en la vista pública del negocio y aplicar descuentos
+ */
+export function useBusinessActivePromotions(businessId: string, enabled: boolean = true) {
+    return useQuery({
+        queryKey: PROMOTIONS_PUBLIC_KEYS.business(businessId),
+        queryFn: () => getBusinessActivePromotions(businessId),
+        enabled: enabled && !!businessId,
         staleTime: 1000 * 60 * 5, // 5 minutos
     });
 }

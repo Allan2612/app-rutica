@@ -1,5 +1,11 @@
 import { supabase } from '@/lib/supabase/client';
 import { UserRole } from '@/types/enums';
+import * as FileSystem from 'expo-file-system/legacy';
+import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const PROFILE_IMAGES_BUCKET = 'profiles-images';
+const PENDING_PROFILE_PHOTO_KEY = 'pending_profile_photo';
 
 export interface SignUpInput {
   email: string;
@@ -9,13 +15,56 @@ export interface SignUpInput {
   lastName2?: string;
   phone?: string;
   role: UserRole;
+  profilePhotoUri?: string; // URI local de la foto de perfil
+}
+
+/**
+ * Sube la foto de perfil al storage y retorna el path
+ */
+async function uploadProfilePhoto(
+  userId: string,
+  imageUri: string
+): Promise<string> {
+  const fileName = `${userId}/profile-${Date.now()}.jpg`;
+
+  if (Platform.OS === 'web') {
+    // Web: fetch y blob
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+
+    const { error } = await supabase.storage
+      .from(PROFILE_IMAGES_BUCKET)
+      .upload(fileName, blob, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
+
+    if (error) throw error;
+  } else {
+    // Mobile: leer archivo como base64
+    const base64 = await FileSystem.readAsStringAsync(imageUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const byteArray = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+    const { error } = await supabase.storage
+      .from(PROFILE_IMAGES_BUCKET)
+      .upload(fileName, byteArray, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
+
+    if (error) throw error;
+  }
+
+  return fileName;
 }
 
 export async function signUp(input: SignUpInput) {
-  const { email, password, firstName, lastName1, lastName2, phone, role } = input;
+  const { email, password, firstName, lastName1, lastName2, phone, role, profilePhotoUri } = input;
 
-  // Crear usuario en auth con metadata
-  // El trigger en Supabase creará automáticamente el perfil
+  // 1. Crear usuario en auth - El trigger handle_new_user() crea el perfil automáticamente
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -33,9 +82,9 @@ export async function signUp(input: SignUpInput) {
   if (error) throw error;
   if (!data.user) throw new Error('No se pudo crear el usuario');
 
-  // CRÍTICO: Verificar que el perfil se creó correctamente
+  // 2. Verificar que el perfil se creó correctamente por el trigger
   // Esperar un momento para que el trigger se ejecute
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -43,25 +92,23 @@ export async function signUp(input: SignUpInput) {
     .eq('id_prf', data.user.id)
     .single();
 
-  // Si el perfil NO se creó, el usuario debe cerrar sesión y reportar error
   if (profileError || !profile) {
-    
-    // Cerrar la sesión del usuario recién creado
+    // Si el perfil no se creó, cerrar sesión
     await supabase.auth.signOut();
+    console.error('Error verificando perfil:', profileError);
+    throw new Error('Error al crear el perfil. Por favor intenta nuevamente.');
+  }
 
-    // Lanzar error con mensaje específico
-    if (profileError?.code === '23505') {
-      // Código de PostgreSQL para violación de unique constraint
-      const detail = profileError.details || profileError.message || '';
-      if (detail.includes('phone')) {
-        throw new Error('Este número de teléfono ya está registrado');
-      } else if (detail.includes('email')) {
-        throw new Error('Este correo electrónico ya está registrado');
-      } else {
-        throw new Error('Los datos ingresados ya están registrados');
-      }
-    } else {
-      throw new Error('Error al crear el perfil. El usuario de autenticación fue creado pero hay un problema con los datos. Por favor contacta a soporte.');
+  // 3. Guardar foto de perfil pendiente si se proporcionó
+  // La foto se subirá después del primer login cuando haya sesión activa
+  if (profilePhotoUri) {
+    try {
+      await AsyncStorage.setItem(PENDING_PROFILE_PHOTO_KEY, JSON.stringify({
+        uri: profilePhotoUri,
+        userId: data.user.id,
+      }));
+    } catch (storageError) {
+      console.warn('Error guardando foto pendiente:', storageError);
     }
   }
 
@@ -83,7 +130,48 @@ export async function signIn(input: SignInInput) {
 
   if (error) throw error;
 
+  // Después de login exitoso, intentar subir foto de perfil pendiente
+  if (data.session && data.user) {
+    await uploadPendingProfilePhoto(data.user.id);
+  }
+
   return data.session;
+}
+
+/**
+ * Sube la foto de perfil pendiente guardada durante el registro
+ */
+export async function uploadPendingProfilePhoto(userId: string): Promise<void> {
+  try {
+    const pendingPhotoJson = await AsyncStorage.getItem(PENDING_PROFILE_PHOTO_KEY);
+    if (!pendingPhotoJson) return;
+
+    const pendingPhoto = JSON.parse(pendingPhotoJson);
+
+    // Verificar que la foto es para este usuario
+    if (pendingPhoto.userId !== userId) {
+      await AsyncStorage.removeItem(PENDING_PROFILE_PHOTO_KEY);
+      return;
+    }
+
+    // Subir la foto
+    const profilePhotoPath = await uploadProfilePhoto(userId, pendingPhoto.uri);
+
+    // Actualizar el perfil
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ profile_photo_path_prf: profilePhotoPath } as never)
+      .eq('id_prf', userId);
+
+    if (updateError) {
+      console.warn('Error actualizando foto en perfil:', updateError);
+    } else {
+      // Limpiar foto pendiente solo si se subió correctamente
+      await AsyncStorage.removeItem(PENDING_PROFILE_PHOTO_KEY);
+    }
+  } catch (error) {
+    console.warn('Error subiendo foto pendiente:', error);
+  }
 }
 
 export async function signOut() {

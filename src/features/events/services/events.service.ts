@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase/client';
 
+// ============================================
+// Constants
+// ============================================
+
+const BUCKET_NAME = 'events-images';
+
+// ============================================
+// Types
+// ============================================
+
 export interface EventListFilters {
     searchText?: string;
     categoryIds?: string[];
@@ -37,23 +47,38 @@ export interface EventListRecord {
         } | null;
     }[] | null;
     locations?: {
-        canton_loc: string | null;
-        district_loc: string | null;
-        province_loc: string | null;
         latitude_loc: number | null;
         longitude_loc: number | null;
+        districts?: {
+            id_dst: string;
+            name_dst: string;
+            cantons?: {
+                name_ctn: string;
+                provinces?: {
+                    name_prv: string;
+                };
+            };
+        };
     } | null;
     event_images?: {
-        bucket_eim: string;
         path_eim: string;
         sort_order_eim: number;
     }[] | null;
 }
 
-export function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+// ============================================
+// Helpers
+// ============================================
+
+export function getEventImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
     return data.publicUrl;
 }
+
+// ============================================
+// Service Functions
+// ============================================
 
 export async function getEventsList(filters: EventListFilters = {}): Promise<EventListRecord[]> {
     const { searchText, categoryIds, upcoming = true } = filters;
@@ -90,20 +115,25 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
                     name_cat
                 )
             ),
-            locations (
-                province_loc,
-                canton_loc,
-                district_loc,
+            locations!events_location_id_evt_fkey (
                 latitude_loc,
-                longitude_loc
+                longitude_loc,
+                districts!locations_district_id_fkey (
+                    id_dst,
+                    name_dst,
+                    cantons!districts_canton_id_fkey (
+                        name_ctn,
+                        provinces!cantons_province_id_fkey (
+                            name_prv
+                        )
+                    )
+                )
             ),
             event_images (
-                bucket_eim,
                 path_eim,
                 sort_order_eim
             )
-        `)
-        .eq('is_active_evt', true);
+        `);
 
     // Filtrar solo eventos futuros o en curso
     if (upcoming) {
@@ -124,7 +154,7 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
             .in('category_id_ecm', categoryIds);
         
         if (eventCategoryData && eventCategoryData.length > 0) {
-            const eventIds = [...new Set(eventCategoryData.map(ec => ec.event_id_ecm))];
+            const eventIds = [...new Set((eventCategoryData as any).map((ec: any) => ec.event_id_ecm))];
             query = query.in('id_evt', eventIds);
         } else {
             // No hay eventos con esas categorías
@@ -140,6 +170,11 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
     if (error) {
         console.error('Error fetching events list:', error);
         throw error;
+    }
+
+    console.log('[getEventsList] Found events:', data?.length || 0, 'filters:', filters);
+    if (data && data.length > 0) {
+        console.log('[getEventsList] First event:', data[0]);
     }
 
     return data as unknown as EventListRecord[];

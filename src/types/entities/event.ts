@@ -1,110 +1,250 @@
 import { ModerationStatus } from '@/types/enums';
-import { Location } from './location';
+import { LocationWithHierarchy } from './location';
 import { Profile } from './profile';
 import { Category } from './category';
 
+// ============================================
+// Event - Tabla: events (evt)
+// ============================================
+
 /**
- * Evento
- * Tabla: events (EVT)
+ * Social links como JSON
+ */
+export interface EventSocialLinks {
+  facebook?: string;
+  instagram?: string;
+  tiktok?: string;
+  youtube?: string;
+  whatsapp?: string;
+}
+
+/**
+ * Evento - Row type
  */
 export interface Event {
-  id_EVT: string;
-  created_by_EVT: string;
-  name_EVT: string;
-  description_EVT: string | null;
-  location_id_EVT: string | null;
-  
-  start_at_EVT: string;
-  end_at_EVT: string;
-  
-  price_EVT: number | null;
-  currency_EVT: string | null;
-  capacity_EVT: number | null;
-  is_free_EVT: boolean;
-  
-  social_links_EVT: Record<string, string> | null;
-  contact_phone_EVT: string | null;
-  contact_email_EVT: string | null;
-  website_EVT: string | null;
-  ticket_url_EVT: string | null;
-  
-  moderation_status_EVT: ModerationStatus;
-  reviewed_by_EVT: string | null;
-  reviewed_at_EVT: string | null;
-  moderation_note_EVT: string | null;
-  
-  avg_rating_EVT: number;
-  reviews_count_EVT: number;
-  is_active_EVT: boolean;
-  created_at_EVT: string;
-  updated_at_EVT: string;
+  id_evt: string;
+  created_by_evt: string | null;
+  name_evt: string | null;
+  description_evt: string | null;
+  location_id_evt: string | null;
+  start_at_evt: string | null;
+  end_at_evt: string | null;
+  price_evt: number | null;
+  currency_evt: string | null;
+  capacity_evt: number | null;
+  is_free_evt: boolean;
+  social_links_evt: EventSocialLinks | null;
+  contact_phone_evt: string | null;
+  contact_email_evt: string | null;
+  website_evt: string | null;
+  ticket_url_evt: string | null;
+  moderation_status_evt: ModerationStatus | null;
+  reviewed_by_evt: string | null;
+  reviewed_at_evt: string | null;
+  moderation_note_evt: string | null;
+  avg_rating_evt: number;
+  reviews_count_evt: number;
+  is_active_evt: boolean;
+  created_at_evt: string;
+  updated_at_evt: string;
 }
 
 /**
- * Evento con relaciones cargadas
- */
-export interface EventWithRelations extends Event {
-  created_by?: Profile;
-  location?: Location;
-  images?: EventImage[];
-  categories?: Category[];  // Cambiado: usa Category unificado
-}
-
-/**
- * Mapeo de categoría de evento
- * Tabla: event_category_map (ECM)
- */
-export interface EventCategoryMap {
-  event_id_ECM: string;
-  category_id_ECM: string;
-}
-
-/**
- * Imagen de evento
- * Tabla: event_images (EIM)
+ * Imagen de evento - Tabla: event_images (eim)
+ * Path format: <event_id>/<prefix>-<uuid>.ext
+ * Prefijos válidos: cover, gallery
  */
 export interface EventImage {
-  id_EIM: string;
-  event_id_EIM: string;
-  image_type_EIM: string;
-  bucket_EIM: string;
-  path_EIM: string;
-  sort_order_EIM: number;
-  created_at_EIM: string;
+  id_eim: string;
+  event_id_eim: string;
+  path_eim: string;
+  sort_order_eim: number | null;
+  created_at_eim: string;
 }
 
 /**
- * Reseña de evento
- * Tabla: event_reviews (ERV)
+ * Evento con relaciones
  */
-export interface EventReview {
-  id_ERV: string;
-  event_id_ERV: string;
-  user_id_ERV: string;
-  rating_ERV: number;
-  comment_ERV: string | null;
-  created_at_ERV: string;
+export interface EventWithRelations extends Event {
+  created_by?: Profile | null;
+  categories?: Category[];
+  location?: LocationWithHierarchy | null;
+  images?: EventImage[];
+  reviewed_by?: Profile | null;
 }
 
-export interface EventReviewWithRelations extends EventReview {
-  user?: Profile;
-  event?: Event;
+// ============================================
+// Insert/Update Types
+// ============================================
+
+export interface EventInsert {
+  created_by_evt: string;
+  name_evt: string;
+  description_evt?: string | null;
+  location_id_evt?: string | null;
+  start_at_evt: string;
+  end_at_evt: string;
+  price_evt?: number | null;
+  currency_evt?: string | null;
+  capacity_evt?: number | null;
+  is_free_evt?: boolean;
+  social_links_evt?: EventSocialLinks | null;
+  contact_phone_evt?: string | null;
+  contact_email_evt?: string | null;
+  website_evt?: string | null;
+  ticket_url_evt?: string | null;
+  // moderation_status_evt se setea automáticamente a 'pending'
 }
 
-// Insert types
-export interface EventInsert extends Omit<Event, 'id_EVT' | 'created_at_EVT' | 'updated_at_EVT' | 'moderation_status_EVT' | 'is_active_EVT' | 'avg_rating_EVT' | 'reviews_count_EVT'> {
-  id_EVT?: string;
-  moderation_status_EVT?: ModerationStatus;
-  is_active_EVT?: boolean;
+export interface EventUpdate {
+  name_evt?: string;
+  description_evt?: string | null;
+  location_id_evt?: string | null;
+  start_at_evt?: string;
+  end_at_evt?: string;
+  price_evt?: number | null;
+  currency_evt?: string | null;
+  capacity_evt?: number | null;
+  is_free_evt?: boolean;
+  social_links_evt?: EventSocialLinks | null;
+  contact_phone_evt?: string | null;
+  contact_email_evt?: string | null;
+  website_evt?: string | null;
+  ticket_url_evt?: string | null;
+  is_active_evt?: boolean;
+  // Campos de moderación solo editables por admin (protegidos por trigger)
 }
 
-export interface EventImageInsert extends Omit<EventImage, 'id_EIM' | 'created_at_EIM'> {
-  id_EIM?: string;
+export interface EventImageInsert {
+  event_id_eim: string;
+  path_eim: string;
+  sort_order_eim?: number | null;
 }
 
-export interface EventReviewInsert extends Omit<EventReview, 'id_ERV' | 'created_at_ERV'> {
-  id_ERV?: string;
+// ============================================
+// UI Types (para listados y formularios)
+// ============================================
+
+/**
+ * Item de lista de eventos del usuario
+ */
+export interface UserEventListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  categoryNames: string[];
+  categoryIds: string[];
+  locationLabel: string | null;
+  coverUrl: string | null;
+  startAt: string | null;
+  endAt: string | null;
+  price: number | null;
+  isFree: boolean;
+  moderationStatus: ModerationStatus;
+  isActive: boolean;
+  avgRating: number;
+  reviewsCount: number;
+  createdAt: string;
 }
 
-// Update types
-export interface EventUpdate extends Partial<Omit<Event, 'id_EVT' | 'created_by_EVT' | 'created_at_EVT' | 'avg_rating_EVT' | 'reviews_count_EVT'>> {}
+/**
+ * Datos para edición de evento
+ */
+export interface EventDetailForEdit {
+  id: string;
+  name: string;
+  description: string | null;
+  categoryIds: string[];
+  districtId: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  startAt: string | null;
+  endAt: string | null;
+  price: number | null;
+  currency: string | null;
+  capacity: number | null;
+  isFree: boolean;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  ticketUrl: string | null;
+  socialLinks: EventSocialLinks | null;
+  coverUrl: string | null;
+  galleryUrls: string[];
+}
+
+/**
+ * Datos para crear/actualizar evento desde formulario
+ */
+export interface EventFormData {
+  name: string;
+  description: string | null;
+  categoryIds: string[];
+  districtId: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  startAt: string;
+  endAt: string;
+  price: number | null;
+  currency: string | null;
+  capacity: number | null;
+  isFree: boolean;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  ticketUrl: string | null;
+  socialLinks: EventSocialLinks | null;
+  coverUri?: string | null;
+  galleryUris?: string[];
+}
+
+// ============================================
+// Helpers
+// ============================================
+
+/**
+ * Extrae la URL del cover de las imágenes
+ */
+export function getEventCoverUrl(images: EventImage[] | undefined, baseUrl: string): string | null {
+  const cover = images?.find(img => img.path_eim.includes('/cover-'));
+  return cover ? `${baseUrl}/${cover.path_eim}` : null;
+}
+
+/**
+ * Extrae las URLs de galería ordenadas
+ */
+export function getEventGalleryUrls(images: EventImage[] | undefined, baseUrl: string): string[] {
+  if (!images) return [];
+  return images
+    .filter(img => img.path_eim.includes('/gallery-'))
+    .sort((a, b) => (a.sort_order_eim ?? 0) - (b.sort_order_eim ?? 0))
+    .map(img => `${baseUrl}/${img.path_eim}`);
+}
+
+/**
+ * Verifica si un evento está aprobado y activo
+ */
+export function isEventPublic(event: Event): boolean {
+  return event.moderation_status_evt === 'approved' && event.is_active_evt;
+}
+
+/**
+ * Verifica si un evento ya pasó
+ */
+export function isEventPast(event: Event): boolean {
+  if (!event.end_at_evt) return false;
+  return new Date(event.end_at_evt) < new Date();
+}
+
+/**
+ * Verifica si un evento está en curso
+ */
+export function isEventOngoing(event: Event): boolean {
+  const now = new Date();
+  const start = event.start_at_evt ? new Date(event.start_at_evt) : null;
+  const end = event.end_at_evt ? new Date(event.end_at_evt) : null;
+  if (!start || !end) return false;
+  return start <= now && now <= end;
+}

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
+import type { Database } from '@/lib/supabase/database.types';
 
 export interface EventReviewDisplay {
     id: string;
@@ -11,6 +12,13 @@ export interface EventReviewDisplay {
     authorName: string;
 }
 
+type EventReviewRow = Database['public']['Tables']['event_reviews']['Row'];
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+
+type EventReviewWithProfile = EventReviewRow & {
+    profiles: Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf'> | null;
+};
+
 export async function getEventReviews(eventId: string): Promise<EventReviewDisplay[]> {
     const { data, error } = await supabase
         .from('event_reviews')
@@ -21,7 +29,7 @@ export async function getEventReviews(eventId: string): Promise<EventReviewDispl
             rating_erv,
             comment_erv,
             created_at_erv,
-            profiles (
+            profiles!event_reviews_user_id_erv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
@@ -30,11 +38,10 @@ export async function getEventReviews(eventId: string): Promise<EventReviewDispl
         .order('created_at_erv', { ascending: false });
 
     if (error) {
-        console.error('Error fetching event reviews:', error);
         return [];
     }
 
-    return (data ?? []).map((review: any) => {
+    return ((data as unknown as EventReviewWithProfile[]) ?? []).map((review) => {
         const profile = review.profiles;
         const firstName = profile?.first_name_prf ?? '';
         const lastName = profile?.last_name1_prf ?? '';
@@ -42,9 +49,9 @@ export async function getEventReviews(eventId: string): Promise<EventReviewDispl
 
         return {
             id: review.id_erv,
-            eventId: review.event_id_erv,
-            userId: review.user_id_erv,
-            rating: review.rating_erv,
+            eventId: review.event_id_erv ?? '',
+            userId: review.user_id_erv ?? '',
+            rating: review.rating_erv ?? 0,
             comment: review.comment_erv,
             createdAt: review.created_at_erv,
             authorName,
@@ -65,29 +72,32 @@ export async function getUserEventReview(
             rating_erv,
             comment_erv,
             created_at_erv,
-            profiles (
+            profiles!event_reviews_user_id_erv_fkey (
                 first_name_prf,
                 last_name1_prf
             )
         `)
         .eq('event_id_erv', eventId)
         .eq('user_id_erv', userId)
-        .single();
+        .maybeSingle();
 
-    if (error || !data) return null;
+    if (error || !data) {
+        return null;
+    }
 
-    const profile = (data as any).profiles;
+    const review = data as unknown as EventReviewWithProfile;
+    const profile = review.profiles;
     const firstName = profile?.first_name_prf ?? '';
     const lastName = profile?.last_name1_prf ?? '';
     const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     return {
-        id: data.id_erv,
-        eventId: data.event_id_erv,
-        userId: data.user_id_erv,
-        rating: data.rating_erv,
-        comment: data.comment_erv,
-        createdAt: data.created_at_erv,
+        id: review.id_erv,
+        eventId: review.event_id_erv ?? '',
+        userId: review.user_id_erv ?? '',
+        rating: review.rating_erv ?? 0,
+        comment: review.comment_erv,
+        createdAt: review.created_at_erv,
         authorName,
     };
 }
@@ -98,26 +108,35 @@ export async function createEventReview(
     rating: number,
     comment?: string
 ): Promise<EventReviewDisplay | null> {
+    // Verificar sesión de Supabase
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        throw new Error('No hay sesión activa');
+    }
+
     // Validar contenido antes de crear
     if (comment) {
         validateReviewContent(comment);
     }
 
+    const insertData = {
+        event_id_erv: eventId,
+        user_id_erv: userId,
+        rating_erv: rating,
+        comment_erv: comment || null,
+    };
+
     const { data, error } = await supabase
         .from('event_reviews')
-        .insert({
-            event_id_erv: eventId,
-            user_id_erv: userId,
-            rating_erv: rating,
-            comment_erv: comment || null,
-        })
+        .insert(insertData as any)
         .select(`id_erv, event_id_erv, user_id_erv, rating_erv, comment_erv, created_at_erv`)
         .single();
 
     if (error) {
-        console.error('Error creating event review:', error);
         throw new Error(error.message);
     }
+
+    const review = data as unknown as EventReviewRow;
 
     await updateEventRating(eventId);
 
@@ -127,17 +146,18 @@ export async function createEventReview(
         .eq('id_prf', userId)
         .single();
 
-    const firstName = profile?.first_name_prf ?? '';
-    const lastName = profile?.last_name1_prf ?? '';
+    const profileData = profile as unknown as Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf'> | null;
+    const firstName = profileData?.first_name_prf ?? '';
+    const lastName = profileData?.last_name1_prf ?? '';
     const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     return {
-        id: data.id_erv,
-        eventId: data.event_id_erv,
-        userId: data.user_id_erv,
-        rating: data.rating_erv,
-        comment: data.comment_erv,
-        createdAt: data.created_at_erv,
+        id: review.id_erv,
+        eventId: review.event_id_erv ?? '',
+        userId: review.user_id_erv ?? '',
+        rating: review.rating_erv ?? 0,
+        comment: review.comment_erv,
+        createdAt: review.created_at_erv,
         authorName,
     };
 }
@@ -152,40 +172,44 @@ export async function updateEventReview(
         validateReviewContent(comment);
     }
 
-    const { data, error } = await supabase
+    const updatePayload: any = {
+        rating_erv: rating,
+        comment_erv: comment || null,
+    };
+
+    const { data, error } = await (supabase as any)
         .from('event_reviews')
-        .update({
-            rating_erv: rating,
-            comment_erv: comment || null,
-        })
+        .update(updatePayload)
         .eq('id_erv', reviewId)
         .select(`id_erv, event_id_erv, user_id_erv, rating_erv, comment_erv, created_at_erv`)
         .single();
 
     if (error) {
-        console.error('Error updating event review:', error);
         throw new Error(error.message);
     }
 
-    await updateEventRating(data.event_id_erv);
+    const review = data as unknown as EventReviewRow;
+
+    await updateEventRating(review.event_id_erv ?? '');
 
     const { data: profile } = await supabase
         .from('profiles')
         .select('first_name_prf, last_name1_prf')
-        .eq('id_prf', data.user_id_erv)
+        .eq('id_prf', review.user_id_erv ?? '')
         .single();
 
-    const firstName = profile?.first_name_prf ?? '';
-    const lastName = profile?.last_name1_prf ?? '';
+    const profileData = profile as unknown as Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf'> | null;
+    const firstName = profileData?.first_name_prf ?? '';
+    const lastName = profileData?.last_name1_prf ?? '';
     const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     return {
-        id: data.id_erv,
-        eventId: data.event_id_erv,
-        userId: data.user_id_erv,
-        rating: data.rating_erv,
-        comment: data.comment_erv,
-        createdAt: data.created_at_erv,
+        id: review.id_erv,
+        eventId: review.event_id_erv ?? '',
+        userId: review.user_id_erv ?? '',
+        rating: review.rating_erv ?? 0,
+        comment: review.comment_erv,
+        createdAt: review.created_at_erv,
         authorName,
     };
 }
@@ -197,7 +221,6 @@ export async function deleteEventReview(reviewId: string, eventId: string): Prom
         .eq('id_erv', reviewId);
 
     if (error) {
-        console.error('Error deleting event review:', error);
         throw new Error(error.message);
     }
 
@@ -211,20 +234,22 @@ async function updateEventRating(eventId: string): Promise<void> {
         .eq('event_id_erv', eventId);
 
     if (error) {
-        console.error('Error fetching reviews for rating update:', error);
         return;
     }
 
-    const reviewCount = reviews?.length ?? 0;
+    const reviewsData = reviews as unknown as Pick<EventReviewRow, 'rating_erv'>[] | null;
+    const reviewCount = reviewsData?.length ?? 0;
     const avgRating = reviewCount > 0
-        ? reviews.reduce((sum, r) => sum + r.rating_erv, 0) / reviewCount
+        ? reviewsData!.reduce((sum, r) => sum + (r.rating_erv ?? 0), 0) / reviewCount
         : 0;
 
-    await supabase
+    const updatePayload: any = {
+        avg_rating_evt: Math.round(avgRating * 10) / 10,
+        reviews_count_evt: reviewCount,
+    };
+
+    await (supabase as any)
         .from('events')
-        .update({
-            avg_rating_evt: Math.round(avgRating * 10) / 10,
-            reviews_count_evt: reviewCount,
-        })
+        .update(updatePayload)
         .eq('id_evt', eventId);
 }

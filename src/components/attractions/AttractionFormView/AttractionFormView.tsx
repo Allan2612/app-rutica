@@ -6,7 +6,7 @@ import {
     LocationSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
-import type { CategoryItem } from '@/types/entities';
+import type { Category } from '@/types/entities';
 
 interface AttractionFormData {
     name: string;
@@ -32,7 +32,7 @@ interface AttractionFormViewProps {
     subtitle: string;
     formData: AttractionFormData;
     errors: AttractionFormErrors;
-    categories: CategoryItem[];
+    categories: Category[];
     loadingCategories: boolean;
     isSubmitting: boolean;
     hasChanges: boolean;

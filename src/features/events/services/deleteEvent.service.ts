@@ -1,107 +1,128 @@
 import { supabase } from '@/lib/supabase/client';
 
+// ============================================
+// Constants
+// ============================================
+
+const STORAGE_BUCKET = 'events-images';
+
+// ============================================
+// Types
+// ============================================
+
+interface EventOwnerQuery {
+    created_by_evt: string | null;
+    location_id_evt: string | null;
+}
+
+interface ImagePathQuery {
+    path_eim: string;
+}
+
+// ============================================
+// Delete Event (Soft Delete)
+// ============================================
+
 /**
- * Elimina un evento y todos sus datos relacionados
+ * Elimina completamente un evento, sus registros relacionados e imágenes
+ * 
+ * Según las políticas RLS:
+ * - El dueño puede hacer DELETE en: events, event_images, event_category_map
+ * - Se eliminan en orden correcto para respetar foreign keys
+ * 
  * @param eventId - ID del evento a eliminar
  * @param userId - ID del usuario que está eliminando el evento
  */
 export async function deleteUserEvent(eventId: string, userId: string): Promise<void> {
-    // 1. Verificar permisos
+    // 1. Verificar que el usuario es dueño del evento
     const { data: event, error: eventError } = await supabase
         .from('events')
         .select('created_by_evt, location_id_evt')
         .eq('id_evt', eventId)
-        .single();
+        .single<EventOwnerQuery>();
 
-    if (eventError) throw eventError;
-    if (!event || event.created_by_evt !== userId) {
+    if (eventError || !event) {
+        throw eventError || new Error('Evento no encontrado');
+    }
+
+    if (event.created_by_evt !== userId) {
         throw new Error('No tienes permiso para eliminar este evento');
     }
 
     try {
-        // 2. Obtener todas las imágenes antes de eliminar
-        const { data: images, error: queryError } = await supabase
+        // 2. Obtener imágenes para eliminar del storage
+        const { data: images } = await supabase
             .from('event_images')
-            .select('bucket_eim, path_eim')
-            .eq('event_id_eim', eventId);
+            .select('path_eim')
+            .eq('event_id_eim', eventId)
+            .returns<ImagePathQuery[]>();
 
-        if (queryError) {
+        // 3. Eliminar registros de event_category_map (sin FK al evento)
+        const { error: categoryError } = await supabase
+            .from('event_category_map')
+            .delete()
+            .eq('event_id_ecm', eventId);
+
+        if (categoryError) {
+            console.error('[deleteUserEvent] Error deleting category map:', categoryError);
+            throw new Error('No se pudo eliminar las categorías del evento');
         }
 
-        // 3. Eliminar imágenes del bucket de Supabase
-        if (images && images.length > 0) {
-            const imagePaths = images.map((img: { bucket_eim: string; path_eim: string }) => img.path_eim);
-            
-            // Intentar eliminar archivos individuales
-            const { error: storageError } = await supabase.storage
-                .from('events-images')
-                .remove(imagePaths);
-
-            if (storageError) {
-            }
-
-            // Intentar también listar y eliminar toda la carpeta del evento (fallback)
-            try {
-                const { data: folderFiles } = await supabase.storage
-                    .from('events-images')
-                    .list(eventId, {
-                        limit: 100,
-                        sortBy: { column: 'name', order: 'asc' }
-                    });
-
-                if (folderFiles && folderFiles.length > 0) {
-                    const folderPaths = folderFiles.map(file => `${eventId}/${file.name}`);
-                    await supabase.storage
-                        .from('events-images')
-                        .remove(folderPaths);
-                }
-            } catch (folderError) {
-            }
-        }
-
-        // 4. Eliminar registros de event_images
+        // 4. Eliminar registros de event_images (sin FK al evento)
         const { error: imagesError } = await supabase
             .from('event_images')
             .delete()
             .eq('event_id_eim', eventId);
 
         if (imagesError) {
+            console.error('[deleteUserEvent] Error deleting image records:', imagesError);
+            throw new Error('No se pudo eliminar los registros de imágenes');
         }
 
-        // 5. Eliminar categorías asociadas
-        const { error: categoriesError } = await supabase
-            .from('event_category_map')
-            .delete()
-            .eq('event_id_ecm', eventId);
-
-        if (categoriesError) {
-        }
-
-        // 6. Eliminar el evento
+        // 5. Eliminar el evento
         const { error: deleteError } = await supabase
             .from('events')
             .delete()
             .eq('id_evt', eventId);
 
-        if (deleteError) throw deleteError;
+        if (deleteError) {
+            console.error('[deleteUserEvent] Error deleting event:', deleteError);
+            throw new Error('No se pudo eliminar el evento');
+        }
 
-        // 7. Eliminar la ubicación si existe (solo si no está siendo usada por otros eventos)
-        if (event.location_id_evt) {
-            const { data: otherEvents } = await supabase
-                .from('events')
-                .select('id_evt')
-                .eq('location_id_evt', event.location_id_evt)
-                .limit(1);
+        // 6. Eliminar imágenes del storage (después de eliminar registros)
+        if (images && images.length > 0) {
+            const imagePaths = images.map((img) => img.path_eim);
 
-            // Si no hay otros eventos usando esta ubicación, eliminarla
-            if (!otherEvents || otherEvents.length === 0) {
-                await supabase
-                    .from('locations')
-                    .delete()
-                    .eq('id_loc', event.location_id_evt);
+            const { error: storageError } = await supabase.storage
+                .from(STORAGE_BUCKET)
+                .remove(imagePaths);
+
+            if (storageError) {
+                console.warn('[deleteUserEvent] Storage remove warning:', storageError);
             }
         }
+
+        // 7. Limpiar carpeta completa del storage
+        try {
+            const { data: folderFiles } = await supabase.storage
+                .from(STORAGE_BUCKET)
+                .list(eventId, {
+                    limit: 100,
+                    sortBy: { column: 'name', order: 'asc' },
+                });
+
+            if (folderFiles && folderFiles.length > 0) {
+                const folderPaths = folderFiles.map((file) => `${eventId}/${file.name}`);
+                await supabase.storage.from(STORAGE_BUCKET).remove(folderPaths);
+            }
+        } catch (folderError) {
+            console.warn('[deleteUserEvent] Folder cleanup warning:', folderError);
+        }
+
+        console.log('[deleteUserEvent] Event deleted successfully:', eventId);
     } catch (error) {
+        console.error('[deleteUserEvent] Error:', error);
         throw error;
     }
 }

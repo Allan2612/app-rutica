@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase/client';
 
+// ============================================
+// Constants
+// ============================================
+
+const STORAGE_BUCKET = 'events-images';
+
+// ============================================
+// Types
+// ============================================
+
 export interface UserEvent {
     id_evt: string;
     name_evt: string;
@@ -14,15 +24,23 @@ export interface UserEvent {
     is_active_evt: boolean;
     created_at_evt: string;
     event_images?: Array<{
-        bucket_eim: string;
         path_eim: string;
         sort_order_eim: number;
     }>;
-    locations?: Array<{
-        province_loc: string | null;
-        canton_loc: string | null;
-        district_loc: string | null;
-    }>;
+    locations?: {
+        address_loc: string | null;
+        latitude_loc: number | null;
+        longitude_loc: number | null;
+        districts?: {
+            name_dst: string;
+            cantons?: {
+                name_ctn: string;
+                provinces?: {
+                    name_prv: string;
+                };
+            };
+        };
+    } | null;
     event_category_map?: Array<{
         categories: {
             id_cat: string;
@@ -31,26 +49,55 @@ export interface UserEvent {
     }>;
 }
 
-function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+// ============================================
+// Helpers
+// ============================================
+
+export function getImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
     return data.publicUrl;
 }
+
+// ============================================
+// Service Functions
+// ============================================
 
 export async function getUserEvents(userId: string): Promise<UserEvent[]> {
     try {
         const { data, error } = await supabase
             .from('events')
-            .select(`
-                *,
+            .select(
+                `
+                id_evt,
+                name_evt,
+                description_evt,
+                start_at_evt,
+                end_at_evt,
+                is_free_evt,
+                price_evt,
+                currency_evt,
+                capacity_evt,
+                moderation_status_evt,
+                is_active_evt,
+                created_at_evt,
                 event_images (
-                    bucket_eim,
                     path_eim,
                     sort_order_eim
                 ),
-                locations (
-                    province_loc,
-                    canton_loc,
-                    district_loc
+                locations!events_location_id_evt_fkey (
+                    address_loc,
+                    latitude_loc,
+                    longitude_loc,
+                    districts!locations_district_id_fkey (
+                        name_dst,
+                        cantons!districts_canton_id_fkey (
+                            name_ctn,
+                            provinces!cantons_province_id_fkey (
+                                name_prv
+                            )
+                        )
+                    )
                 ),
                 event_category_map (
                     categories (
@@ -58,13 +105,15 @@ export async function getUserEvents(userId: string): Promise<UserEvent[]> {
                         name_cat
                     )
                 )
-            `)
+            `
+            )
             .eq('created_by_evt', userId)
             .order('created_at_evt', { ascending: false });
 
         if (error) throw error;
-        return data || [];
+        return (data || []) as unknown as UserEvent[];
     } catch (error) {
+        console.error('[getUserEvents] Error:', error);
         throw error;
     }
 }

@@ -8,23 +8,18 @@ import {
     SocialLinksSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
-import type { CategoryItem } from '@/types/entities';
 
+import type { CategoryOption } from '@/types/entities';
 interface BusinessFormData {
     name: string;
     description: string;
     selectedCategoryIds: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    districtId: string | null;
     address: string;
     coordinates: { latitude: number; longitude: number } | null;
     phone: string;
     email: string;
     website: string;
-    facebook: string;
-    instagram: string;
-    tiktok: string;
     logoUri: string | null;
     coverUri: string | null;
     galleryUris: string[];
@@ -41,7 +36,7 @@ interface BusinessFormViewProps {
     subtitle: string;
     formData: BusinessFormData;
     errors: BusinessFormErrors;
-    categories: CategoryItem[];
+    categories: CategoryOption[];
     loadingCategories: boolean;
     isSubmitting: boolean;
     hasChanges: boolean;

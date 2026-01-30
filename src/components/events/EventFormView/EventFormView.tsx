@@ -12,7 +12,7 @@ import {
     SocialLinksSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
-import type { CategoryItem } from '@/types/entities';
+import type { CategoryOption } from '@/types/entities';
 
 interface EventFormData {
     name: string;
@@ -23,6 +23,7 @@ interface EventFormData {
     isFree: boolean;
     price: string;
     capacity: string;
+    country: string | null;
     province: string | null;
     canton: string | null;
     district: string | null;
@@ -53,7 +54,7 @@ interface EventFormViewProps {
     subtitle: string;
     formData: EventFormData;
     errors: EventFormErrors;
-    categories: CategoryItem[];
+    categories: CategoryOption[];
     loadingCategories: boolean;
     isSubmitting: boolean;
     hasChanges: boolean;

@@ -11,8 +11,11 @@ import { BackButton } from '@/components/ui';
 import { supabase } from '@/lib/supabase/client';
 import { styles } from './styles';
 
-function getImageUrl(bucket: string, path: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+const STORAGE_BUCKET = 'attractions-images';
+
+function getImageUrl(path: string): string {
+    if (!path) return '';
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
     return data.publicUrl;
 }
 
@@ -136,15 +139,19 @@ export const ManageAttractionsScreen = memo(function ManageAttractionsScreen() {
                                 (a, b) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0)
                             );
                             const coverImage = sortedImages.find((img) => img.sort_order_aim === 0);
-                            const imageUrl =
-                                coverImage?.bucket_aim && coverImage?.path_aim
-                                    ? getImageUrl(coverImage.bucket_aim, coverImage.path_aim)
-                                    : null;
+                            // V3: Solo path_aim
+                            const imageUrl = coverImage?.path_aim
+                                ? getImageUrl(coverImage.path_aim)
+                                : null;
 
+                            // V3: Ubicación con jerarquía normalizada
                             const location = attraction.locations;
-                            const locationParts = [location?.canton_loc, location?.district_loc].filter(
-                                Boolean
-                            );
+                            const districtData = location?.districts;
+                            const cantonData = districtData?.cantons;
+                            const locationParts = [
+                                cantonData?.name_ctn,
+                                districtData?.name_dst
+                            ].filter(Boolean);
                             const locationLabel =
                                 locationParts.length > 0 ? locationParts.join(', ') : null;
 
@@ -167,9 +174,9 @@ export const ManageAttractionsScreen = memo(function ManageAttractionsScreen() {
                                     imageUrl={imageUrl}
                                     moderationStatus={
                                         attraction.moderation_status_atr as
-                                            | 'pending'
-                                            | 'approved'
-                                            | 'rejected'
+                                        | 'pending'
+                                        | 'approved'
+                                        | 'rejected'
                                     }
                                     isActive={attraction.is_active_atr}
                                     onEdit={() => handleEditAttraction(attraction.id_atr)}

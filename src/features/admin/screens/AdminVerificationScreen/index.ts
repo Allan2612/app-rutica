@@ -1,0 +1,1 @@
+export { AdminVerificationScreen } from './AdminVerificationScreen';

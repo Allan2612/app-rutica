@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
 import { ProductListItem } from '@/types/entities/product';
+
+const BUCKET_NAME = 'product-images';
 
 /**
  * Obtiene los productos de un negocio específico
@@ -43,7 +46,7 @@ export async function getBusinessProducts(businessId: string): Promise<ProductLi
         // Obtener todas las imágenes (main y gallery)
         const { data: images, error: imagesError } = await supabase
             .from('product_images')
-            .select('*')
+            .select('product_id_pim, path_pim, sort_order_pim')
             .in('product_id_pim', productIds)
             .order('sort_order_pim', { ascending: true });
 
@@ -63,8 +66,8 @@ export async function getBusinessProducts(businessId: string): Promise<ProductLi
 
             // Todas las imágenes del producto
             const productImages = (images || []).filter((img: any) => img.product_id_pim === product.id_prd);
-            const imageUrls = productImages.map((img: any) => getImageUrl(img.bucket_pim, img.path_pim));
-            const imageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
+            const imageUrls = productImages.map((img: any) => getImageUrl(BUCKET_NAME, img.path_pim));
+            const mainImageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
 
             return {
                 id: product.id_prd,
@@ -74,7 +77,7 @@ export async function getBusinessProducts(businessId: string): Promise<ProductLi
                 currency: product.currency_prd || 'CRC',
                 categoryNames,
                 categoryIds,
-                imageUrl,
+                mainImageUrl,
                 imageUrls,
                 isActive: product.is_active_prd,
             };
@@ -125,7 +128,7 @@ export async function getProduct(productId: string): Promise<any> {
         // Obtener imágenes
         const { data: images, error: imagesError } = await supabase
             .from('product_images')
-            .select('*')
+            .select('path_pim, sort_order_pim')
             .eq('product_id_pim', productId)
             .order('sort_order_pim', { ascending: true });
 
@@ -143,20 +146,20 @@ export async function getProduct(productId: string): Promise<any> {
 
         // Mapear imágenes
         const imageUrls = (images || []).map((img: any) =>
-            getImageUrl(img.bucket_pim, img.path_pim)
+            getImageUrl(BUCKET_NAME, img.path_pim)
         );
 
         const result = {
-            id: product.id_prd,
-            businessId: product.business_id_prd,
-            name: product.name_prd,
-            description: product.description_prd,
-            price: product.price_prd,
-            currency: product.currency_prd || 'CRC',
+            id: (product as any).id_prd,
+            businessId: (product as any).business_id_prd,
+            name: (product as any).name_prd,
+            description: (product as any).description_prd,
+            price: (product as any).price_prd,
+            currency: (product as any).currency_prd || 'CRC',
             categoryNames,
             categoryIds,
             images: imageUrls,
-            isActive: product.is_active_prd,
+            isActive: (product as any).is_active_prd,
         };
 
         return result;
@@ -182,7 +185,7 @@ export async function updateProduct(
 ): Promise<void> {
     try {
         // Verificar propiedad del producto
-        const { data: product, error: checkError } = await supabase
+        const { data: product, error: checkError } = await (supabase as any)
             .from('products')
             .select('business_id_prd')
             .eq('id_prd', productId)
@@ -197,7 +200,7 @@ export async function updateProduct(
         }
 
         // 1. Actualizar datos del producto
-        const { error: updateError } = await supabase
+        const { error: updateError } = await (supabase as any)
             .from('products')
             .update({
                 name_prd: data.name,
@@ -222,7 +225,7 @@ export async function updateProduct(
                 category_id_pcm: catId,
             }));
 
-            const { error: categoryError } = await supabase
+            const { error: categoryError } = await (supabase as any)
                 .from('product_category_map')
                 .insert(categoryMaps);
 
@@ -235,18 +238,18 @@ export async function updateProduct(
         // Obtener imágenes existentes
         const { data: existingImages } = await supabase
             .from('product_images')
-            .select('*')
+            .select('id_pim, path_pim')
             .eq('product_id_pim', productId);
 
         const existingUrls = (existingImages || []).map((img: any) =>
-            getImageUrl(img.bucket_pim, img.path_pim)
+            getImageUrl(BUCKET_NAME, img.path_pim)
         );
 
         // Eliminar imágenes que ya no están
-        for (const img of existingImages || []) {
-            const imageUrl = getImageUrl(img.bucket_pim, img.path_pim);
+        for (const img of (existingImages as any) || []) {
+            const imageUrl = getImageUrl(BUCKET_NAME, img.path_pim);
             if (!data.images.includes(imageUrl)) {
-                await supabase.storage.from(img.bucket_pim).remove([img.path_pim]);
+                await supabase.storage.from(BUCKET_NAME).remove([img.path_pim]);
                 await supabase.from('product_images').delete().eq('id_pim', img.id_pim);
             }
         }
@@ -275,7 +278,7 @@ export async function updateProduct(
 export async function deleteProduct(productId: string, businessId: string): Promise<void> {
     try {
         // Verificar que el producto pertenece al negocio
-        const { data: product, error: checkError } = await supabase
+        const { data: product, error: checkError } = await (supabase as any)
             .from('products')
             .select('business_id_prd')
             .eq('id_prd', productId)
@@ -292,12 +295,12 @@ export async function deleteProduct(productId: string, businessId: string): Prom
         // Eliminar imágenes del storage
         const { data: images } = await supabase
             .from('product_images')
-            .select('bucket_pim, path_pim')
+            .select('path_pim')
             .eq('product_id_pim', productId);
 
         if (images && images.length > 0) {
-            for (const img of images) {
-                await supabase.storage.from(img.bucket_pim).remove([img.path_pim]);
+            for (const img of images as any) {
+                await supabase.storage.from(BUCKET_NAME).remove([img.path_pim]);
             }
         }
 
@@ -335,7 +338,8 @@ async function uploadProductImage(
     sortOrder: number
 ): Promise<string> {
     try {
-        const fileName = `${productId}_${imageType}_${sortOrder}_${Date.now()}.jpg`;
+        // Filename includes type prefix: main-* or secondary-*
+        const fileName = `${imageType}-${Date.now()}_${sortOrder}.jpg`;
         const filePath = `${productId}/${fileName}`;
 
         // Convertir URI a blob
@@ -344,7 +348,7 @@ async function uploadProductImage(
 
         // Subir imagen
         const { error: uploadError } = await supabase.storage
-            .from('product-images')
+            .from(BUCKET_NAME)
             .upload(filePath, blob, {
                 contentType: 'image/jpeg',
                 upsert: false,
@@ -355,18 +359,16 @@ async function uploadProductImage(
         }
 
         // Insertar registro en product_images
-        const { error: insertError } = await supabase.from('product_images').insert({
+        const { error: insertError } = await (supabase as any).from('product_images').insert({
             id_pim: generateUUID(),
             product_id_pim: productId,
-            image_type_pim: imageType,
-            bucket_pim: 'product-images',
             path_pim: filePath,
             sort_order_pim: sortOrder,
         });
 
         if (insertError) {
             // Eliminar imagen del storage si falla la inserción
-            await supabase.storage.from('product-images').remove([filePath]);
+            await supabase.storage.from(BUCKET_NAME).remove([filePath]);
             throw insertError;
         }
 
@@ -404,7 +406,7 @@ export async function createProductComplete(
             is_active_prd: true,
         };
 
-        const { error: productError } = await supabase.from('products').insert(productData);
+        const { error: productError } = await (supabase as any).from('products').insert(productData);
 
         if (productError) {
             throw productError;
@@ -417,7 +419,7 @@ export async function createProductComplete(
                 category_id_pcm: catId,
             }));
 
-            const { error: categoryError } = await supabase
+            const { error: categoryError } = await (supabase as any)
                 .from('product_category_map')
                 .insert(categoryMaps);
 

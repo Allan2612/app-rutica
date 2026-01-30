@@ -9,7 +9,7 @@ import {
     useDeleteBusinessReview,
 } from '@/features/business/hooks/useBusinessReviews';
 
-export function useReviewsActions(businessId: string, onCloseModal: () => void) {
+export function useReviewsActions(businessId: string, ownerId: string, onCloseModal: () => void) {
     const { user, role } = useAuthStore();
 
     const { data: reviews, isLoading: isLoadingReviews } = useBusinessReviews(businessId);
@@ -19,7 +19,8 @@ export function useReviewsActions(businessId: string, onCloseModal: () => void) 
     const updateReview = useUpdateBusinessReview();
     const deleteReview = useDeleteBusinessReview();
 
-    const canWriteReview = !!user && !userReview;
+    const isOwner = user?.id === ownerId;
+    const canWriteReview = !!user && !userReview && !isOwner;
     const hasReviews = reviews && reviews.length > 0;
     const isSubmitting = createReview.isPending || updateReview.isPending;
     const isDeleting = deleteReview.isPending;

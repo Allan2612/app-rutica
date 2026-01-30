@@ -83,6 +83,7 @@ export function useEventReviewsActions(eventId: string, onCloseModal: () => void
                 position: 'top',
             });
             onSuccess();
+            onCloseModal();
         } catch (error: any) {
             Toast.show({
                 type: 'error',
@@ -91,7 +92,7 @@ export function useEventReviewsActions(eventId: string, onCloseModal: () => void
                 position: 'top',
             });
         }
-    }, [user, userReview, eventId, deleteReview]);
+    }, [user, userReview, eventId, deleteReview, onCloseModal]);
 
     return {
         user,

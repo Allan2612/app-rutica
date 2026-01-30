@@ -17,6 +17,7 @@ interface FormData {
     selectedCategoryIds: string[];
     coverUri: string | null;
     galleryUris: string[];
+    country: string | null;
     province: string | null;
     canton: string | null;
     district: string | null;
@@ -36,6 +37,7 @@ const initialFormData: FormData = {
     selectedCategoryIds: [],
     coverUri: null,
     galleryUris: [],
+    country: null,
     province: null,
     canton: null,
     district: null,
@@ -75,6 +77,7 @@ export function useAttractionForm(attractionId?: string) {
                 selectedCategoryIds: attraction.categoryIds,
                 coverUri: attraction.coverUrl,
                 galleryUris: attraction.galleryUrls,
+                country: 'Costa Rica', // Todas las atracciones están en Costa Rica
                 province: attraction.province,
                 canton: attraction.canton,
                 district: attraction.district,
@@ -109,10 +112,19 @@ export function useAttractionForm(attractionId?: string) {
         (locationData: {
             latitude?: number;
             longitude?: number;
+            country?: string;
+            province?: string;
+            canton?: string;
+            district?: string;
+            address?: string;
         }) => {
-            // Solo guardar coordenadas, la validación se hace al guardar
             setFormData((prev) => ({
                 ...prev,
+                country: locationData.country || 'Costa Rica',
+                province: locationData.province || null,
+                canton: locationData.canton || null,
+                district: locationData.district || null,
+                address: locationData.address || null,
                 coordinates:
                     locationData.latitude && locationData.longitude
                         ? {
@@ -140,7 +152,9 @@ export function useAttractionForm(attractionId?: string) {
         }
 
         if (!formData.coordinates) {
-            newErrors.location = 'Selecciona una ubicación';
+            newErrors.location = 'Selecciona una ubicación en el mapa';
+        } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
+            newErrors.location = 'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
         }
 
         setErrors(newErrors);
@@ -161,9 +175,10 @@ export function useAttractionForm(attractionId?: string) {
                 categoryIds: formData.selectedCategoryIds,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
-                province: formData.province,
-                canton: formData.canton,
-                district: formData.district,
+                country: formData.country!,
+                province: formData.province!,
+                canton: formData.canton!,
+                district: formData.district!,
                 address: formData.address,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
@@ -175,9 +190,10 @@ export function useAttractionForm(attractionId?: string) {
                     name: formData.name,
                     description: formData.description || null,
                     categoryIds: formData.selectedCategoryIds,
-                    province: formData.province,
-                    canton: formData.canton,
-                    district: formData.district,
+                    country: formData.country!,
+                    province: formData.province!,
+                    canton: formData.canton!,
+                    district: formData.district!,
                     address: formData.address,
                     latitude: formData.coordinates!.latitude,
                     longitude: formData.coordinates!.longitude,

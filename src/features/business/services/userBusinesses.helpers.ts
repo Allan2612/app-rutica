@@ -1,9 +1,12 @@
 import { supabase } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
-export function getImageUrl(bucket: string, filePath: string): string {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+const BUCKET_NAME = 'business-images';
+
+export function getImageUrl(filePath: string): string {
+    const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
     return data.publicUrl;
 }
 
@@ -51,7 +54,7 @@ export async function uploadImage(
     const fileExt = fileName.split('.').pop() || 'jpg';
     const filePath = `${businessId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-    const { error } = await supabase.storage.from('business-images').upload(filePath, blob, {
+    const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, blob, {
         contentType: `image/${fileExt}`,
         upsert: false,
     });

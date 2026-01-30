@@ -1,7 +1,11 @@
+// ============================================
+// Category System - Tabla central compartida
+// ============================================
+
 /**
- * Categoría del sistema - Tabla central: categories
+ * Categoría del sistema - Tabla: categories (cat)
  * 
- * Esta tabla es compartida por todas las entidades del sistema:
+ * Esta tabla es compartida por todas las entidades:
  * - Business (via business_category_map)
  * - Events (via event_category_map)
  * - Attractions (via attraction_category_map)
@@ -11,36 +15,58 @@
 export interface Category {
   id_cat: string;
   name_cat: string;
-  created_at_cat?: string;
+  created_at_cat: string;
 }
 
+// ============================================
+// Category Maps (Many-to-Many relations)
+// ============================================
+
+export interface BusinessCategoryMap {
+  business_id_bcm: string;
+  category_id_bcm: string;
+}
+
+export interface EventCategoryMap {
+  event_id_ecm: string;
+  category_id_ecm: string;
+}
+
+export interface AttractionCategoryMap {
+  attraction_id_acm: string;
+  category_id_acm: string;
+}
+
+export interface ProductCategoryMap {
+  product_id_pcm: string;
+  category_id_pcm: string;
+}
+
+export interface PromotionCategoryMap {
+  promotion_id_pcr: string;
+  category_id_pcr: string;
+}
+
+// ============================================
+// UI Helper Types
+// ============================================
+
 /**
- * Formato transformado para uso en componentes/UI
- * Convierte de snake_case (BD) a objetos más amigables
+ * Formato simplificado para uso en componentes/UI
  */
-export interface CategoryItem {
+export interface CategoryOption {
   id: string;
   name: string;
 }
 
-/**
- * Tabla de mapeo genérica para relaciones many-to-many
- * Cada entidad tiene su propia tabla:
- * - business_category_map (BCM)
- * - event_category_map (ECM)
- * - attraction_category_map (ACM)
- * - product_category_map (PCM)
- * - promotion_category_map (PCR)
- */
-export interface CategoryMap {
-  entity_id: string;    // business_id_bcm, event_id_ecm, etc.
-  category_id: string;  // category_id_bcm, category_id_ecm, etc.
-}
+// ============================================
+// Helpers
+// ============================================
 
 /**
- * Helper: Convierte Category (BD) a CategoryItem (UI)
+ * Convierte Category (BD) a CategoryOption (UI)
  */
-export function categoryToItem(category: Category): CategoryItem {
+export function categoryToOption(category: Category): CategoryOption {
   return {
     id: category.id_cat,
     name: category.name_cat,
@@ -48,8 +74,25 @@ export function categoryToItem(category: Category): CategoryItem {
 }
 
 /**
- * Helper: Convierte array de Categories a CategoryItems
+ * Convierte array de Categories a CategoryOptions
  */
-export function categoriesToItems(categories: Category[]): CategoryItem[] {
-  return categories.map(categoryToItem);
+export function categoriesToOptions(categories: Category[]): CategoryOption[] {
+  return categories.map(categoryToOption);
 }
+
+/**
+ * Obtiene nombres de categorías como string separado por comas
+ */
+export function getCategoryNames(categories: Category[] | undefined): string {
+  if (!categories?.length) return '';
+  return categories.map(c => c.name_cat).join(', ');
+}
+
+/**
+ * Obtiene IDs de categorías
+ */
+export function getCategoryIds(categories: Category[] | undefined): string[] {
+  if (!categories?.length) return [];
+  return categories.map(c => c.id_cat);
+}
+

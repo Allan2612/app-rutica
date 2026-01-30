@@ -4,6 +4,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useCreateEvent } from './useCreateEvent';
 import { useEventById, useUpdateEvent } from './useUpdateEvent';
 import type { CreateEventData } from '../services/createEvent.service';
+import type { UpdateEventData } from '../services/updateEvent.service';
 
 interface FormErrors {
     name?: string;
@@ -19,9 +20,7 @@ interface FormData {
     selectedCategoryIds: string[];
     coverUri: string | null;
     galleryUris: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    districtId: string | null;
     address: string | null;
     coordinates: { latitude: number; longitude: number } | null;
     startDate: Date;
@@ -45,9 +44,7 @@ const initialFormData: FormData = {
     selectedCategoryIds: [],
     coverUri: null,
     galleryUris: [],
-    province: null,
-    canton: null,
-    district: null,
+    districtId: null,
     address: null,
     coordinates: null,
     startDate: new Date(),
@@ -91,14 +88,12 @@ export function useEventForm(eventId?: string) {
                 selectedCategoryIds: event.categoryIds,
                 coverUri: event.coverUrl,
                 galleryUris: event.galleryUrls,
-                province: event.province,
-                canton: event.canton,
-                district: event.district,
+                districtId: event.districtId,
                 address: event.address,
-                coordinates: {
+                coordinates: event.latitude && event.longitude ? {
                     latitude: event.latitude,
                     longitude: event.longitude,
-                },
+                } : null,
                 startDate: event.startDate,
                 endDate: event.endDate,
                 isFree: event.isFree,
@@ -202,9 +197,7 @@ export function useEventForm(eventId?: string) {
                 categoryIds: formData.selectedCategoryIds,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
-                province: formData.province ?? undefined,
-                canton: formData.canton ?? undefined,
-                district: formData.district ?? undefined,
+                districtId: formData.districtId!,
                 address: formData.address ?? undefined,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
@@ -225,13 +218,17 @@ export function useEventForm(eventId?: string) {
 
             if (eventId) {
                 // Para actualización, necesitamos convertir a UpdateEventData
-                const updateData = {
-                    ...eventData,
+                const updateData: UpdateEventData = {
+                    name: formData.name,
                     description: formData.description || null,
-                    province: formData.province,
-                    canton: formData.canton,
-                    district: formData.district,
+                    categoryIds: formData.selectedCategoryIds,
+                    districtId: formData.districtId!,
                     address: formData.address,
+                    latitude: formData.coordinates!.latitude,
+                    longitude: formData.coordinates!.longitude,
+                    startDate: formData.startDate,
+                    endDate: formData.endDate,
+                    isFree: formData.isFree,
                     price: formData.isFree ? null : (formData.price ? parseFloat(formData.price) : null),
                     currency: formData.isFree ? null : formData.currency,
                     capacity: formData.capacity ? parseInt(formData.capacity, 10) : null,
@@ -245,8 +242,6 @@ export function useEventForm(eventId?: string) {
                     coverImage: formData.coverUri,
                     galleryImages: formData.galleryUris,
                 };
-                delete (updateData as any).coverUri;
-                delete (updateData as any).galleryUris;
                 await updateMutation.mutateAsync({ eventId, data: updateData });
             } else {
                 await createMutation.mutateAsync(eventData);
