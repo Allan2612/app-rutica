@@ -177,7 +177,6 @@ export async function findOrCreateLocationHierarchy(
 
         return districtId;
     } catch (error) {
-        console.error('[findOrCreateLocationHierarchy] Error:', error);
         throw new Error('No se pudo crear o encontrar la ubicación geográfica');
     }
 }

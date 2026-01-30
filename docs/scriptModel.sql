@@ -1881,7 +1881,7 @@ create policy "promotions_update_admin"
 create policy "promotions_delete_admin"
   on public.promotions for delete
   using (public.is_admin());
-  
+
 CREATE POLICY "promotions_delete_owner"
   ON public.promotions FOR DELETE
   USING (created_by_prm = auth.uid());
@@ -2075,17 +2075,11 @@ create policy "event_reviews_insert_auth"
     auth.uid() is not null
     and public.is_active_user()
     and user_id_erv = auth.uid()
+    -- Verificar que el evento existe y está activo (sin importar estado de aprobación)
     and exists (
       select 1 from public.events
       where id_evt = event_id_erv
-        and moderation_status_evt = 'approved'
         and is_active_evt = true
-    )
-    -- No puede reviewear su propio evento
-    and not exists (
-      select 1 from public.events
-      where id_evt = event_id_erv
-        and created_by_evt = auth.uid()
     )
   );
 
@@ -2133,10 +2127,10 @@ create policy "attraction_reviews_insert_auth"
     auth.uid() is not null
     and public.is_active_user()
     and user_id_arv = auth.uid()
+    -- Verificar que la atracción existe y está activa (sin importar estado de aprobación)
     and exists (
       select 1 from public.attractions
       where id_atr = attraction_id_arv
-        and moderation_status_atr = 'approved'
         and is_active_atr = true
     )
   );

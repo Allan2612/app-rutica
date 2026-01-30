@@ -48,16 +48,12 @@ export async function getAttractionReviews(attractionId: string): Promise<Attrac
         .order('created_at_arv', { ascending: false });
 
     if (error) {
-        console.error('Error fetching attraction reviews:', error);
         return [];
     }
 
     if (!data || data.length === 0) {
-        console.log('No reviews found for attraction:', attractionId);
         return [];
     }
-
-    console.log('Reviews data:', data);
 
     return ((data as unknown as AttractionReviewWithProfile[]) ?? []).map((review) => {
         const profile = review.profiles;
@@ -132,19 +128,24 @@ export async function createAttractionReview(
     rating: number,
     comment?: string
 ): Promise<AttractionReviewDisplay | null> {
+    // Verificar sesión de Supabase
+    const { data: { session } } = await supabase.auth.getSession();
+
     // Validar contenido antes de crear
     if (comment) {
         validateReviewContent(comment);
     }
 
+    const insertData = {
+        attraction_id_arv: attractionId,
+        user_id_arv: userId,
+        rating_arv: rating,
+        comment_arv: comment || null,
+    };
+
     const { data, error } = await supabase
         .from('attraction_reviews')
-        .insert({
-            attraction_id_arv: attractionId,
-            user_id_arv: userId,
-            rating_arv: rating,
-            comment_arv: comment || null,
-        } as any)
+        .insert(insertData as any)
         .select(`
             id_arv,
             attraction_id_arv,
@@ -156,7 +157,6 @@ export async function createAttractionReview(
         .single();
 
     if (error) {
-        console.error('Error creating attraction review:', error);
         throw new Error(error.message);
     }
 
@@ -221,7 +221,6 @@ export async function updateAttractionReview(
         .single();
 
     if (error) {
-        console.error('Error updating attraction review:', error);
         throw new Error(error.message);
     }
 
@@ -263,7 +262,6 @@ export async function deleteAttractionReview(reviewId: string, attractionId: str
         .eq('id_arv', reviewId);
 
     if (error) {
-        console.error('Error deleting attraction review:', error);
         throw new Error(error.message);
     }
 
@@ -282,7 +280,6 @@ async function updateAttractionRating(attractionId: string): Promise<void> {
         .eq('attraction_id_arv', attractionId);
 
     if (error) {
-        console.error('Error fetching reviews for rating update:', error);
         return;
     }
 
