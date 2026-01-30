@@ -11,9 +11,10 @@ interface FormData {
     selectedCategoryIds: string[];
     coverUri: string | null;
     galleryUris: string[];
-    province: string | null;
-    canton: string | null;
-    district: string | null;
+    country: string | null;      // Nombre del país
+    province: string | null;     // Nombre de la provincia
+    canton: string | null;       // Nombre del cantón
+    district: string | null;     // Nombre del distrito
     address: string | null;
     coordinates: { latitude: number; longitude: number } | null;
     phone: string;
@@ -36,6 +37,7 @@ const initialFormData: FormData = {
     selectedCategoryIds: [],
     coverUri: null,
     galleryUris: [],
+    country: null,
     province: null,
     canton: null,
     district: null,
@@ -91,6 +93,7 @@ export function useCreateAttractionForm() {
             
             setFormData((prev) => ({
                 ...prev,
+                country: location.country || 'Costa Rica',
                 province: location.province || null,
                 canton: location.canton || null,
                 district: location.district || null,
@@ -120,6 +123,8 @@ export function useCreateAttractionForm() {
 
         if (!formData.coordinates) {
             newErrors.location = 'Selecciona una ubicación en el mapa';
+        } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
+            newErrors.location = 'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
         }
 
         setErrors(newErrors);
@@ -145,9 +150,10 @@ export function useCreateAttractionForm() {
                 categoryIds: formData.selectedCategoryIds,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
-                province: formData.province,
-                canton: formData.canton,
-                district: formData.district,
+                country: formData.country!,
+                province: formData.province!,
+                canton: formData.canton!,
+                district: formData.district!,
                 address: formData.address,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,

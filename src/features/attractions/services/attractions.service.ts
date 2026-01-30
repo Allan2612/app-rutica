@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 // Constants
 // ============================================
 
-const STORAGE_BUCKET = 'attraction-images';
+const STORAGE_BUCKET = 'attractions-images';
 
 // ============================================
 // Types

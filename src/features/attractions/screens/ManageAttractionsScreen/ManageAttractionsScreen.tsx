@@ -11,7 +11,7 @@ import { BackButton } from '@/components/ui';
 import { supabase } from '@/lib/supabase/client';
 import { styles } from './styles';
 
-const STORAGE_BUCKET = 'attraction-images';
+const STORAGE_BUCKET = 'attractions-images';
 
 function getImageUrl(path: string): string {
     if (!path) return '';

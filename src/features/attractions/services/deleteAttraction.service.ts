@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 // Constants
 // ============================================
 
-const STORAGE_BUCKET = 'attraction-images';
+const STORAGE_BUCKET = 'attractions-images';
 
 
 interface AttractionOwnerQuery {
@@ -102,7 +102,17 @@ export async function deleteUserAttraction(attractionId: string, userId: string)
         console.error('[deleteUserAttraction] Error deleting category maps:', categoryError);
     }
 
-    // 6. Eliminar la atracción
+    // 6. Eliminar reseñas (attraction_reviews tiene CASCADE DELETE, pero lo hacemos explícito)
+    const { error: reviewsError } = await supabase
+        .from('attraction_reviews')
+        .delete()
+        .eq('attraction_id_arv', attractionId);
+
+    if (reviewsError) {
+        console.error('[deleteUserAttraction] Error deleting reviews:', reviewsError);
+    }
+
+    // 7. Eliminar la atracción (esto también eliminará datos relacionados con CASCADE DELETE)
     const { error: deleteError } = await supabase
         .from('attractions')
         .delete()
@@ -110,25 +120,6 @@ export async function deleteUserAttraction(attractionId: string, userId: string)
 
     if (deleteError) throw deleteError;
 
-    // 7. Eliminar ubicación si no la usa otra entidad
-    if (locationId) {
-        const { count: businessCount } = await supabase
-            .from('businesses')
-            .select('*', { count: 'exact', head: true })
-            .eq('location_id_bus', locationId);
-
-        const { count: eventCount } = await supabase
-            .from('events')
-            .select('*', { count: 'exact', head: true })
-            .eq('location_id_evt', locationId);
-
-        const { count: attractionCount } = await supabase
-            .from('attractions')
-            .select('*', { count: 'exact', head: true })
-            .eq('location_id_atr', locationId);
-
-        if ((businessCount ?? 0) === 0 && (eventCount ?? 0) === 0 && (attractionCount ?? 0) === 0) {
-            await supabase.from('locations').delete().eq('id_loc', locationId);
-        }
-    }
+    // 8. NO eliminar la ubicación - se reutiliza
+    // La ubicación se mantiene en la BD para ser reutilizada por otras entidades
 }

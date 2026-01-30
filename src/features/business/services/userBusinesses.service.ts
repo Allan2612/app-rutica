@@ -65,8 +65,10 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
         const location = Array.isArray(item.locations) ? item.locations[0] : item.locations;
         const district = location?.districts;
         const canton = district?.cantons;
+        const province = canton?.provinces;
+        const country = province?.countries;
 
-        const locationParts = [canton?.name_ctn, district?.name_dst].filter(Boolean);
+        const locationParts = [country?.name_cnt, province?.name_prv, canton?.name_ctn, district?.name_dst].filter(Boolean);
 
         const categoryNames = (item.business_category_map ?? [])
             .map((bcm: any) => bcm.categories?.name_cat)

@@ -1,10 +1,15 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Toast from 'react-native-toast-message';
 import { isWithinCostaRica } from '@/utils/geoHelpers';
 import { styles } from './styles';
 import type { LocationData } from './types';
+
+// Constantes
+const TOAST_VISIBILITY = 4000;
+const INVALID_LOCATION_TITLE = 'Ubicación no válida';
+const OUTSIDE_CR_MESSAGE = 'La ubicación debe estar dentro de Costa Rica';
 
 interface LocationPickerMapProps {
     mapKey: number;
@@ -22,30 +27,25 @@ export const LocationPickerMap = memo(function LocationPickerMap({
     onLocationChange,
     onLoadEnd,
 }: LocationPickerMapProps) {
+    const showError = useCallback((message: string) => {
+        Toast.show({
+            type: 'error',
+            text1: INVALID_LOCATION_TITLE,
+            text2: message,
+            position: 'top',
+            visibilityTime: TOAST_VISIBILITY,
+        });
+    }, []);
 
     const handleMapMessage = useCallback((data: any) => {
-        // Manejar mensajes de error (ubicación fuera de Costa Rica)
         if (data.error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Ubicación no válida',
-                text2: data.error,
-                position: 'top',
-                visibilityTime: 3000,
-            });
+            showError(data.error);
             return;
         }
 
         if (data.latitude && data.longitude) {
-            // Validar que esté dentro de Costa Rica
             if (!isWithinCostaRica(data.latitude, data.longitude)) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Ubicación no válida',
-                    text2: 'La ubicación debe estar dentro de Costa Rica',
-                    position: 'top',
-                    visibilityTime: 3000,
-                });
+                showError(OUTSIDE_CR_MESSAGE);
                 return;
             }
 
@@ -54,16 +54,40 @@ export const LocationPickerMap = memo(function LocationPickerMap({
                 longitude: data.longitude,
             });
         }
-    }, [onLocationChange]);
+    }, [onLocationChange, showError]);
 
     const handleWebViewMessage = useCallback((event: any) => {
         try {
             const data = JSON.parse(event.nativeEvent.data);
             handleMapMessage(data);
         } catch {
-            // Error parsing message
+            // Ignorar mensajes inválidos
         }
     }, [handleMapMessage]);
+
+    const parseMessage = useCallback((eventData: string) => {
+        try {
+            return JSON.parse(eventData);
+        } catch {
+            return null;
+        }
+    }, []);
+
+    // Cleanup del event listener en web
+    useEffect(() => {
+        if (Platform.OS !== 'web') return;
+
+        const listener = (event: MessageEvent) => {
+            const data = parseMessage(event.data);
+            if (data) handleMapMessage(data);
+        };
+
+        window.addEventListener('message', listener);
+
+        return () => {
+            window.removeEventListener('message', listener);
+        };
+    }, [handleMapMessage, parseMessage]);
 
     if (Platform.OS === 'web') {
         return (
@@ -76,17 +100,7 @@ export const LocationPickerMap = memo(function LocationPickerMap({
                     border: 0,
                     flex: 1,
                 }}
-                onLoad={() => {
-                    onLoadEnd();
-                    window.addEventListener('message', (event) => {
-                        try {
-                            const data = JSON.parse(event.data);
-                            handleMapMessage(data);
-                        } catch {
-                            // Ignorar mensajes no JSON
-                        }
-                    });
-                }}
+                onLoad={onLoadEnd}
             />
         );
     }

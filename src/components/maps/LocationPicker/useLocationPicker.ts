@@ -6,8 +6,31 @@ import { COSTA_RICA_CENTER } from '@/utils/geoHelpers';
 import { useReverseGeocode } from './useReverseGeocode';
 import type { LocationData, LocationPickerProps } from './types';
 
+// Constantes
 const DEFAULT_LAT = COSTA_RICA_CENTER.latitude;
 const DEFAULT_LNG = COSTA_RICA_CENTER.longitude;
+const DEBOUNCE_DELAY = 500;
+const PROCESSING_RELEASE_DELAY = 100;
+const TOAST_VISIBILITY = 4000;
+
+// Mensajes
+const MESSAGES = {
+    PERMISSION_DENIED: {
+        title: 'Permiso denegado',
+        message: 'Necesitamos tu ubicación para centrar el mapa',
+    },
+    LOCATION_ERROR: {
+        title: 'Error',
+        message: 'No se pudo obtener tu ubicación',
+    },
+    INCOMPLETE_LOCATION: {
+        title: 'Ubicación incompleta',
+        message: 'Intenta seleccionar un punto más específico (ciudad, distrito o pueblo)',
+    },
+    INVALID_LOCATION: {
+        title: 'Ubicación no válida',
+    },
+} as const;
 
 /**
  * Hook que encapsula la lógica del LocationPicker
@@ -23,19 +46,10 @@ export function useLocationPicker({
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [mapKey, setMapKey] = useState(0);
     const hasInitializedFromProps = useRef(false);
+    const hasRequestedAutoLocation = useRef(false);
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const isProcessingRef = useRef(false);
     const { reverseGeocode } = useReverseGeocode();
-
-    // Actualizar coordenadas cuando cambian las props iniciales
-    useEffect(() => {
-        if (initialLatitude !== undefined && initialLongitude !== undefined) {
-            if (!hasInitializedFromProps.current) {
-                setLatitude(initialLatitude);
-                setLongitude(initialLongitude);
-                setMapKey((prev) => prev + 1);
-                hasInitializedFromProps.current = true;
-            }
-        }
-    }, [initialLatitude, initialLongitude]);
 
     const getCurrentLocation = useCallback(async () => {
         setLoadingLocation(true);
@@ -43,8 +57,8 @@ export function useLocationPicker({
             const { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert(
-                    'Permiso denegado',
-                    'Necesitamos tu ubicación para centrar el mapa'
+                    MESSAGES.PERMISSION_DENIED.title,
+                    MESSAGES.PERMISSION_DENIED.message
                 );
                 setLoadingLocation(false);
                 return;
@@ -58,12 +72,10 @@ export function useLocationPicker({
             setLongitude(newLng);
             setMapKey((prev) => prev + 1);
 
-            // Obtener datos de geocodificación inversa
             try {
                 const geoData = await reverseGeocode(newLat, newLng);
                 onLocationSelect(geoData);
             } catch {
-                // Si falla la geocodificación, pasar solo las coordenadas
                 onLocationSelect({
                     latitude: newLat,
                     longitude: newLng,
@@ -72,66 +84,107 @@ export function useLocationPicker({
         } catch {
             Toast.show({
                 type: 'error',
-                text1: 'Error',
-                text2: 'No se pudo obtener tu ubicación',
+                text1: MESSAGES.LOCATION_ERROR.title,
+                text2: MESSAGES.LOCATION_ERROR.message,
                 position: 'top',
-                visibilityTime: 3000,
+                visibilityTime: TOAST_VISIBILITY,
             });
         } finally {
             setLoadingLocation(false);
         }
     }, [onLocationSelect, reverseGeocode]);
 
+    // Limpiar timer al desmontar
+    useEffect(() => {
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, []);
+
+    // Actualizar coordenadas cuando cambian las props iniciales
+    // O obtener ubicación actual si no hay coordenadas iniciales
+    useEffect(() => {
+        if (initialLatitude !== undefined && initialLongitude !== undefined) {
+            // Tiene coordenadas guardadas (edit) - usar esas SIEMPRE (aunque tarde en llegar)
+            if (!hasInitializedFromProps.current) {
+                setLatitude(initialLatitude);
+                setLongitude(initialLongitude);
+                setMapKey((prev) => prev + 1);
+                hasInitializedFromProps.current = true;
+                hasRequestedAutoLocation.current = true; // Marcar para no pedir ubicación actual después
+            }
+        } else if (!hasInitializedFromProps.current && !hasRequestedAutoLocation.current) {
+            // No tiene coordenadas (create) - esperar para asegurarse que no llegarán
+            const timeoutId = setTimeout(() => {
+                // Solo pedir ubicación si después del delay todavía no hay coordenadas
+                if (initialLatitude === undefined && initialLongitude === undefined && !hasRequestedAutoLocation.current) {
+                    hasRequestedAutoLocation.current = true;
+                    getCurrentLocation();
+                }
+            }, 500); // Aumentado a 500ms para dar más tiempo
+
+            return () => clearTimeout(timeoutId);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialLatitude, initialLongitude]);
+
     const handleLocationChange = useCallback(async (data: LocationData) => {
         setLatitude(data.latitude);
         setLongitude(data.longitude);
 
-        // Obtener datos de geocodificación inversa
-        try {
-            const geoData = await reverseGeocode(data.latitude, data.longitude);
+        if (isProcessingRef.current) return;
 
-            // Verificar si tenemos los campos mínimos necesarios
-            const hasRequiredFields = !!(
-                geoData.country &&
-                geoData.province &&
-                geoData.canton &&
-                geoData.district
-            );
-
-            if (!hasRequiredFields) {
-                Toast.show({
-                    type: 'info',
-                    text1: 'Ubicación incompleta',
-                    text2: 'Intenta seleccionar un punto más específico (ciudad, distrito o pueblo)',
-                    position: 'top',
-                    visibilityTime: 4000,
-                });
-
-                // Aún así pasar los datos para que se guarden las coordenadas
-                onLocationSelect(geoData);
-            } else {
-                onLocationSelect(geoData);
-            }
-        } catch (error: any) {
-            // Si es error de país, re-lanzar
-            if (error?.message?.includes('debe estar en Costa Rica')) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Ubicación no válida',
-                    text2: error.message,
-                    position: 'top',
-                    visibilityTime: 4000,
-                });
-            } else {
-                // Otro tipo de error, pasar solo las coordenadas
-                onLocationSelect(data);
-            }
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
         }
+
+        debounceTimerRef.current = setTimeout(async () => {
+            isProcessingRef.current = true;
+
+            try {
+                const geoData = await reverseGeocode(data.latitude, data.longitude);
+
+                const hasRequiredFields = !!(
+                    geoData.country &&
+                    geoData.province &&
+                    geoData.canton &&
+                    geoData.district
+                );
+
+                if (!hasRequiredFields) {
+                    Toast.show({
+                        type: 'info',
+                        text1: MESSAGES.INCOMPLETE_LOCATION.title,
+                        text2: MESSAGES.INCOMPLETE_LOCATION.message,
+                        position: 'top',
+                        visibilityTime: TOAST_VISIBILITY,
+                    });
+                }
+
+                onLocationSelect(geoData);
+            } catch (error: any) {
+                if (error?.message?.includes('debe estar en Costa Rica')) {
+                    Toast.show({
+                        type: 'error',
+                        text1: MESSAGES.INVALID_LOCATION.title,
+                        text2: error.message,
+                        position: 'top',
+                        visibilityTime: TOAST_VISIBILITY,
+                    });
+                } else {
+                    onLocationSelect(data);
+                }
+            } finally {
+                setTimeout(() => {
+                    isProcessingRef.current = false;
+                }, PROCESSING_RELEASE_DELAY);
+            }
+        }, DEBOUNCE_DELAY);
     }, [onLocationSelect, reverseGeocode]);
 
-    const handleMapLoadEnd = useCallback(() => {
-        setLoading(false);
-    }, []);
+    const handleMapLoadEnd = useCallback(() => setLoading(false), []);
 
     return {
         latitude,
