@@ -40,6 +40,15 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.xs,
         lineHeight: 16,
     },
+    ratingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    ratingText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
+    },
     price: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,

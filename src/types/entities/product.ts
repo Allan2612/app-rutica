@@ -89,6 +89,8 @@ export interface ProductListItem {
   mainImageUrl: string | null;
   imageUrls: string[];
   isActive: boolean;
+  rating: number;
+  reviewCount: number;
 }
 
 /**

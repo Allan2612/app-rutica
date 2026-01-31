@@ -95,6 +95,8 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
                             imageUrls={item.data.imageUrls}
                             categoryIds={item.data.categoryIds}
                             categoryNames={item.data.categoryNames}
+                            rating={item.data.rating}
+                            reviewCount={item.data.reviewCount}
                             promotions={promotions}
                             onImagePress={onImagePress}
                         />

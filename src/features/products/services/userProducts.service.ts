@@ -80,6 +80,8 @@ export async function getBusinessProducts(businessId: string): Promise<ProductLi
                 mainImageUrl,
                 imageUrls,
                 isActive: product.is_active_prd,
+                rating: product.avg_rating_prd ?? 0,
+                reviewCount: product.reviews_count_prd ?? 0,
             };
         });
 

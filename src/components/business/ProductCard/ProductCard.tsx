@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
-import { MessageCircle } from 'lucide-react-native';
+import { MessageCircle, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getAllActivePromotions, calculateDiscountedPrice, isComboPromotion, getPromotionBadgeLabel, formatPrice } from '@/utils';
 import type { PromotionListItem } from '@/types/entities';
@@ -20,6 +20,8 @@ interface ProductCardProps {
     categoryIds?: string[];
     categoryNames?: string[];
     promotions?: PromotionListItem[];
+    rating?: number;
+    reviewCount?: number;
     onImagePress?: (imageUrl: string) => void;
 }
 
@@ -34,6 +36,8 @@ export const ProductCard = memo(function ProductCard({
     categoryIds = [],
     categoryNames = [],
     promotions,
+    rating = 0,
+    reviewCount = 0,
     onImagePress,
 }: ProductCardProps) {
     const colors = useThemedColors();
@@ -149,6 +153,16 @@ export const ProductCard = memo(function ProductCard({
                     <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={2}>
                         {description}
                     </Text>
+                )}
+
+                {/* Rating */}
+                {rating > 0 && (
+                    <View style={styles.ratingRow}>
+                        <Star size={14} color="#fbbf24" fill="#fbbf24" />
+                        <Text style={[styles.ratingText, { color: colors.text.secondary }]}>
+                            {rating.toFixed(1)} ({reviewCount})
+                        </Text>
+                    </View>
                 )}
 
                 {hasDiscount ? (
