@@ -5,4 +5,6 @@ export { useAttractionById, useUpdateAttraction } from './useUpdateAttraction';
 export { useAttractions, type AttractionListItem } from './useAttractions';
 export { useAttractionDetail } from './useAttractionDetail';
 export * from './useCreateAttractionForm';
+export * from './useAttractionLikes';
+export * from './useToggleAttractionLike';
 // useAttractionForm no se exporta aquí para evitar ciclos de dependencia

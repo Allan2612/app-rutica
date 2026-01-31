@@ -109,7 +109,27 @@ export const styles = StyleSheet.create({
         marginLeft: spacing.xs,
         fontSize: typography.sizes.xs,
     },
-    // Estilos para sección de reseñas
+    // Estilos para barra de acciones estilo Facebook
+    actionsBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.sm,
+        borderTopWidth: 1,
+    },
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
+    },
+    actionButtonText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
+    },
+    // Estilos para sección de reseñas (legacy)
     reviewsSection: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -142,6 +162,32 @@ export const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
         gap: spacing.sm,
+    },
+    emptyReviewsContainer: {
+        alignItems: 'center',
+        paddingVertical: spacing.lg,
+        gap: spacing.md,
+    },
+    emptyReviewsText: {
+        fontSize: typography.sizes.sm,
+        textAlign: 'center',
+        paddingHorizontal: spacing.md,
+    },
+    writeReviewButtonLarge: {
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
+        borderRadius: 8,
+        marginTop: spacing.xs,
+    },
+    writeReviewButtonLargeText: {
+        color: colors.text.inverse,
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.semibold,
+    },
+    noReviewsText: {
+        fontSize: typography.sizes.sm,
+        textAlign: 'center',
+        paddingVertical: spacing.md,
     },
     reviewItem: {
         padding: spacing.sm,

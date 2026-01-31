@@ -134,6 +134,8 @@ export function AttractionPost({
             />
 
             <ReviewsSectionControls
+                attractionId={attractionId}
+                attractionName={name}
                 hasReviews={hasReviews ?? false}
                 reviewCount={reviews.length}
                 showReviews={showReviews}
@@ -143,12 +145,15 @@ export function AttractionPost({
                 onWriteReview={() => setIsModalVisible(true)}
             />
 
-            {showReviews && hasReviews && (
+            {showReviews && (
                 <ReviewsList
                     reviews={reviews}
                     currentUserId={user?.id ?? null}
+                    isAuthenticated={!!user}
+                    hasUserReview={!!userReview}
                     onEdit={() => setIsModalVisible(true)}
                     onDelete={() => setIsDeleteDialogVisible(true)}
+                    onWriteReview={() => setIsModalVisible(true)}
                     getInitials={getInitials}
                     getTimeAgo={getTimeAgoForReview}
                 />

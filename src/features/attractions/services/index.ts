@@ -15,6 +15,8 @@ export type { AttractionListFilters, AttractionListRecord } from './attractions.
 export { getAttractionDetail } from './attractionDetail.service';
 export type { AttractionDetailData } from './attractionDetail.service';
 
+export * from './attractionLikes.service';
+
 /**
  * @deprecated Use getCategories from '@/services/categories.service' and CategoryItem from '@/types/entities'
  */
