@@ -72,4 +72,19 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
     },
+    reviewsButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.xs - 2,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        borderRadius: spacing.sm,
+        borderWidth: 1.5,
+        marginTop: spacing.sm,
+    },
+    reviewsButtonText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.semibold,
+    },
 });

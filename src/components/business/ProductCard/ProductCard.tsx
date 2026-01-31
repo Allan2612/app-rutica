@@ -1,10 +1,12 @@
 import { memo, useState } from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
+import { MessageCircle } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getAllActivePromotions, calculateDiscountedPrice, isComboPromotion, getPromotionBadgeLabel, formatPrice } from '@/utils';
 import type { PromotionListItem } from '@/types/entities';
 import { ProductImageCarousel } from '../ProductImageCarousel';
 import { CategoryChips, PromoBadge } from '@/components/ui';
+import { ProductReviewsModal } from '../ProductReviewsModal';
 import { styles } from './styles';
 
 interface ProductCardProps {
@@ -37,6 +39,7 @@ export const ProductCard = memo(function ProductCard({
     const colors = useThemedColors();
     const [cardWidth, setCardWidth] = useState(0);
     const [showAllBadges, setShowAllBadges] = useState(false);
+    const [showReviewsModal, setShowReviewsModal] = useState(false);
 
     const images = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
 
@@ -174,7 +177,32 @@ export const ProductCard = memo(function ProductCard({
                         {formatPrice(price, currency)}
                     </Text>
                 )}
+
+                {/* Ver opiniones button */}
+                <Pressable 
+                    style={({ pressed }) => [
+                        styles.reviewsButton, 
+                        { 
+                            borderColor: colors.primary[500],
+                            backgroundColor: pressed ? colors.primary[50] : 'transparent'
+                        }
+                    ]}
+                    onPress={() => setShowReviewsModal(true)}
+                >
+                    <MessageCircle size={18} color={colors.primary[500]} />
+                    <Text style={[styles.reviewsButtonText, { color: colors.primary[500] }]}>
+                        Ver opiniones
+                    </Text>
+                </Pressable>
             </View>
+
+            <ProductReviewsModal
+                visible={showReviewsModal}
+                productId={productId}
+                productName={name}
+                productImage={images[0]}
+                onClose={() => setShowReviewsModal(false)}
+            />
         </View>
     );
 });
