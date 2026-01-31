@@ -68,16 +68,6 @@ export const EventPostContent = memo(function EventPostContent({
                 </Text>
             )}
 
-            {/* Rating */}
-            {rating > 0 && (
-                <View style={styles.ratingRow}>
-                    <Star size={16} color="#fbbf24" fill="#fbbf24" />
-                    <Text style={[styles.ratingText, { color: colors.text.primary }]}>
-                        {rating.toFixed(1)} ({reviewCount})
-                    </Text>
-                </View>
-            )}
-
             {/* Categorías */}
             {categoryNames.length > 0 && (
                 <View style={styles.categoriesRow}>

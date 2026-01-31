@@ -64,6 +64,15 @@ export const AttractionContent = memo(function AttractionContent({
                         {createdAt ? getTimeAgo(createdAt) : ''}
                     </Text>
                 </View>
+                {/* Rating a la derecha */}
+                {rating > 0 && (
+                    <View style={styles.headerRating}>
+                        <Star size={14} color="#fbbf24" fill="#fbbf24" />
+                        <Text style={[styles.ratingText, { color: colors.text.secondary }]}>
+                            {rating.toFixed(1)} ({reviewCount})
+                        </Text>
+                    </View>
+                )}
             </View>
 
             {/* Contenido */}
@@ -82,19 +91,6 @@ export const AttractionContent = memo(function AttractionContent({
                     <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={3}>
                         {description}
                     </Text>
-                )}
-
-                {/* Rating */}
-                {rating > 0 && (
-                    <View style={styles.ratingContainer}>
-                        <Star size={16} color="#fbbf24" fill="#fbbf24" />
-                        <Text style={[styles.ratingText, { color: colors.text.primary }]}>
-                            {rating.toFixed(1)}
-                        </Text>
-                        <Text style={[styles.reviewCountText, { color: colors.text.secondary }]}>
-                            ({reviewCount})
-                        </Text>
-                    </View>
                 )}
 
                 {/* Categorías */}

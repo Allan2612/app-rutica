@@ -83,7 +83,12 @@ export function EventPost({
             onPress={onPress}
             disabled={!onPress}
         >
-            <EventPostHeader authorName={authorName} createdAt={createdAt} />
+            <EventPostHeader 
+                authorName={authorName} 
+                createdAt={createdAt}
+                rating={rating}
+                reviewCount={reviewCount}
+            />
             <EventPostImage imageUrls={imageUrls} />
 
             <View style={styles.content}>

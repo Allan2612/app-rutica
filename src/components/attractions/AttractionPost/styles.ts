@@ -33,6 +33,16 @@ export const styles = StyleSheet.create({
         flex: 1,
         marginLeft: spacing.sm,
     },
+    headerRating: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginLeft: spacing.sm,
+    },
+    ratingText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
+    },
     authorName: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.semibold,
