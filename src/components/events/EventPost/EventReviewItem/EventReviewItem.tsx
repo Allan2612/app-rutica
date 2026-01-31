@@ -1,7 +1,11 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Star, Edit3, Trash2 } from 'lucide-react-native';
+import { Star, Edit3, Trash2, ThumbsUp } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
+import { useAuthStore } from '@/store';
+import { useIsEventReviewLiked } from '@/features/events/hooks/useEventReviewLikes';
+import { useToggleEventReviewLike } from '@/features/events/hooks/useToggleEventReviewLike';
 import { styles } from '../styles';
 import type { EventReviewDisplay } from '@/services/eventReviews.service';
 
@@ -36,6 +40,28 @@ export const EventReviewItem = memo(function EventReviewItem({
     onDelete,
 }: EventReviewItemProps) {
     const colors = useThemedColors();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const userId = useAuthStore((state) => state.user?.id);
+
+    // Likes
+    const isLiked = useIsEventReviewLiked(review.id, userId);
+    const toggleLike = useToggleEventReviewLike();
+
+    const handleLikePress = useCallback(() => {
+        if (!isAuthenticated || !userId) {
+            Toast.show({
+                type: 'error',
+                text1: 'Iniciar sesión',
+                text2: 'Debes iniciar sesión para poder dejar tu me gusta',
+                position: 'top',
+                visibilityTime: 3000,
+            });
+            return;
+        }
+        toggleLike.mutate({ reviewId: review.id, userId });
+    }, [review.id, userId, isAuthenticated, toggleLike]);
+
+    const likeColor = isLiked ? '#1877f2' : colors.text.tertiary;
 
     return (
         <View style={[styles.reviewItem, { backgroundColor: colors.background.secondary }]}>
@@ -81,6 +107,24 @@ export const EventReviewItem = memo(function EventReviewItem({
                 <Text style={[styles.reviewComment, { color: colors.text.secondary }]}>
                     {review.comment}
                 </Text>
+            )}
+
+            {/* Like Button */}
+            {!isOwner && (
+                <Pressable 
+                    style={styles.reviewLikeButton} 
+                    onPress={handleLikePress}
+                    disabled={toggleLike.isPending}
+                >
+                    <ThumbsUp 
+                        size={16} 
+                        color={likeColor}
+                        fill={isLiked ? '#1877f2' : 'transparent'}
+                    />
+                    <Text style={[styles.reviewLikeText, { color: likeColor }]}>
+                        Me gusta{review.likesCount > 0 ? ` (${review.likesCount})` : ''}
+                    </Text>
+                </Pressable>
             )}
         </View>
     );

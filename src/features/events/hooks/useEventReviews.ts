@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/store';
 import {
     getEventReviews,
     getUserEventReview,
@@ -12,9 +13,11 @@ const EVENT_REVIEWS_KEY = 'event-reviews';
 const USER_EVENT_REVIEW_KEY = 'user-event-review';
 
 export function useEventReviews(eventId: string) {
+    const userId = useAuthStore((state) => state.user?.id);
+    
     return useQuery<EventReviewDisplay[]>({
-        queryKey: [EVENT_REVIEWS_KEY, eventId],
-        queryFn: () => getEventReviews(eventId),
+        queryKey: [EVENT_REVIEWS_KEY, eventId, userId],
+        queryFn: () => getEventReviews(eventId, userId),
         enabled: !!eventId,
     });
 }

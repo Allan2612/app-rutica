@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
+import { getMultipleEventReviewLikesCount, getUserLikedEventReviewIds } from '@/features/events/services/eventReviewLikes.service';
 import type { Database } from '@/lib/supabase/database.types';
 
 export interface EventReviewDisplay {
@@ -10,6 +11,8 @@ export interface EventReviewDisplay {
     comment: string | null;
     createdAt: string;
     authorName: string;
+    likesCount: number;
+    isLikedByUser: boolean;
 }
 
 type EventReviewRow = Database['public']['Tables']['event_reviews']['Row'];
@@ -19,7 +22,7 @@ type EventReviewWithProfile = EventReviewRow & {
     profiles: Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf'> | null;
 };
 
-export async function getEventReviews(eventId: string): Promise<EventReviewDisplay[]> {
+export async function getEventReviews(eventId: string, userId?: string): Promise<EventReviewDisplay[]> {
     const { data, error } = await supabase
         .from('event_reviews')
         .select(`
@@ -41,7 +44,16 @@ export async function getEventReviews(eventId: string): Promise<EventReviewDispl
         return [];
     }
 
-    return ((data as unknown as EventReviewWithProfile[]) ?? []).map((review) => {
+    const reviews = (data as unknown as EventReviewWithProfile[]) ?? [];
+    const reviewIds = reviews.map(r => r.id_erv);
+
+    // Obtener likes count y liked status en paralelo
+    const [likesCountMap, likedReviewIds] = await Promise.all([
+        getMultipleEventReviewLikesCount(reviewIds),
+        userId ? getUserLikedEventReviewIds(userId) : Promise.resolve([]),
+    ]);
+
+    return reviews.map((review) => {
         const profile = review.profiles;
         const firstName = profile?.first_name_prf ?? '';
         const lastName = profile?.last_name1_prf ?? '';
@@ -55,6 +67,8 @@ export async function getEventReviews(eventId: string): Promise<EventReviewDispl
             comment: review.comment_erv,
             createdAt: review.created_at_erv,
             authorName,
+            likesCount: likesCountMap[review.id_erv] ?? 0,
+            isLikedByUser: likedReviewIds.includes(review.id_erv),
         };
     });
 }

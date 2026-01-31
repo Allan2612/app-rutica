@@ -89,7 +89,7 @@ export const AttractionReviewsList = memo(function AttractionReviewsList({
                     onPress={onWriteReview}
                 >
                     <Text style={[styles.writeButtonOutlineText, { color: colors.primary[500] }]}>
-                        Escribir reseña
+                        Añadir comentario
                     </Text>
                 </Pressable>
             )}

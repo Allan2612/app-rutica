@@ -113,20 +113,26 @@ export function EventPost({
             <EventPostFooter locationLabel={locationLabel} hasLocation={hasLocation} onLocationPress={handleLocationPress} />
 
             <EventReviewsSectionControls
+                eventId={eventId}
+                eventName={name}
                 hasReviews={hasReviews ?? false}
                 reviewCount={reviews.length}
+                showReviews={showReviews}
                 isAuthenticated={isAuthenticated}
                 hasUserReview={!!userReview}
                 onToggleReviews={handleToggleReviews}
                 onWriteReview={handleWriteReview}
             />
 
-            {showReviews && hasReviews && (
+            {showReviews && (
                 <EventReviewsList
                     reviews={reviews}
                     currentUserId={userId}
+                    isAuthenticated={isAuthenticated}
+                    hasUserReview={!!userReview}
                     onEdit={handleWriteReview}
                     onDelete={() => setShowDeleteConfirm(true)}
+                    onWriteReview={handleWriteReview}
                 />
             )}
 

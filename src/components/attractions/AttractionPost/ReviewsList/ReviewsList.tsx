@@ -44,7 +44,7 @@ export const ReviewsList = memo(function ReviewsList({
                             onPress={onWriteReview}
                         >
                             <Text style={styles.writeReviewButtonLargeText}>
-                                Escribir reseña
+                                Añadir comentario
                             </Text>
                         </Pressable>
                     )}
@@ -75,7 +75,7 @@ export const ReviewsList = memo(function ReviewsList({
                                 onPress={onWriteReview}
                             >
                                 <Text style={styles.writeReviewButtonLargeText}>
-                                    Escribir reseña
+                                    Añadir comentario
                                 </Text>
                             </Pressable>
                         </View>
