@@ -1,16 +1,22 @@
-import { memo } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { Star, Pencil, Trash2 } from 'lucide-react-native';
+import { memo, useCallback } from 'react';
+import { View, Text, Pressable, Platform } from 'react-native';
+import { Star, Pencil, Trash2, ThumbsUp } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
+import { useAuthStore } from '@/store';
+import { useToggleReviewLike } from '@/features/business/hooks/useToggleReviewLike';
 import { formatDate, DATE_FORMAT_OPTIONS } from '@/utils';
 import { colors as themeColors } from '@/styles/theme/colors';
 import { styles } from './styles';
 
 interface ReviewCardProps {
+    id: string;
     authorName: string;
     rating: number;
     comment: string | null;
     createdAt: string;
+    likesCount: number;
+    isLikedByUser: boolean;
     isOwner?: boolean;
     onEdit?: () => void;
     onDelete?: () => void;
@@ -18,16 +24,35 @@ interface ReviewCardProps {
 }
 
 export const ReviewCard = memo(function ReviewCard({
+    id,
     authorName,
     rating,
     comment,
     createdAt,
+    likesCount,
+    isLikedByUser,
     isOwner = false,
     onEdit,
     onDelete,
     isDeleting = false,
 }: ReviewCardProps) {
     const colors = useThemedColors();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const toggleLike = useToggleReviewLike();
+
+    const handleLikePress = useCallback(() => {
+        if (!isAuthenticated) {
+            Toast.show({
+                type: 'error',
+                text1: 'Iniciar sesión',
+                text2: 'Debes iniciar sesión para poder dejar tu me gusta',
+                position: 'top',
+                visibilityTime: 3000,
+            });
+            return;
+        }
+        toggleLike.mutate(id);
+    }, [id, isAuthenticated, toggleLike]);
 
     const renderStars = () => {
         const stars = [];
@@ -70,6 +95,36 @@ export const ReviewCard = memo(function ReviewCard({
                 <Text style={[styles.comment, { color: colors.text.secondary }]}>
                     {comment}
                 </Text>
+            )}
+
+            {/* Like Button */}
+            {!isOwner && (
+                <View style={styles.likeContainer}>
+                    <Pressable
+                        style={styles.likeButton}
+                        onPress={handleLikePress}
+                        disabled={toggleLike.isPending}
+                    >
+                        <ThumbsUp
+                            size={18}
+                            color={isLikedByUser ? '#1877f2' : colors.text.tertiary}
+                            fill={isLikedByUser ? '#1877f2' : 'transparent'}
+                            strokeWidth={1.5}
+                        />
+                        <Text style={[styles.likeText, {
+                            color: isLikedByUser ? '#1877f2' : colors.text.tertiary
+                        }]}>
+                            Me gusta
+                        </Text>
+                        {likesCount > 0 && (
+                            <Text style={[styles.likesCount, {
+                                color: isLikedByUser ? '#1877f2' : colors.text.tertiary
+                            }]}>
+                                ({likesCount})
+                            </Text>
+                        )}
+                    </Pressable>
+                </View>
             )}
 
             {/* Owner Actions */}

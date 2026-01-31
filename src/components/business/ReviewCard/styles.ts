@@ -34,6 +34,25 @@ export const styles = StyleSheet.create({
         lineHeight: 20,
         marginTop: spacing.xs,
     },
+    likeContainer: {
+        marginTop: spacing.sm,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    likeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.xs,
+    },
+    likeText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
+    likesCount: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
     actionsContainer: {
         flexDirection: 'row',
         gap: spacing.sm,
