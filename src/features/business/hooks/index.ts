@@ -4,3 +4,6 @@ export * from './useCategories';
 export * from './useUserBusinesses';
 export * from './useCreateBusiness';
 export * from './useCreateBusinessForm';
+export * from './useBusinessFavorites';
+export * from './useToggleBusinessFavorite';
+export * from './useFavoriteBusinesses';

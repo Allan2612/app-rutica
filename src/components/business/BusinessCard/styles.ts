@@ -123,6 +123,23 @@ export const styles = StyleSheet.create({
         elevation: 3,
         zIndex: 10,
     },
+    favoriteBadge: {
+        position: 'absolute',
+        top: spacing.sm + 4,
+        right: spacing.sm + 4 + 80, // Al lado izquierdo del rating
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 32,
+        height: 32,
+        backgroundColor: 'rgba(255,255,255,0.92)',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: colors.border.medium,
+        boxShadow: '0px 4px 8px rgba(0,0,0,0.06)',
+        elevation: 3,
+        zIndex: 10,
+    },
     ratingValue: {
         marginLeft: spacing.xs + 2,
         fontSize: typography.sizes.xs,

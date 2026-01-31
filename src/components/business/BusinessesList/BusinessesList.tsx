@@ -32,6 +32,7 @@ export const BusinessesList = memo(function BusinessesList({
   const renderItem = ({ item }: { item: BusinessListItem }) => (
     <View style={[styles.cardWrapper, { width: numColumns === 1 ? '100%' : numColumns === 2 ? '48%' : '32%' }]}>
       <BusinessCard
+        id={item.id}
         name={item.name}
         categoryNames={item.categoryNames}
         categoryIds={item.categoryIds}
