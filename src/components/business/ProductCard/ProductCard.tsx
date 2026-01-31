@@ -143,12 +143,6 @@ export const ProductCard = memo(function ProductCard({
                     {name}
                 </Text>
 
-                <CategoryChips
-                    categoryNames={categoryNames}
-                    categoryIds={categoryIds}
-                    maxVisible={2}
-                />
-
                 {description && (
                     <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={2}>
                         {description}
@@ -164,6 +158,12 @@ export const ProductCard = memo(function ProductCard({
                         </Text>
                     </View>
                 )}
+
+                <CategoryChips
+                    categoryNames={categoryNames}
+                    categoryIds={categoryIds}
+                    maxVisible={2}
+                />
 
                 {hasDiscount ? (
                     <View style={styles.priceContainer}>
