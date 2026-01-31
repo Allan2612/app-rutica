@@ -7,6 +7,7 @@ import {
     deleteAttractionReview,
     type AttractionReviewDisplay,
 } from '@/services/attractionReviews.service';
+import { useAuthStore } from '@/store';
 
 const ATTRACTION_REVIEWS_KEY = 'attraction-reviews';
 const USER_ATTRACTION_REVIEW_KEY = 'user-attraction-review';
@@ -15,9 +16,11 @@ const USER_ATTRACTION_REVIEW_KEY = 'user-attraction-review';
  * Hook para obtener todas las reseñas de una atracción
  */
 export function useAttractionReviews(attractionId: string) {
+    const userId = useAuthStore((state) => state.user?.id);
+    
     return useQuery<AttractionReviewDisplay[]>({
-        queryKey: [ATTRACTION_REVIEWS_KEY, attractionId],
-        queryFn: () => getAttractionReviews(attractionId),
+        queryKey: [ATTRACTION_REVIEWS_KEY, attractionId, userId],
+        queryFn: () => getAttractionReviews(attractionId, userId),
         enabled: !!attractionId,
     });
 }

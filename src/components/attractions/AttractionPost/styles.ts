@@ -242,4 +242,16 @@ export const styles = StyleSheet.create({
         marginTop: spacing.xs,
         marginLeft: 32 + spacing.sm,
     },
+    reviewLikeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.xs,
+        marginTop: spacing.xs,
+        marginLeft: 32 + spacing.sm,
+    },
+    reviewLikeText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
 });

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
+import { getMultipleAttractionReviewLikesCount, getUserLikedAttractionReviewIds } from '@/features/attractions/services/attractionReviewLikes.service';
 import type { AttractionReview } from '@/types/entities';
 import type { Database } from '@/lib/supabase/database.types';
 
@@ -14,6 +15,8 @@ export interface AttractionReviewDisplay {
     comment: string | null;
     createdAt: string;
     authorName: string;
+    likesCount: number;
+    isLikedByUser: boolean;
 }
 
 /**
@@ -29,7 +32,7 @@ type AttractionReviewWithProfile = AttractionReviewRow & {
 /**
  * Obtiene todas las reseñas de una atracción
  */
-export async function getAttractionReviews(attractionId: string): Promise<AttractionReviewDisplay[]> {
+export async function getAttractionReviews(attractionId: string, userId?: string): Promise<AttractionReviewDisplay[]> {
     const { data, error } = await supabase
         .from('attraction_reviews')
         .select(`
@@ -55,7 +58,16 @@ export async function getAttractionReviews(attractionId: string): Promise<Attrac
         return [];
     }
 
-    return ((data as unknown as AttractionReviewWithProfile[]) ?? []).map((review) => {
+    const reviews = (data as unknown as AttractionReviewWithProfile[]) ?? [];
+    const reviewIds = reviews.map(r => r.id_arv);
+
+    // Obtener likes count para todas las reseñas
+    const likesCountMap = await getMultipleAttractionReviewLikesCount(reviewIds);
+
+    // Obtener IDs de reseñas con like del usuario actual (si está autenticado)
+    const userLikedIds = userId ? await getUserLikedAttractionReviewIds(userId) : [];
+
+    return reviews.map((review) => {
         const profile = review.profiles;
         const firstName = profile?.first_name_prf ?? '';
         const lastName = profile?.last_name1_prf ?? '';
@@ -69,6 +81,8 @@ export async function getAttractionReviews(attractionId: string): Promise<Attrac
             comment: review.comment_arv,
             createdAt: review.created_at_arv,
             authorName,
+            likesCount: likesCountMap[review.id_arv] || 0,
+            isLikedByUser: userLikedIds.includes(review.id_arv),
         };
     });
 }

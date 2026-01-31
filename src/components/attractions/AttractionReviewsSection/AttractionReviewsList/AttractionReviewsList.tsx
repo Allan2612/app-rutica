@@ -1,7 +1,7 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { ReviewCard } from '@/components/business/ReviewCard';
+import { ReviewItem } from '@/components/attractions/AttractionPost';
 import { styles } from '../styles';
 import type { AttractionReviewDisplay } from '@/services/attractionReviews.service';
 
@@ -28,19 +28,42 @@ export const AttractionReviewsList = memo(function AttractionReviewsList({
 }: AttractionReviewsListProps) {
     const colors = useThemedColors();
 
+    const getInitials = useCallback((name: string) => {
+        return name
+            .split(' ')
+            .map((word) => word[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    }, []);
+
+    const getTimeAgo = useCallback((dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffMonths = Math.floor(diffDays / 30);
+
+        if (diffDays === 0) return 'Hoy';
+        if (diffDays === 1) return 'Ayer';
+        if (diffDays < 7) return `Hace ${diffDays} días`;
+        if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
+        if (diffMonths === 1) return 'Hace 1 mes';
+        if (diffMonths < 12) return `Hace ${diffMonths} meses`;
+        return `Hace ${Math.floor(diffMonths / 12)} años`;
+    }, []);
+
     return (
         <View style={styles.reviewsList}>
             {/* User's review first if exists */}
             {userReview && (
-                <ReviewCard
-                    authorName={userReview.authorName}
-                    rating={userReview.rating}
-                    comment={userReview.comment}
-                    createdAt={userReview.createdAt}
+                <ReviewItem
+                    review={userReview}
                     isOwner={true}
                     onEdit={onEdit}
                     onDelete={onDelete}
-                    isDeleting={isDeleting}
+                    getInitials={getInitials}
+                    getTimeAgo={getTimeAgo}
                 />
             )}
 
@@ -48,12 +71,14 @@ export const AttractionReviewsList = memo(function AttractionReviewsList({
             {reviews
                 .filter((review) => review.userId !== currentUserId)
                 .map((review) => (
-                    <ReviewCard
+                    <ReviewItem
                         key={review.id}
-                        authorName={review.authorName}
-                        rating={review.rating}
-                        comment={review.comment}
-                        createdAt={review.createdAt}
+                        review={review}
+                        isOwner={false}
+                        onEdit={() => {}}
+                        onDelete={() => {}}
+                        getInitials={getInitials}
+                        getTimeAgo={getTimeAgo}
                     />
                 ))}
 
