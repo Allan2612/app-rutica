@@ -65,27 +65,6 @@ export const BusinessCard = memo(function BusinessCard({
         </View>
       ) : null}
 
-      {/* Botón de favoritos */}
-      {isAuthenticated && (
-        <Pressable
-          style={[
-            styles.favoriteBadge,
-            {
-              backgroundColor: isFavorite ? 'rgba(239, 68, 68, 0.95)' : 'rgba(255,255,255,0.92)',
-              borderColor: colors.border.medium,
-            }
-          ]}
-          onPress={handleToggleFavorite}
-          disabled={isPending}
-        >
-          <Heart
-            size={16}
-            color={isFavorite ? '#ffffff' : '#ef4444'}
-            fill={isFavorite ? '#ffffff' : 'transparent'}
-          />
-        </Pressable>
-      )}
-
       {rating > 0 && (
         <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
           <Star size={16} color="#fbbf24" fill="#fbbf24" />
@@ -150,6 +129,26 @@ export const BusinessCard = memo(function BusinessCard({
             <Text style={styles.locationText} numberOfLines={1}>
               {locationLabel}
             </Text>
+            {/* Botón de favoritos */}
+            {isAuthenticated && (
+              <Pressable
+                style={[
+                  styles.favoriteButton,
+                  {
+                    backgroundColor: isFavorite ? 'rgba(239, 68, 68, 0.95)' : 'rgba(255,255,255,0.92)',
+                    borderColor: colors.border.medium,
+                  }
+                ]}
+                onPress={handleToggleFavorite}
+                disabled={isPending}
+              >
+                <Heart
+                  size={16}
+                  color={isFavorite ? '#ffffff' : '#ef4444'}
+                  fill={isFavorite ? '#ffffff' : 'transparent'}
+                />
+              </Pressable>
+            )}
           </View>
         ) : null}
       </View>
