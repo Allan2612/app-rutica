@@ -33,10 +33,13 @@ export const ReviewsList = memo(function ReviewsList({
             {/* User's review first if exists */}
             {userReview && (
                 <ReviewCard
+                    id={userReview.id}
                     authorName={userReview.authorName}
                     rating={userReview.rating}
                     comment={userReview.comment}
                     createdAt={userReview.createdAt}
+                    likesCount={userReview.likesCount}
+                    isLikedByUser={userReview.isLikedByUser}
                     isOwner={true}
                     onEdit={onEdit}
                     onDelete={onDelete}
@@ -50,10 +53,13 @@ export const ReviewsList = memo(function ReviewsList({
                 .map((review) => (
                     <ReviewCard
                         key={review.id}
+                        id={review.id}
                         authorName={review.authorName}
                         rating={review.rating}
                         comment={review.comment}
                         createdAt={review.createdAt}
+                        likesCount={review.likesCount}
+                        isLikedByUser={review.isLikedByUser}
                     />
                 ))}
 

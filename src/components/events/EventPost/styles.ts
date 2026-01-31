@@ -33,6 +33,16 @@ export const styles = StyleSheet.create({
         flex: 1,
         marginLeft: spacing.sm,
     },
+    headerRating: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginLeft: spacing.sm,
+    },
+    ratingText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
+    },
     authorName: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.semibold,
@@ -142,7 +152,27 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.medium,
     },
-    // Reviews section styles
+    // Actions bar (Me gusta, Comentar, Compartir)
+    actionsBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        borderTopWidth: 1,
+    },
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
+    },
+    actionButtonText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
+    },
+    // Reviews section styles (legacy)
     reviewsSection: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -227,5 +257,35 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
         marginTop: spacing.xs,
         lineHeight: 18,
+    },
+    reviewLikeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.xs,
+        marginTop: spacing.xs,
+    },
+    reviewLikeText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
+    emptyReviewsContainer: {
+        alignItems: 'center',
+        paddingVertical: spacing.md,
+    },
+    emptyReviewsText: {
+        fontSize: typography.sizes.sm,
+        textAlign: 'center',
+        marginBottom: spacing.md,
+    },
+    writeReviewButtonLarge: {
+        paddingHorizontal: spacing.md + spacing.sm,
+        paddingVertical: spacing.sm + 2,
+        borderRadius: spacing.sm,
+    },
+    writeReviewButtonLargeText: {
+        color: colors.text.inverse,
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.semibold,
     },
 });

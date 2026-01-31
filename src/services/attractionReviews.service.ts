@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
+import { getMultipleAttractionReviewLikesCount, getUserLikedAttractionReviewIds } from '@/features/attractions/services/attractionReviewLikes.service';
 import type { AttractionReview } from '@/types/entities';
 import type { Database } from '@/lib/supabase/database.types';
 
@@ -14,6 +15,8 @@ export interface AttractionReviewDisplay {
     comment: string | null;
     createdAt: string;
     authorName: string;
+    likesCount: number;
+    isLikedByUser: boolean;
 }
 
 /**
@@ -29,7 +32,7 @@ type AttractionReviewWithProfile = AttractionReviewRow & {
 /**
  * Obtiene todas las reseñas de una atracción
  */
-export async function getAttractionReviews(attractionId: string): Promise<AttractionReviewDisplay[]> {
+export async function getAttractionReviews(attractionId: string, userId?: string): Promise<AttractionReviewDisplay[]> {
     const { data, error } = await supabase
         .from('attraction_reviews')
         .select(`
@@ -55,7 +58,16 @@ export async function getAttractionReviews(attractionId: string): Promise<Attrac
         return [];
     }
 
-    return ((data as unknown as AttractionReviewWithProfile[]) ?? []).map((review) => {
+    const reviews = (data as unknown as AttractionReviewWithProfile[]) ?? [];
+    const reviewIds = reviews.map(r => r.id_arv);
+
+    // Obtener likes count para todas las reseñas
+    const likesCountMap = await getMultipleAttractionReviewLikesCount(reviewIds);
+
+    // Obtener IDs de reseñas con like del usuario actual (si está autenticado)
+    const userLikedIds = userId ? await getUserLikedAttractionReviewIds(userId) : [];
+
+    return reviews.map((review) => {
         const profile = review.profiles;
         const firstName = profile?.first_name_prf ?? '';
         const lastName = profile?.last_name1_prf ?? '';
@@ -69,6 +81,8 @@ export async function getAttractionReviews(attractionId: string): Promise<Attrac
             comment: review.comment_arv,
             createdAt: review.created_at_arv,
             authorName,
+            likesCount: likesCountMap[review.id_arv] || 0,
+            isLikedByUser: userLikedIds.includes(review.id_arv),
         };
     });
 }
@@ -271,32 +285,55 @@ export async function deleteAttractionReview(reviewId: string, attractionId: str
 
 /**
  * Actualiza el promedio de rating y conteo de reseñas de la atracción
+ * Usa una función SQL con SECURITY DEFINER para bypasear el trigger de protección
  */
 async function updateAttractionRating(attractionId: string): Promise<void> {
-    // Obtener todas las reseñas de la atracción
-    const { data: reviews, error } = await supabase
-        .from('attraction_reviews')
-        .select('rating_arv')
-        .eq('attraction_id_arv', attractionId);
+    // Llamar a la función SQL que tiene privilegios para actualizar los campos protegidos
+    const { error } = await (supabase as any).rpc('update_attraction_rating', {
+        p_attraction_id: attractionId
+    });
 
     if (error) {
-        return;
+        console.error('[updateAttractionRating] Error calling RPC:', error);
+        // Fallback: Intentar actualización directa (funcionará si el trigger fue modificado)
+        try {
+            const { data: reviews, error: reviewsError } = await supabase
+                .from('attraction_reviews')
+                .select('rating_arv')
+                .eq('attraction_id_arv', attractionId);
+
+            if (reviewsError) {
+                console.error('[updateAttractionRating] Error fetching reviews:', reviewsError);
+                return;
+            }
+
+            const reviewsData = reviews as unknown as Pick<AttractionReviewRow, 'rating_arv'>[] | null;
+            const reviewCount = reviewsData?.length ?? 0;
+            const avgRating = reviewCount > 0
+                ? reviewsData!.reduce((sum, r) => sum + (r.rating_arv ?? 0), 0) / reviewCount
+                : 0;
+
+            const updatePayload = {
+                avg_rating_atr: Math.round(avgRating * 10) / 10,
+                reviews_count_atr: reviewCount,
+            };
+
+            console.log('[updateAttractionRating] Updating attraction (fallback):', attractionId, updatePayload);
+
+            const { error: updateError } = await supabase
+                .from('attractions')
+                .update(updatePayload)
+                .eq('id_atr', attractionId);
+
+            if (updateError) {
+                console.error('[updateAttractionRating] Error updating attraction (fallback):', updateError);
+            } else {
+                console.log('[updateAttractionRating] Successfully updated attraction ratings (fallback)');
+            }
+        } catch (err) {
+            console.error('[updateAttractionRating] Unexpected error in fallback:', err);
+        }
+    } else {
+        console.log('[updateAttractionRating] Successfully called RPC update_attraction_rating');
     }
-
-    const reviewsData = reviews as unknown as Pick<AttractionReviewRow, 'rating_arv'>[] | null;
-    const reviewCount = reviewsData?.length ?? 0;
-    const avgRating = reviewCount > 0
-        ? reviewsData!.reduce((sum, r) => sum + (r.rating_arv ?? 0), 0) / reviewCount
-        : 0;
-
-    const updatePayload: any = {
-        avg_rating_atr: Math.round(avgRating * 10) / 10,
-        reviews_count_atr: reviewCount,
-    };
-
-    // Actualizar la atracción
-    await (supabase as any)
-        .from('attractions')
-        .update(updatePayload)
-        .eq('id_atr', attractionId);
 }

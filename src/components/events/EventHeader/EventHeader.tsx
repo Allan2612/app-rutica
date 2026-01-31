@@ -122,7 +122,7 @@ export const EventHeader = memo(({
                 <View style={styles.infoRow}>
                     <Star size={18} color="#facc15" fill="#facc15" />
                     <Text style={[styles.infoText, { color: colors.text.secondary }]}>
-                        {rating.toFixed(1)} ({reviewCount} reseñas)
+                        {rating.toFixed(1)} ({reviewCount})
                     </Text>
                 </View>
             )}

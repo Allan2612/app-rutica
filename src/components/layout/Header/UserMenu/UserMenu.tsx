@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { User, LogOut, Settings, UserCircle, HelpCircle } from 'lucide-react-native';
+import { User, LogOut, Settings, UserCircle, HelpCircle, Heart } from 'lucide-react-native';
 import { useAuthStore } from '@/store';
 import { useThemedColors, useProfilePhoto } from '@/hooks';
 import { styles } from './styles';
@@ -37,6 +37,11 @@ export const UserMenu = memo(function UserMenu({
   const handleProfile = useCallback(() => {
     onClose();
     router.push('/(app)/profile');
+  }, [onClose]);
+
+  const handleFavorites = useCallback(() => {
+    onClose();
+    router.push('/(app)/favorites');
   }, [onClose]);
 
   const handleSettings = useCallback(() => {
@@ -99,6 +104,11 @@ export const UserMenu = memo(function UserMenu({
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Mi perfil</Text>
               </Pressable>
 
+              <Pressable style={styles.menuItem} onPress={handleFavorites}>
+                <Heart color="#ef4444" size={20} />
+                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Mis favoritos</Text>
+              </Pressable>
+
               <Pressable style={styles.menuItem} onPress={handleSettings}>
                 <Settings color={colors.text.primary} size={20} />
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Configuración</Text>
@@ -128,7 +138,7 @@ export const UserMenu = memo(function UserMenu({
                 <UserCircle color={colors.text.primary} size={20} />
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Registrarse</Text>
               </Pressable>
-              
+
               <Pressable style={styles.menuItem} onPress={handleSettings}>
                 <Settings color={colors.text.primary} size={20} />
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Configuración</Text>

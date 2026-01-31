@@ -4,7 +4,7 @@ import { spacing, typography, colors } from '@/styles/theme';
 export const styles = StyleSheet.create({
     card: {
         flex: 1,
-        maxWidth: Platform.OS === 'web' ? '32%' : '48%',
+        maxWidth: Platform.OS === 'web' ? '48%' : '48%',
         borderRadius: 12,
         borderWidth: 1,
         overflow: 'hidden',
@@ -40,6 +40,15 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.xs,
         lineHeight: 16,
     },
+    ratingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    ratingText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
+    },
     price: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.bold,
@@ -71,5 +80,33 @@ export const styles = StyleSheet.create({
         color: colors.text.inverse,
         fontSize: typography.sizes.xs,
         fontWeight: typography.fontWeights.bold,
+    },
+    reviewsButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.xs - 2,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        borderRadius: spacing.sm,
+        borderWidth: 1.5,
+        marginTop: spacing.sm,
+    },
+    reviewsButtonText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.semibold,
+    },
+    reviewsFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.sm,
+        borderTopWidth: 1,
+        marginTop: 'auto',
+    },
+    reviewsFooterText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
     },
 });

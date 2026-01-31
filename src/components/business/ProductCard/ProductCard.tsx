@@ -1,10 +1,12 @@
 import { memo, useState } from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
+import { MessageCircle, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getAllActivePromotions, calculateDiscountedPrice, isComboPromotion, getPromotionBadgeLabel, formatPrice } from '@/utils';
 import type { PromotionListItem } from '@/types/entities';
 import { ProductImageCarousel } from '../ProductImageCarousel';
 import { CategoryChips, PromoBadge } from '@/components/ui';
+import { ProductReviewsModal } from '../ProductReviewsModal';
 import { styles } from './styles';
 
 interface ProductCardProps {
@@ -18,6 +20,8 @@ interface ProductCardProps {
     categoryIds?: string[];
     categoryNames?: string[];
     promotions?: PromotionListItem[];
+    rating?: number;
+    reviewCount?: number;
     onImagePress?: (imageUrl: string) => void;
 }
 
@@ -32,11 +36,14 @@ export const ProductCard = memo(function ProductCard({
     categoryIds = [],
     categoryNames = [],
     promotions,
+    rating = 0,
+    reviewCount = 0,
     onImagePress,
 }: ProductCardProps) {
     const colors = useThemedColors();
     const [cardWidth, setCardWidth] = useState(0);
     const [showAllBadges, setShowAllBadges] = useState(false);
+    const [showReviewsModal, setShowReviewsModal] = useState(false);
 
     const images = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
 
@@ -136,17 +143,27 @@ export const ProductCard = memo(function ProductCard({
                     {name}
                 </Text>
 
-                <CategoryChips
-                    categoryNames={categoryNames}
-                    categoryIds={categoryIds}
-                    maxVisible={2}
-                />
-
                 {description && (
                     <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={2}>
                         {description}
                     </Text>
                 )}
+
+                {/* Rating */}
+                {rating > 0 && (
+                    <View style={styles.ratingRow}>
+                        <Star size={14} color="#fbbf24" fill="#fbbf24" />
+                        <Text style={[styles.ratingText, { color: colors.text.secondary }]}>
+                            {rating.toFixed(1)} ({reviewCount})
+                        </Text>
+                    </View>
+                )}
+
+                <CategoryChips
+                    categoryNames={categoryNames}
+                    categoryIds={categoryIds}
+                    maxVisible={2}
+                />
 
                 {hasDiscount ? (
                     <View style={styles.priceContainer}>
@@ -175,6 +192,25 @@ export const ProductCard = memo(function ProductCard({
                     </Text>
                 )}
             </View>
+
+            {/* Ver opiniones footer */}
+            <Pressable 
+                style={[styles.reviewsFooter, { borderTopColor: colors.border.light }]}
+                onPress={() => setShowReviewsModal(true)}
+            >
+                <MessageCircle size={16} color={colors.primary[500]} />
+                <Text style={[styles.reviewsFooterText, { color: colors.primary[500] }]}>
+                    Ver opiniones
+                </Text>
+            </Pressable>
+
+            <ProductReviewsModal
+                visible={showReviewsModal}
+                productId={productId}
+                productName={name}
+                productImage={images[0]}
+                onClose={() => setShowReviewsModal(false)}
+            />
         </View>
     );
 });

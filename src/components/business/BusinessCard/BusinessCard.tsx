@@ -1,12 +1,16 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { MapPin, Star, Tag } from 'lucide-react-native';
+import { Heart, MapPin, Star, Tag } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
+import { useAuthStore } from '@/store';
+import { useBusinessFavoriteIds } from '@/features/business/hooks/useBusinessFavorites';
+import { useToggleBusinessFavorite } from '@/features/business/hooks/useToggleBusinessFavorite';
 import { styles } from './styles';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
 
 export interface BusinessCardProps {
+  id: string;
   name: string;
   categoryNames?: string[];
   categoryIds?: string[];
@@ -16,11 +20,12 @@ export interface BusinessCardProps {
   rating?: number;
   reviewCount?: number;
   isApproved?: boolean;
-  hasActivePromotions?: boolean; // NEW: Indica si tiene promociones activas
+  hasActivePromotions?: boolean;
   onPress?: () => void;
 }
 
 export const BusinessCard = memo(function BusinessCard({
+  id,
   name,
   categoryNames = [],
   categoryIds = [],
@@ -30,10 +35,21 @@ export const BusinessCard = memo(function BusinessCard({
   rating = 4.5,
   reviewCount = 20,
   isApproved = false,
-  hasActivePromotions = false, // NEW
+  hasActivePromotions = false,
   onPress,
 }: BusinessCardProps) {
   const colors = useThemedColors();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { data: favoriteIds = [] } = useBusinessFavoriteIds();
+  const { mutate: toggleFavorite, isPending } = useToggleBusinessFavorite();
+
+  const isFavorite = favoriteIds.includes(id);
+
+  const handleToggleFavorite = useCallback((e: any) => {
+    e.stopPropagation?.();
+    if (!isAuthenticated || isPending) return;
+    toggleFavorite(id);
+  }, [id, isAuthenticated, isPending, toggleFavorite]);
 
   return (
     <Pressable style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]} onPress={onPress} disabled={!onPress}>
@@ -48,8 +64,6 @@ export const BusinessCard = memo(function BusinessCard({
           <Image source={{ uri: logoUrl }} style={styles.logoImage} resizeMode="cover" />
         </View>
       ) : null}
-
-     
 
       {rating > 0 && (
         <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
@@ -115,6 +129,26 @@ export const BusinessCard = memo(function BusinessCard({
             <Text style={styles.locationText} numberOfLines={1}>
               {locationLabel}
             </Text>
+            {/* Botón de favoritos */}
+            {isAuthenticated && (
+              <Pressable
+                style={[
+                  styles.favoriteButton,
+                  {
+                    backgroundColor: isFavorite ? 'rgba(239, 68, 68, 0.95)' : 'rgba(255,255,255,0.92)',
+                    borderColor: colors.border.medium,
+                  }
+                ]}
+                onPress={handleToggleFavorite}
+                disabled={isPending}
+              >
+                <Heart
+                  size={16}
+                  color={isFavorite ? '#ffffff' : '#ef4444'}
+                  fill={isFavorite ? '#ffffff' : 'transparent'}
+                />
+              </Pressable>
+            )}
           </View>
         ) : null}
       </View>

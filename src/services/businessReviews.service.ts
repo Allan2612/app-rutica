@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
+import { getMultipleReviewLikesCount, getUserLikedReviewIds } from '@/features/business/services/businessReviewLikes.service';
 import type { Database } from '@/lib/supabase/database.types';
 
 /**
@@ -13,6 +14,8 @@ export interface BusinessReviewDisplay {
     comment: string | null;
     createdAt: string;
     authorName: string;
+    likesCount: number;
+    isLikedByUser: boolean;
 }
 
 /**
@@ -28,7 +31,7 @@ type BusinessReviewWithProfile = BusinessReviewRow & {
 /**
  * Obtiene todas las reseñas de un negocio
  */
-export async function getBusinessReviews(businessId: string): Promise<BusinessReviewDisplay[]> {
+export async function getBusinessReviews(businessId: string, userId?: string): Promise<BusinessReviewDisplay[]> {
     const { data, error } = await supabase
         .from('business_reviews')
         .select(`
@@ -50,7 +53,16 @@ export async function getBusinessReviews(businessId: string): Promise<BusinessRe
         return [];
     }
 
-    return ((data as unknown as BusinessReviewWithProfile[]) ?? []).map((review) => {
+    const reviews = (data as unknown as BusinessReviewWithProfile[]) ?? [];
+    const reviewIds = reviews.map(r => r.id_brv);
+
+    // Obtener likes count para todas las reseñas
+    const likesCountMap = await getMultipleReviewLikesCount(reviewIds);
+
+    // Obtener IDs de reseñas con like del usuario actual (si está autenticado)
+    const userLikedIds = userId ? await getUserLikedReviewIds(userId) : [];
+
+    return reviews.map((review) => {
         const profile = review.profiles;
         const firstName = profile?.first_name_prf ?? '';
         const lastName = profile?.last_name1_prf ?? '';
@@ -64,6 +76,8 @@ export async function getBusinessReviews(businessId: string): Promise<BusinessRe
             comment: review.comment_brv,
             createdAt: review.created_at_brv,
             authorName,
+            likesCount: likesCountMap[review.id_brv] || 0,
+            isLikedByUser: userLikedIds.includes(review.id_brv),
         };
     });
 }
@@ -107,6 +121,10 @@ export async function getUserBusinessReview(
     const lastName = profile?.last_name1_prf ?? '';
     const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
+    // Obtener likes count
+    const likesCountMap = await getMultipleReviewLikesCount([review.id_brv]);
+    const userLikedIds = await getUserLikedReviewIds(userId);
+
     return {
         id: review.id_brv,
         businessId: review.business_id_brv ?? '',
@@ -115,6 +133,8 @@ export async function getUserBusinessReview(
         comment: review.comment_brv,
         createdAt: review.created_at_brv,
         authorName,
+        likesCount: likesCountMap[review.id_brv] || 0,
+        isLikedByUser: userLikedIds.includes(review.id_brv),
     };
 }
 

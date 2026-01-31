@@ -39,7 +39,7 @@ export const ConfirmExitDialog = memo(function ConfirmExitDialog({
     title = 'Cambios sin guardar',
     description = 'Tienes cambios que no se han guardado. Si sales ahora, perderás todo el progreso realizado en este formulario.',
     cancelLabel = 'Continuar',
-    confirmLabel = 'Salir',
+    confirmLabel = 'Descartar',
 }: ConfirmExitDialogProps) {
     const colors = useThemedColors();
 

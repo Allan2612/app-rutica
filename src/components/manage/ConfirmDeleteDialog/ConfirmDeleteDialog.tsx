@@ -7,7 +7,7 @@ import { styles } from './styles';
 interface ConfirmDeleteDialogProps {
     visible: boolean;
     entityName: string;
-    entityType: 'negocio' | 'evento' | 'atracción' | 'producto' | 'promoción' | 'reseña';
+    entityType: 'negocio' | 'evento' | 'atracción' | 'producto' | 'promoción' | 'reseña' | 'opinión';
     onConfirm: () => void;
     onCancel: () => void;
     isDeleting?: boolean;
@@ -72,6 +72,12 @@ export const ConfirmDeleteDialog = memo(function ConfirmDeleteDialog({
             title: 'Eliminar reseña',
             description: 'Se eliminará tu reseña de este negocio. Esta acción no se puede deshacer.',
             buttonText: 'Eliminar reseña',
+            deletingText: 'Eliminando...',
+        },
+        opinión: {
+            title: 'Eliminar opinión',
+            description: 'Se eliminará tu opinión sobre este producto. Esta acción no se puede deshacer.',
+            buttonText: 'Eliminar opinión',
             deletingText: 'Eliminando...',
         },
     };

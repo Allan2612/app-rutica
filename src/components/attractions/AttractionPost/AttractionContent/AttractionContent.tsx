@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
-import { Mountain } from 'lucide-react-native';
+import { Mountain, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
 import { styles } from '../styles';
@@ -15,6 +15,8 @@ interface AttractionContentProps {
     onToggleCategories: () => void;
     authorName?: string | null;
     createdAt?: string;
+    rating?: number;
+    reviewCount?: number;
     getInitials: (name: string) => string;
     getTimeAgo: (date: string) => string;
 }
@@ -31,6 +33,8 @@ export const AttractionContent = memo(function AttractionContent({
     onToggleCategories,
     authorName,
     createdAt,
+    rating = 0,
+    reviewCount = 0,
     getInitials,
     getTimeAgo,
 }: AttractionContentProps) {
@@ -60,6 +64,15 @@ export const AttractionContent = memo(function AttractionContent({
                         {createdAt ? getTimeAgo(createdAt) : ''}
                     </Text>
                 </View>
+                {/* Rating a la derecha */}
+                {rating > 0 && (
+                    <View style={styles.headerRating}>
+                        <Star size={14} color="#fbbf24" fill="#fbbf24" />
+                        <Text style={[styles.ratingText, { color: colors.text.secondary }]}>
+                            {rating.toFixed(1)} ({reviewCount})
+                        </Text>
+                    </View>
+                )}
             </View>
 
             {/* Contenido */}

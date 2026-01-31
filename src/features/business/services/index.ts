@@ -7,3 +7,5 @@ export * from './categories.service';
 export * from './createBusiness.service';
 export * from './updateBusiness.service';
 export * from './businessDetail.service';
+export * from './businessLikes.service';
+export * from './businessReviewLikes.service';

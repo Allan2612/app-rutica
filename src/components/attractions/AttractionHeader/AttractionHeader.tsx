@@ -77,7 +77,7 @@ export const AttractionHeader = memo(({
                 <View style={styles.ratingRow}>
                     <Star size={16} color="#facc15" fill="#facc15" />
                     <Text style={[styles.ratingText, { color: colors.text.secondary }]}>
-                        {rating.toFixed(1)} ({reviewCount} reseñas)
+                        {rating.toFixed(1)} ({reviewCount})
                     </Text>
                 </View>
             )}

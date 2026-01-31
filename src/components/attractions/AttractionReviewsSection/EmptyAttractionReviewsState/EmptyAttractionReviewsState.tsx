@@ -31,7 +31,7 @@ export const EmptyAttractionReviewsState = memo(function EmptyAttractionReviewsS
                 <MessageSquare size={24} color={colors.text.tertiary} />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-                Sin reseñas
+                Sin comentarios
             </Text>
             <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
                 Sé el primero en compartir tu experiencia con esta atracción
