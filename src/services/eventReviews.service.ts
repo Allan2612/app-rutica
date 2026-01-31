@@ -242,6 +242,19 @@ export async function deleteEventReview(reviewId: string, eventId: string): Prom
 }
 
 async function updateEventRating(eventId: string): Promise<void> {
+    // Intentar usar la función RPC con SECURITY DEFINER
+    const { error: rpcError } = await supabase.rpc('update_event_rating', {
+        p_event_id: eventId
+    });
+
+    // Si el RPC funciona, terminamos aquí
+    if (!rpcError) {
+        return;
+    }
+
+    console.warn('RPC update_event_rating failed, using fallback method:', rpcError);
+
+    // Fallback: calcular y actualizar manualmente
     const { data: reviews, error } = await supabase
         .from('event_reviews')
         .select('rating_erv')

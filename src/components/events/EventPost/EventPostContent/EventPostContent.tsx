@@ -68,6 +68,16 @@ export const EventPostContent = memo(function EventPostContent({
                 </Text>
             )}
 
+            {/* Rating */}
+            {rating > 0 && (
+                <View style={styles.ratingRow}>
+                    <Star size={16} color="#fbbf24" fill="#fbbf24" />
+                    <Text style={[styles.ratingText, { color: colors.text.primary }]}>
+                        {rating.toFixed(1)} ({reviewCount})
+                    </Text>
+                </View>
+            )}
+
             {/* Categorías */}
             {categoryNames.length > 0 && (
                 <View style={styles.categoriesRow}>
@@ -118,16 +128,6 @@ export const EventPostContent = memo(function EventPostContent({
                     <Users size={16} color={colors.primary[500]} />
                     <Text style={[styles.eventInfoText, { color: colors.text.primary }]}>
                         {capacity} cupos disponibles
-                    </Text>
-                </View>
-            )}
-
-            {/* Rating */}
-            {rating > 0 && (
-                <View style={styles.ratingRow}>
-                    <Star size={16} color="#fbbf24" fill="#fbbf24" />
-                    <Text style={[styles.ratingText, { color: colors.text.primary }]}>
-                        {rating.toFixed(1)} ({reviewCount})
                     </Text>
                 </View>
             )}
