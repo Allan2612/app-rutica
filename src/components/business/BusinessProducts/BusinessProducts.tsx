@@ -107,7 +107,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
                         ? `combo-${item.data.id}`
                         : `product-${item.data.id}`
                 }
-                numColumns={Platform.OS === 'web' ? 3 : 2}
+                numColumns={Platform.OS === 'web' ? 2 : 2}
                 columnWrapperStyle={styles.row}
                 scrollEnabled={false}
                 showsVerticalScrollIndicator={false}

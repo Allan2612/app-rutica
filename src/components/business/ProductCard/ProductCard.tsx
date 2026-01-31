@@ -191,24 +191,18 @@ export const ProductCard = memo(function ProductCard({
                         {formatPrice(price, currency)}
                     </Text>
                 )}
-
-                {/* Ver opiniones button */}
-                <Pressable 
-                    style={({ pressed }) => [
-                        styles.reviewsButton, 
-                        { 
-                            borderColor: colors.primary[500],
-                            backgroundColor: pressed ? colors.primary[50] : 'transparent'
-                        }
-                    ]}
-                    onPress={() => setShowReviewsModal(true)}
-                >
-                    <MessageCircle size={18} color={colors.primary[500]} />
-                    <Text style={[styles.reviewsButtonText, { color: colors.primary[500] }]}>
-                        Ver opiniones
-                    </Text>
-                </Pressable>
             </View>
+
+            {/* Ver opiniones footer */}
+            <Pressable 
+                style={[styles.reviewsFooter, { borderTopColor: colors.border.light }]}
+                onPress={() => setShowReviewsModal(true)}
+            >
+                <MessageCircle size={16} color={colors.primary[500]} />
+                <Text style={[styles.reviewsFooterText, { color: colors.primary[500] }]}>
+                    Ver opiniones
+                </Text>
+            </Pressable>
 
             <ProductReviewsModal
                 visible={showReviewsModal}

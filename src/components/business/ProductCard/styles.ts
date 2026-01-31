@@ -4,7 +4,7 @@ import { spacing, typography, colors } from '@/styles/theme';
 export const styles = StyleSheet.create({
     card: {
         flex: 1,
-        maxWidth: Platform.OS === 'web' ? '32%' : '48%',
+        maxWidth: Platform.OS === 'web' ? '48%' : '48%',
         borderRadius: 12,
         borderWidth: 1,
         overflow: 'hidden',
@@ -95,5 +95,18 @@ export const styles = StyleSheet.create({
     reviewsButtonText: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.semibold,
+    },
+    reviewsFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.sm,
+        borderTopWidth: 1,
+        marginTop: 'auto',
+    },
+    reviewsFooterText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.medium,
     },
 });
