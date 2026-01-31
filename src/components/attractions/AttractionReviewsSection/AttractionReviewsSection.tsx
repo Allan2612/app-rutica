@@ -50,7 +50,7 @@ export const AttractionReviewsSection = memo(function AttractionReviewsSection({
     return (
         <View style={styles.container}>
             <Text style={[styles.title, { color: colors.text.primary }]}>
-                Reseñas
+                Comentarios
             </Text>
 
             {!hasReviews ? (

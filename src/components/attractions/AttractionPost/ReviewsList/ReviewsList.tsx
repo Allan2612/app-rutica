@@ -32,11 +32,11 @@ export const ReviewsList = memo(function ReviewsList({
 
     return (
         <View style={[styles.reviewsList, { borderTopColor: colors.border.light }]}>
-            {/* Si no hay reseñas, mostrar mensaje y botón */}
+            {/* Si no hay comentarios, mostrar mensaje y botón */}
             {reviews.length === 0 ? (
                 <View style={styles.emptyReviewsContainer}>
                     <Text style={[styles.emptyReviewsText, { color: colors.text.tertiary }]}>
-                        Sin reseñas aún. ¡Sé el primero en compartir tu experiencia!
+                        Sin comentarios aún. ¡Sé el primero en compartir tu experiencia!
                     </Text>
                     {isAuthenticated && (
                         <Pressable
