@@ -57,17 +57,22 @@ export const EventReviewsSectionControls = memo(function EventReviewsSectionCont
         try {
             const shareMessage = `¡Mira este evento en Rutica! ${eventName}`;
             
+            // Construir el URL de detalles del evento
+            const detailUrl = Platform.OS === 'web' 
+                ? `${window.location.origin}/(app)/(tabs)/events/${eventId}`
+                : `rutica://events/${eventId}`;
+            
             if (Platform.OS === 'web') {
                 // En web usar navigator.share si está disponible
                 if (navigator.share) {
                     await navigator.share({
                         title: eventName,
                         text: shareMessage,
-                        url: window.location.href,
+                        url: detailUrl,
                     });
                 } else {
                     // Fallback: copiar al portapapeles
-                    await navigator.clipboard.writeText(`${shareMessage}\n${window.location.href}`);
+                    await navigator.clipboard.writeText(`${shareMessage}\n${detailUrl}`);
                     Toast.show({
                         type: 'success',
                         text1: 'Enlace copiado',
@@ -78,14 +83,14 @@ export const EventReviewsSectionControls = memo(function EventReviewsSectionCont
             } else {
                 // En móvil usar Share de React Native
                 await Share.share({
-                    message: shareMessage,
+                    message: `${shareMessage}\n${detailUrl}`,
                     title: eventName,
                 });
             }
         } catch (error) {
             console.log('[EventReviewsSectionControls] Share cancelled or error:', error);
         }
-    }, [eventName]);
+    }, [eventName, eventId]);
 
     const likeColor = isLiked ? '#1877f2' : colors.text.secondary;
 

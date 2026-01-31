@@ -57,17 +57,22 @@ export const ReviewsSectionControls = memo(function ReviewsSectionControls({
         try {
             const shareMessage = `¡Mira esta atracción en Rutica! ${attractionName}`;
             
+            // Construir el URL de detalles de la atracción
+            const detailUrl = Platform.OS === 'web' 
+                ? `${window.location.origin}/(app)/(tabs)/attractions/${attractionId}`
+                : `rutica://attractions/${attractionId}`;
+            
             if (Platform.OS === 'web') {
                 // En web usar navigator.share si está disponible
                 if (navigator.share) {
                     await navigator.share({
                         title: attractionName,
                         text: shareMessage,
-                        url: window.location.href,
+                        url: detailUrl,
                     });
                 } else {
                     // Fallback: copiar al portapapeles
-                    await navigator.clipboard.writeText(`${shareMessage}\n${window.location.href}`);
+                    await navigator.clipboard.writeText(`${shareMessage}\n${detailUrl}`);
                     Toast.show({
                         type: 'success',
                         text1: 'Enlace copiado',
@@ -78,14 +83,14 @@ export const ReviewsSectionControls = memo(function ReviewsSectionControls({
             } else {
                 // En móvil usar Share de React Native
                 await Share.share({
-                    message: shareMessage,
+                    message: `${shareMessage}\n${detailUrl}`,
                     title: attractionName,
                 });
             }
         } catch (error) {
             console.log('[ReviewsSectionControls] Share cancelled or error:', error);
         }
-    }, [attractionName]);
+    }, [attractionName, attractionId]);
 
     const likeColor = isLiked ? '#1877f2' : colors.text.secondary;
 
