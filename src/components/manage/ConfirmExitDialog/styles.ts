@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: spacing.md,
         padding: spacing.lg,
-        paddingTop: spacing.md,
+        justifyContent: 'center',
     },
     button: {
         flex: 1,

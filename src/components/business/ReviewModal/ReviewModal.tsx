@@ -105,10 +105,6 @@ export const ReviewModal = memo(function ReviewModal({
                 visible={showExitConfirm}
                 onConfirm={() => { setShowExitConfirm(false); onClose(); }}
                 onCancel={() => setShowExitConfirm(false)}
-                title="Cambios sin guardar"
-                description="Tienes cambios en tu reseña que no se han guardado. Si sales ahora, perderás el progreso."
-                cancelLabel="Continuar editando"
-                confirmLabel="Descartar cambios"
             />
         </>
     );
