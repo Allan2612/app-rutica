@@ -98,6 +98,8 @@ export function AttractionPost({
                 onToggleCategories={() => setShowAllCategories(true)}
                 authorName={authorName}
                 createdAt={createdAt}
+                rating={rating}
+                reviewCount={reviewCount}
                 getInitials={getInitials}
                 getTimeAgo={getTimeAgo}
             />

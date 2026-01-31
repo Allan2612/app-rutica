@@ -285,32 +285,55 @@ export async function deleteAttractionReview(reviewId: string, attractionId: str
 
 /**
  * Actualiza el promedio de rating y conteo de reseñas de la atracción
+ * Usa una función SQL con SECURITY DEFINER para bypasear el trigger de protección
  */
 async function updateAttractionRating(attractionId: string): Promise<void> {
-    // Obtener todas las reseñas de la atracción
-    const { data: reviews, error } = await supabase
-        .from('attraction_reviews')
-        .select('rating_arv')
-        .eq('attraction_id_arv', attractionId);
+    // Llamar a la función SQL que tiene privilegios para actualizar los campos protegidos
+    const { error } = await (supabase as any).rpc('update_attraction_rating', {
+        p_attraction_id: attractionId
+    });
 
     if (error) {
-        return;
+        console.error('[updateAttractionRating] Error calling RPC:', error);
+        // Fallback: Intentar actualización directa (funcionará si el trigger fue modificado)
+        try {
+            const { data: reviews, error: reviewsError } = await supabase
+                .from('attraction_reviews')
+                .select('rating_arv')
+                .eq('attraction_id_arv', attractionId);
+
+            if (reviewsError) {
+                console.error('[updateAttractionRating] Error fetching reviews:', reviewsError);
+                return;
+            }
+
+            const reviewsData = reviews as unknown as Pick<AttractionReviewRow, 'rating_arv'>[] | null;
+            const reviewCount = reviewsData?.length ?? 0;
+            const avgRating = reviewCount > 0
+                ? reviewsData!.reduce((sum, r) => sum + (r.rating_arv ?? 0), 0) / reviewCount
+                : 0;
+
+            const updatePayload = {
+                avg_rating_atr: Math.round(avgRating * 10) / 10,
+                reviews_count_atr: reviewCount,
+            };
+
+            console.log('[updateAttractionRating] Updating attraction (fallback):', attractionId, updatePayload);
+
+            const { error: updateError } = await supabase
+                .from('attractions')
+                .update(updatePayload)
+                .eq('id_atr', attractionId);
+
+            if (updateError) {
+                console.error('[updateAttractionRating] Error updating attraction (fallback):', updateError);
+            } else {
+                console.log('[updateAttractionRating] Successfully updated attraction ratings (fallback)');
+            }
+        } catch (err) {
+            console.error('[updateAttractionRating] Unexpected error in fallback:', err);
+        }
+    } else {
+        console.log('[updateAttractionRating] Successfully called RPC update_attraction_rating');
     }
-
-    const reviewsData = reviews as unknown as Pick<AttractionReviewRow, 'rating_arv'>[] | null;
-    const reviewCount = reviewsData?.length ?? 0;
-    const avgRating = reviewCount > 0
-        ? reviewsData!.reduce((sum, r) => sum + (r.rating_arv ?? 0), 0) / reviewCount
-        : 0;
-
-    const updatePayload: any = {
-        avg_rating_atr: Math.round(avgRating * 10) / 10,
-        reviews_count_atr: reviewCount,
-    };
-
-    // Actualizar la atracción
-    await (supabase as any)
-        .from('attractions')
-        .update(updatePayload)
-        .eq('id_atr', attractionId);
 }

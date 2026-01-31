@@ -69,6 +69,20 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
         lineHeight: 20,
     },
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs - 2,
+        marginTop: spacing.xs + 2,
+    },
+    ratingText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.semibold,
+    },
+    reviewCountText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.normal,
+    },
     categoriesRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
