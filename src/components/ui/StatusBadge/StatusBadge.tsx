@@ -9,8 +9,8 @@ export interface StatusBadgeProps {
 }
 
 const STATUS_LABELS: Record<ModerationStatus, string> = {
-  pending: 'En revisión',
-  approved: 'Activo',
+  pending: 'Pendiente',
+  approved: 'Aprobado',
   rejected: 'Rechazado',
 };
 

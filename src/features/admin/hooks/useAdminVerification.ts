@@ -4,12 +4,18 @@ import {
   getVerificationStats,
   updateModerationStatus,
   getVerificationDetail,
-  type VerificationFilters,
-  type UpdateModerationData,
-  type VerificationEntityType,
+  toggleEntityActive,
 } from '../services/verification.service';
+import type {
+  VerificationFilters,
+  UpdateModerationData,
+  VerificationEntityType,
+} from '../types';
 
-// Query keys
+// ============================================
+// Query Keys
+// ============================================
+
 export const verificationKeys = {
   all: ['admin', 'verifications'] as const,
   lists: () => [...verificationKeys.all, 'list'] as const,
@@ -18,6 +24,10 @@ export const verificationKeys = {
   detail: (id: string, type: VerificationEntityType) =>
     [...verificationKeys.all, 'detail', id, type] as const,
 };
+
+// ============================================
+// Hooks
+// ============================================
 
 /**
  * Hook to fetch pending verification requests with filters
@@ -62,6 +72,21 @@ export function useUpdateModeration() {
     mutationFn: (data: UpdateModerationData) => updateModerationStatus(data),
     onSuccess: () => {
       // Invalidate all verification queries to refresh data
+      queryClient.invalidateQueries({ queryKey: verificationKeys.all });
+    },
+  });
+}
+
+/**
+ * Hook to toggle entity active status
+ */
+export function useToggleActive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, type, isActive }: { id: string; type: VerificationEntityType; isActive: boolean }) =>
+      toggleEntityActive(id, type, isActive),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: verificationKeys.all });
     },
   });

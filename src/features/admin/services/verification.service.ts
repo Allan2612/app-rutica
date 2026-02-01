@@ -1,178 +1,31 @@
+// ============================================
+// Admin Verification Service - Refactored
+// ============================================
+
 import { supabase } from '@/lib/supabase/client';
-import type { ModerationStatus, PaymentState } from '@/types/enums';
+import type { ModerationStatus } from '@/types/enums';
+import type {
+  VerificationEntityType,
+  VerificationRequest,
+  BusinessVerificationRequest,
+  EventVerificationRequest,
+  AttractionVerificationRequest,
+  PromotionVerificationRequest,
+  VerificationFilters,
+  VerificationStats,
+  UpdateModerationData,
+} from '../types';
+import {
+  STORAGE_BUCKETS,
+  getImageUrl,
+  getImageTypeFromPath,
+  formatLocationFromHierarchy,
+  formatFullName,
+} from './helpers';
 
 // ============================================
-// Constants - Buckets por entidad (V3)
+// Fetch Functions - One per entity type
 // ============================================
-
-const STORAGE_BUCKETS = {
-  profiles: 'profile-images',
-  businesses: 'business-images',
-  events: 'event-images',
-  attractions: 'attractions-images',
-  products: 'product-images',
-  promotions: 'promotion-images',
-} as const;
-
-// ============================================
-// Types for Admin Verification
-// ============================================
-
-export type VerificationEntityType = 'business' | 'event' | 'attraction' | 'promotion';
-
-export interface VerificationRequest {
-  id: string;
-  type: VerificationEntityType;
-  name: string;
-  description: string | null;
-  ownerName: string;
-  ownerEmail: string;
-  ownerId: string;
-  imageUrl: string | null;
-  moderationStatus: ModerationStatus;
-  createdAt: string;
-  locationLabel: string | null;
-  businessId?: string; // For promotions - the associated business ID
-  metadata?: Record<string, unknown>; // Additional type-specific data
-}
-
-export interface VerificationFilters {
-  type?: VerificationEntityType | 'all';
-  status?: ModerationStatus | 'all';
-  search?: string;
-  page?: number;
-  limit?: number;
-}
-
-export interface VerificationStats {
-  totalPending: number;
-  pendingByType: {
-    business: number;
-    event: number;
-    attraction: number;
-    promotion: number;
-  };
-}
-
-export interface UpdateModerationData {
-  id: string;
-  type: VerificationEntityType;
-  status?: ModerationStatus;
-  note?: string;
-  paymentState?: PaymentState;
-  paymentNote?: string;
-}
-
-// ============================================
-// Helper Functions
-// ============================================
-
-/**
- * Construye URL pública de imagen desde path
- * V3: Solo usamos path, bucket es fijo por entidad
- */
-function getImageUrl(bucket: string, path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- * Path format: <entity_id>/<prefix>-<uuid>.ext
- * Ej: "abc123/cover-xyz.jpg" -> "cover"
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  const prefix = filename.split('-')[0];
-  return prefix;
-}
-
-/**
- * Formatea la ubicación desde la jerarquía normalizada (V3)
- */
-function formatLocationFromHierarchy(location: {
-  address_loc?: string | null;
-  districts?: {
-    name_dst?: string;
-    cantons?: {
-      name_ctn?: string;
-      provinces?: {
-        name_prv?: string;
-      };
-    };
-  };
-} | null): string | null {
-  if (!location?.districts) return null;
-
-  const parts = [
-    location.districts?.cantons?.name_ctn,
-    location.districts?.name_dst,
-  ].filter(Boolean);
-
-  return parts.length ? parts.join(', ') : null;
-}
-
-// ============================================
-// Service Functions
-// ============================================
-
-/**
- * Get all pending verification requests across all entity types
- */
-export async function getPendingVerifications(
-  filters: VerificationFilters = {}
-): Promise<VerificationRequest[]> {
-  const { type = 'all', status = 'pending', search = '', page = 1, limit = 50 } = filters;
-  const offset = (page - 1) * limit;
-  const requests: VerificationRequest[] = [];
-
-  // Filter by specific type or get all
-  const typesToFetch: VerificationEntityType[] =
-    type === 'all' ? ['business', 'event', 'attraction', 'promotion'] : [type];
-
-  for (const entityType of typesToFetch) {
-    try {
-      console.log('[ADMIN VERIFICATION] Fetching type:', entityType);
-      const entityRequests = await fetchByType(entityType, status, search, limit);
-      console.log('[ADMIN VERIFICATION] Got requests:', entityRequests.length, 'for type:', entityType);
-      requests.push(...entityRequests);
-    } catch (error) {
-      console.error(`Error fetching ${entityType} verifications:`, error);
-    }
-  }
-
-  // Sort by createdAt descending
-  requests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  // Apply pagination if filtering all types
-  if (type === 'all') {
-    return requests.slice(offset, offset + limit);
-  }
-
-  return requests;
-}
-
-async function fetchByType(
-  type: VerificationEntityType,
-  status: ModerationStatus | 'all',
-  search: string,
-  limit: number
-): Promise<VerificationRequest[]> {
-  switch (type) {
-    case 'business':
-      return fetchBusinessVerifications(status, search, limit);
-    case 'event':
-      return fetchEventVerifications(status, search, limit);
-    case 'attraction':
-      return fetchAttractionVerifications(status, search, limit);
-    case 'promotion':
-      return fetchPromotionVerifications(status, search, limit);
-    default:
-      return [];
-  }
-}
 
 /**
  * Fetch business verification requests
@@ -181,7 +34,7 @@ async function fetchBusinessVerifications(
   status: ModerationStatus | 'all',
   search: string,
   limit: number
-): Promise<VerificationRequest[]> {
+): Promise<BusinessVerificationRequest[]> {
   let query = supabase
     .from('businesses')
     .select(`
@@ -189,8 +42,16 @@ async function fetchBusinessVerifications(
       name_bus,
       description_bus,
       moderation_status_bus,
+      moderation_note_bus,
+      is_active_bus,
       created_at_bus,
       owner_id_bus,
+      contact_phone_bus,
+      contact_email_bus,
+      website_bus,
+      social_links_bus,
+      avg_rating_bus,
+      reviews_count_bus,
       locations!businesses_location_id_bus_fkey (
         address_loc,
         districts!locations_district_id_fkey (
@@ -206,6 +67,16 @@ async function fetchBusinessVerifications(
       business_images (
         path_bim,
         sort_order_bim
+      ),
+      business_category_map (
+        categories (
+          name_cat
+        )
+      ),
+      profiles!businesses_owner_id_bus_fkey (
+        first_name_prf,
+        last_name1_prf,
+        last_name2_prf
       )
     `)
     .order('created_at_bus', { ascending: false })
@@ -222,7 +93,7 @@ async function fetchBusinessVerifications(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching businesses:', error);
+    console.error('[ADMIN] Error fetching businesses:', error);
     throw error;
   }
 
@@ -231,28 +102,49 @@ async function fetchBusinessVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0)
     );
-    // V3: Inferir tipo de imagen del path (cover, logo, gallery)
+    
+    // Priorizar cover > logo > primera imagen
     const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'cover');
     const logoImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'logo');
     const primaryImage = coverImage || logoImage || sortedImages[0];
 
-    // V3: Ubicación normalizada
-    const location = item.locations;
+    // All images with URLs
+    const allImages = sortedImages.map((img: any) => ({
+      url: getImageUrl(STORAGE_BUCKETS.businesses, img.path_bim),
+      type: getImageTypeFromPath(img.path_bim),
+      sortOrder: img.sort_order_bim || 0,
+    }));
+
+    const categories = (item.business_category_map || [])
+      .map((bcm: any) => bcm.categories?.name_cat)
+      .filter(Boolean);
 
     return {
       id: item.id_bus,
-      type: 'business' as VerificationEntityType,
-      name: item.name_bus,
+      type: 'business' as const,
+      name: item.name_bus || 'Sin nombre',
       description: item.description_bus,
-      ownerName: 'Propietario',
+      ownerName: formatFullName(item.profiles, 'Propietario'),
       ownerEmail: '',
       ownerId: item.owner_id_bus,
       imageUrl: primaryImage?.path_bim
         ? getImageUrl(STORAGE_BUCKETS.businesses, primaryImage.path_bim)
         : null,
-      moderationStatus: item.moderation_status_bus,
+      images: allImages,
+      moderationStatus: item.moderation_status_bus || 'pending',
+      moderationNote: item.moderation_note_bus || null,
+      isActive: item.is_active_bus ?? true,
       createdAt: item.created_at_bus,
-      locationLabel: formatLocationFromHierarchy(location),
+      locationLabel: formatLocationFromHierarchy(item.locations),
+      metadata: {
+        phone: item.contact_phone_bus,
+        email: item.contact_email_bus,
+        website: item.website_bus,
+        socialLinks: item.social_links_bus || null,
+        categoriesNames: categories,
+        avgRating: item.avg_rating_bus || 0,
+        reviewsCount: item.reviews_count_bus || 0,
+      },
     };
   });
 }
@@ -264,7 +156,7 @@ async function fetchEventVerifications(
   status: ModerationStatus | 'all',
   search: string,
   limit: number
-): Promise<VerificationRequest[]> {
+): Promise<EventVerificationRequest[]> {
   let query = supabase
     .from('events')
     .select(`
@@ -272,8 +164,22 @@ async function fetchEventVerifications(
       name_evt,
       description_evt,
       moderation_status_evt,
+      moderation_note_evt,
+      is_active_evt,
       created_at_evt,
       created_by_evt,
+      start_at_evt,
+      end_at_evt,
+      price_evt,
+      is_free_evt,
+      capacity_evt,
+      contact_phone_evt,
+      contact_email_evt,
+      website_evt,
+      social_links_evt,
+      ticket_url_evt,
+      avg_rating_evt,
+      reviews_count_evt,
       locations!events_location_id_evt_fkey (
         address_loc,
         districts!locations_district_id_fkey (
@@ -289,6 +195,16 @@ async function fetchEventVerifications(
       event_images (
         path_eim,
         sort_order_eim
+      ),
+      event_category_map (
+        categories (
+          name_cat
+        )
+      ),
+      profiles!events_created_by_evt_fkey (
+        first_name_prf,
+        last_name1_prf,
+        last_name2_prf
       )
     `)
     .order('created_at_evt', { ascending: false })
@@ -303,8 +219,9 @@ async function fetchEventVerifications(
   }
 
   const { data, error } = await query;
+
   if (error) {
-    console.error('Error fetching events:', error);
+    console.error('[ADMIN] Error fetching events:', error);
     throw error;
   }
 
@@ -313,27 +230,53 @@ async function fetchEventVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_eim || 0) - (b.sort_order_eim || 0)
     );
-    // V3: Inferir tipo de imagen del path (cover, gallery)
+    
     const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_eim) === 'cover');
     const primaryImage = coverImage || sortedImages[0];
 
-    // V3: Ubicación normalizada
-    const location = item.locations;
+    // All images with URLs
+    const allImages = sortedImages.map((img: any) => ({
+      url: getImageUrl(STORAGE_BUCKETS.events, img.path_eim),
+      type: getImageTypeFromPath(img.path_eim),
+      sortOrder: img.sort_order_eim || 0,
+    }));
+
+    const categories = (item.event_category_map || [])
+      .map((ecm: any) => ecm.categories?.name_cat)
+      .filter(Boolean);
 
     return {
       id: item.id_evt,
-      type: 'event' as VerificationEntityType,
-      name: item.name_evt,
+      type: 'event' as const,
+      name: item.name_evt || 'Sin nombre',
       description: item.description_evt,
-      ownerName: 'Creador',
+      ownerName: formatFullName(item.profiles, 'Creador'),
       ownerEmail: '',
       ownerId: item.created_by_evt,
       imageUrl: primaryImage?.path_eim
         ? getImageUrl(STORAGE_BUCKETS.events, primaryImage.path_eim)
         : null,
-      moderationStatus: item.moderation_status_evt,
+      images: allImages,
+      moderationStatus: item.moderation_status_evt || 'pending',
+      moderationNote: item.moderation_note_evt || null,
+      isActive: item.is_active_evt ?? true,
       createdAt: item.created_at_evt,
-      locationLabel: formatLocationFromHierarchy(location),
+      locationLabel: formatLocationFromHierarchy(item.locations),
+      metadata: {
+        startAt: item.start_at_evt,
+        endAt: item.end_at_evt,
+        price: item.price_evt,
+        isFree: item.is_free_evt ?? false,
+        capacity: item.capacity_evt,
+        phone: item.contact_phone_evt,
+        email: item.contact_email_evt,
+        website: item.website_evt,
+        ticketUrl: item.ticket_url_evt,
+        socialLinks: item.social_links_evt || null,
+        categoriesNames: categories,
+        avgRating: item.avg_rating_evt || 0,
+        reviewsCount: item.reviews_count_evt || 0,
+      },
     };
   });
 }
@@ -345,7 +288,7 @@ async function fetchAttractionVerifications(
   status: ModerationStatus | 'all',
   search: string,
   limit: number
-): Promise<VerificationRequest[]> {
+): Promise<AttractionVerificationRequest[]> {
   let query = supabase
     .from('attractions')
     .select(`
@@ -353,8 +296,12 @@ async function fetchAttractionVerifications(
       name_atr,
       description_atr,
       moderation_status_atr,
+      moderation_note_atr,
+      is_active_atr,
       created_at_atr,
       submitted_by_atr,
+      avg_rating_atr,
+      reviews_count_atr,
       locations!attractions_location_id_atr_fkey (
         address_loc,
         districts!locations_district_id_fkey (
@@ -370,6 +317,16 @@ async function fetchAttractionVerifications(
       attraction_images (
         path_aim,
         sort_order_aim
+      ),
+      attraction_category_map (
+        categories (
+          name_cat
+        )
+      ),
+      profiles!attractions_submitted_by_atr_fkey (
+        first_name_prf,
+        last_name1_prf,
+        last_name2_prf
       )
     `)
     .order('created_at_atr', { ascending: false })
@@ -384,8 +341,9 @@ async function fetchAttractionVerifications(
   }
 
   const { data, error } = await query;
+
   if (error) {
-    console.error('Error fetching attractions:', error);
+    console.error('[ADMIN] Error fetching attractions:', error);
     throw error;
   }
 
@@ -394,27 +352,43 @@ async function fetchAttractionVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_aim || 0) - (b.sort_order_aim || 0)
     );
-    // V3: Priorizar cover, luego primera imagen
+    
     const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_aim) === 'cover');
     const primaryImage = coverImage || sortedImages[0];
 
-    // V3: Ubicación normalizada
-    const location = item.locations;
+    // All images with URLs
+    const allImages = sortedImages.map((img: any) => ({
+      url: getImageUrl(STORAGE_BUCKETS.attractions, img.path_aim),
+      type: getImageTypeFromPath(img.path_aim),
+      sortOrder: img.sort_order_aim || 0,
+    }));
+
+    const categories = (item.attraction_category_map || [])
+      .map((acm: any) => acm.categories?.name_cat)
+      .filter(Boolean);
 
     return {
       id: item.id_atr,
-      type: 'attraction' as VerificationEntityType,
-      name: item.name_atr,
+      type: 'attraction' as const,
+      name: item.name_atr || 'Sin nombre',
       description: item.description_atr,
-      ownerName: 'Colaborador',
+      ownerName: formatFullName(item.profiles, 'Colaborador'),
       ownerEmail: '',
       ownerId: item.submitted_by_atr,
       imageUrl: primaryImage?.path_aim
         ? getImageUrl(STORAGE_BUCKETS.attractions, primaryImage.path_aim)
         : null,
-      moderationStatus: item.moderation_status_atr,
+      images: allImages,
+      moderationStatus: item.moderation_status_atr || 'pending',
+      moderationNote: item.moderation_note_atr || null,
+      isActive: item.is_active_atr ?? true,
       createdAt: item.created_at_atr,
-      locationLabel: formatLocationFromHierarchy(location),
+      locationLabel: formatLocationFromHierarchy(item.locations),
+      metadata: {
+        categoriesNames: categories,
+        avgRating: item.avg_rating_atr || 0,
+        reviewsCount: item.reviews_count_atr || 0,
+      },
     };
   });
 }
@@ -426,7 +400,7 @@ async function fetchPromotionVerifications(
   status: ModerationStatus | 'all',
   search: string,
   limit: number
-): Promise<VerificationRequest[]> {
+): Promise<PromotionVerificationRequest[]> {
   let query = supabase
     .from('promotions')
     .select(`
@@ -435,6 +409,7 @@ async function fetchPromotionVerifications(
       description_prm,
       moderation_status_prm,
       moderation_note_prm,
+      is_active_prm,
       created_at_prm,
       created_by_prm,
       business_id_prm,
@@ -472,15 +447,19 @@ async function fetchPromotionVerifications(
       ),
       promotion_scope_categories (
         categories (
-          id_cat,
           name_cat
+        )
+      ),
+      promotion_products (
+        products (
+          name_prd,
+          price_prd
         )
       ),
       promotion_combo_items (
         quantity_pci,
         paid_quantity_pci,
         products (
-          id_prd,
           name_prd,
           price_prd
         )
@@ -498,34 +477,30 @@ async function fetchPromotionVerifications(
   }
 
   const { data, error } = await query;
+
   if (error) {
-    console.error('Error fetching promotions:', error);
+    console.error('[ADMIN] Error fetching promotions:', error);
     throw error;
   }
 
   return (data || []).map((item: any) => {
     const images = item.promotion_images || [];
-    // V3: Inferir tipo de imagen del path (flyer)
     const flyerImage = images.find((img: any) => getImageTypeFromPath(img.path_pim) === 'flyer');
     const primaryImage = flyerImage || images[0];
 
-    // Get user full name
-    const profile = item.profiles;
-    const fullName = profile
-      ? [profile.first_name_prf, profile.last_name1_prf, profile.last_name2_prf]
-        .filter(Boolean)
-        .join(' ')
-      : 'Usuario';
-
-    // V3: Ubicación normalizada del negocio
     const businessLocation = item.businesses?.locations;
-
-    // Get categories if scope is category
+    
     const categories = (item.promotion_scope_categories || [])
       .map((psc: any) => psc.categories?.name_cat)
       .filter(Boolean);
 
-    // Get combo items if scope is product
+    const promotionProducts = (item.promotion_products || [])
+      .map((pp: any) => ({
+        productName: pp.products?.name_prd || 'Producto',
+        price: pp.products?.price_prd,
+      }))
+      .filter((p: any) => p.productName);
+
     const comboItems = (item.promotion_combo_items || [])
       .map((pci: any) => ({
         productName: pci.products?.name_prd || 'Producto',
@@ -533,29 +508,39 @@ async function fetchPromotionVerifications(
         paidQuantity: pci.paid_quantity_pci,
         price: pci.products?.price_prd,
       }))
-      .filter((comboItem: any) => comboItem.productName);
+      .filter((ci: any) => ci.productName);
+
+    const allImages = images
+      .map((img: any) => ({
+        type: getImageTypeFromPath(img.path_pim),
+        url: img.path_pim ? getImageUrl(STORAGE_BUCKETS.promotions, img.path_pim) : '',
+      }))
+      .filter((img: any) => img.url);
 
     return {
       id: item.id_prm,
-      type: 'promotion' as VerificationEntityType,
-      name: item.title_prm,
+      type: 'promotion' as const,
+      name: item.title_prm || 'Sin título',
       description: item.description_prm,
-      ownerName: fullName,
+      ownerName: formatFullName(item.profiles, 'Usuario'),
       ownerEmail: '',
       ownerId: item.created_by_prm,
       imageUrl: primaryImage?.path_pim
         ? getImageUrl(STORAGE_BUCKETS.promotions, primaryImage.path_pim)
         : null,
-      moderationStatus: item.moderation_status_prm,
+      images: allImages,
+      moderationStatus: item.moderation_status_prm || 'pending',
+      moderationNote: item.moderation_note_prm || null,
+      isActive: item.is_active_prm ?? true,
       createdAt: item.created_at_prm,
       locationLabel: formatLocationFromHierarchy(businessLocation),
       businessId: item.business_id_prm,
-      // Additional promotion data
       metadata: {
+        businessId: item.business_id_prm,
         businessName: item.businesses?.name_bus,
         businessLocation: formatLocationFromHierarchy(businessLocation),
         discountType: item.discount_type_prm,
-        discountValue: item.discount_value_prm,
+        discountValue: item.discount_value_prm || 0,
         scope: item.scope_prm,
         startAt: item.start_at_prm,
         endAt: item.end_at_prm,
@@ -564,15 +549,65 @@ async function fetchPromotionVerifications(
         paymentNoteAdmin: item.payment_note_admin_prm,
         paymentNoteSeller: item.payment_note_seller_prm,
         moderationNote: item.moderation_note_prm,
-        categories: categories,
-        comboItems: comboItems,
-        images: images.map((img: any) => ({
-          type: getImageTypeFromPath(img.path_pim),
-          url: img.path_pim ? getImageUrl(STORAGE_BUCKETS.promotions, img.path_pim) : null,
-        })).filter((img: any) => img.url),
+        categories,
+        promotionProducts,
+        comboItems,
+        images: allImages,
       },
     };
   });
+}
+
+// ============================================
+// Main Service Functions
+// ============================================
+
+/**
+ * Get all verification requests with filters
+ */
+export async function getPendingVerifications(
+  filters: VerificationFilters = {}
+): Promise<VerificationRequest[]> {
+  const { type = 'all', status = 'pending', search = '', page = 1, limit = 50 } = filters;
+  const offset = (page - 1) * limit;
+  const requests: VerificationRequest[] = [];
+
+  const typesToFetch: VerificationEntityType[] =
+    type === 'all' ? ['business', 'event', 'attraction', 'promotion'] : [type];
+
+  // Fetch all types in parallel for better performance
+  const fetchPromises = typesToFetch.map(async (entityType) => {
+    try {
+      switch (entityType) {
+        case 'business':
+          return await fetchBusinessVerifications(status, search, limit);
+        case 'event':
+          return await fetchEventVerifications(status, search, limit);
+        case 'attraction':
+          return await fetchAttractionVerifications(status, search, limit);
+        case 'promotion':
+          return await fetchPromotionVerifications(status, search, limit);
+        default:
+          return [];
+      }
+    } catch (error) {
+      console.error(`[ADMIN] Error fetching ${entityType}:`, error);
+      return [];
+    }
+  });
+
+  const results = await Promise.all(fetchPromises);
+  results.forEach((r) => requests.push(...r));
+
+  // Sort by createdAt descending
+  requests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  // Apply pagination if filtering all types
+  if (type === 'all') {
+    return requests.slice(offset, offset + limit);
+  }
+
+  return requests;
 }
 
 /**
@@ -600,10 +635,10 @@ export async function getVerificationStats(): Promise<VerificationStats> {
 }
 
 /**
- * Update moderation status for an entity
+ * Update moderation status and/or is_active for an entity
  */
 export async function updateModerationStatus(data: UpdateModerationData): Promise<void> {
-  const { id, type, status, note, paymentState, paymentNote } = data;
+  const { id, type, status, note, isActive, paymentState, paymentNote } = data;
 
   // Get current user for reviewed_by field
   const { data: { user } } = await supabase.auth.getUser();
@@ -612,53 +647,77 @@ export async function updateModerationStatus(data: UpdateModerationData): Promis
   const reviewedAt = new Date().toISOString();
 
   switch (type) {
-    case 'business':
-      if (status !== undefined) {
-        const { error } = await supabase
-          .from('businesses')
-          .update({
-            moderation_status_bus: status,
-            reviewed_by_bus: user.id,
-            reviewed_at_bus: reviewedAt,
-            moderation_note_bus: note || null,
-            updated_at_bus: reviewedAt,
-          } as never)
-          .eq('id_bus', id);
-        if (error) throw error;
-      }
-      break;
+    case 'business': {
+      const updatePayload: Record<string, unknown> = {
+        updated_at_bus: reviewedAt,
+      };
 
-    case 'event':
       if (status !== undefined) {
-        const { error } = await supabase
-          .from('events')
-          .update({
-            moderation_status_evt: status,
-            reviewed_by_evt: user.id,
-            reviewed_at_evt: reviewedAt,
-            moderation_note_evt: note || null,
-            updated_at_evt: reviewedAt,
-          } as never)
-          .eq('id_evt', id);
-        if (error) throw error;
+        updatePayload.moderation_status_bus = status;
+        updatePayload.reviewed_by_bus = user.id;
+        updatePayload.reviewed_at_bus = reviewedAt;
+        updatePayload.moderation_note_bus = note || null;
       }
-      break;
 
-    case 'attraction':
-      if (status !== undefined) {
-        const { error } = await supabase
-          .from('attractions')
-          .update({
-            moderation_status_atr: status,
-            reviewed_by_atr: user.id,
-            reviewed_at_atr: reviewedAt,
-            moderation_note_atr: note || null,
-            updated_at_atr: reviewedAt,
-          } as never)
-          .eq('id_atr', id);
-        if (error) throw error;
+      if (isActive !== undefined) {
+        updatePayload.is_active_bus = isActive;
       }
+
+      const { error } = await supabase
+        .from('businesses')
+        .update(updatePayload as never)
+        .eq('id_bus', id);
+      if (error) throw error;
       break;
+    }
+
+    case 'event': {
+      const updatePayload: Record<string, unknown> = {
+        updated_at_evt: reviewedAt,
+      };
+
+      if (status !== undefined) {
+        updatePayload.moderation_status_evt = status;
+        updatePayload.reviewed_by_evt = user.id;
+        updatePayload.reviewed_at_evt = reviewedAt;
+        updatePayload.moderation_note_evt = note || null;
+      }
+
+      if (isActive !== undefined) {
+        updatePayload.is_active_evt = isActive;
+      }
+
+      const { error } = await supabase
+        .from('events')
+        .update(updatePayload as never)
+        .eq('id_evt', id);
+      if (error) throw error;
+      break;
+    }
+
+    case 'attraction': {
+      const updatePayload: Record<string, unknown> = {
+        updated_at_atr: reviewedAt,
+      };
+
+      if (status !== undefined) {
+        updatePayload.moderation_status_atr = status;
+        updatePayload.reviewed_by_atr = user.id;
+        updatePayload.reviewed_at_atr = reviewedAt;
+        updatePayload.moderation_note_atr = note || null;
+      }
+
+      if (isActive !== undefined) {
+        updatePayload.is_active_atr = isActive;
+      }
+
+      const { error } = await supabase
+        .from('attractions')
+        .update(updatePayload as never)
+        .eq('id_atr', id);
+      if (error) throw error;
+      break;
+    }
 
     case 'promotion': {
       const updatePayload: Record<string, unknown> = {
@@ -672,22 +731,34 @@ export async function updateModerationStatus(data: UpdateModerationData): Promis
         updatePayload.moderation_note_prm = note || null;
       }
 
+      if (isActive !== undefined) {
+        updatePayload.is_active_prm = isActive;
+      }
+
       if (paymentState !== undefined) {
         updatePayload.payment_state_prm = paymentState;
-        // V3: Notas separadas para admin y seller
         updatePayload.payment_note_admin_prm = paymentNote || null;
       }
 
-      if (Object.keys(updatePayload).length > 1) { // More than just updated_at
-        const { error } = await supabase
-          .from('promotions')
-          .update(updatePayload as never)
-          .eq('id_prm', id);
-        if (error) throw error;
-      }
+      const { error } = await supabase
+        .from('promotions')
+        .update(updatePayload as never)
+        .eq('id_prm', id);
+      if (error) throw error;
       break;
     }
   }
+}
+
+/**
+ * Toggle is_active status for an entity
+ */
+export async function toggleEntityActive(
+  id: string,
+  type: VerificationEntityType,
+  isActive: boolean
+): Promise<void> {
+  return updateModerationStatus({ id, type, isActive });
 }
 
 /**
@@ -697,6 +768,31 @@ export async function getVerificationDetail(
   id: string,
   type: VerificationEntityType
 ): Promise<VerificationRequest | null> {
-  const requests = await fetchByType(type, 'all', '', 100);
+  let requests: VerificationRequest[] = [];
+  
+  switch (type) {
+    case 'business':
+      requests = await fetchBusinessVerifications('all', '', 100);
+      break;
+    case 'event':
+      requests = await fetchEventVerifications('all', '', 100);
+      break;
+    case 'attraction':
+      requests = await fetchAttractionVerifications('all', '', 100);
+      break;
+    case 'promotion':
+      requests = await fetchPromotionVerifications('all', '', 100);
+      break;
+  }
+  
   return requests.find((r) => r.id === id) || null;
 }
+
+// Re-export types for backwards compatibility
+export type {
+  VerificationEntityType,
+  VerificationRequest,
+  VerificationFilters,
+  VerificationStats,
+  UpdateModerationData,
+} from '../types';

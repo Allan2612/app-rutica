@@ -1507,10 +1507,10 @@ create policy "businesses_insert_seller"
 -- Nota: En Supabase RLS, no hay acceso directo a OLD. Usamos subquery con el id.
 create policy "businesses_update_own"
   on public.businesses for update
-  using (owner_id_bus = auth.uid())
+  using (owner_id_bus = auth.uid() AND NOT public.is_admin())
   with check (
     -- Debe seguir siendo el owner
-    owner_id_bus = auth.uid()
+    owner_id_bus = auth.uid() AND NOT public.is_admin()
   );
 
 -- Trigger para proteger campos inmutables en businesses (owner no puede modificar)
@@ -1590,8 +1590,8 @@ create policy "events_insert_seller"
 -- UPDATE: Creador puede actualizar (campos limitados via trigger)
 create policy "events_update_own"
   on public.events for update
-  using (created_by_evt = auth.uid())
-  with check (created_by_evt = auth.uid());
+  using (created_by_evt = auth.uid() AND NOT public.is_admin())
+  with check (created_by_evt = auth.uid() AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en events
 create or replace function public.protect_event_fields()
@@ -1670,8 +1670,8 @@ create policy "attractions_insert_user"
 -- UPDATE: Quien envió puede actualizar (campos limitados via trigger)
 create policy "attractions_update_own"
   on public.attractions for update
-  using (submitted_by_atr = auth.uid())
-  with check (submitted_by_atr = auth.uid());
+  using (submitted_by_atr = auth.uid() AND NOT public.is_admin())
+  with check (submitted_by_atr = auth.uid() AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en attractions
 create or replace function public.protect_attraction_fields()
@@ -1756,8 +1756,8 @@ create policy "products_insert_owner"
 -- UPDATE: Solo dueño del negocio (campos limitados via trigger)
 create policy "products_update_owner"
   on public.products for update
-  using (public.owns_business(business_id_prd))
-  with check (public.owns_business(business_id_prd));
+  using (public.owns_business(business_id_prd) AND NOT public.is_admin())
+  with check (public.owns_business(business_id_prd) AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en products
 create or replace function public.protect_product_fields()
@@ -1841,8 +1841,8 @@ create policy "promotions_insert_seller"
 -- UPDATE: Creador puede actualizar (campos limitados via trigger)
 create policy "promotions_update_own"
   on public.promotions for update
-  using (created_by_prm = auth.uid())
-  with check (created_by_prm = auth.uid());
+  using (created_by_prm = auth.uid() AND NOT public.is_admin())
+  with check (created_by_prm = auth.uid() AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en promotions
 create or replace function public.protect_promotion_fields()

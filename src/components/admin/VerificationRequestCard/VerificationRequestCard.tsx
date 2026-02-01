@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
 import {
   Check,
-  X,
   Store,
   CalendarDays,
   Landmark,
@@ -11,10 +10,11 @@ import {
   User,
   Eye,
   Edit2,
+  EyeOff,
 } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
-import type { VerificationEntityType } from '@/features/admin/services/verification.service';
+import { TYPE_LABELS, type VerificationEntityType } from '@/features/admin/types';
 import type { ModerationStatus } from '@/types/enums';
 import { styles } from './styles';
 
@@ -26,6 +26,7 @@ export interface VerificationRequestCardProps {
   ownerName: string;
   imageUrl: string | null;
   moderationStatus: ModerationStatus;
+  isActive?: boolean;
   createdAt: string;
   locationLabel: string | null;
   onManageStatus?: () => void;
@@ -41,32 +42,6 @@ const TYPE_ICONS: Record<VerificationEntityType, typeof Store> = {
   promotion: Tag,
 };
 
-const TYPE_LABELS: Record<VerificationEntityType, string> = {
-  business: 'Negocio',
-  event: 'Evento',
-  attraction: 'Atracción',
-  promotion: 'Promoción',
-};
-
-// Dynamic colors based on theme
-function getTypeColors(type: VerificationEntityType, isDark: boolean): { bg: string; text: string } {
-  const colors = {
-    business: isDark 
-      ? { bg: 'rgba(59, 130, 246, 0.2)', text: '#60a5fa' }
-      : { bg: '#dbeafe', text: '#1e40af' },
-    event: isDark 
-      ? { bg: 'rgba(245, 158, 11, 0.2)', text: '#fbbf24' }
-      : { bg: '#fef3c7', text: '#92400e' },
-    attraction: isDark 
-      ? { bg: 'rgba(16, 185, 129, 0.2)', text: '#34d399' }
-      : { bg: '#d1fae5', text: '#065f46' },
-    promotion: isDark 
-      ? { bg: 'rgba(236, 72, 153, 0.2)', text: '#f472b6' }
-      : { bg: '#fce7f3', text: '#9d174d' },
-  };
-  return colors[type];
-}
-
 export const VerificationRequestCard = memo(function VerificationRequestCard({
   id,
   type,
@@ -75,6 +50,7 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
   ownerName,
   imageUrl,
   moderationStatus,
+  isActive = true,
   createdAt,
   locationLabel,
   onManageStatus,
@@ -83,7 +59,7 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
   isProcessing = false,
 }: VerificationRequestCardProps) {
   const colors = useThemedColors();
-  const typeColors = getTypeColors(type, colors.isDark);
+  const typeColors = colors.entityTypes[type];
   const Icon = TYPE_ICONS[type];
   const typeLabel = TYPE_LABELS[type];
 
@@ -128,6 +104,11 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
             {/* Status Badge */}
             <View style={styles.statusRow}>
               <StatusBadge status={moderationStatus} size="sm" />
+              {!isActive && (
+                <View style={[styles.inactiveBadge, { backgroundColor: colors.error }]}>
+                  <EyeOff size={10} color={colors.text.inverse} strokeWidth={2.5} />
+                </View>
+              )}
             </View>
           </View>
 
@@ -211,11 +192,11 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
           disabled={isProcessing}
         >
           {isProcessing ? (
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color={colors.text.inverse} />
           ) : (
             <>
-              <Check color="#fff" size={16} strokeWidth={2.5} />
-              <Text style={[styles.actionText, { color: '#fff' }]}>Estado</Text>
+              <Check color={colors.text.inverse} size={16} strokeWidth={2.5} />
+              <Text style={[styles.actionText, { color: colors.text.inverse }]}>Estado</Text>
             </>
           )}
         </Pressable>

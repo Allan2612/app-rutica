@@ -8,11 +8,14 @@ export const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
     flexGrow: 1,
+    alignItems: 'center',
   },
   header: {
     paddingBottom: 16,
     marginBottom: 20,
     borderBottomWidth: 1,
+    width: '100%',
+    maxWidth: 1200,
   },
   headerRow: {
     flexDirection: 'row',
@@ -33,6 +36,8 @@ export const styles = StyleSheet.create({
   },
   grid: {
     gap: 12,
+    width: '100%',
+    maxWidth: 1200,
   },
   adminCard: {
     borderRadius: 12,

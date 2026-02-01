@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { Shield, ClipboardCheck, ChevronRight, Settings, Users } from 'lucide-react-native';
+import { ClipboardCheck, ChevronRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { BackButton } from '@/components/ui';
@@ -34,25 +34,7 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
       iconBg: '#dbeafe',
       showBadge: true,
     },
-    // Puedes agregar más opciones de admin aquí en el futuro:
-    // {
-    //   key: 'users',
-    //   title: 'Gestión de Usuarios',
-    //   description: 'Administra roles y permisos',
-    //   href: '/(app)/(tabs)/manage/admin/users',
-    //   icon: Users,
-    //   iconColor: '#8b5cf6',
-    //   iconBg: '#ede9fe',
-    // },
-    // {
-    //   key: 'settings',
-    //   title: 'Configuración',
-    //   description: 'Ajustes del sistema',
-    //   href: '/(app)/(tabs)/manage/admin/settings',
-    //   icon: Settings,
-    //   iconColor: '#6b7280',
-    //   iconBg: '#f3f4f6',
-    // },
+    // TODO: Agregar más opciones de admin (Gestión de Usuarios, Configuración)
   ];
 
   return (

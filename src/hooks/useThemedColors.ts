@@ -47,6 +47,27 @@ export function useThemedColors() {
       // Colores de estado
       status: colors.status,
 
+      // Overlay colors
+      overlay: colors.overlay,
+
+      // Social media brand colors
+      social: colors.social,
+
+      // Promo colors (combo badges, etc.)
+      promo: {
+        badge: colors.promo.badge,
+        badgeText: colors.promo.badgeText,
+        combo: isDark ? colors.promo.combo.dark : colors.promo.combo.light,
+      },
+
+      // Colores de tipos de entidad (para admin/verification)
+      entityTypes: {
+        business: isDark ? colors.entityTypes.business.dark : colors.entityTypes.business.light,
+        event: isDark ? colors.entityTypes.event.dark : colors.entityTypes.event.light,
+        attraction: isDark ? colors.entityTypes.attraction.dark : colors.entityTypes.attraction.light,
+        promotion: isDark ? colors.entityTypes.promotion.dark : colors.entityTypes.promotion.light,
+      },
+
       // Tema actual
       theme,
       isDark,
