@@ -3,11 +3,16 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { Platform, StatusBar, View, Text } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/react-query/client';
 import { useDeepLinkHandler } from '@/hooks/useDeepLinkHandler';
 import { useAuthStore } from '@/store';
 import { useLocationDataStore } from '@/store/locationDataStore';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { setupReanimatedConfig } from '@/lib/reanimated';
+
+// Configurar Reanimated una sola vez al inicio
+setupReanimatedConfig();
 export default function RootLayout() {
   useDeepLinkHandler();
 
@@ -82,17 +87,18 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <StatusBar 
-        barStyle="light-content"
-        backgroundColor="transparent"
-        translucent={true}
-      />
-      <QueryClientProvider client={queryClient}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(app)" />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar 
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent={true}
+        />
+        <QueryClientProvider client={queryClient}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(app)" />
         </Stack>
         <Toast 
           config={{
@@ -173,7 +179,8 @@ export default function RootLayout() {
             ),
           }}
         />
-      </QueryClientProvider>
-    </SafeAreaProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
