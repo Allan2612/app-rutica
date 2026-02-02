@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { ClipboardCheck, ChevronRight } from 'lucide-react-native';
+import { ClipboardCheck, ChevronRight, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { BackButton } from '@/components/ui';
@@ -33,6 +33,16 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
       iconColor: '#3b82f6',
       iconBg: '#dbeafe',
       showBadge: true,
+    },
+    {
+      key: 'reviews',
+      title: 'Gestión de Reseñas',
+      description: 'Administra y modera todas las reseñas',
+      href: '/(app)/(tabs)/manage/admin/reviews',
+      icon: MessageSquare,
+      iconColor: '#10b981',
+      iconBg: '#d1fae5',
+      showBadge: false,
     },
     // TODO: Agregar más opciones de admin (Gestión de Usuarios, Configuración)
   ];

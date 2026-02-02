@@ -10,6 +10,8 @@ import type { ModerationStatus, PaymentState, ImageType, PromotionScope } from '
 
 export type VerificationEntityType = 'business' | 'event' | 'attraction' | 'promotion';
 
+export type ReviewType = 'attraction' | 'business' | 'event' | 'product';
+
 // ============================================
 // Image Data
 // ============================================
@@ -226,3 +228,38 @@ export const SCOPE_LABELS: Record<PromotionScope, string> = {
   categories: 'Categorías específicas',
   combo: 'Combo de productos',
 };
+
+// ============================================
+// Reviews Management
+// ============================================
+
+export interface ReviewFilters {
+  type?: ReviewType;
+  searchTerm?: string;
+  minRating?: number;
+  maxRating?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface AdminReviewDisplay {
+  id: string;
+  type: ReviewType;
+  contentId: string;
+  contentTitle: string;
+  userId: string;
+  authorName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export const REVIEW_TYPE_LABELS: Record<ReviewType, string> = {
+  attraction: 'Atracción',
+  business: 'Negocio',
+  event: 'Evento',
+  product: 'Producto',
+};
+
+// Note: Colors are now defined in @/styles/theme/colors.ts under colors.reviewTypes
+// Use colors.reviewTypes.attraction, colors.reviewTypes.business, etc.

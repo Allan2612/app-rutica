@@ -121,6 +121,20 @@ export const colors = {
     },
   },
 
+  // Review type colors
+  reviewTypes: {
+    attraction: '#10b981',
+    business: '#3b82f6',
+    event: '#f59e0b',
+    product: '#8b5cf6',
+  },
+
+  // Rating colors
+  rating: {
+    star: '#fbbf24',
+    starBg: 'transparent',
+  },
+
   // Shadow color
   shadow: '#000',
 } as const;

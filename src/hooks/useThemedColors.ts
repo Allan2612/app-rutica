@@ -68,6 +68,12 @@ export function useThemedColors() {
         promotion: isDark ? colors.entityTypes.promotion.dark : colors.entityTypes.promotion.light,
       },
 
+      // Colores de tipos de reseñas
+      reviewTypes: colors.reviewTypes,
+
+      // Colores de rating
+      rating: colors.rating,
+
       // Tema actual
       theme,
       isDark,
