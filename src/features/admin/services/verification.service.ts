@@ -35,6 +35,16 @@ async function fetchBusinessVerifications(
   search: string,
   limit: number
 ): Promise<BusinessVerificationRequest[]> {
+  // Verificar si el usuario es admin
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('role_prf, is_active_prf')
+    .eq('id_prf', (await supabase.auth.getUser()).data.user?.id)
+    .single();
+  
+  const isAdmin = profileData?.role_prf === 'admin' && profileData?.is_active_prf === true;
+  const userId = (await supabase.auth.getUser()).data.user?.id;
+  
   let query = supabase
     .from('businesses')
     .select(`
@@ -79,12 +89,15 @@ async function fetchBusinessVerifications(
         last_name2_prf
       )
     `)
-    .order('created_at_bus', { ascending: false })
-    .limit(limit);
+    .order('created_at_bus', { ascending: false });
 
-  if (status !== 'all') {
-    query = query.eq('moderation_status_bus', status);
+  // IMPORTANTE: Si el usuario NO es admin, filtrar solo sus propios negocios
+  if (!isAdmin && userId) {
+    query = query.eq('owner_id_bus', userId);
   }
+  
+  // Aumentar el límite para admins ya que filtraremos en código
+  query = query.limit(isAdmin ? limit * 10 : limit);
 
   if (search) {
     query = query.ilike('name_bus', `%${search}%`);
@@ -97,7 +110,16 @@ async function fetchBusinessVerifications(
     throw error;
   }
 
-  return (data || []).map((item: any) => {
+  // Si es admin, filtrar por status en JavaScript (para manejar casos donde RLS no filtra correctamente)
+  let filteredData = data || [];
+  if (isAdmin && status !== 'all') {
+    filteredData = filteredData.filter((item: any) => {
+      const itemStatus = item.moderation_status_bus || 'pending'; // Si es null, tratarlo como pending
+      return itemStatus === status;
+    });
+  }
+
+  return (filteredData || []).map((item: any) => {
     const images = item.business_images || [];
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0)
@@ -614,18 +636,19 @@ export async function getPendingVerifications(
  * Get statistics for pending verifications
  */
 export async function getVerificationStats(): Promise<VerificationStats> {
+  // Traer registros con status 'pending' o NULL (que se tratan como pending)
   const [businesses, events, attractions, promotions] = await Promise.all([
-    supabase.from('businesses').select('id_bus', { count: 'exact', head: true }).eq('moderation_status_bus', 'pending'),
-    supabase.from('events').select('id_evt', { count: 'exact', head: true }).eq('moderation_status_evt', 'pending'),
-    supabase.from('attractions').select('id_atr', { count: 'exact', head: true }).eq('moderation_status_atr', 'pending'),
-    supabase.from('promotions').select('id_prm', { count: 'exact', head: true }).eq('moderation_status_prm', 'pending'),
+    supabase.from('businesses').select('id_bus, moderation_status_bus').or('moderation_status_bus.eq.pending,moderation_status_bus.is.null'),
+    supabase.from('events').select('id_evt, moderation_status_evt').or('moderation_status_evt.eq.pending,moderation_status_evt.is.null'),
+    supabase.from('attractions').select('id_atr, moderation_status_atr').or('moderation_status_atr.eq.pending,moderation_status_atr.is.null'),
+    supabase.from('promotions').select('id_prm, moderation_status_prm').or('moderation_status_prm.eq.pending,moderation_status_prm.is.null'),
   ]);
 
   const pendingByType = {
-    business: businesses.count || 0,
-    event: events.count || 0,
-    attraction: attractions.count || 0,
-    promotion: promotions.count || 0,
+    business: businesses.data?.length || 0,
+    event: events.data?.length || 0,
+    attraction: attractions.data?.length || 0,
+    promotion: promotions.data?.length || 0,
   };
 
   return {

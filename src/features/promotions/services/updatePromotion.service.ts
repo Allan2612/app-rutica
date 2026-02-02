@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import type { PromotionFormData } from '@/types/entities';
 import { generateUUID, isNewImage, uploadPromotionImage, deletePromotionImage, extractPathFromUrl } from './promotions.helpers';
+import { canUserEdit } from '@/utils/permissionHelpers';
 
 const BUCKET_NAME = 'promotions-images';
 
@@ -26,7 +27,13 @@ export async function updatePromotionComplete(
         .single();
 
     if (fetchError) throw fetchError;
-    if (!promotion || promotion.created_by_prm !== userId) {
+    if (!promotion) {
+        throw new Error('No se encontró la promoción');
+    }
+
+    // Verificar permisos: debe ser el creador O admin
+    const hasPermission = await canUserEdit(userId, promotion.created_by_prm);
+    if (!hasPermission) {
         throw new Error('No tienes permisos para editar esta promoción');
     }
 

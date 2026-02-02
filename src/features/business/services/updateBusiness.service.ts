@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
 import type { BusinessDetailForEdit } from '@/types/entities/business';
+import { canUserEdit } from '@/utils/permissionHelpers';
 
 const BUCKET_NAME = 'business-images';
 
@@ -147,7 +148,10 @@ export async function getBusinessForEdit(
 
     if (businessError) throw businessError;
     if (!businessData) throw new Error('No se encontró el negocio');
-    if ((businessData as any).owner_id_bus !== userId) {
+    
+    // Verificar permisos: debe ser el propietario O admin
+    const hasPermission = await canUserEdit(userId, (businessData as any).owner_id_bus);
+    if (!hasPermission) {
         throw new Error('No tienes permiso para editar este negocio');
     }
 
@@ -280,7 +284,13 @@ export async function updateBusinessComplete(
             .eq('id_bus', businessId)
             .single();
 
-        if (!business || (business as any).owner_id_bus !== userId) {
+        if (!business) {
+            throw new Error('No se encontró el negocio');
+        }
+
+        // Verificar permisos: debe ser el propietario O admin
+        const hasPermission = await canUserEdit(userId, (business as any).owner_id_bus);
+        if (!hasPermission) {
             throw new Error('No tienes permiso para editar este negocio');
         }
 
