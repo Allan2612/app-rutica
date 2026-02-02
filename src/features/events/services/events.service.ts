@@ -177,10 +177,5 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
         throw error;
     }
 
-    console.log('[getEventsList] Found events:', data?.length || 0, 'filters:', filters);
-    if (data && data.length > 0) {
-        console.log('[getEventsList] First event:', data[0]);
-    }
-
     return data as unknown as EventListRecord[];
 }

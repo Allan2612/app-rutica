@@ -88,7 +88,7 @@ export const EventReviewsSectionControls = memo(function EventReviewsSectionCont
                 });
             }
         } catch (error) {
-            console.log('[EventReviewsSectionControls] Share cancelled or error:', error);
+            // Share cancelled or error
         }
     }, [eventName, eventId]);
 

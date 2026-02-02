@@ -318,8 +318,6 @@ async function updateAttractionRating(attractionId: string): Promise<void> {
                 reviews_count_atr: reviewCount,
             };
 
-            console.log('[updateAttractionRating] Updating attraction (fallback):', attractionId, updatePayload);
-
             const { error: updateError } = await supabase
                 .from('attractions')
                 .update(updatePayload)
@@ -327,13 +325,9 @@ async function updateAttractionRating(attractionId: string): Promise<void> {
 
             if (updateError) {
                 console.error('[updateAttractionRating] Error updating attraction (fallback):', updateError);
-            } else {
-                console.log('[updateAttractionRating] Successfully updated attraction ratings (fallback)');
             }
         } catch (err) {
             console.error('[updateAttractionRating] Unexpected error in fallback:', err);
         }
-    } else {
-        console.log('[updateAttractionRating] Successfully called RPC update_attraction_rating');
     }
 }

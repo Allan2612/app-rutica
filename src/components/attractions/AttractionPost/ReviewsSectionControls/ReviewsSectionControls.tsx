@@ -88,7 +88,7 @@ export const ReviewsSectionControls = memo(function ReviewsSectionControls({
                 });
             }
         } catch (error) {
-            console.log('[ReviewsSectionControls] Share cancelled or error:', error);
+            // Share cancelled or error
         }
     }, [attractionName, attractionId]);
 
