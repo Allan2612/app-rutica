@@ -135,6 +135,11 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
             )
         `);
 
+    // Solo eventos aprobados y activos
+    query = query
+        .eq('moderation_status_evt', 'approved')
+        .eq('is_active_evt', true);
+
     // Filtrar solo eventos futuros o en curso
     if (upcoming) {
         query = query.gte('end_at_evt', new Date().toISOString());
