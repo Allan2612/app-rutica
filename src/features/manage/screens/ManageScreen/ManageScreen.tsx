@@ -42,11 +42,11 @@ export const ManageScreen = memo(function ManageScreen() {
   const normalizedRole = useMemo(() => normalizeRole(role), [role]);
   const effectiveRole: UserRole = normalizedRole ?? 'buyer';
 
-  const columns = width >= 380 ? 2 : 1;
+  const columns = 1;
   const horizontalPadding = spacing.lg;
   const gap = spacing.md;
   const cardWidth = useMemo(() => {
-    const maxContentWidth = 860;
+    const maxContentWidth = 600;
     const available = Math.max(0, width - horizontalPadding * 2);
     const contentWidth = Math.min(available, maxContentWidth);
     const usableWidth = contentWidth - gap * (columns - 1);
@@ -127,12 +127,13 @@ export const ManageScreen = memo(function ManageScreen() {
           styles.scrollContent,
           { flexGrow: 1 },
         ]}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
           <View style={[styles.header, { borderColor: colors.border.light }]}>
             <Text style={[styles.title, { color: colors.text.primary }]}>Gestionar</Text>
             <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-              Accesos rápidos según tu rol.
+              Administra y organiza tu contenido.
             </Text>
           </View>
 
