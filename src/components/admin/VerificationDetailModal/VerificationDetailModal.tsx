@@ -1,352 +1,89 @@
-import { memo } from 'react';
-import { View, Text, Image, Modal, ScrollView, Pressable } from 'react-native';
-import { X, MapPin, User, Calendar, Tag, Store, TrendingDown, Clock, CreditCard, Package, ShoppingBag } from 'lucide-react-native';
+// ============================================
+// Unified Verification Detail Modal
+// Uses entity-specific DetailViews for optimized rendering
+// ============================================
+
+import { memo, useCallback } from 'react';
+import { View, Text, Pressable, Modal, StyleSheet, Dimensions, Platform, TouchableWithoutFeedback } from 'react-native';
+import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import type { VerificationRequest } from '@/features/admin/services/verification.service';
-import { styles } from './styles';
-
-// Interfaces para metadatos tipados
-interface PromotionComboItem {
-  productName: string;
-  quantity: number;
-  paidQuantity?: number;
-  price?: number;
-}
-
-interface PromotionImage {
-  url: string;
-}
-
-interface PromotionMetadata {
-  businessName?: string;
-  businessLocation?: string;
-  discountType?: 'percentage' | 'fixed';
-  discountValue?: number;
-  scope?: 'business' | 'category' | 'product';
-  startAt?: string;
-  endAt?: string;
-  paymentReference?: string;
-  paymentState?: 'pending' | 'paid' | 'rejected';
-  paymentNote?: string;
-  moderationNote?: string;
-  categories?: string[];
-  comboItems?: PromotionComboItem[];
-  images?: PromotionImage[];
-}
+import {
+  BusinessDetailView,
+  EventDetailView,
+  AttractionDetailView,
+  PromotionDetailView,
+} from '../DetailViews';
+import type {
+  VerificationRequest,
+  BusinessVerificationRequest,
+  EventVerificationRequest,
+  AttractionVerificationRequest,
+  PromotionVerificationRequest,
+} from '@/features/admin/types';
 
 interface VerificationDetailModalProps {
   visible: boolean;
   request: VerificationRequest | null;
   onClose: () => void;
+  onToggleActive?: (id: string, type: string, isActive: boolean) => void;
+  isProcessing?: boolean;
 }
-
-const TYPE_LABELS: Record<string, string> = {
-  business: 'Negocio',
-  event: 'Evento',
-  attraction: 'Atracción',
-  promotion: 'Promoción',
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: 'Pendiente',
-  approved: 'Aprobado',
-  rejected: 'Rechazado',
-};
-
-const SCOPE_LABELS: Record<string, string> = {
-  business: 'Todo el negocio',
-  category: 'Categorías específicas',
-  product: 'Productos específicos',
-};
 
 export const VerificationDetailModal = memo(function VerificationDetailModal({
   visible,
   request,
   onClose,
+  onToggleActive,
+  isProcessing = false,
 }: VerificationDetailModalProps) {
   const colors = useThemedColors();
 
+  const handleToggleActive = useCallback(
+    (isActive: boolean) => {
+      if (request && onToggleActive) {
+        onToggleActive(request.id, request.type, isActive);
+      }
+    },
+    [request, onToggleActive]
+  );
+
   if (!request) return null;
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const formatDateShort = (date: string) => {
-    return new Date(date).toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  // Render promotion-specific details
-  const renderPromotionDetails = () => {
-    if (request.type !== 'promotion' || !request.metadata) return null;
-
-    // Cast metadata a tipo conocido
-    const meta = request.metadata as PromotionMetadata;
-
-    const {
-      businessName,
-      discountType,
-      discountValue,
-      scope,
-      startAt,
-      endAt,
-      paymentReference,
-      paymentState,
-      paymentNote,
-      moderationNote,
-      categories,
-      comboItems,
-      images,
-    } = meta;
-
-    const discountStr = discountType === 'percentage'
-      ? `${discountValue}%`
-      : `₡${Number(discountValue).toLocaleString('es-CR')}`;
-
-    const paymentStateLabels: Record<string, string> = {
-      pending: 'Pendiente',
-      paid: 'Pagado',
-      rejected: 'Rechazado',
-    };
-
-    return (
-      <>
-        {/* Business Info */}
-        <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-          <View style={styles.infoCardHeader}>
-            <Store size={18} color={colors.primary[500]} />
-            <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-              Negocio Asociado
-            </Text>
-          </View>
-          <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-            {businessName || 'No especificado'}
-          </Text>
-        </View>
-
-        {/* Payment Reference - IMPORTANT FOR DASHBOARD */}
-        {paymentReference && (
-          <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-            <View style={styles.infoCardHeader}>
-              <CreditCard size={18} color={colors.primary[500]} />
-              <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                Referencia de Pago
-              </Text>
-            </View>
-            <View>
-              <Text style={[styles.paymentReference, { color: colors.text.primary }]}>
-                {paymentReference}
-              </Text>
-              <Text style={[styles.paymentState, {
-                color: paymentState === 'paid'
-                  ? colors.success
-                  : paymentState === 'rejected'
-                    ? colors.error
-                    : colors.warning
-              }]}>
-                {paymentState ? (paymentStateLabels[paymentState] || paymentState) : 'Pendiente'}
-              </Text>
-            </View>
-          </View>
-        )}
-
-        {/* Payment Note */}
-        {paymentNote && (
-          <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-            <View style={styles.infoCardHeader}>
-              <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                Nota del Pago
-              </Text>
-            </View>
-            <Text style={[styles.noteText, { color: colors.text.secondary }]}>
-              {paymentNote}
-            </Text>
-          </View>
-        )}
-
-        {/* Moderation Note */}
-        {moderationNote && (
-          <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-            <View style={styles.infoCardHeader}>
-              <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                Nota de Moderación
-              </Text>
-            </View>
-            <Text style={[styles.noteText, { color: colors.text.secondary }]}>
-              {moderationNote}
-            </Text>
-          </View>
-        )}
-
-        {/* Discount Info */}
-        <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-          <View style={styles.infoCardHeader}>
-            <TrendingDown size={18} color={colors.success} />
-            <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-              Descuento
-            </Text>
-          </View>
-          <View style={styles.discountRow}>
-            <Text style={[styles.discountValue, { color: colors.success }]}>
-              {discountStr}
-            </Text>
-            <Text style={[styles.discountType, { color: colors.text.secondary }]}>
-              {discountType === 'percentage' ? 'de descuento' : 'de rebaja'}
-            </Text>
-          </View>
-        </View>
-
-        {/* Validity Period */}
-        <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-          <View style={styles.infoCardHeader}>
-            <Clock size={18} color={colors.warning} />
-            <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-              Período de Validez
-            </Text>
-          </View>
-          <View style={styles.dateRange}>
-            <View style={styles.dateItem}>
-              <Text style={[styles.dateLabel, { color: colors.text.secondary }]}>Inicio</Text>
-              <Text style={[styles.dateValue, { color: colors.text.primary }]}>
-                {startAt ? formatDateShort(startAt) : 'No especificado'}
-              </Text>
-            </View>
-            <View style={[styles.dateSeparator, { backgroundColor: colors.border.light }]} />
-            <View style={styles.dateItem}>
-              <Text style={[styles.dateLabel, { color: colors.text.secondary }]}>Fin</Text>
-              <Text style={[styles.dateValue, { color: colors.text.primary }]}>
-                {endAt ? formatDateShort(endAt) : 'No especificado'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Scope */}
-        <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-          <View style={styles.infoCardHeader}>
-            <Tag size={18} color={colors.primary[500]} />
-            <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-              Alcance de la Promoción
-            </Text>
-          </View>
-          <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-            {scope ? (SCOPE_LABELS[scope] || scope) : 'No especificado'}
-          </Text>
-        </View>
-
-        {/* Categories (if scope is category) */}
-        {scope === 'category' && categories && categories.length > 0 && (
-          <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-            <View style={styles.infoCardHeader}>
-              <Tag size={18} color={colors.primary[500]} />
-              <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                Categorías Incluidas
-              </Text>
-            </View>
-            <View style={styles.categoryList}>
-              {categories.map((cat, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.categoryChip,
-                    {
-                      backgroundColor: colors.isDark
-                        ? 'rgba(59, 130, 246, 0.15)'
-                        : colors.primary[50],
-                      borderColor: colors.isDark
-                        ? colors.primary[500]
-                        : colors.primary[200],
-                    }
-                  ]}
-                >
-                  <Text style={[
-                    styles.categoryChipText,
-                    {
-                      color: colors.isDark
-                        ? colors.primary[400]
-                        : colors.primary[700]
-                    }
-                  ]}>
-                    {cat}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Combo Items (if scope is product) */}
-        {scope === 'product' && comboItems && comboItems.length > 0 && (
-          <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-            <View style={styles.infoCardHeader}>
-              <Package size={18} color={colors.primary[500]} />
-              <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                Productos en Combo
-              </Text>
-            </View>
-            <View style={styles.comboList}>
-              {comboItems.map((item, index) => (
-                <View
-                  key={index}
-                  style={[styles.comboItem, { borderBottomColor: colors.border.light }]}
-                >
-                  <View style={styles.comboItemHeader}>
-                    <ShoppingBag size={16} color={colors.text.secondary} />
-                    <Text style={[styles.comboItemName, { color: colors.text.primary }]}>
-                      {item.productName}
-                    </Text>
-                  </View>
-                  <View style={styles.comboItemDetails}>
-                    <Text style={[styles.comboItemQuantity, { color: colors.text.secondary }]}>
-                      Cantidad: {item.quantity}
-                      {item.paidQuantity && ` (${item.paidQuantity} pagados)`}
-                    </Text>
-                    {item.price && (
-                      <Text style={[styles.comboItemPrice, { color: colors.success }]}>
-                        ₡{Number(item.price).toLocaleString('es-CR')}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Additional Images */}
-        {images && images.length > 1 && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-              Galería de Imágenes
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.imageGallery}
-            >
-              {images.map((img, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: img.url }}
-                  style={styles.galleryImage}
-                  resizeMode="cover"
-                />
-              ))}
-            </ScrollView>
-          </View>
-        )}
-      </>
-    );
+  // Render the appropriate detail view based on entity type
+  // Note: onToggleActive is intentionally NOT passed to keep DetailViews read-only
+  const renderDetailView = () => {
+    switch (request.type) {
+      case 'business':
+        return (
+          <BusinessDetailView
+            request={request as BusinessVerificationRequest}
+            isProcessing={isProcessing}
+          />
+        );
+      case 'event':
+        return (
+          <EventDetailView
+            request={request as EventVerificationRequest}
+            isProcessing={isProcessing}
+          />
+        );
+      case 'attraction':
+        return (
+          <AttractionDetailView
+            request={request as AttractionVerificationRequest}
+            isProcessing={isProcessing}
+          />
+        );
+      case 'promotion':
+        return (
+          <PromotionDetailView
+            request={request as PromotionVerificationRequest}
+            isProcessing={isProcessing}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -355,14 +92,15 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      statusBarTranslucent
     >
-      <Pressable
-        style={styles.overlay}
-        onPress={onClose}
-      >
-        <Pressable
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.overlayBackground} />
+        </TouchableWithoutFeedback>
+        
+        <View 
           style={[styles.modalContainer, { backgroundColor: colors.background.primary }]}
-          onPress={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
@@ -373,139 +111,19 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
               onPress={onClose}
               style={({ pressed }) => [
                 styles.closeButton,
-                { backgroundColor: pressed ? colors.background.tertiary : 'transparent' }
+                { backgroundColor: pressed ? colors.background.tertiary : 'transparent' },
               ]}
             >
               <X size={24} color={colors.text.secondary} />
             </Pressable>
           </View>
 
-          <ScrollView
-            style={styles.content}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Main Image */}
-            {request.imageUrl && (
-              <Image
-                source={{ uri: request.imageUrl }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            )}
+          {/* Content - Entity-specific DetailView */}
+          <View style={[styles.contentWrapper, { backgroundColor: colors.background.primary }]}>
+            {renderDetailView()}
+          </View>
 
-            {/* Type Badge - YELLOW for promotions */}
-            <View style={[
-              styles.badge,
-              {
-                backgroundColor: request.type === 'promotion'
-                  ? colors.isDark ? 'rgba(245, 158, 11, 0.2)' : '#fef3c7'
-                  : colors.primary[100]
-              }
-            ]}>
-              <Tag size={14} color={request.type === 'promotion'
-                ? colors.isDark ? '#fbbf24' : '#92400e'
-                : colors.primary[600]}
-              />
-              <Text style={[
-                styles.badgeText,
-                {
-                  color: request.type === 'promotion'
-                    ? colors.isDark ? '#fbbf24' : '#92400e'
-                    : colors.primary[700]
-                }
-              ]}>
-                {TYPE_LABELS[request.type]}
-              </Text>
-            </View>
-
-            {/* Title/Name */}
-            <Text style={[styles.entityName, { color: colors.text.primary }]}>
-              {request.name}
-            </Text>
-
-            {/* Description - NO subtitle, just text */}
-            {request.description && (
-              <Text style={[styles.description, { color: colors.text.secondary }]}>
-                {request.description}
-              </Text>
-            )}
-
-            {/* Type-specific details */}
-            {renderPromotionDetails()}
-
-            {/* Location - Show business location for promotions */}
-            {request.type === 'promotion' && (request.metadata as PromotionMetadata)?.businessLocation ? (
-              <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-                <View style={styles.infoCardHeader}>
-                  <MapPin size={18} color={colors.text.secondary} />
-                  <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                    Ubicación
-                  </Text>
-                </View>
-                <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-                  {(request.metadata as PromotionMetadata).businessLocation}
-                </Text>
-              </View>
-            ) : request.locationLabel && request.type !== 'promotion' ? (
-              <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-                <View style={styles.infoCardHeader}>
-                  <MapPin size={18} color={colors.text.secondary} />
-                  <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                    Ubicación
-                  </Text>
-                </View>
-                <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-                  {request.locationLabel}
-                </Text>
-              </View>
-            ) : null}
-
-            {/* Owner */}
-            <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-              <View style={styles.infoCardHeader}>
-                <User size={18} color={colors.text.secondary} />
-                <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                  Creado Por
-                </Text>
-              </View>
-              <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-                {request.ownerName}
-              </Text>
-            </View>
-
-            {/* Created Date */}
-            <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-              <View style={styles.infoCardHeader}>
-                <Calendar size={18} color={colors.text.secondary} />
-                <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                  Fecha de Creación
-                </Text>
-              </View>
-              <Text style={[styles.infoCardValue, { color: colors.text.primary }]}>
-                {formatDate(request.createdAt)}
-              </Text>
-            </View>
-
-            {/* Status */}
-            <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
-              <View style={styles.infoCardHeader}>
-                <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-                  Estado de Moderación
-                </Text>
-              </View>
-              <Text style={[styles.statusValue, {
-                color: request.moderationStatus === 'approved'
-                  ? colors.success
-                  : request.moderationStatus === 'rejected'
-                    ? colors.error
-                    : colors.warning
-              }]}>
-                {STATUS_LABELS[request.moderationStatus]}
-              </Text>
-            </View>
-          </ScrollView>
-
-          {/* Actions */}
+          {/* Footer */}
           <View style={[styles.footer, { borderTopColor: colors.border.light }]}>
             <Pressable
               onPress={onClose}
@@ -514,17 +132,87 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
                 {
                   backgroundColor: pressed
                     ? colors.primary[600]
-                    : colors.primary[500]
-                }
+                    : colors.primary[500],
+                },
               ]}
             >
-              <Text style={styles.buttonText}>
-                Cerrar
-              </Text>
+              <Text style={styles.buttonText}>Cerrar</Text>
             </Pressable>
           </View>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
+});
+
+const { height: screenHeight } = Dimensions.get('window');
+const isSmallScreen = screenHeight < 700;
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Platform.OS === 'web' ? 20 : 0,
+  },
+  overlayBackground: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
+  modalContainer: {
+    flexDirection: 'column',
+    width: '100%',
+    maxWidth: Platform.OS === 'web' ? 600 : '100%',
+    height: Platform.OS === 'web' ? undefined : '100%',
+    maxHeight: Platform.OS === 'web' ? '90%' : '100%',
+    borderRadius: Platform.OS === 'web' ? 16 : 0,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: Platform.OS === 'web' ? 16 : isSmallScreen ? 12 : 50,
+    borderBottomWidth: 1,
+    flexShrink: 0,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentWrapper: {
+    flex: 1,
+  },
+  footer: {
+    padding: 16,
+    paddingBottom: Platform.OS === 'web' ? 16 : isSmallScreen ? 16 : 34,
+    borderTopWidth: 1,
+    flexShrink: 0,
+  },
+  button: {
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
 });

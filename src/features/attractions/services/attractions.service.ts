@@ -128,6 +128,11 @@ export async function getAttractionsList(
       )
     `);
 
+    // Solo atracciones aprobadas y activas
+    query = query
+        .eq('moderation_status_atr', 'approved')
+        .eq('is_active_atr', true);
+
     // Filtrar por categorías si se especifican
     if (categoryIds && categoryIds.length > 0) {
         query = query.in('attraction_category_map.category_id_acm', categoryIds);

@@ -49,32 +49,50 @@ export function EventPost({
     const [showReviews, setShowReviews] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+    const [selectedReviewUserId, setSelectedReviewUserId] = useState<string | null>(null);
 
     const { user } = useAuthStore();
     const userId = user?.id ?? null;
     const isAuthenticated = !!userId;
 
     const { reviews, userReview, hasReviews, isSubmitting, isDeleting, handleSubmitReview, handleDeleteReview } =
-        useEventPostReviews(eventId, userId);
+        useEventPostReviews(eventId, userId, selectedReviewId, selectedReviewUserId);
 
     const hasLocation = latitude != null && longitude != null;
+
+    const selectedReview = selectedReviewId
+        ? reviews.find(r => r.id === selectedReviewId) || userReview
+        : userReview;
 
     const handleLocationPress = useCallback(() => {
         if (latitude && longitude) openMaps(latitude, longitude, locationLabel ?? name);
     }, [latitude, longitude, locationLabel, name]);
 
     const handleToggleReviews = useCallback(() => setShowReviews((prev) => !prev), []);
-    const handleWriteReview = useCallback(() => setShowReviewModal(true), []);
+    const handleWriteReview = useCallback(() => {
+        setSelectedReviewId(null);
+        setSelectedReviewUserId(null);
+        setShowReviewModal(true);
+    }, []);
 
     const handleReviewSubmit = useCallback(async (ratingValue: number, comment: string) => {
         const success = await handleSubmitReview(ratingValue, comment);
-        if (success) setShowReviewModal(false);
+        if (success) {
+            setShowReviewModal(false);
+            setSelectedReviewId(null);
+            setSelectedReviewUserId(null);
+        }
         return success;
     }, [handleSubmitReview]);
 
     const handleConfirmDelete = useCallback(async () => {
         const success = await handleDeleteReview();
-        if (success) setShowDeleteConfirm(false);
+        if (success) {
+            setShowDeleteConfirm(false);
+            setSelectedReviewId(null);
+            setSelectedReviewUserId(null);
+        }
     }, [handleDeleteReview]);
 
     return (
@@ -135,21 +153,33 @@ export function EventPost({
                     currentUserId={userId}
                     isAuthenticated={isAuthenticated}
                     hasUserReview={!!userReview}
-                    onEdit={handleWriteReview}
-                    onDelete={() => setShowDeleteConfirm(true)}
+                    onEdit={(reviewId, reviewUserId) => {
+                        setSelectedReviewId(reviewId);
+                        setSelectedReviewUserId(reviewUserId);
+                        setShowReviewModal(true);
+                    }}
+                    onDelete={(reviewId, reviewUserId) => {
+                        setSelectedReviewId(reviewId);
+                        setSelectedReviewUserId(reviewUserId);
+                        setShowDeleteConfirm(true);
+                    }}
                     onWriteReview={handleWriteReview}
                 />
             )}
 
             <ReviewModal
                 visible={showReviewModal}
-                onClose={() => setShowReviewModal(false)}
+                onClose={() => {
+                    setShowReviewModal(false);
+                    setSelectedReviewId(null);
+                    setSelectedReviewUserId(null);
+                }}
                 onSubmit={handleReviewSubmit}
                 businessName={name}
                 businessLogo={imageUrls[0]}
-                existingRating={userReview?.rating}
-                existingComment={userReview?.comment}
-                isEditMode={!!userReview}
+                existingRating={selectedReview?.rating}
+                existingComment={selectedReview?.comment}
+                isEditMode={!!selectedReview}
                 isLoading={isSubmitting}
             />
 

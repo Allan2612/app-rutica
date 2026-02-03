@@ -5,6 +5,7 @@ import type {
     BusinessDetailForEdit,
 } from '@/types/entities/business';
 import { getImageUrl, generateUUID, isNewImage, uploadImage } from './userBusinesses.helpers';
+import { canUserEdit } from '@/utils/permissionHelpers';
 
 const BUCKET_NAME = 'business-images';
 
@@ -196,7 +197,10 @@ export async function getBusinessById(
 
     if (businessError) throw businessError;
     if (!businessData) throw new Error('No se encontró el negocio');
-    if ((businessData as any).owner_id_bus !== userId) {
+    
+    // Verificar permisos: debe ser el propietario O admin
+    const hasPermission = await canUserEdit(userId, (businessData as any).owner_id_bus);
+    if (!hasPermission) {
         throw new Error('No tienes permiso para editar este negocio');
     }
 

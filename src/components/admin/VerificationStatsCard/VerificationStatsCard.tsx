@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { Store, CalendarDays, Landmark, Tag, Clock } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { TYPE_LABELS, type VerificationEntityType } from '@/features/admin/types';
 import { styles } from './styles';
 
 export interface VerificationStatsCardProps {
@@ -14,43 +15,30 @@ export interface VerificationStatsCardProps {
   };
 }
 
+const TYPE_ICONS: Record<VerificationEntityType, typeof Store> = {
+  business: Store,
+  event: CalendarDays,
+  attraction: Landmark,
+  promotion: Tag,
+};
+
 export const VerificationStatsCard = memo(function VerificationStatsCard({
   totalPending,
   pendingByType,
 }: VerificationStatsCardProps) {
   const colors = useThemedColors();
 
-  // Colors that adapt to dark mode
-  const STAT_ITEMS = useMemo(() => [
-    {
-      key: 'business' as const,
-      label: 'Negocios',
-      icon: Store,
-      color: colors.isDark ? '#60a5fa' : '#3b82f6',
-      bgColor: colors.isDark ? 'rgba(59, 130, 246, 0.15)' : '#dbeafe',
-    },
-    {
-      key: 'event' as const,
-      label: 'Eventos',
-      icon: CalendarDays,
-      color: colors.isDark ? '#fbbf24' : '#f59e0b',
-      bgColor: colors.isDark ? 'rgba(245, 158, 11, 0.15)' : '#fef3c7',
-    },
-    {
-      key: 'attraction' as const,
-      label: 'Atracciones',
-      icon: Landmark,
-      color: colors.isDark ? '#34d399' : '#10b981',
-      bgColor: colors.isDark ? 'rgba(16, 185, 129, 0.15)' : '#d1fae5',
-    },
-    {
-      key: 'promotion' as const,
-      label: 'Promociones',
-      icon: Tag,
-      color: colors.isDark ? '#f472b6' : '#ec4899',
-      bgColor: colors.isDark ? 'rgba(236, 72, 153, 0.15)' : '#fce7f3',
-    },
-  ], [colors.isDark]);
+  // Colors from theme - no hardcoded values
+  const STAT_ITEMS = useMemo(() => {
+    const entityTypes: VerificationEntityType[] = ['business', 'event', 'attraction', 'promotion'];
+    return entityTypes.map((key) => ({
+      key,
+      label: TYPE_LABELS[key],
+      icon: TYPE_ICONS[key],
+      color: colors.entityTypes[key].text,
+      bgColor: colors.entityTypes[key].bg,
+    }));
+  }, [colors.entityTypes]);
 
   return (
     <View
@@ -71,7 +59,7 @@ export const VerificationStatsCard = memo(function VerificationStatsCard({
             { backgroundColor: totalPending > 0 ? colors.warning : colors.success },
           ]}
         >
-          <Text style={[styles.totalText, { color: '#fff' }]}>{totalPending}</Text>
+          <Text style={[styles.totalText, { color: colors.text.inverse }]}>{totalPending}</Text>
         </View>
       </View>
 

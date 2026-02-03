@@ -132,15 +132,6 @@ export function useBusinessForm(businessId: string) {
                 galleryUris: formData.galleryUris,
             };
 
-            console.log('[useBusinessForm] Submitting data:', {
-                logoUri: data.logoUri,
-                coverUri: data.coverUri,
-                galleryUris: data.galleryUris,
-                facebook: data.facebook,
-                instagram: data.instagram,
-                tiktok: data.tiktok,
-            });
-
             await updateMutation.mutateAsync({ businessId, data });
             Toast.show({
                 type: 'success',

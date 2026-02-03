@@ -11,6 +11,7 @@ import type {
 } from '@/types/entities';
 import { ModerationStatus, PromotionScope, DiscountType, PaymentState } from '@/types/enums';
 import { getImageUrl, deletePromotionImage } from './promotions.helpers';
+import { canUserEdit } from '@/utils/permissionHelpers';
 
 const BUCKET_NAME = 'promotions-images';
 
@@ -206,8 +207,9 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
 
     if (error) throw error;
 
-    // Verificar que el usuario es el dueño
-    if ((data as any).created_by_prm !== userId) {
+    // Verificar permisos: debe ser el propietario O admin
+    const hasPermission = await canUserEdit(userId, (data as any).created_by_prm);
+    if (!hasPermission) {
         throw new Error('No tienes permisos para ver esta promoción');
     }
 

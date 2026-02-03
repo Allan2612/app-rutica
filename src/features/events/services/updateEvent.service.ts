@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { canUserEdit } from '@/utils/permissionHelpers';
 
 // ============================================
 // Constants
@@ -133,7 +134,10 @@ export async function getEventById(
 
     if (eventError) throw eventError;
     if (!eventData) throw new Error('No se encontró el evento');
-    if ((eventData as any).created_by_evt !== userId) {
+    
+    // Verificar permisos: debe ser el creador O admin
+    const hasPermission = await canUserEdit(userId, (eventData as any).created_by_evt);
+    if (!hasPermission) {
         throw new Error('No tienes permiso para editar este evento');
     }
 
@@ -256,7 +260,13 @@ export async function updateEventComplete(
         .eq('id_evt', eventId)
         .single();
 
-    if (!event || event.created_by_evt !== userId) {
+    if (!event) {
+        throw new Error('No se encontró el evento');
+    }
+
+    // Verificar permisos: debe ser el creador O admin
+    const hasPermission = await canUserEdit(userId, event.created_by_evt);
+    if (!hasPermission) {
         throw new Error('No tienes permiso para editar este evento');
     }
 

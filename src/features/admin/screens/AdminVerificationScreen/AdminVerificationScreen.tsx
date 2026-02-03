@@ -1,6 +1,10 @@
+// ============================================
+// Admin Verification Screen - Optimized Version
+// ============================================
+
 import { memo, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
-import { Shield, CheckCircle, AlertCircle } from 'lucide-react-native';
+import { CheckCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useThemedColors } from '@/hooks';
@@ -17,20 +21,14 @@ import {
   useVerificationRequests,
   useVerificationStats,
   useUpdateModeration,
+  useToggleActive,
 } from '../../hooks/useAdminVerification';
 import type {
   VerificationEntityType,
   VerificationRequest,
-} from '../../services/verification.service';
+} from '../../types';
 import type { ModerationStatus } from '@/types/enums';
 import { styles } from './styles';
-
-const TYPE_LABELS: Record<VerificationEntityType, string> = {
-  business: 'el negocio',
-  event: 'el evento',
-  attraction: 'la atracción',
-  promotion: 'la promoción',
-};
 
 export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
   const colors = useThemedColors();
@@ -59,7 +57,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
     request: null,
   });
 
-  // Data fetching
+  // Data fetching with memoized filters
   const filters = useMemo(
     () => ({
       type: selectedType,
@@ -72,38 +70,31 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
   const { data: requests = [], isLoading, refetch, isRefetching } = useVerificationRequests(filters);
   const { data: stats } = useVerificationStats();
   const updateMutation = useUpdateModeration();
+  const toggleActiveMutation = useToggleActive();
 
-  // Handlers
+  // Memoized handlers to prevent unnecessary re-renders
   const handleManageStatus = useCallback((request: VerificationRequest) => {
     setStatusDialog({ visible: true, request });
   }, []);
 
-  const handleView = useCallback(
-    (request: VerificationRequest) => {
-      // Open detail modal
-      setDetailModal({ visible: true, request });
-    },
-    []
-  );
+  const handleView = useCallback((request: VerificationRequest) => {
+    setDetailModal({ visible: true, request });
+  }, []);
 
   const handleEdit = useCallback(
     (request: VerificationRequest) => {
-      // Navigate to detail screen based on type (public view)
       switch (request.type) {
         case 'business':
-          router.push(`/(app)/(tabs)/businesses/${request.id}`);
+          router.push(`/(app)/(tabs)/manage/businesses/${request.id}/edit`);
           break;
         case 'event':
-          router.push(`/(app)/(tabs)/events/${request.id}`);
+          router.push(`/(app)/(tabs)/manage/events/${request.id}/edit`);
           break;
         case 'attraction':
-          router.push(`/(app)/(tabs)/attractions/${request.id}`);
+          router.push(`/(app)/(tabs)/manage/attractions/${request.id}/edit`);
           break;
         case 'promotion':
-          // For promotions, navigate to the associated business
-          if (request.businessId) {
-            router.push(`/(app)/(tabs)/businesses/${request.businessId}`);
-          }
+          router.push(`/(app)/(tabs)/manage/promotions/${request.id}/edit`);
           break;
       }
     },
@@ -114,6 +105,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
     async (data: {
       moderationStatus?: ModerationStatus;
       moderationNote?: string;
+      isActive?: boolean;
       paymentState?: 'pending' | 'paid' | 'rejected';
       paymentNote?: string;
     }) => {
@@ -127,6 +119,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           type: request.type,
           status: data.moderationStatus,
           note: data.moderationNote,
+          isActive: data.isActive,
           paymentState: data.paymentState,
           paymentNote: data.paymentNote,
         });
@@ -137,6 +130,9 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           actions.push(
             data.moderationStatus === 'approved' ? 'aprobado' : 'rechazado'
           );
+        }
+        if (data.isActive !== undefined) {
+          actions.push(data.isActive ? 'activado' : 'desactivado');
         }
         if (data.paymentState) {
           const paymentStateText =
@@ -170,6 +166,35 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
     [statusDialog, updateMutation]
   );
 
+  const handleToggleActive = useCallback(
+    async (id: string, type: string, isActive: boolean) => {
+      try {
+        await toggleActiveMutation.mutateAsync({
+          id,
+          type: type as VerificationEntityType,
+          isActive,
+        });
+
+        Toast.show({
+          type: 'success',
+          text1: isActive ? 'Contenido activado' : 'Contenido desactivado',
+          text2: `El contenido ahora está ${isActive ? 'visible' : 'oculto'}.`,
+          position: 'top',
+          visibilityTime: 2000,
+        });
+      } catch (error) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No se pudo cambiar el estado.',
+          position: 'top',
+          visibilityTime: 4000,
+        });
+      }
+    },
+    [toggleActiveMutation]
+  );
+
   const handleCancelDialog = useCallback(() => {
     setStatusDialog({ visible: false, request: null });
   }, []);
@@ -178,23 +203,37 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
     setDetailModal({ visible: false, request: null });
   }, []);
 
-  // Render empty state
-  const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <View
-        style={[styles.emptyIconWrapper, { backgroundColor: colors.background.tertiary }]}
-      >
-        <CheckCircle color={colors.success} size={40} strokeWidth={1.5} />
+  // Render empty state (memoized)
+  const renderEmpty = useMemo(
+    () => (
+      <View style={styles.emptyContainer}>
+        <View
+          style={[styles.emptyIconWrapper, { backgroundColor: colors.background.tertiary }]}
+        >
+          <CheckCircle color={colors.success} size={40} strokeWidth={1.5} />
+        </View>
+        <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
+          {selectedStatus === 'pending' ? 'Sin solicitudes pendientes' : 'Sin resultados'}
+        </Text>
+        <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
+          {selectedStatus === 'pending'
+            ? 'No hay solicitudes de verificación pendientes en este momento. ¡Buen trabajo!'
+            : 'No se encontraron solicitudes con los filtros seleccionados.'}
+        </Text>
       </View>
-      <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-        {selectedStatus === 'pending' ? 'Sin solicitudes pendientes' : 'Sin resultados'}
-      </Text>
-      <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
-        {selectedStatus === 'pending'
-          ? 'No hay solicitudes de verificación pendientes en este momento. ¡Buen trabajo!'
-          : 'No se encontraron solicitudes con los filtros seleccionados.'}
-      </Text>
-    </View>
+    ),
+    [colors, selectedStatus]
+  );
+
+  // Memoized processing state
+  const isProcessingItem = useCallback(
+    (requestId: string) => {
+      return (
+        (updateMutation.isPending || toggleActiveMutation.isPending) &&
+        statusDialog.request?.id === requestId
+      );
+    },
+    [updateMutation.isPending, toggleActiveMutation.isPending, statusDialog.request?.id]
   );
 
   return (
@@ -209,6 +248,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
             colors={[colors.primary[500]]}
           />
         }
+        removeClippedSubviews={true}
       >
         <View style={styles.contentWrapper}>
           {/* Header */}
@@ -261,7 +301,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           )}
 
           {/* List */}
-          {!isLoading && requests.length === 0 && renderEmpty()}
+          {!isLoading && requests.length === 0 && renderEmpty}
 
           {!isLoading && requests.length > 0 && (
             <View style={styles.list}>
@@ -272,10 +312,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
                   onManageStatus={() => handleManageStatus(request)}
                   onView={() => handleView(request)}
                   onEdit={() => handleEdit(request)}
-                  isProcessing={
-                    updateMutation.isPending &&
-                    statusDialog.request?.id === request.id
-                  }
+                  isProcessing={isProcessingItem(request.id)}
                 />
               ))}
             </View>
@@ -289,7 +326,18 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           visible={statusDialog.visible}
           promotionName={statusDialog.request?.name || ''}
           currentModerationStatus={statusDialog.request?.moderationStatus}
-          currentPaymentState={statusDialog.request?.metadata?.paymentState as 'pending' | 'paid' | 'rejected' | undefined}
+          currentModerationNote={statusDialog.request?.moderationNote}
+          currentPaymentState={
+            statusDialog.request?.type === 'promotion'
+              ? (statusDialog.request.metadata?.paymentState as 'pending' | 'paid' | 'rejected' | undefined)
+              : undefined
+          }
+          currentPaymentNote={
+            statusDialog.request?.type === 'promotion'
+              ? statusDialog.request.metadata?.paymentNoteAdmin
+              : undefined
+          }
+          currentIsActive={statusDialog.request?.isActive}
           onConfirm={handleConfirmModeration}
           onCancel={handleCancelDialog}
           isProcessing={updateMutation.isPending}
@@ -297,24 +345,27 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
       )}
 
       {/* Status Management Dialog - Other Entities */}
-      {statusDialog.request?.type !== 'promotion' && (
+      {statusDialog.request?.type !== 'promotion' && statusDialog.request && (
         <ModerationConfirmDialog
           visible={statusDialog.visible}
-          entityId={statusDialog.request?.id || ''}
-          isPromotion={false}
-          currentModerationStatus={statusDialog.request?.moderationStatus}
-          currentPaymentState={statusDialog.request?.metadata?.paymentState as 'pending' | 'paid' | 'rejected' | undefined}
+          entityName={statusDialog.request.name}
+          entityType={statusDialog.request.type}
+          currentModerationStatus={statusDialog.request.moderationStatus}
+          currentModerationNote={statusDialog.request.moderationNote}
+          currentIsActive={statusDialog.request.isActive}
           onConfirm={handleConfirmModeration}
           onCancel={handleCancelDialog}
           isProcessing={updateMutation.isPending}
         />
       )}
 
-      {/* Detail Modal */}
+      {/* Detail Modal - Uses entity-specific DetailViews */}
       <VerificationDetailModal
         visible={detailModal.visible}
         request={detailModal.request}
         onClose={handleCloseDetailModal}
+        onToggleActive={handleToggleActive}
+        isProcessing={toggleActiveMutation.isPending}
       />
     </View>
   );

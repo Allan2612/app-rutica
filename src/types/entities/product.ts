@@ -121,6 +121,54 @@ export interface ProductFormData {
 }
 
 // ============================================
+// Admin Types
+// ============================================
+
+/**
+ * Item de lista de productos para admin
+ */
+export interface AdminProductListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  isActive: boolean;
+  avgRating: number | null;
+  reviewsCount: number;
+  createdAt: string;
+  businessId: string;
+  businessName: string;
+  businessOwnerName: string;
+  categoryNames: string[];
+  categoryIds: string[];
+  mainImageUrl: string | null;
+}
+
+/**
+ * Filtros para buscar productos (admin)
+ */
+export interface ProductsFilters {
+  businessName?: string;
+  productName?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  isActive?: boolean;
+  minRating?: number;
+}
+
+/**
+ * Estadísticas de productos (admin)
+ */
+export interface ProductsStats {
+  totalProducts: number;
+  activeProducts: number;
+  inactiveProducts: number;
+  averagePrice: number;
+}
+
+// ============================================
 // Helpers
 // ============================================
 

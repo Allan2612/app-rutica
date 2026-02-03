@@ -119,8 +119,6 @@ export async function deleteUserEvent(eventId: string, userId: string): Promise<
         } catch (folderError) {
             console.warn('[deleteUserEvent] Folder cleanup warning:', folderError);
         }
-
-        console.log('[deleteUserEvent] Event deleted successfully:', eventId);
     } catch (error) {
         console.error('[deleteUserEvent] Error:', error);
         throw error;

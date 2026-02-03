@@ -75,8 +75,9 @@ export const colors = {
   social: {
     facebook: '#1877f2',
     instagram: '#E4405F',
-    tiktok: '#00f2ea',
-    tiktokBg: 'rgba(240, 240, 240, 0.3)',
+    tiktok: '#000000',
+    youtube: '#FF0000',
+    whatsapp: '#25D366',
   },
 
   // Modal/overlay colors
@@ -94,6 +95,44 @@ export const colors = {
   promo: {
     badge: '#fbbf24',       // Amarillo del badge
     badgeText: '#000000',   // Texto del badge
+    combo: {
+      light: { bg: '#ede9fe', text: '#6d28d9' },
+      dark: { bg: 'rgba(139, 92, 246, 0.2)', text: '#a78bfa' },
+    },
+  },
+
+  // Entity type colors (for admin/verification)
+  entityTypes: {
+    business: {
+      light: { bg: '#dbeafe', text: '#1e40af' },
+      dark: { bg: 'rgba(59, 130, 246, 0.2)', text: '#60a5fa' },
+    },
+    event: {
+      light: { bg: '#fef3c7', text: '#92400e' },
+      dark: { bg: 'rgba(245, 158, 11, 0.2)', text: '#fbbf24' },
+    },
+    attraction: {
+      light: { bg: '#d1fae5', text: '#065f46' },
+      dark: { bg: 'rgba(16, 185, 129, 0.2)', text: '#34d399' },
+    },
+    promotion: {
+      light: { bg: '#fce7f3', text: '#9d174d' },
+      dark: { bg: 'rgba(236, 72, 153, 0.2)', text: '#f472b6' },
+    },
+  },
+
+  // Review type colors
+  reviewTypes: {
+    attraction: '#10b981',
+    business: '#3b82f6',
+    event: '#f59e0b',
+    product: '#8b5cf6',
+  },
+
+  // Rating colors
+  rating: {
+    star: '#fbbf24',
+    starBg: 'transparent',
   },
 
   // Shadow color

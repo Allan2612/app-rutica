@@ -1,8 +1,11 @@
 import { memo } from 'react';
+import * as React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { Star, Edit3, Trash2 } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { useAuthStore } from '@/store';
+import { isAdmin } from '@/types/entities';
 import type { ProductReviewDisplay } from '@/services/productReviews.service';
 import { styles } from './styles';
 
@@ -37,6 +40,20 @@ export const ProductReviewItem = memo(function ProductReviewItem({
     onDelete,
 }: ProductReviewItemProps) {
     const colors = useThemedColors();
+    const currentUser = useAuthStore((state) => state.user);
+
+    // Verificar si el usuario es admin
+    const [userProfile, setUserProfile] = React.useState<any>(null);
+    React.useEffect(() => {
+        if (currentUser?.id) {
+            import('@/lib/supabase/client').then(({ supabase }) => {
+                supabase.from('profiles').select('*').eq('id_prf', currentUser.id).single()
+                    .then(({ data }) => setUserProfile(data));
+            });
+        }
+    }, [currentUser?.id]);
+    const userIsAdmin = isAdmin(userProfile);
+    const canEditOrDelete = isOwner || userIsAdmin;
 
     return (
         <View style={[styles.reviewItem, { backgroundColor: colors.background.secondary }]}>
@@ -76,7 +93,7 @@ export const ProductReviewItem = memo(function ProductReviewItem({
                         </Text>
                     </View>
                 </View>
-                {isOwner && (
+                {canEditOrDelete && (
                     <View style={styles.reviewActions}>
                         <Pressable style={styles.reviewActionButton} onPress={onEdit}>
                             <Edit3 size={16} color={colors.primary[500]} />

@@ -135,6 +135,11 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
             )
         `);
 
+    // Solo eventos aprobados y activos
+    query = query
+        .eq('moderation_status_evt', 'approved')
+        .eq('is_active_evt', true);
+
     // Filtrar solo eventos futuros o en curso
     if (upcoming) {
         query = query.gte('end_at_evt', new Date().toISOString());
@@ -170,11 +175,6 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
     if (error) {
         console.error('Error fetching events list:', error);
         throw error;
-    }
-
-    console.log('[getEventsList] Found events:', data?.length || 0, 'filters:', filters);
-    if (data && data.length > 0) {
-        console.log('[getEventsList] First event:', data[0]);
     }
 
     return data as unknown as EventListRecord[];

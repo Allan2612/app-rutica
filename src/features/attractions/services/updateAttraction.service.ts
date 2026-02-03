@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
+import { canUserEdit } from '@/utils/permissionHelpers';
 
 // ============================================
 // Constants
@@ -158,7 +159,10 @@ export async function getAttractionById(
 
     if (attractionError) throw attractionError;
     if (!attractionData) throw new Error('No se encontró la atracción');
-    if (attractionData.submitted_by_atr !== userId) {
+    
+    // Verificar permisos: debe ser el colaborador O admin
+    const hasPermission = await canUserEdit(userId, attractionData.submitted_by_atr);
+    if (!hasPermission) {
         throw new Error('No tienes permiso para editar esta atracción');
     }
 
@@ -216,7 +220,13 @@ export async function updateAttractionComplete(
         .single();
 
     if (attractionError) throw attractionError;
-    if ((attraction as any).submitted_by_atr !== userId) {
+    if (!attraction) {
+        throw new Error('No se encontró la atracción');
+    }
+    
+    // Verificar permisos: debe ser el colaborador O admin
+    const hasPermission = await canUserEdit(userId, (attraction as any).submitted_by_atr);
+    if (!hasPermission) {
         throw new Error('No tienes permiso para editar esta atracción');
     }
 

@@ -1,4 +1,5 @@
 import { memo, useCallback } from 'react';
+import * as React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Star, Edit3, Trash2, ThumbsUp } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
@@ -6,6 +7,7 @@ import { useThemedColors } from '@/hooks';
 import { useAuthStore } from '@/store';
 import { useIsAttractionReviewLiked } from '@/features/attractions/hooks/useAttractionReviewLikes';
 import { useToggleAttractionReviewLike } from '@/features/attractions/hooks/useToggleAttractionReviewLike';
+import { isAdmin } from '@/types/entities';
 import { styles } from '../styles';
 import type { AttractionReviewDisplay } from '@/services/attractionReviews.service';
 
@@ -28,8 +30,22 @@ export const ReviewItem = memo(function ReviewItem({
 }: ReviewItemProps) {
     const colors = useThemedColors();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const currentUser = useAuthStore((state) => state.user);
     const isLiked = useIsAttractionReviewLiked(review.id);
     const toggleLike = useToggleAttractionReviewLike();
+
+    // Verificar si el usuario es admin
+    const [userProfile, setUserProfile] = React.useState<any>(null);
+    React.useEffect(() => {
+        if (currentUser?.id) {
+            import('@/lib/supabase/client').then(({ supabase }) => {
+                supabase.from('profiles').select('*').eq('id_prf', currentUser.id).single()
+                    .then(({ data }) => setUserProfile(data));
+            });
+        }
+    }, [currentUser?.id]);
+    const userIsAdmin = isAdmin(userProfile);
+    const canEditOrDelete = isOwner || userIsAdmin;
 
     const handleLikePress = useCallback(() => {
         if (!isAuthenticated) {
@@ -76,7 +92,7 @@ export const ReviewItem = memo(function ReviewItem({
                         </Text>
                     </View>
                 </View>
-                {isOwner && (
+                {canEditOrDelete && (
                     <ReviewActions onEdit={onEdit} onDelete={onDelete} />
                 )}
             </View>
@@ -87,7 +103,7 @@ export const ReviewItem = memo(function ReviewItem({
             )}
 
             {/* Like Button */}
-            {!isOwner && (
+            {!canEditOrDelete && (
                 <Pressable 
                     style={styles.reviewLikeButton} 
                     onPress={handleLikePress}

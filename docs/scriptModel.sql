@@ -1507,10 +1507,10 @@ create policy "businesses_insert_seller"
 -- Nota: En Supabase RLS, no hay acceso directo a OLD. Usamos subquery con el id.
 create policy "businesses_update_own"
   on public.businesses for update
-  using (owner_id_bus = auth.uid())
+  using (owner_id_bus = auth.uid() AND NOT public.is_admin())
   with check (
     -- Debe seguir siendo el owner
-    owner_id_bus = auth.uid()
+    owner_id_bus = auth.uid() AND NOT public.is_admin()
   );
 
 -- Trigger para proteger campos inmutables en businesses (owner no puede modificar)
@@ -1590,8 +1590,8 @@ create policy "events_insert_seller"
 -- UPDATE: Creador puede actualizar (campos limitados via trigger)
 create policy "events_update_own"
   on public.events for update
-  using (created_by_evt = auth.uid())
-  with check (created_by_evt = auth.uid());
+  using (created_by_evt = auth.uid() AND NOT public.is_admin())
+  with check (created_by_evt = auth.uid() AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en events
 create or replace function public.protect_event_fields()
@@ -1670,8 +1670,8 @@ create policy "attractions_insert_user"
 -- UPDATE: Quien envió puede actualizar (campos limitados via trigger)
 create policy "attractions_update_own"
   on public.attractions for update
-  using (submitted_by_atr = auth.uid())
-  with check (submitted_by_atr = auth.uid());
+  using (submitted_by_atr = auth.uid() AND NOT public.is_admin())
+  with check (submitted_by_atr = auth.uid() AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en attractions
 create or replace function public.protect_attraction_fields()
@@ -1756,8 +1756,8 @@ create policy "products_insert_owner"
 -- UPDATE: Solo dueño del negocio (campos limitados via trigger)
 create policy "products_update_owner"
   on public.products for update
-  using (public.owns_business(business_id_prd))
-  with check (public.owns_business(business_id_prd));
+  using (public.owns_business(business_id_prd) AND NOT public.is_admin())
+  with check (public.owns_business(business_id_prd) AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en products
 create or replace function public.protect_product_fields()
@@ -1841,8 +1841,8 @@ create policy "promotions_insert_seller"
 -- UPDATE: Creador puede actualizar (campos limitados via trigger)
 create policy "promotions_update_own"
   on public.promotions for update
-  using (created_by_prm = auth.uid())
-  with check (created_by_prm = auth.uid());
+  using (created_by_prm = auth.uid() AND NOT public.is_admin())
+  with check (created_by_prm = auth.uid() AND NOT public.is_admin());
 
 -- Trigger para proteger campos inmutables en promotions
 create or replace function public.protect_promotion_fields()
@@ -2036,6 +2036,44 @@ create policy "business_reviews_update_own"
   using (user_id_brv = auth.uid())
   with check (user_id_brv = auth.uid());
 
+create policy "business_reviews_admin_update"
+  on public.business_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
+
+create policy "business_reviews_admin_update"
+  on public.business_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
+
 -- Trigger para proteger campos inmutables en business_reviews
 create or replace function public.protect_business_review_fields()
 returns trigger
@@ -2088,6 +2126,44 @@ create policy "event_reviews_update_own"
   using (user_id_erv = auth.uid())
   with check (user_id_erv = auth.uid());
 
+create policy "event_reviews_admin_update"
+  on public.event_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
+
+create policy "event_reviews_admin_update"
+  on public.event_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
+
 -- Trigger para proteger campos inmutables en event_reviews
 create or replace function public.protect_event_review_fields()
 returns trigger
@@ -2139,6 +2215,44 @@ create policy "attraction_reviews_update_own"
   on public.attraction_reviews for update
   using (user_id_arv = auth.uid())
   with check (user_id_arv = auth.uid());
+
+create policy "attraction_reviews_admin_update"
+  on public.attraction_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
+
+create policy "attraction_reviews_admin_update"
+  on public.attraction_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
 
 -- Trigger para proteger campos inmutables en attraction_reviews
 create or replace function public.protect_attraction_review_fields()
@@ -2200,6 +2314,44 @@ create policy "product_reviews_update_own"
   on public.product_reviews for update
   using (user_id_prv = auth.uid())
   with check (user_id_prv = auth.uid());
+
+create policy "product_reviews_admin_update"
+  on public.product_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
+
+create policy "product_reviews_admin_update"
+  on public.product_reviews for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+        and role_prf = 'admin'
+        and is_active_prf = true
+    )
+  );
 
 -- Trigger para proteger campos inmutables en product_reviews
 create or replace function public.protect_product_review_fields()

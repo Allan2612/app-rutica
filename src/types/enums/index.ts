@@ -70,3 +70,17 @@ export type BusinessImagePrefix = 'logo' | 'cover' | 'gallery';
 export type EventImagePrefix = 'cover' | 'gallery';
 export type ProductImagePrefix = 'main' | 'secondary';
 export type PromotionImagePrefix = 'flyer';
+
+/**
+ * Union type para todos los tipos de imagen
+ * Usado en admin/verification para manejar imágenes de cualquier entidad
+ */
+export type ImageType = 
+  | AttractionImagePrefix 
+  | BusinessImagePrefix 
+  | EventImagePrefix 
+  | ProductImagePrefix 
+  | PromotionImagePrefix
+  | 'product'  // Para productos dentro de promociones combo
+  | 'combo'    // Para imágenes de combo
+  | 'brand';   // Para branding

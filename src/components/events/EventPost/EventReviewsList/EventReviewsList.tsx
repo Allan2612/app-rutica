@@ -10,8 +10,8 @@ interface EventReviewsListProps {
     currentUserId: string | null;
     isAuthenticated: boolean;
     hasUserReview: boolean;
-    onEdit: () => void;
-    onDelete: () => void;
+    onEdit: (reviewId: string, userId: string) => void;
+    onDelete: (reviewId: string, userId: string) => void;
     onWriteReview: () => void;
 }
 
@@ -55,8 +55,8 @@ export const EventReviewsList = memo(function EventReviewsList({
                                 key={review.id}
                                 review={review}
                                 isOwner={isOwner}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
+                                onEdit={() => onEdit(review.id, review.userId)}
+                                onDelete={() => onDelete(review.id, review.userId)}
                             />
                         );
                     })}

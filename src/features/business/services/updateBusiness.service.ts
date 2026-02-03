@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
 import type { BusinessDetailForEdit } from '@/types/entities/business';
+import { canUserEdit } from '@/utils/permissionHelpers';
 
 const BUCKET_NAME = 'business-images';
 
@@ -147,7 +148,10 @@ export async function getBusinessForEdit(
 
     if (businessError) throw businessError;
     if (!businessData) throw new Error('No se encontró el negocio');
-    if ((businessData as any).owner_id_bus !== userId) {
+    
+    // Verificar permisos: debe ser el propietario O admin
+    const hasPermission = await canUserEdit(userId, (businessData as any).owner_id_bus);
+    if (!hasPermission) {
         throw new Error('No tienes permiso para editar este negocio');
     }
 
@@ -280,7 +284,13 @@ export async function updateBusinessComplete(
             .eq('id_bus', businessId)
             .single();
 
-        if (!business || (business as any).owner_id_bus !== userId) {
+        if (!business) {
+            throw new Error('No se encontró el negocio');
+        }
+
+        // Verificar permisos: debe ser el propietario O admin
+        const hasPermission = await canUserEdit(userId, (business as any).owner_id_bus);
+        if (!hasPermission) {
             throw new Error('No tienes permiso para editar este negocio');
         }
 
@@ -338,48 +348,35 @@ export async function updateBusinessComplete(
             .select('id_bim, path_bim, sort_order_bim')
             .eq('business_id_bim', businessId);
 
-        console.log('[updateBusinessComplete] Current images:', currentImages);
-        console.log('[updateBusinessComplete] Data logoUri:', data.logoUri, 'isNew:', isNewImage(data.logoUri));
-        console.log('[updateBusinessComplete] Data coverUri:', data.coverUri, 'isNew:', isNewImage(data.coverUri));
-        console.log('[updateBusinessComplete] Data galleryUris:', data.galleryUris);
-
         // Logo (sort_order = 0)
         const currentLogo = (currentImages as any)?.find((img: any) => img.sort_order_bim === 0);
-        console.log('[updateBusinessComplete] Current logo:', currentLogo);
 
         if (data.logoUri === null) {
             // Eliminar logo
-            console.log('[updateBusinessComplete] Deleting logo');
             if (currentLogo) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentLogo.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentLogo.id_bim);
             }
         } else if (data.logoUri && isNewImage(data.logoUri)) {
             // Reemplazar logo
-            console.log('[updateBusinessComplete] Uploading new logo');
             if (currentLogo) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentLogo.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentLogo.id_bim);
             }
             await uploadImage(data.logoUri, businessId, 'logo', 0);
-        } else {
-            console.log('[updateBusinessComplete] Keeping existing logo (no change)');
         }
 
         // Cover (sort_order = 1)
         const currentCover = (currentImages as any)?.find((img: any) => img.sort_order_bim === 1);
-        console.log('[updateBusinessComplete] Current cover:', currentCover);
 
         if (data.coverUri === null) {
             // Eliminar cover
-            console.log('[updateBusinessComplete] Deleting cover');
             if (currentCover) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentCover.id_bim);
             }
         } else if (data.coverUri && isNewImage(data.coverUri)) {
             // Reemplazar cover
-            console.log('[updateBusinessComplete] Uploading new cover');
             if (currentCover) {
                 await supabase.storage.from(BUCKET_NAME).remove([currentCover.path_bim]);
                 await supabase.from('business_images').delete().eq('id_bim', currentCover.id_bim);

@@ -1,0 +1,1 @@
+export { AdminReviewCard } from './AdminReviewCard';

@@ -25,8 +25,14 @@ export const ReviewsSection = memo(function ReviewsSection({
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+    const [selectedReviewUserId, setSelectedReviewUserId] = useState<string | null>(null);
 
-    const closeModal = useCallback(() => setIsModalVisible(false), []);
+    const closeModal = useCallback(() => {
+        setIsModalVisible(false);
+        setSelectedReviewId(null);
+        setSelectedReviewUserId(null);
+    }, []);
 
     const {
         user,
@@ -41,13 +47,36 @@ export const ReviewsSection = memo(function ReviewsSection({
         handleDeleteReview,
     } = useReviewsActions(businessId, ownerId, closeModal);
 
-    const handleOpenModal = useCallback(() => setIsModalVisible(true), []);
-    const handleOpenDeleteDialog = useCallback(() => setIsDeleteDialogVisible(true), []);
-    const handleCloseDeleteDialog = useCallback(() => setIsDeleteDialogVisible(false), []);
+    const handleOpenModal = useCallback((reviewId: string, userId: string) => {
+        setSelectedReviewId(reviewId);
+        setSelectedReviewUserId(userId);
+        setIsModalVisible(true);
+    }, []);
+    
+    const handleOpenDeleteDialog = useCallback((reviewId: string, userId: string) => {
+        setSelectedReviewId(reviewId);
+        setSelectedReviewUserId(userId);
+        setIsDeleteDialogVisible(true);
+    }, []);
+    
+    const handleCloseDeleteDialog = useCallback(() => {
+        setIsDeleteDialogVisible(false);
+        setSelectedReviewId(null);
+        setSelectedReviewUserId(null);
+    }, []);
 
     const handleConfirmDelete = useCallback(() => {
-        handleDeleteReview(handleCloseDeleteDialog);
-    }, [handleDeleteReview, handleCloseDeleteDialog]);
+        handleDeleteReview(handleCloseDeleteDialog, selectedReviewId || undefined, selectedReviewUserId || undefined);
+    }, [handleDeleteReview, handleCloseDeleteDialog, selectedReviewId, selectedReviewUserId]);
+
+    const handleSubmitReviewWrapper = useCallback((rating: number, comment: string) => {
+        return handleSubmitReview(rating, comment, selectedReviewId || undefined, selectedReviewUserId || undefined);
+    }, [handleSubmitReview, selectedReviewId, selectedReviewUserId]);
+
+    // Obtener la reseña seleccionada para edición
+    const selectedReview = selectedReviewId
+        ? reviews.find(r => r.id === selectedReviewId) || userReview
+        : userReview;
 
     return (
         <View style={styles.container}>
@@ -59,7 +88,11 @@ export const ReviewsSection = memo(function ReviewsSection({
                 <EmptyReviewsState
                     canWriteReview={canWriteReview}
                     isLoading={isLoadingReviews}
-                    onWriteReview={handleOpenModal}
+                    onWriteReview={() => {
+                        setSelectedReviewId(null);
+                        setSelectedReviewUserId(null);
+                        setIsModalVisible(true);
+                    }}
                 />
             ) : (
                 <ReviewsList
@@ -70,7 +103,11 @@ export const ReviewsSection = memo(function ReviewsSection({
                     isDeleting={isDeleting}
                     onEdit={handleOpenModal}
                     onDelete={handleOpenDeleteDialog}
-                    onWriteReview={handleOpenModal}
+                    onWriteReview={() => {
+                        setSelectedReviewId(null);
+                        setSelectedReviewUserId(null);
+                        setIsModalVisible(true);
+                    }}
                 />
             )}
 
@@ -78,12 +115,12 @@ export const ReviewsSection = memo(function ReviewsSection({
             <ReviewModal
                 visible={isModalVisible}
                 onClose={closeModal}
-                onSubmit={handleSubmitReview}
+                onSubmit={handleSubmitReviewWrapper}
                 businessName={businessName}
                 businessLogo={businessLogo}
-                existingRating={userReview?.rating}
-                existingComment={userReview?.comment}
-                isEditMode={!!userReview}
+                existingRating={selectedReview?.rating}
+                existingComment={selectedReview?.comment}
+                isEditMode={!!selectedReview}
                 isLoading={isSubmitting}
             />
 

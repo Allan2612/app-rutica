@@ -8,7 +8,12 @@ import {
     useDeleteAttractionReview,
 } from '@/features/attractions/hooks/useAttractionReviews';
 
-export function useAttractionPostReviews(attractionId: string, userId: string | null) {
+export function useAttractionPostReviews(
+    attractionId: string,
+    userId: string | null,
+    selectedReviewId: string | null,
+    selectedReviewUserId: string | null
+) {
     const { data: reviews } = useAttractionReviews(attractionId);
     const { data: userReview } = useUserAttractionReview(attractionId, userId);
 
@@ -21,21 +26,26 @@ export function useAttractionPostReviews(attractionId: string, userId: string | 
     const hasReviews = reviews && reviews.length > 0;
 
     const handleSubmitReview = useCallback(async (ratingValue: number, comment: string) => {
-        if (!userId) return;
+        if (!userId) return false;
+
+        // Determinar si es edición basado en selectedReviewId
+        const isEditing = !!selectedReviewId;
+        const targetUserId = selectedReviewUserId || userId;
+        const targetReviewId = selectedReviewId || userReview?.id;
 
         try {
-            if (userReview) {
+            if (isEditing && targetReviewId) {
                 await updateReview.mutateAsync({
-                    reviewId: userReview.id,
+                    reviewId: targetReviewId,
                     rating: ratingValue,
                     comment,
                     attractionId,
-                    userId,
+                    userId: targetUserId,
                 });
                 Toast.show({
                     type: 'success',
                     text1: 'Reseña actualizada',
-                    text2: 'Tu reseña ha sido actualizada correctamente',
+                    text2: 'La reseña ha sido actualizada correctamente',
                     position: 'top',
                 });
             } else {
@@ -62,21 +72,25 @@ export function useAttractionPostReviews(attractionId: string, userId: string | 
             });
             return false;
         }
-    }, [userId, userReview, attractionId, createReview, updateReview]);
+    }, [userId, selectedReviewId, selectedReviewUserId, userReview, attractionId, createReview, updateReview]);
 
     const handleDeleteReview = useCallback(async () => {
-        if (!userId || !userReview) return false;
+        // Usar selectedReviewId si está disponible, sino userReview
+        const targetReviewId = selectedReviewId || userReview?.id;
+        const targetUserId = selectedReviewUserId || userId;
+
+        if (!targetUserId || !targetReviewId) return false;
 
         try {
             await deleteReview.mutateAsync({
-                reviewId: userReview.id,
+                reviewId: targetReviewId,
                 attractionId,
-                userId,
+                userId: targetUserId,
             });
             Toast.show({
                 type: 'success',
                 text1: 'Reseña eliminada',
-                text2: 'Tu reseña ha sido eliminada',
+                text2: 'La reseña ha sido eliminada',
                 position: 'top',
             });
             return true;
@@ -89,7 +103,7 @@ export function useAttractionPostReviews(attractionId: string, userId: string | 
             });
             return false;
         }
-    }, [userId, userReview, attractionId, deleteReview]);
+    }, [selectedReviewId, selectedReviewUserId, userId, userReview, attractionId, deleteReview]);
 
     return {
         reviews: reviews ?? [],

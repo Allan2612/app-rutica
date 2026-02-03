@@ -1,3 +1,4 @@
+export * from './AccessibleModal';
 export * from './BackButton';
 export * from './StatusBadge';
 export * from './PromoBadge';

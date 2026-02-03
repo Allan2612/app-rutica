@@ -260,7 +260,11 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
         id_prm
       )
     `);
-  // .eq('moderation_status_bus', 'approved'); // Comentado temporalmente para testing
+  
+  // Solo negocios aprobados y activos
+  query = query
+    .eq('moderation_status_bus', 'approved')
+    .eq('is_active_bus', true);
 
   // Filtrar promociones activas en la relación
   query = query

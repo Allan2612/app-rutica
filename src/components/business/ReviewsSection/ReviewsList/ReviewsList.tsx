@@ -11,8 +11,8 @@ interface ReviewsListProps {
     currentUserId: string | null;
     canWriteReview: boolean;
     isDeleting: boolean;
-    onEdit: () => void;
-    onDelete: () => void;
+    onEdit: (reviewId: string, userId: string) => void;
+    onDelete: (reviewId: string, userId: string) => void;
     onWriteReview: () => void;
 }
 
@@ -35,14 +35,15 @@ export const ReviewsList = memo(function ReviewsList({
                 <ReviewCard
                     id={userReview.id}
                     authorName={userReview.authorName}
+                    authorId={userReview.userId}
                     rating={userReview.rating}
                     comment={userReview.comment}
                     createdAt={userReview.createdAt}
                     likesCount={userReview.likesCount}
                     isLikedByUser={userReview.isLikedByUser}
                     isOwner={true}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
+                    onEdit={() => onEdit(userReview.id, userReview.userId)}
+                    onDelete={() => onDelete(userReview.id, userReview.userId)}
                     isDeleting={isDeleting}
                 />
             )}
@@ -55,11 +56,14 @@ export const ReviewsList = memo(function ReviewsList({
                         key={review.id}
                         id={review.id}
                         authorName={review.authorName}
+                        authorId={review.userId}
                         rating={review.rating}
                         comment={review.comment}
                         createdAt={review.createdAt}
                         likesCount={review.likesCount}
                         isLikedByUser={review.isLikedByUser}
+                        onEdit={() => onEdit(review.id, review.userId)}
+                        onDelete={() => onDelete(review.id, review.userId)}
                     />
                 ))}
 

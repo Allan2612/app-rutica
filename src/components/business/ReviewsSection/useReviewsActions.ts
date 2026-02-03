@@ -25,22 +25,26 @@ export function useReviewsActions(businessId: string, ownerId: string, onCloseMo
     const isSubmitting = createReview.isPending || updateReview.isPending;
     const isDeleting = deleteReview.isPending;
 
-    const handleSubmitReview = useCallback(async (rating: number, comment: string) => {
+    const handleSubmitReview = useCallback(async (rating: number, comment: string, reviewId?: string, reviewUserId?: string) => {
         if (!user) return;
 
+        // Si se proporciona reviewId, es una edición (puede ser del usuario o de otro si es admin)
+        const isEditing = !!reviewId;
+        const targetUserId = reviewUserId || user.id;
+
         try {
-            if (userReview) {
+            if (isEditing) {
                 await updateReview.mutateAsync({
-                    reviewId: userReview.id,
+                    reviewId: reviewId!,
                     rating,
                     comment,
                     businessId,
-                    userId: user.id,
+                    userId: targetUserId,
                 });
                 Toast.show({
                     type: 'success',
                     text1: 'Reseña actualizada',
-                    text2: 'Tu reseña ha sido actualizada correctamente',
+                    text2: 'La reseña ha sido actualizada correctamente',
                     position: 'top',
                 });
             } else {
@@ -66,21 +70,27 @@ export function useReviewsActions(businessId: string, ownerId: string, onCloseMo
                 position: 'top',
             });
         }
-    }, [user, userReview, businessId, createReview, updateReview, onCloseModal]);
+    }, [user, businessId, createReview, updateReview, onCloseModal]);
 
-    const handleDeleteReview = useCallback(async (onSuccess: () => void) => {
-        if (!user || !userReview) return;
+    const handleDeleteReview = useCallback(async (onSuccess: () => void, reviewId?: string, reviewUserId?: string) => {
+        if (!user) return;
+
+        // Usar el reviewId proporcionado o el userReview
+        const targetReviewId = reviewId || userReview?.id;
+        const targetUserId = reviewUserId || user.id;
+
+        if (!targetReviewId) return;
 
         try {
             await deleteReview.mutateAsync({
-                reviewId: userReview.id,
+                reviewId: targetReviewId,
                 businessId,
-                userId: user.id,
+                userId: targetUserId,
             });
             Toast.show({
                 type: 'success',
                 text1: 'Reseña eliminada',
-                text2: 'Tu reseña ha sido eliminada',
+                text2: 'La reseña ha sido eliminada',
                 position: 'top',
             });
             onSuccess();

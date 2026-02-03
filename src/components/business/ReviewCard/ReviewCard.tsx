@@ -1,4 +1,5 @@
 import { memo, useCallback } from 'react';
+import * as React from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
 import { Star, Pencil, Trash2, ThumbsUp } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
@@ -7,11 +8,13 @@ import { useAuthStore } from '@/store';
 import { useToggleReviewLike } from '@/features/business/hooks/useToggleReviewLike';
 import { formatDate, DATE_FORMAT_OPTIONS } from '@/utils';
 import { colors as themeColors } from '@/styles/theme/colors';
+import { isAdmin } from '@/types/entities';
 import { styles } from './styles';
 
 interface ReviewCardProps {
     id: string;
     authorName: string;
+    authorId?: string; // ID del autor de la reseña
     rating: number;
     comment: string | null;
     createdAt: string;
@@ -26,6 +29,7 @@ interface ReviewCardProps {
 export const ReviewCard = memo(function ReviewCard({
     id,
     authorName,
+    authorId,
     rating,
     comment,
     createdAt,
@@ -38,7 +42,21 @@ export const ReviewCard = memo(function ReviewCard({
 }: ReviewCardProps) {
     const colors = useThemedColors();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const currentUser = useAuthStore((state) => state.user);
     const toggleLike = useToggleReviewLike();
+
+    // Verificar si el usuario es admin
+    const [userProfile, setUserProfile] = React.useState<any>(null);
+    React.useEffect(() => {
+        if (currentUser?.id) {
+            import('@/lib/supabase/client').then(({ supabase }) => {
+                supabase.from('profiles').select('*').eq('id_prf', currentUser.id).single()
+                    .then(({ data }) => setUserProfile(data));
+            });
+        }
+    }, [currentUser?.id]);
+    const userIsAdmin = isAdmin(userProfile);
+    const canEditOrDelete = isOwner || userIsAdmin;
 
     const handleLikePress = useCallback(() => {
         if (!isAuthenticated) {
@@ -98,7 +116,7 @@ export const ReviewCard = memo(function ReviewCard({
             )}
 
             {/* Like Button */}
-            {!isOwner && (
+            {!canEditOrDelete && (
                 <View style={styles.likeContainer}>
                     <Pressable
                         style={styles.likeButton}
@@ -128,7 +146,7 @@ export const ReviewCard = memo(function ReviewCard({
             )}
 
             {/* Owner Actions */}
-            {isOwner && (
+            {canEditOrDelete && (
                 <View style={styles.actionsContainer}>
                     <Pressable
                         style={[styles.editButton, {
@@ -140,7 +158,7 @@ export const ReviewCard = memo(function ReviewCard({
                     >
                         <Pencil size={16} color={colors.text.secondary} />
                         <Text style={[styles.editButtonText, { color: colors.text.secondary }]}>
-                            Editar mi reseña
+                            {isOwner ? 'Editar mi reseña' : 'Editar reseña'}
                         </Text>
                     </Pressable>
 

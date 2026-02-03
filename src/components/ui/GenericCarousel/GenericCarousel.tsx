@@ -1,7 +1,7 @@
 import { memo, useState, useRef, ReactNode, useCallback } from 'react';
 import { View, Pressable, Modal, Image, Dimensions, Platform } from 'react-native';
 import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
-import { useSharedValue } from 'react-native-reanimated';
+import { useSharedValue, runOnJS } from 'react-native-reanimated';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
@@ -36,17 +36,27 @@ export const GenericCarousel = memo(function GenericCarousel<T>({
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
     const carouselRef = useRef<ICarouselInstance>(null);
     const progressValue = useSharedValue<number>(0);
+    // Usar ref para tener acceso estable a currentIndex dentro del worklet
+    const currentIndexRef = useRef(currentIndex);
+    currentIndexRef.current = currentIndex;
 
     const carouselWidth = Platform.OS === 'web' ? Math.min(SCREEN_WIDTH, 600) : SCREEN_WIDTH;
 
-    const onProgressChange = useCallback((offsetProgress: number, absoluteProgress: number) => {
-        progressValue.value = absoluteProgress;
-        const newIndex = Math.round(absoluteProgress) % items.length;
-        if (newIndex !== currentIndex) {
+    // Función para actualizar el índice en el hilo JS
+    const updateIndex = useCallback((newIndex: number) => {
+        if (newIndex !== currentIndexRef.current) {
             setCurrentIndex(newIndex);
             onIndexChange?.(newIndex);
         }
-    }, [currentIndex, items.length, onIndexChange, progressValue]);
+    }, [onIndexChange]);
+
+    // Callback del carrusel - usa worklet para el progreso y runOnJS para estado React
+    const onProgressChange = useCallback((_offsetProgress: number, absoluteProgress: number) => {
+        'worklet';
+        progressValue.value = absoluteProgress;
+        const newIndex = Math.round(absoluteProgress) % items.length;
+        runOnJS(updateIndex)(newIndex);
+    }, [items.length, progressValue, updateIndex]);
 
     const goToPrevious = () => {
         carouselRef.current?.prev();
