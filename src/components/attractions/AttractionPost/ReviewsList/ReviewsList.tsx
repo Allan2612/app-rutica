@@ -10,8 +10,8 @@ interface ReviewsListProps {
     currentUserId: string | null;
     isAuthenticated: boolean;
     hasUserReview: boolean;
-    onEdit: () => void;
-    onDelete: () => void;
+    onEdit: (reviewId: string, userId: string) => void;
+    onDelete: (reviewId: string, userId: string) => void;
     onWriteReview: () => void;
     getInitials: (name: string) => string;
     getTimeAgo: (date: string) => string;
@@ -59,8 +59,8 @@ export const ReviewsList = memo(function ReviewsList({
                                 key={review.id}
                                 review={review}
                                 isOwner={isOwner}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
+                                onEdit={() => onEdit(review.id, review.userId)}
+                                onDelete={() => onDelete(review.id, review.userId)}
                                 getInitials={getInitials}
                                 getTimeAgo={getTimeAgo}
                             />

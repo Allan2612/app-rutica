@@ -58,6 +58,8 @@ export function AttractionPost({
     const [showReviews, setShowReviews] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+    const [selectedReviewUserId, setSelectedReviewUserId] = useState<string | null>(null);
 
     const {
         reviews,
@@ -67,19 +69,31 @@ export function AttractionPost({
         isDeleting,
         handleSubmitReview,
         handleDeleteReview,
-    } = useAttractionPostReviews(attractionId, user?.id ?? null);
+    } = useAttractionPostReviews(attractionId, user?.id ?? null, selectedReviewId, selectedReviewUserId);
 
     const hasLocation = !!(latitude && longitude);
     const carouselWidth = Platform.OS === 'web' ? Math.min(SCREEN_WIDTH, 600) : SCREEN_WIDTH;
 
+    const selectedReview = selectedReviewId
+        ? reviews.find(r => r.id === selectedReviewId) || userReview
+        : userReview;
+
     const handleSubmit = async (ratingValue: number, comment: string) => {
         const success = await handleSubmitReview(ratingValue, comment);
-        if (success) setIsModalVisible(false);
+        if (success) {
+            setIsModalVisible(false);
+            setSelectedReviewId(null);
+            setSelectedReviewUserId(null);
+        }
     };
 
     const handleDelete = async () => {
         const success = await handleDeleteReview();
-        if (success) setIsDeleteDialogVisible(false);
+        if (success) {
+            setIsDeleteDialogVisible(false);
+            setSelectedReviewId(null);
+            setSelectedReviewUserId(null);
+        }
     };
 
     return (
@@ -128,8 +142,6 @@ export function AttractionPost({
             </View>
 
             <AttractionFooter
-                rating={rating}
-                reviewCount={reviewCount}
                 locationLabel={locationLabel}
                 hasLocation={hasLocation}
                 onLocationPress={() => latitude && longitude && openMaps(latitude, longitude, locationLabel ?? name)}
@@ -153,9 +165,21 @@ export function AttractionPost({
                     currentUserId={user?.id ?? null}
                     isAuthenticated={!!user}
                     hasUserReview={!!userReview}
-                    onEdit={() => setIsModalVisible(true)}
-                    onDelete={() => setIsDeleteDialogVisible(true)}
-                    onWriteReview={() => setIsModalVisible(true)}
+                    onEdit={(reviewId, userId) => {
+                        setSelectedReviewId(reviewId);
+                        setSelectedReviewUserId(userId);
+                        setIsModalVisible(true);
+                    }}
+                    onDelete={(reviewId, userId) => {
+                        setSelectedReviewId(reviewId);
+                        setSelectedReviewUserId(userId);
+                        setIsDeleteDialogVisible(true);
+                    }}
+                    onWriteReview={() => {
+                        setSelectedReviewId(null);
+                        setSelectedReviewUserId(null);
+                        setIsModalVisible(true);
+                    }}
                     getInitials={getInitials}
                     getTimeAgo={getTimeAgoForReview}
                 />
@@ -163,13 +187,17 @@ export function AttractionPost({
 
             <ReviewModal
                 visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
+                onClose={() => {
+                    setIsModalVisible(false);
+                    setSelectedReviewId(null);
+                    setSelectedReviewUserId(null);
+                }}
                 onSubmit={handleSubmit}
                 businessName={name}
                 businessLogo={imageUrls[0]}
-                existingRating={userReview?.rating}
-                existingComment={userReview?.comment}
-                isEditMode={!!userReview}
+                existingRating={selectedReview?.rating}
+                existingComment={selectedReview?.comment}
+                isEditMode={!!selectedReview}
                 isLoading={isSubmitting}
             />
 
