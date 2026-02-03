@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Pressable, Modal, ActivityIndicator } from 'react-native';
-import { AlertTriangle, X } from 'lucide-react-native';
+import { AlertTriangle, X, Trash2 } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
@@ -23,11 +23,11 @@ export const DeleteProductDialog = memo(function DeleteProductDialog({
 
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-            <View style={styles.overlay}>
+            <View style={[styles.overlay, { backgroundColor: colors.overlay.dark }]}>
                 <View style={[styles.dialog, { backgroundColor: colors.background.primary }]}>
                     {/* Header */}
                     <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-                        <AlertTriangle size={24} color={colors.error[600]} />
+                        <AlertTriangle size={24} color={colors.error} />
                         <Text style={[styles.title, { color: colors.text.primary }]}>
                             Eliminar producto
                         </Text>
@@ -51,8 +51,8 @@ export const DeleteProductDialog = memo(function DeleteProductDialog({
 
                         <View style={[styles.infoBox, { backgroundColor: colors.background.secondary }]}>
                             <View style={styles.infoRow}>
-                                <Text style={[styles.infoLabel, { color: colors.text.secondary }]}>
-                                    Producto:
+                                <Text style={[styles.infoLabel, { color: colors.text.tertiary }]}>
+                                    PRODUCTO:
                                 </Text>
                                 <Text style={[styles.infoValue, { color: colors.text.primary }]} numberOfLines={2}>
                                     {productName}
@@ -60,7 +60,7 @@ export const DeleteProductDialog = memo(function DeleteProductDialog({
                             </View>
                         </View>
 
-                        <Text style={[styles.warning, { color: colors.error[600] }]}>
+                        <Text style={[styles.warning, { color: colors.error }]}>
                             Esta acción eliminará el producto y todas sus imágenes. No se puede deshacer.
                         </Text>
                     </View>
@@ -74,7 +74,9 @@ export const DeleteProductDialog = memo(function DeleteProductDialog({
                                 styles.button,
                                 styles.cancelButton,
                                 {
-                                    backgroundColor: colors.background.tertiary,
+                                    backgroundColor: colors.background.secondary,
+                                    borderWidth: 1,
+                                    borderColor: colors.border.medium,
                                     opacity: pressed || isDeleting ? 0.7 : 1,
                                 },
                             ]}
@@ -91,15 +93,19 @@ export const DeleteProductDialog = memo(function DeleteProductDialog({
                                 styles.button,
                                 styles.deleteButton,
                                 {
-                                    backgroundColor: colors.error[600],
-                                    opacity: pressed || isDeleting ? 0.8 : 1,
+                                    backgroundColor: colors.error + '15',
+                                    borderWidth: 1,
+                                    borderColor: colors.error,
+                                    opacity: pressed || isDeleting ? 0.7 : 1,
                                 },
                             ]}
                         >
                             {isDeleting ? (
-                                <ActivityIndicator size="small" color={colors.text.inverse} />
+                                <ActivityIndicator size="small" color={colors.error} />
                             ) : (
-                                <Text style={[styles.buttonText, { color: colors.text.inverse }]}>Eliminar</Text>
+                                <>
+                                    <Text style={[styles.buttonText, { color: colors.error }]}>Eliminar</Text>
+                                </>
                             )}
                         </Pressable>
                     </View>
