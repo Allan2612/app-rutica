@@ -11,6 +11,13 @@ export { ReviewStatsCards } from './ReviewStatsCards';
 export { DeleteReviewDialog } from './DeleteReviewDialog';
 export { EditReviewDialog } from './EditReviewDialog';
 
+// Products Management
+export { ProductFilters } from './ProductFilters';
+export { AdminProductCard } from './AdminProductCard';
+export { ProductStatsCards } from './ProductStatsCards';
+export { DeleteProductDialog } from './DeleteProductDialog';
+export { EditProductDialog } from './EditProductDialog';
+
 // DetailViews
 export * from './DetailViews';
 

@@ -154,7 +154,8 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
           style={({ pressed }) => [
             styles.actionButton,
             {
-              backgroundColor: colors.background.tertiary,
+              backgroundColor: colors.primary[500] + '15',
+              borderColor: colors.primary[500],
               opacity: pressed || isProcessing ? 0.7 : 1,
             },
           ]}
@@ -169,7 +170,8 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
           style={({ pressed }) => [
             styles.actionButton,
             {
-              backgroundColor: colors.background.tertiary,
+              backgroundColor: colors.info + '15',
+              borderColor: colors.info,
               opacity: pressed || isProcessing ? 0.7 : 1,
             },
           ]}
@@ -184,7 +186,8 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
           style={({ pressed }) => [
             styles.actionButton,
             {
-              backgroundColor: colors.warning,
+              backgroundColor: colors.warning + '15',
+              borderColor: colors.warning,
               opacity: pressed || isProcessing ? 0.7 : 1,
             },
           ]}
@@ -192,11 +195,11 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
           disabled={isProcessing}
         >
           {isProcessing ? (
-            <ActivityIndicator size="small" color={colors.text.inverse} />
+            <ActivityIndicator size="small" color={colors.warning} />
           ) : (
             <>
-              <Check color={colors.text.inverse} size={16} strokeWidth={2.5} />
-              <Text style={[styles.actionText, { color: colors.text.inverse }]}>Estado</Text>
+              <Check color={colors.warning} size={16} strokeWidth={2.5} />
+              <Text style={[styles.actionText, { color: colors.warning }]}>Estado</Text>
             </>
           )}
         </Pressable>

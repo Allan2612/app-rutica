@@ -104,6 +104,7 @@ export const AdminReviewCard = memo<AdminReviewCardProps>(function AdminReviewCa
                                 styles.actionButton,
                                 {
                                     backgroundColor: colors.primary[500] + '15',
+                                    borderColor: colors.primary[500],
                                     opacity: pressed ? 0.7 : 1,
                                 },
                             ]}
@@ -118,6 +119,7 @@ export const AdminReviewCard = memo<AdminReviewCardProps>(function AdminReviewCa
                             styles.actionButton,
                             {
                                 backgroundColor: colors.error + '15',
+                                borderColor: colors.error,
                                 opacity: pressed ? 0.7 : 1,
                             },
                         ]}

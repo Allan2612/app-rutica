@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { ClipboardCheck, ChevronRight, MessageSquare } from 'lucide-react-native';
+import { ClipboardCheck, ChevronRight, MessageSquare, Package } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { BackButton } from '@/components/ui';
@@ -42,6 +42,16 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
       icon: MessageSquare,
       iconColor: '#10b981',
       iconBg: '#d1fae5',
+      showBadge: false,
+    },
+    {
+      key: 'products',
+      title: 'Gestión de Productos',
+      description: 'Administra productos de todos los negocios',
+      href: '/(app)/(tabs)/manage/admin/products',
+      icon: Package,
+      iconColor: '#f59e0b',
+      iconBg: '#fef3c7',
       showBadge: false,
     },
     // TODO: Agregar más opciones de admin (Gestión de Usuarios, Configuración)
