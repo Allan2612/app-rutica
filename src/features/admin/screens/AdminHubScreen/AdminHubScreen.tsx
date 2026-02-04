@@ -1,10 +1,11 @@
 import { memo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { ClipboardCheck, ChevronRight, MessageSquare, Package } from 'lucide-react-native';
+import { ClipboardCheck, ChevronRight, MessageSquare, Package, Crown } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import { useVerificationStats } from '../../hooks/useAdminVerification';
+import { useAdminSubscriptionStats } from '../../hooks/useAdminSubscriptions';
 import { styles } from './styles';
 
 type AdminAction = {
@@ -16,12 +17,14 @@ type AdminAction = {
   iconColor: string;
   iconBg: string;
   showBadge?: boolean;
+  badgeCount?: number;
 };
 
 export const AdminHubScreen = memo(function AdminHubScreen() {
   const colors = useThemedColors();
   const router = useRouter();
-  const { data: stats } = useVerificationStats();
+  const { data: verificationStats } = useVerificationStats();
+  const { data: subscriptionStats } = useAdminSubscriptionStats();
 
   const actions: AdminAction[] = [
     {
@@ -33,6 +36,18 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
       iconColor: '#3b82f6',
       iconBg: '#dbeafe',
       showBadge: true,
+      badgeCount: verificationStats?.totalPending || 0,
+    },
+    {
+      key: 'subscriptions',
+      title: 'Gestión de Suscripciones',
+      description: 'Administra planes premium y pagos',
+      href: '/(app)/(tabs)/manage/admin/subscriptions',
+      icon: Crown,
+      iconColor: '#eab308',
+      iconBg: '#fef9c3',
+      showBadge: false,
+      badgeCount: 0,
     },
     {
       key: 'reviews',
@@ -50,11 +65,10 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
       description: 'Administra productos de todos los negocios',
       href: '/(app)/(tabs)/manage/admin/products',
       icon: Package,
-      iconColor: '#f59e0b',
-      iconBg: '#fef3c7',
+      iconColor: '#8b5cf6',
+      iconBg: '#ede9fe',
       showBadge: false,
     },
-    // TODO: Agregar más opciones de admin (Gestión de Usuarios, Configuración)
   ];
 
   return (
@@ -79,7 +93,7 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
         <View style={styles.grid}>
           {actions.map((action) => {
             const Icon = action.icon;
-            const pendingCount = action.showBadge ? stats?.totalPending || 0 : 0;
+            const pendingCount = action.showBadge ? (action.badgeCount || 0) : 0;
 
             return (
               <Pressable

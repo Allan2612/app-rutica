@@ -357,6 +357,81 @@ create table public.events (
   constraint events_location_id_evt_fkey foreign key (location_id_evt) references public.locations(id_loc),
   constraint events_reviewed_by_evt_fkey foreign key (reviewed_by_evt) references public.profiles(id_prf)
 );
+-- Crear tabla de catálogo de suscripciones
+CREATE TABLE public.subscription (
+  id_sub UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  type_sub public.subscription_type NOT NULL UNIQUE,
+  name_sub VARCHAR(100) NOT NULL,
+  description_sub TEXT NOT NULL,
+  price_sub NUMERIC(10,2) NOT NULL DEFAULT 0,
+  features_sub TEXT[] NOT NULL DEFAULT '{}',
+  is_recurring_sub BOOLEAN NOT NULL DEFAULT false,
+  is_active_sub BOOLEAN NOT NULL DEFAULT true,
+  display_order_sub INTEGER NOT NULL DEFAULT 0,
+  created_at_sub TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at_sub TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Índices
+CREATE INDEX idx_subscription_type ON public.subscription(type_sub);
+CREATE INDEX idx_subscription_active ON public.subscription(is_active_sub);
+
+-- Trigger para updated_at
+CREATE OR REPLACE FUNCTION public.update_subscription_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at_sub = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_subscription_updated_at
+  BEFORE UPDATE ON public.subscription
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_subscription_updated_at();
+
+-- RLS
+ALTER TABLE public.subscription ENABLE ROW LEVEL SECURITY;
+
+-- Todos pueden ver planes activos
+CREATE POLICY "Anyone can view active subscriptions"
+  ON public.subscription
+  FOR SELECT
+  USING (is_active_sub = true);
+
+-- Admins pueden ver todos
+CREATE POLICY "Admins can view all subscriptions"
+  ON public.subscription
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- Admins pueden insertar/actualizar
+CREATE POLICY "Admins can manage subscriptions"
+  ON public.subscription
+  FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- Datos iniciales (opcional)
+INSERT INTO public.subscription (type_sub, name_sub, description_sub, price_sub, features_sub, display_order_sub)
+VALUES 
+  ('promotions', 'Promociones', 'Publica promociones en tu negocio', 5000, ARRAY['Crear promociones', 'Destacar ofertas'], 1),
+  ('dashboard', 'Dashboard Premium', 'Acceso a estadísticas avanzadas', 8000, ARRAY['Estadísticas detalladas', 'Reportes mensuales'], 2),
+  ('gallery_business', 'Galería Negocio', 'Galería extendida para tu negocio', 3000, ARRAY['Hasta 20 fotos', 'Videos cortos'], 3),
+  ('package_products', 'Productos', 'Gestión de productos en tu negocio', 6000, ARRAY['Catálogo de productos', 'Precios y descripciones'], 4),
+  ('gallery_attractions', 'Galería Atracciones', 'Galería extendida para atracciones', 3000, ARRAY['Hasta 20 fotos', 'Videos cortos'], 5),
+  ('full_premium', 'Premium Completo', 'Acceso a todas las funcionalidades', 15000, ARRAY['Todas las funciones', 'Soporte prioritario'], 6);
 
 create table public.attractions (
   id_atr uuid not null default gen_random_uuid(),
