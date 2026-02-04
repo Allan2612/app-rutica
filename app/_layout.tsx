@@ -25,7 +25,7 @@ export default function RootLayout() {
     // Cargar ubicaciones desde Supabase
     const { loadLocations } = useLocationDataStore.getState();
     loadLocations();
-    
+
     // Listener para cuando la página vuelve a estar visible (cambio de tab)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -39,12 +39,12 @@ export default function RootLayout() {
         }, 3000);
       }
     };
-    
+
     // Solo en web
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', handleVisibilityChange);
     }
-    
+
     // Timeout de seguridad
     const safetyTimeout = setTimeout(() => {
       const state = useAuthStore.getState();
@@ -53,11 +53,11 @@ export default function RootLayout() {
         useAuthStore.setState({ isLoading: false, _isLoadingData: false });
       }
     }, 12000);
-    
+
     // Configurar título y meta tags para web
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       document.title = 'Rutica - Descubre comercios y atracciones';
-      
+
       // Meta description
       let metaDescription = document.querySelector('meta[name="description"]');
       if (!metaDescription) {
@@ -66,7 +66,7 @@ export default function RootLayout() {
         document.head.appendChild(metaDescription);
       }
       metaDescription.setAttribute('content', 'Descubre comercios, atracciones y promociones cerca de ti');
-      
+
       // Theme color
       let metaTheme = document.querySelector('meta[name="theme-color"]');
       if (!metaTheme) {
@@ -76,7 +76,7 @@ export default function RootLayout() {
       }
       metaTheme.setAttribute('content', '#10b981');
     }
-    
+
     return () => {
       clearTimeout(safetyTimeout);
       if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -89,7 +89,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar 
+        <StatusBar
           barStyle="light-content"
           backgroundColor="transparent"
           translucent={true}
@@ -99,86 +99,87 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(app)" />
-        </Stack>
-        <Toast 
-          config={{
-            success: (props) => (
-              <View style={{
-                backgroundColor: '#1a1a1a',
-                padding: 16,
-                borderRadius: 12,
-                borderLeftWidth: 4,
-                borderLeftColor: '#10b981',
-                marginHorizontal: 16,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.5,
-                shadowRadius: 4,
-                elevation: 5,
-                minWidth: 300,
-              }}>
-                <Text style={{ color: '#10b981', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
-                  {props.text1}
-                </Text>
-                {props.text2 && (
-                  <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
-                    {props.text2}
+          </Stack>
+          <Toast
+            config={{
+              success: (props) => (
+                <View style={{
+                  backgroundColor: '#1a1a1a',
+                  padding: 16,
+                  borderRadius: 12,
+                  borderLeftWidth: 4,
+                  borderLeftColor: '#10b981',
+                  marginHorizontal: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 4,
+                  elevation: 5,
+                  minWidth: 300,
+                }}>
+                  <Text style={{ color: '#10b981', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
+                    {props.text1}
                   </Text>
-                )}
-              </View>
-            ),
-            error: (props) => (
-              <View style={{
-                backgroundColor: '#1a1a1a',
-                padding: 16,
-                borderRadius: 12,
-                borderLeftWidth: 4,
-                borderLeftColor: '#ef4444',
-                marginHorizontal: 16,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.5,
-                shadowRadius: 4,
-                elevation: 5,
-                minWidth: 300,
-              }}>
-                <Text style={{ color: '#ef4444', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
-                  {props.text1}
-                </Text>
-                {props.text2 && (
-                  <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
-                    {props.text2}
+                  {props.text2 && (
+                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
+                      {props.text2}
+                    </Text>
+                  )}
+                </View>
+              ),
+              error: (props) => (
+                <View style={{
+                  backgroundColor: '#1a1a1a',
+                  padding: 16,
+                  borderRadius: 12,
+                  borderLeftWidth: 4,
+                  borderLeftColor: '#ef4444',
+                  marginHorizontal: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 4,
+                  elevation: 5,
+                  minWidth: 300,
+                }}>
+                  <Text style={{ color: '#ef4444', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
+                    {props.text1}
                   </Text>
-                )}
-              </View>
-            ),
-            info: (props) => (
-              <View style={{
-                backgroundColor: '#1a1a1a',
-                padding: 16,
-                borderRadius: 12,
-                borderLeftWidth: 4,
-                borderLeftColor: '#3b82f6',
-                marginHorizontal: 16,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.5,
-                shadowRadius: 4,
-                elevation: 5,
-                minWidth: 300,
-              }}>
-                <Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
-                  {props.text1}
-                </Text>
-                {props.text2 && (
-                  <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
-                    {props.text2}
+                  {props.text2 && (
+                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
+                      {props.text2}
+                    </Text>
+                  )}
+                </View>
+              ),
+              info: (props) => (
+                <View style={{
+                  backgroundColor: '#1a1a1a',
+                  padding: 16,
+                  borderRadius: 12,
+                  borderLeftWidth: 4,
+                  borderLeftColor: '#3b82f6',
+                  marginHorizontal: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 4,
+                  elevation: 5,
+                  minWidth: 300,
+                  zIndex: 99999,
+                }}>
+                  <Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
+                    {props.text1}
                   </Text>
-                )}
-              </View>
-            ),
-          }}
-        />
+                  {props.text2 && (
+                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
+                      {props.text2}
+                    </Text>
+                  )}
+                </View>
+              ),
+            }}
+          />
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

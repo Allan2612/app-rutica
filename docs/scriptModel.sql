@@ -95,26 +95,140 @@ create table public.profiles (
   constraint profiles_pkey primary key (id_prf),
   constraint profiles_id_prf_fkey foreign key (id_prf) references auth.users(id)
 );
+-- ============================================================
+-- Migración: Tabla de suscripciones individuales
+-- ============================================================
+-- Cada registro representa una suscripción individual que necesita
+-- aprobación del admin. Un usuario puede tener múltiples suscripciones.
+-- ============================================================
 
-
-create table public.profile_premium (
-  profile_id_ppm uuid primary key,
-
-  -- Suscripción
-  subscribed_at_ppm timestamp with time zone not null default now(),
-
-  -- Pago
-  payment_reference_ppm character varying,
-  payment_note_ppm text,
-
-  created_at_ppm timestamp with time zone not null default now(),
-  updated_at_ppm timestamp with time zone not null default now(),
-
-  constraint profile_premium_profile_id_fkey
-    foreign key (profile_id_ppm)
-    references public.profiles(id_prf)
-    on delete cascade
+-- Paso 1: Crear enum para estado de suscripción
+create type public.subscription_status as enum (
+  'pending',    -- Pendiente de aprobación
+  'approved',   -- Aprobada por admin
+  'rejected',   -- Rechazada por admin
+  'cancelled'   -- Cancelada por usuario
 );
+
+-- Paso 2: Crear tabla de suscripciones individuales
+create table public.profile_subscriptions (
+  id_psub uuid primary key default gen_random_uuid(),
+  profile_id_psub uuid not null references public.profiles(id_prf) on delete cascade,
+  subscription_type_psub public.subscription_type not null,
+  payment_reference_psub text not null,
+  payment_note_psub text,
+  status_psub public.subscription_status not null default 'pending',
+  subscribed_at_psub timestamptz not null default now(),
+  approved_at_psub timestamptz,
+  approved_by_psub uuid references public.profiles(id_prf) on delete set null,
+  rejected_at_psub timestamptz,
+  rejected_by_psub uuid references public.profiles(id_prf) on delete set null,
+  rejection_reason_psub text,
+  cancelled_at_psub timestamptz,
+  created_at_psub timestamptz not null default now(),
+  updated_at_psub timestamptz not null default now()
+);
+
+-- Paso 3: Índices para mejor rendimiento
+create index idx_profile_subscriptions_profile_id on public.profile_subscriptions(profile_id_psub);
+create index idx_profile_subscriptions_status on public.profile_subscriptions(status_psub);
+create index idx_profile_subscriptions_type on public.profile_subscriptions(subscription_type_psub);
+create index idx_profile_subscriptions_profile_status on public.profile_subscriptions(profile_id_psub, status_psub);
+
+-- Paso 4: Trigger para actualizar updated_at
+create or replace function public.update_profile_subscriptions_updated_at()
+returns trigger as $$
+begin
+  new.updated_at_psub = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger trigger_update_profile_subscriptions_updated_at
+  before update on public.profile_subscriptions
+  for each row
+  execute function public.update_profile_subscriptions_updated_at();
+
+-- Paso 5: Comentarios
+comment on table public.profile_subscriptions is 
+'Registro individual de cada suscripción premium. Cada pago genera un nuevo registro que debe ser aprobado por un admin.';
+
+comment on column public.profile_subscriptions.id_psub is 'ID único de la suscripción';
+comment on column public.profile_subscriptions.profile_id_psub is 'ID del usuario que compró la suscripción';
+comment on column public.profile_subscriptions.subscription_type_psub is 'Tipo de suscripción adquirida';
+comment on column public.profile_subscriptions.payment_reference_psub is 'Número de referencia del pago (SINPE/Transferencia)';
+comment on column public.profile_subscriptions.payment_note_psub is 'Nota adicional del pago';
+comment on column public.profile_subscriptions.status_psub is 'Estado de la suscripción: pending, approved, rejected, cancelled';
+comment on column public.profile_subscriptions.subscribed_at_psub is 'Fecha en que el usuario realizó el pago';
+comment on column public.profile_subscriptions.approved_at_psub is 'Fecha en que un admin aprobó la suscripción';
+comment on column public.profile_subscriptions.approved_by_psub is 'ID del admin que aprobó';
+comment on column public.profile_subscriptions.rejected_at_psub is 'Fecha en que un admin rechazó la suscripción';
+comment on column public.profile_subscriptions.rejected_by_psub is 'ID del admin que rechazó';
+comment on column public.profile_subscriptions.rejection_reason_psub is 'Razón del rechazo';
+comment on column public.profile_subscriptions.cancelled_at_psub is 'Fecha en que el usuario canceló';
+
+-- Paso 6: Row Level Security (RLS)
+alter table public.profile_subscriptions enable row level security;
+
+-- Policy: Los usuarios pueden ver solo sus propias suscripciones
+create policy "Users can view own subscriptions"
+  on public.profile_subscriptions
+  for select
+  using (auth.uid() = profile_id_psub);
+
+-- Policy: Los usuarios pueden crear sus propias suscripciones
+create policy "Users can create own subscriptions"
+  on public.profile_subscriptions
+  for insert
+  with check (auth.uid() = profile_id_psub);
+
+-- Policy: Los usuarios pueden cancelar sus propias suscripciones pendientes
+create policy "Users can cancel own pending subscriptions"
+  on public.profile_subscriptions
+  for update
+  using (
+    auth.uid() = profile_id_psub 
+    and status_psub = 'pending'
+  )
+  with check (
+    auth.uid() = profile_id_psub 
+    and status_psub = 'cancelled'
+  );
+
+-- Policy: Los admins pueden ver todas las suscripciones
+create policy "Admins can view all subscriptions"
+  on public.profile_subscriptions
+  for select
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+      and role_prf = 'admin'
+    )
+  );
+
+-- Policy: Los admins pueden aprobar/rechazar suscripciones
+create policy "Admins can approve or reject subscriptions"
+  on public.profile_subscriptions
+  for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+      and role_prf = 'admin'
+    )
+  );
+
+-- 1) Create subscription type enum
+create type public.subscription_type_new as enum (
+  'promotions',
+  'dashboard',
+  'gallery_business',
+  'package_products',
+  'gallery_attractions',
+  'full_premium'
+);
+
 
 -- ============================================================
 -- 1) CATEGORIES
@@ -1231,7 +1345,6 @@ $$;
 -- ============================================================
 
 alter table public.profiles enable row level security;
-alter table public.profile_premium enable row level security;
 alter table public.categories enable row level security;
 alter table public.countries enable row level security;
 alter table public.provinces enable row level security;
@@ -1315,35 +1428,6 @@ create policy "profiles_update_admin"
   using (public.is_admin())
   with check (public.is_admin());
 
--- DELETE: Nadie puede eliminar perfiles (soft delete via is_active_prf)
-
--- ============================================================
--- 12.3) PROFILE_PREMIUM
--- ============================================================
-
--- SELECT: Usuario ve su propia suscripción
-create policy "profile_premium_select_own"
-  on public.profile_premium for select
-  using (profile_id_ppm = auth.uid());
-
--- SELECT: Admin ve todas las suscripciones
-create policy "profile_premium_select_admin"
-  on public.profile_premium for select
-  using (public.is_admin());
-
--- INSERT/UPDATE/DELETE: Solo admin gestiona premium
-create policy "profile_premium_insert_admin"
-  on public.profile_premium for insert
-  with check (public.is_admin());
-
-create policy "profile_premium_update_admin"
-  on public.profile_premium for update
-  using (public.is_admin())
-  with check (public.is_admin());
-
-create policy "profile_premium_delete_admin"
-  on public.profile_premium for delete
-  using (public.is_admin());
 
 -- ============================================================
 -- 12.4) CATEGORIES (lookup table - read only para usuarios)

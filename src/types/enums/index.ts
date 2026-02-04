@@ -75,12 +75,34 @@ export type PromotionImagePrefix = 'flyer';
  * Union type para todos los tipos de imagen
  * Usado en admin/verification para manejar imágenes de cualquier entidad
  */
-export type ImageType = 
-  | AttractionImagePrefix 
-  | BusinessImagePrefix 
-  | EventImagePrefix 
-  | ProductImagePrefix 
+export type ImageType =
+  | AttractionImagePrefix
+  | BusinessImagePrefix
+  | EventImagePrefix
+  | ProductImagePrefix
   | PromotionImagePrefix
   | 'product'  // Para productos dentro de promociones combo
   | 'combo'    // Para imágenes de combo
   | 'brand';   // Para branding
+
+/**
+ * Tipo de suscripción premium
+ * DB: public.subscription_type
+ */
+export type SubscriptionType =
+  | 'promotions'            // Promociones ilimitadas
+  | 'dashboard'             // Dashboard de negocio con estadísticas
+  | 'gallery_business'      // Galería extendida para empresa
+  | 'package_products'      // Hasta 20 productos con 3 fotos cada uno
+  | 'gallery_attractions'   // Galería de hasta 10 fotos para atracciones/eventos
+  | 'full_premium';         // Acceso completo a todas las funcionalidades
+
+/**
+ * Estado de una suscripción premium
+ * DB: public.subscription_status
+ */
+export type SubscriptionStatus =
+  | 'pending'    // Pendiente de aprobación
+  | 'approved'   // Aprobada por admin
+  | 'rejected'   // Rechazada por admin
+  | 'cancelled'; // Cancelada por usuario

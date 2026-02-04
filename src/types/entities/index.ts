@@ -7,6 +7,12 @@ export type {
   ProfileWithPremium,
   ProfileInsert,
   ProfileUpdate,
+  ProfilePremiumInsert,
+  Subscription,
+  ProfileSubscription,
+  ProfileSubscriptionInsert,
+  ProfileWithSubscriptions,
+  SubscriptionPlanInfo,
 } from './profile';
 
 export {
@@ -15,6 +21,9 @@ export {
   canSell,
   isAdmin,
   isPremium,
+  SUBSCRIPTION_PLANS,
+  getSubscriptionPlanInfo,
+  getSubscriptionTypeName,
 } from './profile';
 
 // ============================================
