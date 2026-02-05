@@ -35,15 +35,21 @@ async function fetchBusinessVerifications(
   search: string,
   limit: number
 ): Promise<BusinessVerificationRequest[]> {
-  // Verificar si el usuario es admin
-  const { data: profileData } = await supabase
-    .from('profiles')
-    .select('role_prf, is_active_prf')
-    .eq('id_prf', (await supabase.auth.getUser()).data.user?.id)
-    .single();
+  // Obtener el usuario actual
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
   
-  const isAdmin = profileData?.role_prf === 'admin' && profileData?.is_active_prf === true;
-  const userId = (await supabase.auth.getUser()).data.user?.id;
+  // Verificar si el usuario es admin
+  let isAdmin = false;
+  if (userId) {
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('role_prf, is_active_prf')
+      .eq('id_prf', userId)
+      .single<{ role_prf: string; is_active_prf: boolean }>();
+    
+    isAdmin = profileData?.role_prf === 'admin' && profileData?.is_active_prf === true;
+  }
   
   let query = supabase
     .from('businesses')

@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { ActivityIndicator, Text, View, useWindowDimensions, Pressable } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -7,6 +7,7 @@ import { useBusinessCategories } from '@/features/business/hooks/useBusinessCate
 import { useBusinesses } from '@/features/business/hooks/useBusinesses';
 import { usePromotions } from '@/features/promotions/hooks';
 import { useThemedColors } from '@/hooks';
+import { useLocationStore } from '@/store';
 import { useBusinessesStyles } from './styles';
 import { BusinessesList } from '@/components/business/BusinessesList';
 import { PromotionsPublicList } from '@/components/promotions';
@@ -19,18 +20,33 @@ const BUSINESS_TABS: TabOption[] = [
 export const BusinessesScreen = memo(function BusinessesScreen() {
   const [activeTab, setActiveTab] = useState('commerces');
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  const { location } = useLocationStore();
   
   // Filtros para comercios
   const [commerceFilters, setCommerceFilters] = useState<SearchFilters>({
     searchText: '',
     categoryIds: [],
+    location: null,
   });
   
   // Filtros para promociones
   const [promotionFilters, setPromotionFilters] = useState<SearchFilters>({
     searchText: '',
     categoryIds: [],
+    location: null,
   });
+
+  // Sincronizar filtros con ubicación del store al cambiar
+  useEffect(() => {
+    const locationFilter = location ? {
+      province: location.province,
+      canton: location.canton,
+      district: location.district,
+    } : null;
+    
+    setCommerceFilters(prev => ({ ...prev, location: locationFilter }));
+    setPromotionFilters(prev => ({ ...prev, location: locationFilter }));
+  }, [location?.province, location?.canton, location?.district]);
   
   const { width } = useWindowDimensions();
   const colors = useThemedColors();
@@ -51,6 +67,9 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   } = useBusinesses({
     searchText: commerceFilters.searchText,
     categoryIds: commerceFilters.categoryIds,
+    province: commerceFilters.location?.province || undefined,
+    canton: commerceFilters.location?.canton || undefined,
+    district: commerceFilters.location?.district || undefined,
     enabled: activeTab === 'commerces',
   });
 
@@ -62,11 +81,17 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   } = usePromotions({
     searchText: promotionFilters.searchText,
     categoryIds: promotionFilters.categoryIds,
+    province: promotionFilters.location?.province || undefined,
+    canton: promotionFilters.location?.canton || undefined,
+    district: promotionFilters.location?.district || undefined,
     enabled: activeTab === 'promotions',
   });
 
   const currentFilters = activeTab === 'commerces' ? commerceFilters : promotionFilters;
-  const hasActiveFilters = currentFilters.searchText !== '' || currentFilters.categoryIds.length > 0;
+  const hasActiveFilters = 
+    currentFilters.searchText !== '' || 
+    currentFilters.categoryIds.length > 0 ||
+    Boolean(currentFilters.location?.province || currentFilters.location?.canton || currentFilters.location?.district);
 
   const handleApplyFilters = (filters: SearchFilters) => {
     if (activeTab === 'commerces') {

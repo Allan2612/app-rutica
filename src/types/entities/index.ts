@@ -41,12 +41,21 @@ export type {
   AttractionCategoryMap,
   ProductCategoryMap,
   PromotionCategoryMap,
+  HierarchicalCategoryOption,
 } from './category';
 
 export {
   categoryToOption,
   categoriesToOptions,
 } from './category';
+
+// ============================================
+// Filter
+// ============================================
+export type {
+  FilterTab,
+  SearchFilters,
+} from './filter';
 
 // ============================================
 // Business

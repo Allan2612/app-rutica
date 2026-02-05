@@ -16,6 +16,10 @@ export interface Category {
   id_cat: string;
   name_cat: string;
   created_at_cat: string;
+  parent_id_cat: string | null;
+  icon_cat: string | null;
+  sort_order_cat: number;
+  is_active_cat: boolean;
 }
 
 // ============================================
@@ -57,6 +61,16 @@ export interface PromotionCategoryMap {
 export interface CategoryOption {
   id: string;
   name: string;
+  parentId?: string | null;
+}
+
+/**
+ * Categoría jerárquica para el modal de filtros
+ */
+export interface HierarchicalCategoryOption {
+  id: string;
+  name: string;
+  parentId: string | null;
 }
 
 // ============================================

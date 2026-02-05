@@ -81,7 +81,7 @@ export function getEventImageUrl(path: string): string {
 // ============================================
 
 export async function getEventsList(filters: EventListFilters = {}): Promise<EventListRecord[]> {
-    const { searchText, categoryIds, upcoming = true } = filters;
+    const { searchText, categoryIds, upcoming = true, province, canton, district } = filters;
 
     let query = supabase
         .from('events')
@@ -143,6 +143,15 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
     // Filtrar solo eventos futuros o en curso
     if (upcoming) {
         query = query.gte('end_at_evt', new Date().toISOString());
+    }
+
+    // Filtrar por ubicación (nivel más granular tiene prioridad)
+    if (district) {
+        query = query.eq('locations.districts.name_dst', district);
+    } else if (canton) {
+        query = query.eq('locations.districts.cantons.name_ctn', canton);
+    } else if (province) {
+        query = query.eq('locations.districts.cantons.provinces.name_prv', province);
     }
 
     // Filtro por texto

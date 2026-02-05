@@ -75,7 +75,7 @@ interface PublicPromotionRecord {
  * Obtiene todas las promociones públicas (aprobadas, pagadas y activas)
  */
 export async function getPublicPromotions(filters: PublicPromotionFilters = {}): Promise<PromotionListItem[]> {
-    const { searchText, categoryIds } = filters;
+    const { searchText, categoryIds, province, canton, district } = filters;
     const now = new Date().toISOString();
 
     let query = (supabase as any)
@@ -96,6 +96,17 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                 name_bus,
                 business_images (
                     path_bim
+                ),
+                locations (
+                    districts (
+                        name_dst,
+                        cantons (
+                            name_ctn,
+                            provinces (
+                                name_prv
+                            )
+                        )
+                    )
                 )
             ),
             promotion_images (
@@ -126,6 +137,15 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
         // Solo promociones vigentes
         .lte('start_at_prm', now)
         .gte('end_at_prm', now);
+
+    // Filtrar por ubicación del negocio (nivel más granular tiene prioridad)
+    if (district) {
+        query = query.eq('businesses.locations.districts.name_dst', district);
+    } else if (canton) {
+        query = query.eq('businesses.locations.districts.cantons.name_ctn', canton);
+    } else if (province) {
+        query = query.eq('businesses.locations.districts.cantons.provinces.name_prv', province);
+    }
 
     // Filtrar por texto
     if (searchText && searchText.trim().length > 0) {

@@ -1,0 +1,1 @@
+export { SelectedCategoryChipsRow } from './SelectedCategoryChipsRow';

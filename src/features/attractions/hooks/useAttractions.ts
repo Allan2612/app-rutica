@@ -79,12 +79,34 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
 }
 
 export function useAttractions({ enabled = true, ...filters }: AttractionListFilters & { enabled?: boolean } = {}) {
-    const { searchText = '', categoryIds = [] } = filters;
+    const { searchText = '', categoryIds = [], province, canton, district } = filters;
 
     return useQuery({
-        queryKey: ['attractions', { searchText, categoryIds }],
+        queryKey: ['attractions', { searchText, categoryIds, province, canton, district }],
         queryFn: () => getAttractionsList({ searchText, categoryIds }),
         enabled,
-        select: (rows) => rows.map(mapAttractionToListItem),
+        select: (rows) => {
+            let items = rows.map(mapAttractionToListItem);
+            
+            // Filtrar por ubicación en JavaScript
+            if (district) {
+                items = items.filter(item => {
+                    const parts = item.locationLabel?.split(', ') || [];
+                    return parts.some(part => part.toLowerCase() === district.toLowerCase());
+                });
+            } else if (canton) {
+                items = items.filter(item => {
+                    const parts = item.locationLabel?.split(', ') || [];
+                    return parts.some(part => part.toLowerCase() === canton.toLowerCase());
+                });
+            } else if (province) {
+                items = items.filter(item => {
+                    const parts = item.locationLabel?.split(', ') || [];
+                    return parts.some(part => part.toLowerCase() === province.toLowerCase());
+                });
+            }
+            
+            return items;
+        },
     });
 }

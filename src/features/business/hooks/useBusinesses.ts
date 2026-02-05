@@ -85,16 +85,37 @@ function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
 }
 
 export function useBusinesses({ enabled = true, ...filters }: BusinessListFilters & { enabled?: boolean } = {}) {
-    const { searchText = '', categoryIds = [] } = filters;
+    const { searchText = '', categoryIds = [], province, canton, district } = filters;
 
     return useQuery({
-        queryKey: ['businesses', { searchText, categoryIds }],
+        queryKey: ['businesses', { searchText, categoryIds, province, canton, district }],
         queryFn: () => {
+            // No pasar filtros de ubicación al servicio, filtraremos en select
             return getBusinessList({ searchText, categoryIds });
         },
         enabled,
         select: (rows) => {
-            return rows.map(mapBusinessToListItem);
+            let items = rows.map(mapBusinessToListItem);
+            
+            // Filtrar por ubicación en JavaScript
+            if (district) {
+                items = items.filter(item => {
+                    const parts = item.locationLabel?.split(', ') || [];
+                    return parts.some(part => part.toLowerCase() === district.toLowerCase());
+                });
+            } else if (canton) {
+                items = items.filter(item => {
+                    const parts = item.locationLabel?.split(', ') || [];
+                    return parts.some(part => part.toLowerCase() === canton.toLowerCase());
+                });
+            } else if (province) {
+                items = items.filter(item => {
+                    const parts = item.locationLabel?.split(', ') || [];
+                    return parts.some(part => part.toLowerCase() === province.toLowerCase());
+                });
+            }
+            
+            return items;
         },
     });
 }

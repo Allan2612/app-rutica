@@ -86,7 +86,7 @@ function getImageTypeFromPath(path: string): string {
 export async function getAttractionsList(
     filters: AttractionListFilters = {}
 ): Promise<AttractionListRecord[]> {
-    const { searchText, categoryIds } = filters;
+    const { searchText, categoryIds, province, canton, district } = filters;
 
     let query = supabase.from('attractions').select(`
       id_atr,
@@ -136,6 +136,15 @@ export async function getAttractionsList(
     // Filtrar por categorías si se especifican
     if (categoryIds && categoryIds.length > 0) {
         query = query.in('attraction_category_map.category_id_acm', categoryIds);
+    }
+
+    // Filtrar por ubicación (nivel más granular tiene prioridad)
+    if (district) {
+        query = query.eq('locations.districts.name_dst', district);
+    } else if (canton) {
+        query = query.eq('locations.districts.cantons.name_ctn', canton);
+    } else if (province) {
+        query = query.eq('locations.districts.cantons.provinces.name_prv', province);
     }
 
     if (searchText && searchText.trim().length > 0) {
