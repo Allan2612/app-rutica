@@ -629,6 +629,269 @@ create table public.promotion_combo_items (
   constraint promotion_combo_items_product_id_pci_fkey foreign key (product_id_pci) references public.products(id_prd) on delete cascade
 );
 
+-- Control de consumo de suscripciones 
+-- ============================================================
+
+-- ============================================================
+-- 1) Agregar columna quota_sub a tabla subscription
+-- ============================================================
+
+ALTER TABLE public.subscription 
+ADD COLUMN IF NOT EXISTS quota_sub INTEGER NOT NULL DEFAULT 0;
+
+-- Actualizar cuotas por tipo de suscripción
+UPDATE public.subscription SET quota_sub = 20 WHERE type_sub = 'package_products';
+UPDATE public.subscription SET quota_sub = 10 WHERE type_sub = 'gallery_business';
+UPDATE public.subscription SET quota_sub = 10 WHERE type_sub = 'gallery_attractions';
+UPDATE public.subscription SET quota_sub = 10 WHERE type_sub = 'promotions';
+UPDATE public.subscription SET quota_sub = 0 WHERE type_sub = 'dashboard'; -- No consume recursos
+UPDATE public.subscription SET quota_sub = 999 WHERE type_sub = 'full_premium'; -- Prácticamente ilimitado
+
+COMMENT ON COLUMN public.subscription.quota_sub IS 'Cantidad de recursos que otorga esta suscripción (ej: 20 productos, 10 fotos)';
+
+-- ============================================================
+-- 2) Crear enum para tipos de recursos
+-- ============================================================
+
+CREATE TYPE public.resource_type AS ENUM (
+  'product',           -- Productos de negocio
+  'photo_business',    -- Fotos de galería de negocio
+  'photo_attraction',  -- Fotos de galería de atracción
+  'photo_event',       -- Fotos de galería de evento
+  'promotion'          -- Promociones
+);
+
+-- ============================================================
+-- 3) Crear tabla subscription_usage
+-- ============================================================
+-- Esta tabla trackea cuántos recursos ha consumido cada suscripción
+-- por entidad específica (negocio, atracción, evento)
+
+CREATE TABLE public.subscription_usage (
+  id_sus UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  
+  -- Relación con la suscripción comprada y aprobada
+  profile_subscription_id_sus UUID NOT NULL 
+    REFERENCES public.profile_subscriptions(id_psub) ON DELETE CASCADE,
+  
+  -- Usuario dueño (denormalizado para consultas rápidas)
+  profile_id_sus UUID NOT NULL 
+    REFERENCES public.profiles(id_prf) ON DELETE CASCADE,
+  
+  -- Tipo de recurso que se está consumiendo
+  resource_type_sus public.resource_type NOT NULL,
+  
+  -- Entidad a la que aplica el consumo
+  -- Solo uno de estos debe estar poblado según resource_type
+  business_id_sus UUID REFERENCES public.businesses(id_bus) ON DELETE CASCADE,
+  attraction_id_sus UUID REFERENCES public.attractions(id_atr) ON DELETE CASCADE,
+  event_id_sus UUID REFERENCES public.events(id_evt) ON DELETE CASCADE,
+  
+  -- Control de cuota
+  max_quota_sus INTEGER NOT NULL,      -- Cuota máxima de esta suscripción
+  used_count_sus INTEGER NOT NULL DEFAULT 0,  -- Cantidad usada actualmente
+  
+  -- Timestamps
+  created_at_sus TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at_sus TIMESTAMPTZ NOT NULL DEFAULT now(),
+  
+  -- Constraint: Solo una entrada por suscripción + tipo + entidad
+  CONSTRAINT subscription_usage_unique UNIQUE (
+    profile_subscription_id_sus, 
+    resource_type_sus, 
+    business_id_sus,
+    attraction_id_sus,
+    event_id_sus
+  ),
+  
+  -- Constraint: used_count no puede exceder max_quota
+  CONSTRAINT subscription_usage_quota_check 
+    CHECK (used_count_sus >= 0 AND used_count_sus <= max_quota_sus),
+    
+  -- Constraint: Debe tener exactamente una entidad según el tipo
+  CONSTRAINT subscription_usage_entity_check CHECK (
+    (resource_type_sus IN ('product', 'photo_business', 'promotion') AND business_id_sus IS NOT NULL AND attraction_id_sus IS NULL AND event_id_sus IS NULL) OR
+    (resource_type_sus = 'photo_attraction' AND attraction_id_sus IS NOT NULL AND business_id_sus IS NULL AND event_id_sus IS NULL) OR
+    (resource_type_sus = 'photo_event' AND event_id_sus IS NOT NULL AND business_id_sus IS NULL AND attraction_id_sus IS NULL)
+  )
+);
+
+-- ============================================================
+-- 4) Índices para mejor rendimiento
+-- ============================================================
+
+CREATE INDEX idx_subscription_usage_profile_sub 
+  ON public.subscription_usage(profile_subscription_id_sus);
+  
+CREATE INDEX idx_subscription_usage_profile 
+  ON public.subscription_usage(profile_id_sus);
+  
+CREATE INDEX idx_subscription_usage_business 
+  ON public.subscription_usage(business_id_sus) 
+  WHERE business_id_sus IS NOT NULL;
+  
+CREATE INDEX idx_subscription_usage_attraction 
+  ON public.subscription_usage(attraction_id_sus) 
+  WHERE attraction_id_sus IS NOT NULL;
+  
+CREATE INDEX idx_subscription_usage_event 
+  ON public.subscription_usage(event_id_sus) 
+  WHERE event_id_sus IS NOT NULL;
+
+CREATE INDEX idx_subscription_usage_type_business 
+  ON public.subscription_usage(resource_type_sus, business_id_sus) 
+  WHERE business_id_sus IS NOT NULL;
+
+-- ============================================================
+-- 5) Trigger para updated_at
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.update_subscription_usage_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at_sus = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_subscription_usage_updated_at
+  BEFORE UPDATE ON public.subscription_usage
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_subscription_usage_updated_at();
+
+-- ============================================================
+-- 6) Row Level Security (RLS)
+-- ============================================================
+
+ALTER TABLE public.subscription_usage ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Los usuarios pueden ver su propio consumo
+CREATE POLICY "Users can view own usage"
+  ON public.subscription_usage
+  FOR SELECT
+  USING (auth.uid() = profile_id_sus);
+
+-- Policy: Los usuarios pueden insertar su propio consumo
+CREATE POLICY "Users can insert own usage"
+  ON public.subscription_usage
+  FOR INSERT
+  WITH CHECK (auth.uid() = profile_id_sus);
+
+-- Policy: Los usuarios pueden actualizar su propio consumo
+CREATE POLICY "Users can update own usage"
+  ON public.subscription_usage
+  FOR UPDATE
+  USING (auth.uid() = profile_id_sus)
+  WITH CHECK (auth.uid() = profile_id_sus);
+
+-- Policy: Los admins pueden ver todo
+CREATE POLICY "Admins can view all usage"
+  ON public.subscription_usage
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- Policy: Los admins pueden gestionar todo
+CREATE POLICY "Admins can manage all usage"
+  ON public.subscription_usage
+  FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- ============================================================
+-- 7) Comentarios de documentación
+-- ============================================================
+
+COMMENT ON TABLE public.subscription_usage IS 
+'Trackea el consumo de recursos de cada suscripción aprobada por entidad (negocio/atracción/evento)';
+
+COMMENT ON COLUMN public.subscription_usage.profile_subscription_id_sus IS 
+'FK a la suscripción aprobada que otorga la cuota';
+
+COMMENT ON COLUMN public.subscription_usage.profile_id_sus IS 
+'Usuario dueño de la suscripción (denormalizado para consultas rápidas)';
+
+COMMENT ON COLUMN public.subscription_usage.resource_type_sus IS 
+'Tipo de recurso: product, photo_business, photo_attraction, photo_event, promotion';
+
+COMMENT ON COLUMN public.subscription_usage.business_id_sus IS 
+'Negocio al que aplica (para productos, fotos de negocio, promociones)';
+
+COMMENT ON COLUMN public.subscription_usage.attraction_id_sus IS 
+'Atracción a la que aplica (para fotos de atracción)';
+
+COMMENT ON COLUMN public.subscription_usage.event_id_sus IS 
+'Evento al que aplica (para fotos de evento)';
+
+COMMENT ON COLUMN public.subscription_usage.max_quota_sus IS 
+'Cuota máxima que otorga esta suscripción';
+
+COMMENT ON COLUMN public.subscription_usage.used_count_sus IS 
+'Cantidad de recursos actualmente en uso (aumenta al crear, disminuye al eliminar)';
+
+-- ============================================================
+-- 8) Función helper para obtener cuota disponible
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.get_available_quota(
+  p_profile_id UUID,
+  p_resource_type public.resource_type,
+  p_entity_id UUID
+)
+RETURNS TABLE (
+  total_quota INTEGER,
+  total_used INTEGER,
+  available INTEGER
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_subscription_type public.subscription_type;
+BEGIN
+  -- Determinar qué tipo de suscripción corresponde al recurso
+  CASE p_resource_type
+    WHEN 'product' THEN v_subscription_type := 'package_products';
+    WHEN 'photo_business' THEN v_subscription_type := 'gallery_business';
+    WHEN 'photo_attraction' THEN v_subscription_type := 'gallery_attractions';
+    WHEN 'photo_event' THEN v_subscription_type := 'gallery_attractions';
+    WHEN 'promotion' THEN v_subscription_type := 'promotions';
+  END CASE;
+
+  -- Calcular cuota total y usada
+  RETURN QUERY
+  SELECT 
+    COALESCE(SUM(su.max_quota_sus), 0)::INTEGER as total_quota,
+    COALESCE(SUM(su.used_count_sus), 0)::INTEGER as total_used,
+    (COALESCE(SUM(su.max_quota_sus), 0) - COALESCE(SUM(su.used_count_sus), 0))::INTEGER as available
+  FROM public.subscription_usage su
+  JOIN public.profile_subscriptions ps ON ps.id_psub = su.profile_subscription_id_sus
+  JOIN public.subscription s ON s.type_sub = v_subscription_type
+  WHERE su.profile_id_sus = p_profile_id
+    AND su.resource_type_sus = p_resource_type
+    AND ps.status_psub = 'approved'
+    AND (
+      (p_resource_type IN ('product', 'photo_business', 'promotion') AND su.business_id_sus = p_entity_id) OR
+      (p_resource_type = 'photo_attraction' AND su.attraction_id_sus = p_entity_id) OR
+      (p_resource_type = 'photo_event' AND su.event_id_sus = p_entity_id)
+    );
+END;
+$$;
+
+COMMENT ON FUNCTION public.get_available_quota IS 
+'Retorna la cuota total, usada y disponible para un tipo de recurso y entidad específica';
+
+
 -- ============================================================
 -- 5) REVIEWS
 -- ============================================================

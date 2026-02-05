@@ -271,3 +271,22 @@ export {
   isContactInteraction,
   getInteractionLabel,
 } from './interaction';
+
+// ============================================
+// Subscription Usage
+// ============================================
+export type {
+  SubscriptionUsage,
+  SubscriptionUsageInsert,
+  SubscriptionUsageUpdate,
+  QuotaInfo,
+  ResourceLimits,
+} from './subscription';
+
+export {
+  DEFAULT_RESOURCE_LIMITS,
+  RESOURCE_TO_SUBSCRIPTION,
+  getAvailableQuota,
+  canAddResource,
+  getQuotaMessage,
+} from './subscription';

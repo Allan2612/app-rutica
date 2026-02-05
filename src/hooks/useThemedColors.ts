@@ -37,12 +37,16 @@ export function useThemedColors() {
 
       // Colores de marca (permanecen iguales)
       primary: colors.primary,
-      
-      // Colores semánticos
+
+      // Colores semánticos (escalas completas)
       success: colors.success,
       warning: colors.warning,
       error: colors.error,
       info: colors.info,
+
+      // Compatibilidad con valores simples
+      danger: colors.danger,
+      alert: colors.alert,
 
       // Colores de estado
       status: colors.status,

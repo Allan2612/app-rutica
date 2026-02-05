@@ -106,3 +106,14 @@ export type SubscriptionStatus =
   | 'approved'   // Aprobada por admin
   | 'rejected'   // Rechazada por admin
   | 'cancelled'; // Cancelada por usuario
+
+/**
+ * Tipo de recurso consumible por suscripción
+ * DB: public.resource_type
+ */
+export type ResourceType =
+  | 'product'           // Productos de negocio
+  | 'photo_business'    // Fotos de galería de negocio
+  | 'photo_attraction'  // Fotos de galería de atracción
+  | 'photo_event'       // Fotos de galería de evento
+  | 'promotion';        // Promociones
