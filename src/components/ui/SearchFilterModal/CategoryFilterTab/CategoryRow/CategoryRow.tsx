@@ -45,24 +45,26 @@ export const CategoryRow = memo(function CategoryRow({
                     // @ts-ignore
                     className={Platform.OS === 'web' ? 'category-scroll' : undefined}
                 >
-                {categories.map((category) => {
-                    const isSelected = selectedIds.includes(category.id);
-                    const isActive = activeId === category.id;
+                {categories.map((cat) => {
+                    const isSelected = selectedIds.includes(cat.id);
+                    const isActive = activeId === cat.id;
 
                     return (
                         <CategoryChip
-                            key={category.id}
-                            name={category.name}
+                            key={cat.id}
+                            categoryId={cat.id}
+                            name={cat.name}
+                            parentId={cat.parentId}
                             isSelected={isSelected}
                             isActive={isActive}
                             onPress={() => {
                                 // Click simple: selecciona Y navega
-                                onToggleSelection(category.id);
-                                onSelect(category.id);
+                                onToggleSelection(cat.id);
+                                onSelect(cat.id);
                             }}
                             onLongPress={() => {
                                 // Long press: solo navega sin seleccionar
-                                onSelect(category.id);
+                                onSelect(cat.id);
                             }}
                         />
                     );

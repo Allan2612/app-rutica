@@ -2,13 +2,13 @@ import { memo, useMemo } from 'react';
 import { View } from 'react-native';
 import { useCategories } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks';
+import { CategorySection } from '@/components/manage';
 import type { PromotionScope, DiscountType } from '@/types/enums';
 import type { PromotionWizardFormData, PromotionWizardErrors } from '@/types/entities';
 import { ScopeSelection } from './ScopeSelection';
 import { DiscountTypeSelector } from './DiscountTypeSelector';
 import { DiscountValueInput } from './DiscountValueInput';
 import { ProductSelection } from './ProductSelection';
-import { CategorySelection } from './CategorySelection';
 import { ComboSelection } from './ComboSelection';
 import { styles } from './styles';
 
@@ -37,13 +37,30 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
   const { data: allCategories = [], isLoading: loadingCategories } = useCategories();
 
   // Get categories that exist in the business's products
+  // Include parent categories if a product has a subcategory
   const productCategories = useMemo(() => {
     const categoryIds = new Set<string>();
-    products.forEach((product: { id: string; name: string; price?: number; categoryIds?: string[] }) => {
-      if (product.categoryIds) {
-        product.categoryIds.forEach((catId: string) => categoryIds.add(catId));
+    
+    products.forEach((product) => {
+      if (product.categoryIds && Array.isArray(product.categoryIds)) {
+        product.categoryIds.forEach((catId) => {
+          categoryIds.add(catId);
+          
+          // Also add all parent categories up to the root
+          const category = allCategories.find(c => c.id === catId);
+          if (category) {
+            let currentCat = category;
+            while (currentCat.parentId) {
+              categoryIds.add(currentCat.parentId);
+              const parentCat = allCategories.find(c => c.id === currentCat.parentId);
+              if (!parentCat) break;
+              currentCat = parentCat;
+            }
+          }
+        });
       }
     });
+    
     return allCategories.filter((cat) => categoryIds.has(cat.id));
   }, [products, allCategories]);
 
@@ -103,11 +120,11 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
 
         {/* Category Selection (only if scope is CATEGORY) */}
         {formData.scope === 'categories' && (
-          <CategorySelection
+          <CategorySection
             categories={productCategories}
-            selectedCategoryIds={formData.scopeCategoryIds}
+            selectedIds={formData.scopeCategoryIds}
             isLoading={loadingCategories || loadingProducts}
-            onToggleCategory={onToggleScopeCategory}
+            onSelectionChange={(ids: string[]) => onFieldChange('scopeCategoryIds', ids)}
             error={errors.scopeCategoryIds}
           />
         )}

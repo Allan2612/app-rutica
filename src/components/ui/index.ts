@@ -2,7 +2,9 @@ export * from './AccessibleModal';
 export * from './BackButton';
 export * from './StatusBadge';
 export * from './PromoBadge';
-export * from './CategoryChips';
+export * from './CategoryChip';
+export * from './CategoryChipsContainer';
+export * from './CategoryChips'; // @deprecated - usar CategoryChip y CategoryChipsContainer
 export * from '../events/DescriptionSection';
 // LocationPicker y MapBackground movidos a @/components/maps
 export * from '@/components/maps';

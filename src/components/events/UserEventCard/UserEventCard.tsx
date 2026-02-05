@@ -3,7 +3,7 @@ import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
 import { Edit2, MapPin, CalendarDays, Trash2 } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
-import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { formatDate, formatPrice, DATE_FORMAT_OPTIONS } from '@/utils';
 import { styles } from './styles';
 
@@ -86,20 +86,14 @@ export const UserEventCard = memo(function UserEventCard({
                             {/* Categorías */}
                             {categoryNames.length > 0 && (
                                 <View style={styles.categoriesRow}>
-                                    {categoryNames.slice(0, 3).map((cat, idx) => {
-                                        const categoryId = categoryIds[idx];
-                                        const colorScheme = getCategoryColorScheme(categoryId);
-                                        return (
-                                            <View
-                                                key={`${cat}-${idx}`}
-                                                style={[styles.categoryChip, { backgroundColor: colorScheme.backgroundColor }]}
-                                            >
-                                                <Text style={[styles.categoryText, { color: colorScheme.textColor }]}>
-                                                    {cat}
-                                                </Text>
-                                            </View>
-                                        );
-                                    })}
+                                    {categoryNames.slice(0, 3).map((cat, idx) => (
+                                        <CategoryChip
+                                            key={categoryIds[idx] || idx}
+                                            categoryId={categoryIds[idx]}
+                                            categoryName={cat}
+                                            variant="small"
+                                        />
+                                    ))}
                                     {categoryNames.length > 3 && (
                                         <View
                                             style={[

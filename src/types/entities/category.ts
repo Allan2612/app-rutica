@@ -17,7 +17,6 @@ export interface Category {
   name_cat: string;
   created_at_cat: string;
   parent_id_cat: string | null;
-  icon_cat: string | null;
   sort_order_cat: number;
   is_active_cat: boolean;
 }

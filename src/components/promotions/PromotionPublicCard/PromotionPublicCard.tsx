@@ -10,7 +10,7 @@ import { Image } from 'expo-image';
 import { Tag, Store, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
-import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { getPromotionBadgeLabel, formatDate } from '@/utils';
 import { PromoBadge } from '@/components/ui';
 import type { PromotionListItem } from '@/types/entities';
@@ -119,24 +119,14 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                         </Text>
                         {promotion.categoryNames.length > 0 && (
                             <>
-                                {promotion.categoryNames.slice(0, 1).map((catName, index) => {
-                                    const categoryColor = getCategoryColorScheme(`cat-${index}`);
-                                    return (
-                                        <View
-                                            key={index}
-                                            style={[
-                                                styles.categoryChip,
-                                                { backgroundColor: categoryColor.backgroundColor },
-                                            ]}
-                                        >
-                                            <Text
-                                                style={[styles.categoryText, { color: categoryColor.textColor }]}
-                                            >
-                                                {catName}
-                                            </Text>
-                                        </View>
-                                    );
-                                })}
+                                {promotion.categoryNames.slice(0, 1).map((catName, index) => (
+                                    <CategoryChip
+                                        key={promotion.scopeCategoryIds?.[index] || index}
+                                        categoryId={promotion.scopeCategoryIds?.[index] || ''}
+                                        categoryName={catName}
+                                        variant="small"
+                                    />
+                                ))}
                                 {promotion.categoryNames.length > 1 && (
                                     <View
                                         style={[

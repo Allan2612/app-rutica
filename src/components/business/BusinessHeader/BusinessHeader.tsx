@@ -3,6 +3,7 @@ import { View, Text, Image, Pressable, Platform, Linking } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { styles } from './styles';
 
 interface BusinessHeaderProps {
@@ -54,22 +55,14 @@ export const BusinessHeader = memo(({ name, description, categoryNames, category
                 {/* Categorías */}
                 {categoryNames.length > 0 && (
                     <View style={styles.categoriesRow}>
-                        {categoryNames.map((catName, index) => {
-                            const categoryColor = getCategoryColorScheme(categoryIds[index]);
-                            return (
-                                <View
-                                    key={index}
-                                    style={[
-                                        styles.categoryChip,
-                                        { backgroundColor: categoryColor.backgroundColor },
-                                    ]}
-                                >
-                                    <Text style={[styles.categoryText, { color: categoryColor.textColor }]}>
-                                        {catName}
-                                    </Text>
-                                </View>
-                            );
-                        })}
+                        {categoryNames.map((catName, index) => (
+                            <CategoryChip
+                                key={categoryIds[index] || index}
+                                categoryId={categoryIds[index]}
+                                categoryName={catName}
+                                variant="small"
+                            />
+                        ))}
                     </View>
                 )}
 

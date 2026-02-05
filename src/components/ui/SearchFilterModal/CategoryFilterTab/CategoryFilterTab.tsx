@@ -86,12 +86,43 @@ export const CategoryFilterTab = memo(function CategoryFilterTab({
     const handleToggleSelection = useCallback(
         (id: string) => {
             if (selectedIds.includes(id)) {
-                onChange(selectedIds.filter((catId) => catId !== id));
+                // Remover categoría y sus hijas si está includeSubcategories
+                if (includeSubcategories) {
+                    const toRemove = new Set([id]);
+                    // Buscar recursivamente todas las subcategorías
+                    const findChildren = (parentId: string) => {
+                        const children = childrenByParentId.get(parentId) || [];
+                        children.forEach((child) => {
+                            toRemove.add(child.id);
+                            findChildren(child.id);
+                        });
+                    };
+                    findChildren(id);
+                    onChange(selectedIds.filter((catId) => !toRemove.has(catId)));
+                } else {
+                    onChange(selectedIds.filter((catId) => catId !== id));
+                }
             } else {
-                onChange([...selectedIds, id]);
+                // Agregar categoría y sus hijas si está includeSubcategories
+                if (includeSubcategories) {
+                    const toAdd = new Set([id]);
+                    // Buscar recursivamente todas las subcategorías
+                    const findChildren = (parentId: string) => {
+                        const children = childrenByParentId.get(parentId) || [];
+                        children.forEach((child) => {
+                            toAdd.add(child.id);
+                            findChildren(child.id);
+                        });
+                    };
+                    findChildren(id);
+                    const newIds = [...new Set([...selectedIds, ...Array.from(toAdd)])];
+                    onChange(newIds);
+                } else {
+                    onChange([...selectedIds, id]);
+                }
             }
         },
-        [selectedIds, onChange]
+        [selectedIds, onChange, includeSubcategories, childrenByParentId]
     );
 
     // Remover una categoría

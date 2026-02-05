@@ -124,8 +124,17 @@ create table public.categories (
   id_cat uuid not null default gen_random_uuid(),
   name_cat character varying unique,
   created_at_cat timestamp with time zone default now(),
-  constraint categories_pkey primary key (id_cat)
+  parent_id_cat uuid,
+  sort_order_cat integer default 0,
+  is_active_cat boolean default true,
+  constraint categories_pkey primary key (id_cat),
+  constraint categories_parent_id_fkey foreign key (parent_id_cat) 
+    references public.categories(id_cat) on delete set null
 );
+
+-- Índices para categorías
+create index idx_categories_parent_id on public.categories(parent_id_cat);
+create index idx_categories_is_active on public.categories(is_active_cat);
 
 -- ============================================================
 -- 2) LOCATIONS V3 (normalizado)
@@ -2891,7 +2900,6 @@ create policy "promotions_images_storage_delete_owner"
       or public.is_admin()
     )
   );
-
 -- ============================================================
 -- FIN DEL SCRIPT
 -- ============================================================

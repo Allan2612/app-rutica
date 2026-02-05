@@ -3,6 +3,7 @@ export * from './GuestCTA';
 export * from './GenericFormView';
 export * from './BasicInfoSection';
 export * from './CategorySection';
+export * from './CategorySelectionModal';
 export * from './ImageSection';
 export * from './LocationSection';
 export * from './ContactSection';
