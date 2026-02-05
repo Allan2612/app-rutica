@@ -21,12 +21,17 @@ export const BusinessSelector = memo(function BusinessSelector({
     return (
         <View style={styles.container}>
             <Text style={[styles.label, { color: colors.text.secondary }]}>
-                Empresa:
+                Empresa
             </Text>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 10, paddingRight: 16 }}
+                contentContainerStyle={{
+                    gap: 10,
+                    paddingHorizontal: 16,
+                    flexGrow: 1,
+                    justifyContent: 'center',
+                }}
             >
                 {/* Opción "Todas" */}
                 <Pressable

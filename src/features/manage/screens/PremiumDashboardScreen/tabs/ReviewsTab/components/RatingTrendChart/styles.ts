@@ -19,12 +19,12 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.md,
-        marginBottom: spacing.lg,
+        marginBottom: spacing.sm,
     },
-    chartIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
+    iconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -35,14 +35,52 @@ export const styles = StyleSheet.create({
     },
     chartSubtitle: {
         fontSize: typography.sizes.sm,
-        marginBottom: spacing.xl,
+        marginBottom: spacing.lg,
         lineHeight: 20,
         opacity: 0.8,
     },
-    chartContainer: {
+    daysContainer: {
+        gap: spacing.md,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.xs,
+    },
+    dayCard: {
+        width: 100,
+        padding: spacing.md,
+        borderRadius: 12,
+        borderWidth: 1.5,
         alignItems: 'center',
-        paddingTop: spacing.md,
-        paddingBottom: spacing.sm,
-        overflow: 'hidden',
+        gap: spacing.xs,
+    },
+    dayIconBadge: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.xs,
+    },
+    dayValue: {
+        fontSize: typography.sizes['2xl'],
+        fontWeight: typography.fontWeights.bold,
+    },
+    dayCount: {
+        fontSize: 10,
+        fontWeight: typography.fontWeights.medium,
+    },
+    timeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2,
+    },
+    timeLabel: {
+        fontSize: 10,
+        fontWeight: typography.fontWeights.medium,
+    },
+    dayLabel: {
+        fontSize: typography.sizes.xs,
+        textAlign: 'center',
+        fontWeight: typography.fontWeights.medium,
     },
 });

@@ -20,6 +20,8 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
     setFavoritesPeriod,
     reviewPeriod,
     setReviewPeriod,
+    reviewType,
+    setReviewType,
     selectedBusinessId,
     setSelectedBusinessId,
     selectedFavoritesBusinessId,
@@ -149,6 +151,8 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
                 onSelectBusiness={setSelectedReviewBusinessId}
                 period={reviewPeriod}
                 onPeriodChange={setReviewPeriod}
+                reviewType={reviewType}
+                onReviewTypeChange={setReviewType}
                 reviewStats={reviewStats}
                 reviewPieData={reviewPieData}
               />

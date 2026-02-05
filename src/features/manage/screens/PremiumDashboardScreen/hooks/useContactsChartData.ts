@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { CONTACT_COLORS } from '@/styles/premium-section-styles';
 import type { ContactType } from '@/services/contactClicks.service';
 import type {
@@ -17,6 +19,7 @@ interface ClicksByTypeItem {
 interface DailyTrendItem {
     label: string;
     count: number;
+    date?: string;
 }
 
 interface ContactStats {
@@ -54,8 +57,8 @@ export function useContactsChartData(
 
                 if (!monthlyData[monthKey]) {
                     const monthOrder = {
-                        'Nov': 1, 'Dic': 2, 'Ene': 3, 'Feb': 4, 'Mar': 5, 'Abr': 6,
-                        'May': 7, 'Jun': 8, 'Jul': 9, 'Ago': 10, 'Sep': 11, 'Oct': 12
+                        'Noviembre': 1, 'Diciembre': 2, 'Enero': 3, 'Febrero': 4, 'Marzo': 5, 'Abril': 6,
+                        'Mayo': 7, 'Junio': 8, 'Julio': 9, 'Agosto': 10, 'Septiembre': 11, 'Octubre': 12
                     };
                     monthlyData[monthKey] = {
                         count: 0,
@@ -75,22 +78,25 @@ export function useContactsChartData(
                 }));
         }
 
-        const total = contactStats.dailyTrend.length;
+        // Para períodos menores a 90 días, formatear siempre con mes completo
+        return contactStats.dailyTrend.map((day) => {
+            let formattedLabel = day.label;
 
-        const showLabelAt = (index: number) => {
-            if (index === 0) return true;
-            if (index === total - 1) return true;
-            if (contactPeriod === 7) return true;
-            if (contactPeriod === 15) return index % 3 === 0;
-            if (contactPeriod === 30) return index % 5 === 0;
-            return false;
-        };
+            // Si existe el campo date, formatear con mes completo
+            if (day.date) {
+                try {
+                    formattedLabel = format(new Date(day.date), 'd MMMM', { locale: es });
+                } catch {
+                    formattedLabel = day.label;
+                }
+            }
 
-        return contactStats.dailyTrend.map((day, index) => ({
-            value: day.count,
-            label: showLabelAt(index) ? day.label : '',
-            dataPointText: '',
-        }));
+            return {
+                value: day.count,
+                label: formattedLabel,
+                dataPointText: '',
+            };
+        });
     }, [contactStats?.dailyTrend, contactPeriod]);
 
     const contactPieData = useMemo((): PieChartDataItem[] => {

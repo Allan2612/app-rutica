@@ -242,11 +242,22 @@ export async function getUserReviewDashboardStats(
 
   const products = (productsData as unknown as ProductQueryResult[]) ?? [];
 
-  // 4. Obtener reseñas de productos recientes
-  const productIds = products.map((p) => p.id_prd);
+  // 4. Obtener TODAS las reseñas de productos de los negocios del usuario
+  // Primero obtener todos los IDs de productos de los negocios
+  const { data: allProductsData, error: allProductsError } = await supabase
+    .from('products')
+    .select('id_prd')
+    .in('business_id_prd', businessIds)
+    .eq('is_active_prd', true);
+
+  if (allProductsError) {
+    console.error('[reviewStats] Error fetching all product IDs:', allProductsError);
+  }
+
+  const allProductIds = (allProductsData as unknown as { id_prd: string }[])?.map(p => p.id_prd) ?? [];
   let productReviews: ProductReviewQueryResult[] = [];
 
-  if (productIds.length > 0) {
+  if (allProductIds.length > 0) {
     const { data: productReviewsData, error: productReviewsError } = await supabase
       .from('product_reviews')
       .select(`
@@ -263,9 +274,8 @@ export async function getUserReviewDashboardStats(
           name_prd
         )
       `)
-      .in('product_id_prv', productIds)
-      .order('created_at_prv', { ascending: false })
-      .limit(20);
+      .in('product_id_prv', allProductIds)
+      .order('created_at_prv', { ascending: false });
 
     if (productReviewsError) {
       console.error('[reviewStats] Error fetching product reviews:', productReviewsError);
@@ -310,7 +320,7 @@ export async function getUserReviewDashboardStats(
 
   // 7. Reseñas recientes combinadas
   const recentReviews: RecentReview[] = [
-    ...businessReviews.slice(0, 5).map((r) => {
+    ...businessReviews.slice(0, 15).map((r) => {
       const business = businesses.find((b) => b.id_bus === r.business_id_brv);
       const profile = r.profiles;
       const firstName = profile?.first_name_prf ?? '';
@@ -327,7 +337,7 @@ export async function getUserReviewDashboardStats(
         createdAt: r.created_at_brv,
       };
     }),
-    ...productReviews.slice(0, 5).map((r) => {
+    ...productReviews.slice(0, 15).map((r) => {
       const profile = r.profiles;
       const firstName = profile?.first_name_prf ?? '';
       const lastName = profile?.last_name1_prf ?? '';
@@ -345,7 +355,7 @@ export async function getUserReviewDashboardStats(
     }),
   ]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 10);
+    .slice(0, 30);
 
   // 8. Calcular tendencia de ratings (últimos 30 días)
   const ratingTrend = calculateRatingTrend(businessReviews, productReviews, days);
@@ -396,18 +406,35 @@ function calculateRatingTrend(
     })),
   ];
 
+  // Crear mapa de conteo por día y hora para encontrar el pico
+  const countByDayAndHour = new Map<string, Map<number, number>>();
+
+  allReviews.forEach((review) => {
+    const reviewDate = new Date(review.date);
+    const dateKey = format(reviewDate, 'yyyy-MM-dd');
+    const hour = reviewDate.getHours();
+
+    // Contar por día y hora
+    if (!countByDayAndHour.has(dateKey)) {
+      countByDayAndHour.set(dateKey, new Map());
+    }
+    const hourMap = countByDayAndHour.get(dateKey)!;
+    const hourCount = hourMap.get(hour) || 0;
+    hourMap.set(hour, hourCount + 1);
+  });
+
   // Para 90 días, agrupar por mes
   if (days === 90) {
     const monthlyData: { [key: string]: { total: number; count: number; order: number } } = {};
     const monthOrder: { [key: string]: number } = {
-      'Ene': 1, 'Feb': 2, 'Mar': 3, 'Abr': 4, 'May': 5, 'Jun': 6,
-      'Jul': 7, 'Ago': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dic': 12
+      'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6,
+      'julio': 7, 'agosto': 8, 'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
     };
 
     for (let i = days - 1; i >= 0; i--) {
       const date = subDays(today, i);
       const dateKey = format(date, 'yyyy-MM-dd');
-      const monthLabel = format(date, 'MMM', { locale: es });
+      const monthLabel = format(date, 'MMMM', { locale: es });
       const capitalizedMonth = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
       if (!monthlyData[capitalizedMonth]) {
@@ -466,11 +493,31 @@ function calculateRatingTrend(
       label = format(date, 'd', { locale: es }); // Solo el número del día
     }
 
+    const count = dayData?.count ?? 0;
+
+    // Si hay actividad, encontrar la hora con más reseñas
+    if (count > 0 && countByDayAndHour.has(dateKey)) {
+      const hourMap = countByDayAndHour.get(dateKey)!;
+      let maxHour = 0;
+      let maxHourCount = 0;
+
+      hourMap.forEach((hourCount, hour) => {
+        if (hourCount > maxHourCount) {
+          maxHourCount = hourCount;
+          maxHour = hour;
+        }
+      });
+
+      // Formato: "DD - HH:00" o "Día - HH:00"
+      const hourStr = maxHour.toString().padStart(2, '0');
+      label = `${label} - ${hourStr}:00`;
+    }
+
     trend.push({
       date: dateKey,
       label,
       averageRating: dayData ? Math.round((dayData.total / dayData.count) * 10) / 10 : 0,
-      count: dayData?.count ?? 0,
+      count,
     });
   }
 

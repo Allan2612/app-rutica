@@ -21,10 +21,10 @@ export const styles = StyleSheet.create({
         gap: spacing.md,
         marginBottom: spacing.lg,
     },
-    chartIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
+    iconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -38,10 +38,44 @@ export const styles = StyleSheet.create({
         lineHeight: 20,
         opacity: 0.8,
     },
-    chartContainer: {
+    daysContainer: {
+        gap: spacing.md,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.xs,
+    },
+    dayCard: {
+        width: 90,
+        padding: spacing.md,
+        borderRadius: 12,
+        borderWidth: 1.5,
         alignItems: 'center',
-        paddingTop: spacing.md,
-        paddingBottom: spacing.sm,
-        overflow: 'hidden',
+        gap: spacing.xs,
+    },
+    dayIconBadge: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.xs,
+    },
+    dayValue: {
+        fontSize: typography.sizes.xl,
+        fontWeight: typography.fontWeights.bold,
+    },
+    timeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2,
+    },
+    timeLabel: {
+        fontSize: 10,
+        fontWeight: typography.fontWeights.medium,
+    },
+    dayLabel: {
+        fontSize: typography.sizes.xs,
+        textAlign: 'center',
+        fontWeight: typography.fontWeights.medium,
     },
 });

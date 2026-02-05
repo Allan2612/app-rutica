@@ -174,7 +174,7 @@ export async function getUserBusinessesFavoriteStats(
 // ============================================
 
 /**
- * Calcula la tendencia diaria de favoritos
+ * Calcula la tendencia diaria de favoritos con hora de mayor actividad
  * @param likes - Lista de likes
  * @param days - Número de días para el período
  */
@@ -184,25 +184,39 @@ function calculateDailyTrend(likes: LikeQueryResult[], days: number): DailyFavor
 
   // Crear mapa de conteo por día
   const countByDay = new Map<string, number>();
+  // Crear mapa de conteo por día y hora para encontrar el pico
+  const countByDayAndHour = new Map<string, Map<number, number>>();
 
   likes.forEach((like) => {
-    const likeDate = format(new Date(like.created_at_blk), 'yyyy-MM-dd');
-    const currentCount = countByDay.get(likeDate) || 0;
-    countByDay.set(likeDate, currentCount + 1);
+    const likeDate = new Date(like.created_at_blk);
+    const dateKey = format(likeDate, 'yyyy-MM-dd');
+    const hour = likeDate.getHours();
+
+    // Contar por día
+    const currentCount = countByDay.get(dateKey) || 0;
+    countByDay.set(dateKey, currentCount + 1);
+
+    // Contar por día y hora
+    if (!countByDayAndHour.has(dateKey)) {
+      countByDayAndHour.set(dateKey, new Map());
+    }
+    const hourMap = countByDayAndHour.get(dateKey)!;
+    const hourCount = hourMap.get(hour) || 0;
+    hourMap.set(hour, hourCount + 1);
   });
 
   // Para 90 días, agrupar por mes
   if (days === 90) {
     const monthlyData: { [key: string]: { count: number; label: string; order: number } } = {};
     const monthOrder: { [key: string]: number } = {
-      'Ene': 1, 'Feb': 2, 'Mar': 3, 'Abr': 4, 'May': 5, 'Jun': 6,
-      'Jul': 7, 'Ago': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dic': 12
+      'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6,
+      'julio': 7, 'agosto': 8, 'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
     };
 
     for (let i = days - 1; i >= 0; i--) {
       const date = subDays(today, i);
       const dateKey = format(date, 'yyyy-MM-dd');
-      const monthLabel = format(date, 'MMM', { locale: es });
+      const monthLabel = format(date, 'MMMM', { locale: es });
       const capitalizedMonth = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
       if (!monthlyData[capitalizedMonth]) {
@@ -238,10 +252,30 @@ function calculateDailyTrend(likes: LikeQueryResult[], days: number): DailyFavor
       label = format(date, 'd', { locale: es }); // Solo el número del día
     }
 
+    const count = countByDay.get(dateKey) || 0;
+
+    // Si hay actividad, encontrar la hora con más favoritos
+    if (count > 0 && countByDayAndHour.has(dateKey)) {
+      const hourMap = countByDayAndHour.get(dateKey)!;
+      let maxHour = 0;
+      let maxHourCount = 0;
+
+      hourMap.forEach((hourCount, hour) => {
+        if (hourCount > maxHourCount) {
+          maxHourCount = hourCount;
+          maxHour = hour;
+        }
+      });
+
+      // Formato: "DD - HH:00" o "Día - HH:00"
+      const hourStr = maxHour.toString().padStart(2, '0');
+      label = `${label} - ${hourStr}:00`;
+    }
+
     trend.push({
       date: dateKey,
       label,
-      count: countByDay.get(dateKey) || 0,
+      count,
     });
   }
 

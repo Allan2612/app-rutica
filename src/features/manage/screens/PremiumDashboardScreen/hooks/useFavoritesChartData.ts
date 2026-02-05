@@ -59,11 +59,23 @@ export function useFavoritesChartData(stats: FavoritesStats | undefined) {
     const lineChartData = useMemo((): ChartDataItem[] => {
         if (!stats?.dailyTrend) return [];
 
-        return stats.dailyTrend.map((day) => ({
-            value: day.count,
-            label: day.label,
-            dataPointText: day.count > 0 ? String(day.count) : '',
-        }));
+        return stats.dailyTrend.map((day) => {
+            // Formatear label con mes completo si existe la fecha
+            let formattedLabel = day.label;
+            if (day.date) {
+                try {
+                    formattedLabel = format(new Date(day.date), 'd MMMM', { locale: es });
+                } catch {
+                    formattedLabel = day.label;
+                }
+            }
+
+            return {
+                value: day.count,
+                label: formattedLabel,
+                dataPointText: day.count > 0 ? String(day.count) : '',
+            };
+        });
     }, [stats?.dailyTrend]);
 
     const pieChartData = useMemo((): PieChartDataItem[] => {

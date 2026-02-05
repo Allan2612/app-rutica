@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import { BusinessSelector } from '../../components/BusinessSelector';
 import { PeriodFilter } from '../../components/PeriodFilter';
+import { ReviewTypeFilter } from '../../components/ReviewTypeFilter';
 import {
     ReviewsSummaryCards,
     BestRatedHighlight,
@@ -15,6 +16,7 @@ import {
 import type {
     BaseTabProps,
     PeriodType,
+    ReviewType,
     ReviewPieDataItem,
     BusinessOption,
     ReviewStats,
@@ -26,6 +28,8 @@ interface ReviewsTabProps extends BaseTabProps {
     onSelectBusiness: (id: string | null) => void;
     period: PeriodType;
     onPeriodChange: (period: PeriodType) => void;
+    reviewType: ReviewType;
+    onReviewTypeChange: (type: ReviewType) => void;
     reviewStats: ReviewStats | undefined;
     reviewPieData: ReviewPieDataItem[];
 }
@@ -37,10 +41,32 @@ export const ReviewsTab = memo(function ReviewsTab({
     onSelectBusiness,
     period,
     onPeriodChange,
+    reviewType,
+    onReviewTypeChange,
     reviewStats,
     reviewPieData,
 }: ReviewsTabProps) {
     if (!reviewStats) return null;
+
+    // Filtrar datos según el tipo de reseña seleccionado
+    const filteredData = useMemo(() => {
+        // Filtrar reseñas recientes
+        const filteredRecentReviews = reviewType === 'all'
+            ? reviewStats.recentReviews
+            : reviewStats.recentReviews.filter(r => r.type === reviewType);
+
+        // Calcular totales filtrados
+        const filteredTotalBusiness = reviewType === 'product' ? 0 : reviewStats.totalBusinessReviews;
+        const filteredTotalProduct = reviewType === 'business' ? 0 : reviewStats.totalProductReviews;
+        const totalFiltered = filteredTotalBusiness + filteredTotalProduct;
+
+        return {
+            recentReviews: filteredRecentReviews,
+            totalBusinessReviews: filteredTotalBusiness,
+            totalProductReviews: filteredTotalProduct,
+            totalReviews: totalFiltered,
+        };
+    }, [reviewStats, reviewType]);
 
     // Calcular distribución total
     const totalDistribution = useMemo(() => {
@@ -79,8 +105,16 @@ export const ReviewsTab = memo(function ReviewsTab({
                     selectedBusinessId={selectedBusinessId}
                     onSelectBusiness={onSelectBusiness}
                     colors={colors}
+                    showStoreIcon
                 />
             )}
+
+            {/* Review Type Filter */}
+            <ReviewTypeFilter
+                selectedType={reviewType}
+                onSelectType={onReviewTypeChange}
+                colors={colors}
+            />
 
             {/* Period Filter */}
             <PeriodFilter
@@ -92,13 +126,15 @@ export const ReviewsTab = memo(function ReviewsTab({
             {/* Summary Cards */}
             <ReviewsSummaryCards
                 colors={colors}
-                totalBusinessReviews={reviewStats.totalBusinessReviews}
-                totalProductReviews={reviewStats.totalProductReviews}
+                totalBusinessReviews={filteredData.totalBusinessReviews}
+                totalProductReviews={filteredData.totalProductReviews}
                 overallAverageRating={reviewStats.overallAverageRating}
+                reviewType={reviewType}
+                totalDistribution={totalDistribution}
             />
 
             {/* Best Rated Highlight */}
-            {bestRated && selectedBusinessId === null && (
+            {bestRated && selectedBusinessId === null && reviewType !== 'product' && (
                 <BestRatedHighlight
                     colors={colors}
                     bestRated={bestRated}
@@ -109,6 +145,7 @@ export const ReviewsTab = memo(function ReviewsTab({
             <RatingTrendChart
                 colors={colors}
                 ratingTrend={reviewStats.ratingTrend}
+                period={period}
             />
 
             {/* Rating Distribution Chart */}
@@ -126,25 +163,29 @@ export const ReviewsTab = memo(function ReviewsTab({
             />
 
             {/* Businesses Rating List */}
-            <BusinessReviewsList
-                colors={colors}
-                businessesStats={reviewStats.businessesStats}
-            />
+            {reviewType !== 'product' && (
+                <BusinessReviewsList
+                    colors={colors}
+                    businessesStats={reviewStats.businessesStats}
+                />
+            )}
 
             {/* Top Products */}
-            <TopProductsList
-                colors={colors}
-                topProducts={reviewStats.topProducts}
-            />
+            {reviewType !== 'business' && (
+                <TopProductsList
+                    colors={colors}
+                    topProducts={reviewStats.topProducts}
+                />
+            )}
 
             {/* Recent Reviews */}
             <RecentReviewsList
                 colors={colors}
-                recentReviews={reviewStats.recentReviews}
+                recentReviews={filteredData.recentReviews}
             />
 
             {/* Empty State */}
-            {reviewStats.totalBusinessReviews === 0 && reviewStats.totalProductReviews === 0 && (
+            {filteredData.totalReviews === 0 && (
                 <ReviewsEmptyState colors={colors} />
             )}
         </>

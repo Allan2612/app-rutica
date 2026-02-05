@@ -64,4 +64,19 @@ export const styles = StyleSheet.create({
     recentReviewDate: {
         fontSize: typography.sizes.xs,
     },
+    loadMoreButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
+        borderRadius: 12,
+        borderWidth: 1,
+        marginTop: spacing.md,
+    },
+    loadMoreText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
 });

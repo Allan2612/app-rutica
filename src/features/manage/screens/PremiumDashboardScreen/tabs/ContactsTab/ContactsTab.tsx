@@ -35,6 +35,7 @@ interface ContactStats {
         shortLabel: string;
     }>;
     dailyTrend: Array<{ label: string; count: number }>;
+    growthPercentage: number;
 }
 
 interface ContactsTabProps extends BaseTabProps {
@@ -89,7 +90,7 @@ export const ContactsTab = memo(function ContactsTab({
             <ContactsSummaryCards
                 colors={colors}
                 totalClicks={contactStats?.totalClicks ?? 0}
-                topContactType={contactStats?.topContactType}
+                growthPercentage={contactStats?.growthPercentage ?? 0}
                 channelsCount={contactStats?.clicksByType?.length ?? 0}
             />
 

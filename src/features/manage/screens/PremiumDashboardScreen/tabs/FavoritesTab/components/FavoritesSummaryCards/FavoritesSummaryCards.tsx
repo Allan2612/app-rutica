@@ -23,6 +23,7 @@ export const FavoritesSummaryCards = memo(function FavoritesSummaryCards({
         <View style={styles.summaryGrid}>
             {/* Total Favoritos */}
             <View style={[styles.summaryCard, { backgroundColor: colors.background.primary, borderColor: colors.border.light }]}>
+                <Text style={[styles.cardTitle, { color: colors.text.secondary }]}>Total</Text>
                 <View style={[styles.summaryIconContainer, { backgroundColor: '#fee2e2' }]}>
                     <Heart color="#ef4444" size={20} strokeWidth={2} fill="#ef4444" />
                 </View>
@@ -36,6 +37,7 @@ export const FavoritesSummaryCards = memo(function FavoritesSummaryCards({
 
             {/* Día con Mayor Actividad */}
             <View style={[styles.summaryCard, { backgroundColor: colors.background.primary, borderColor: colors.border.light }]}>
+                <Text style={[styles.cardTitle, { color: colors.text.secondary }]}>Más actividad</Text>
                 <View style={[styles.summaryIconContainer, { backgroundColor: '#dbeafe' }]}>
                     <Calendar color="#3b82f6" size={20} strokeWidth={2} />
                 </View>
@@ -58,6 +60,7 @@ export const FavoritesSummaryCards = memo(function FavoritesSummaryCards({
 
             {/* Crecimiento */}
             <View style={[styles.summaryCard, { backgroundColor: colors.background.primary, borderColor: colors.border.light }]}>
+                <Text style={[styles.cardTitle, { color: colors.text.secondary }]}>Crecimiento</Text>
                 <View style={[styles.summaryIconContainer, { backgroundColor: isPositiveGrowth ? '#d1fae5' : '#fee2e2' }]}>
                     {isPositiveGrowth ? (
                         <TrendingUp color="#10b981" size={20} strokeWidth={2} />

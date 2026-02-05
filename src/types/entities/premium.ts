@@ -4,6 +4,8 @@ export type TabType = 'favorites' | 'contacts' | 'reviews';
 
 export type PeriodType = 7 | 15 | 30 | 90;
 
+export type ReviewType = 'all' | 'business' | 'product';
+
 // Tipo para los colores del tema
 export type ThemedColors = ReturnType<typeof import('@/hooks').useThemedColors>;
 
@@ -67,6 +69,13 @@ export interface BusinessSelectorProps {
 export interface PeriodFilterProps {
   selectedPeriod: PeriodType;
   onSelectPeriod: (period: PeriodType) => void;
+  colors: BaseTabProps['colors'];
+}
+
+// Props para ReviewTypeFilter
+export interface ReviewTypeFilterProps {
+  selectedType: ReviewType;
+  onSelectType: (type: ReviewType) => void;
   colors: BaseTabProps['colors'];
 }
 

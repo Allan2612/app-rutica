@@ -18,6 +18,15 @@ export const styles = StyleSheet.create({
         padding: spacing.lg,
         alignItems: 'center',
     },
+    cardTitle: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.semibold,
+        marginBottom: spacing.sm,
+        textAlign: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        alignSelf: 'stretch',
+    },
     summaryIconContainer: {
         width: 48,
         height: 48,

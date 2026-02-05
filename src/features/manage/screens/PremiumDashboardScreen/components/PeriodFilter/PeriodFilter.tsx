@@ -12,7 +12,7 @@ export const PeriodFilter = memo(function PeriodFilter({
     return (
         <View style={styles.container}>
             <Text style={[styles.label, { color: colors.text.secondary }]}>
-                Período:
+                Período
             </Text>
             <View style={styles.buttons}>
                 {PERIOD_OPTIONS.map((period) => (

@@ -5,6 +5,7 @@ export const styles = StyleSheet.create({
     container: {
         width: '100%',
         maxWidth: 600,
+        alignSelf: 'center',
         marginBottom: 16,
         paddingVertical: spacing.md,
         paddingHorizontal: spacing.sm,
@@ -14,11 +15,13 @@ export const styles = StyleSheet.create({
         fontWeight: typography.fontWeights.semibold,
         marginBottom: spacing.md,
         letterSpacing: 0.3,
+        textAlign: 'center',
     },
     buttons: {
         flexDirection: 'row',
         gap: spacing.sm,
         flexWrap: 'wrap',
+        justifyContent: 'center',
     },
     button: {
         paddingVertical: spacing.sm,

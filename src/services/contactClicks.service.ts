@@ -38,6 +38,7 @@ export interface BusinessContactStats {
   clicksByType: ContactClickStats[];
   dailyTrend: DailyContactTrend[];
   topContactType: ContactClickStats | null;
+  growthPercentage: number;
 }
 
 export interface UserBusinessOption {
@@ -48,7 +49,7 @@ export interface UserBusinessOption {
 
 // Mapeo de tipos a labels e iconos
 const CONTACT_TYPE_CONFIG: Record<ContactType, { label: string; shortLabel: string; icon: string }> = {
-  phone: { label: 'Llamadas Realizadas', shortLabel: 'Teléfono', icon: 'Phone' },
+  phone: { label: 'Teléfono', shortLabel: 'Teléfono', icon: 'Phone' },
   email: { label: 'Email', shortLabel: 'Email', icon: 'Mail' },
   website: { label: 'Sitio Web', shortLabel: 'Sitio Web', icon: 'Globe' },
   whatsapp: { label: 'WhatsApp', shortLabel: 'WhatsApp', icon: 'MessageCircle' },
@@ -179,6 +180,7 @@ export async function getUserBusinessesContactStats(
         clicksByType: [],
         dailyTrend: [],
         topContactType: null,
+        growthPercentage: 0,
       };
     }
 
@@ -206,6 +208,7 @@ export async function getUserBusinessesContactStats(
       clicksByType: [],
       dailyTrend: [],
       topContactType: null,
+      growthPercentage: 0,
     };
   }
 
@@ -242,7 +245,10 @@ export async function getUserBusinessesContactStats(
   // 6. Calcular tendencia diaria según el período
   const dailyTrend = calculateDailyContactTrend(clicks, days);
 
-  // 7. Totales
+  // 7. Calcular crecimiento
+  const growthPercentage = calculateContactGrowthPercentage(clicks);
+
+  // 8. Totales
   const totalClicks = clicks.length;
   const topContactType = clicksByType.length > 0 ? clicksByType[0] : null;
 
@@ -251,11 +257,12 @@ export async function getUserBusinessesContactStats(
     clicksByType,
     dailyTrend,
     topContactType,
+    growthPercentage,
   };
 }
 
 /**
- * Calcula la tendencia diaria de clicks según el período
+ * Calcula la tendencia diaria de clicks según el período con hora de mayor actividad
  */
 function calculateDailyContactTrend(
   clicks: { contact_type_bcc: string; created_at_bcc: string }[],
@@ -267,11 +274,25 @@ function calculateDailyContactTrend(
   const today = new Date();
   const trend: DailyContactTrend[] = [];
   const countByDay = new Map<string, number>();
+  // Crear mapa de conteo por día y hora para encontrar el pico
+  const countByDayAndHour = new Map<string, Map<number, number>>();
 
   clicks.forEach((click) => {
-    const clickDate = format(new Date(click.created_at_bcc), 'yyyy-MM-dd');
-    const currentCount = countByDay.get(clickDate) || 0;
-    countByDay.set(clickDate, currentCount + 1);
+    const clickDate = new Date(click.created_at_bcc);
+    const dateKey = format(clickDate, 'yyyy-MM-dd');
+    const hour = clickDate.getHours();
+
+    // Contar por día
+    const currentCount = countByDay.get(dateKey) || 0;
+    countByDay.set(dateKey, currentCount + 1);
+
+    // Contar por día y hora
+    if (!countByDayAndHour.has(dateKey)) {
+      countByDayAndHour.set(dateKey, new Map());
+    }
+    const hourMap = countByDayAndHour.get(dateKey)!;
+    const hourCount = hourMap.get(hour) || 0;
+    hourMap.set(hour, hourCount + 1);
   });
 
   // Determinar el formato de label según el período
@@ -279,7 +300,7 @@ function calculateDailyContactTrend(
     days === 7 ? 'EEE' :        // Lun, Mar, Mié...
       days === 15 ? 'd' :          // 1, 2, 3... (solo número del día)
         days === 30 ? 'd' :          // 1, 2, 3...
-          'MMM';                       // Feb, Mar, Abr...
+          'MMMM';                      // febrero, marzo, abril...
 
   for (let i = days - 1; i >= 0; i--) {
     const date = subDays(today, i);
@@ -289,12 +310,64 @@ function calculateDailyContactTrend(
     // Capitalizar primera letra
     label = label.charAt(0).toUpperCase() + label.slice(1);
 
+    const count = countByDay.get(dateKey) || 0;
+
+    // Si hay actividad, encontrar la hora con más clicks
+    if (count > 0 && countByDayAndHour.has(dateKey)) {
+      const hourMap = countByDayAndHour.get(dateKey)!;
+      let maxHour = 0;
+      let maxHourCount = 0;
+
+      hourMap.forEach((hourCount, hour) => {
+        if (hourCount > maxHourCount) {
+          maxHourCount = hourCount;
+          maxHour = hour;
+        }
+      });
+
+      // Formato: "DD - HH:00" o "Día - HH:00"
+      const hourStr = maxHour.toString().padStart(2, '0');
+      label = `${label} - ${hourStr}:00`;
+    }
+
     trend.push({
       date: dateKey,
       label,
-      count: countByDay.get(dateKey) || 0,
+      count,
     });
   }
 
   return trend;
+}
+
+/**
+ * Calcula el porcentaje de crecimiento comparando última semana vs semana anterior
+ */
+function calculateContactGrowthPercentage(
+  clicks: { contact_type_bcc: string; created_at_bcc: string }[]
+): number {
+  const { subDays, startOfDay, endOfDay } = require('date-fns');
+
+  const today = new Date();
+  const oneWeekAgo = subDays(today, 7);
+  const twoWeeksAgo = subDays(today, 14);
+
+  let thisWeekCount = 0;
+  let lastWeekCount = 0;
+
+  clicks.forEach((click) => {
+    const clickDate = new Date(click.created_at_bcc);
+
+    if (clickDate >= startOfDay(oneWeekAgo) && clickDate <= endOfDay(today)) {
+      thisWeekCount++;
+    } else if (clickDate >= startOfDay(twoWeeksAgo) && clickDate < startOfDay(oneWeekAgo)) {
+      lastWeekCount++;
+    }
+  });
+
+  if (lastWeekCount === 0) {
+    return thisWeekCount > 0 ? 100 : 0;
+  }
+
+  return Math.round(((thisWeekCount - lastWeekCount) / lastWeekCount) * 100);
 }

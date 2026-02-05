@@ -4,7 +4,7 @@ import { useContactClicksStats, useUserBusinessOptions } from '@/hooks/useContac
 import { useReviewDashboardStats } from '@/hooks/useReviewStats';
 import { useFavoritesChartData, useContactsChartData, useReviewsChartData } from '.';
 import type { ContactType } from '@/services/contactClicks.service';
-import type { TabType, PeriodType } from '@/types/entities/premium';
+import type { TabType, PeriodType, ReviewType } from '@/types/entities/premium';
 
 export function usePremiumDashboardData() {
   // Estados de tabs y filtros
@@ -12,6 +12,7 @@ export function usePremiumDashboardData() {
   const [contactPeriod, setContactPeriod] = useState<PeriodType>(30);
   const [favoritesPeriod, setFavoritesPeriod] = useState<PeriodType>(30);
   const [reviewPeriod, setReviewPeriod] = useState<PeriodType>(30);
+  const [reviewType, setReviewType] = useState<ReviewType>('all');
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
   const [selectedFavoritesBusinessId, setSelectedFavoritesBusinessId] = useState<string | null>(null);
   const [selectedReviewBusinessId, setSelectedReviewBusinessId] = useState<string | null>(null);
@@ -54,6 +55,8 @@ export function usePremiumDashboardData() {
     setFavoritesPeriod,
     reviewPeriod,
     setReviewPeriod,
+    reviewType,
+    setReviewType,
     selectedBusinessId,
     setSelectedBusinessId,
     selectedFavoritesBusinessId,

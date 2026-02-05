@@ -72,6 +72,7 @@ export const FavoritesTab = memo(function FavoritesTab({
                     selectedBusinessId={selectedBusinessId}
                     onSelectBusiness={onSelectBusiness}
                     colors={colors}
+                    showStoreIcon
                 />
             )}
 

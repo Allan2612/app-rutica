@@ -20,7 +20,6 @@ export const TopContactHighlight = memo(function TopContactHighlight({
     topContactType,
 }: TopContactHighlightProps) {
     const IconComponent = CONTACT_ICONS[topContactType.contactType];
-    const isTikTok = topContactType.contactType === 'tiktok';
     const iconColor = CONTACT_COLORS[topContactType.contactType];
 
     return (
@@ -31,14 +30,14 @@ export const TopContactHighlight = memo(function TopContactHighlight({
             </View>
             <View style={styles.highlightContent}>
                 <View style={[styles.highlightLogo, { backgroundColor: `${iconColor}20` }]}>
-                    <IconComponent color={isTikTok ? '#ffffff' : iconColor} size={32} strokeWidth={2} />
+                    <IconComponent color="#ffffff" size={32} strokeWidth={2} />
                 </View>
                 <View style={styles.highlightInfo}>
                     <Text style={[styles.highlightName, { color: colors.text.primary }]} numberOfLines={1}>
                         {topContactType.shortLabel}
                     </Text>
                     <View style={styles.highlightStats}>
-                        <MousePointerClick color={iconColor} size={14} strokeWidth={2} />
+                        <MousePointerClick color="#ffffff" size={14} strokeWidth={2} />
                         <Text style={[styles.highlightCount, { color: colors.text.secondary }]}>
                             {topContactType.count} clicks
                         </Text>
