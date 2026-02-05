@@ -1,5 +1,7 @@
 export * from './ManageScreen';
 export * from './ManagePlaceholderScreen';
+export * from './PremiumHubScreen';
+export * from './PremiumDashboardScreen';
 export * from '../../business/screens/ManageBusinessesScreen';
 export * from '@/features/business/screens/AddBusinessScreen';
 export * from '@/features/business/screens/EditBusinessScreen';

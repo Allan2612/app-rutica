@@ -1,0 +1,1 @@
+export { RatingDistributionChart } from './RatingDistributionChart';

@@ -470,6 +470,58 @@ create table public.products (
   constraint products_business_id_prd_fkey foreign key (business_id_prd) references public.businesses(id_bus)
 );
 
+-- =============================================
+-- TABLA: business_contact_clicks
+-- Registra cada click en botones de contacto
+-- =============================================
+
+create table public.business_contact_clicks (
+  id_bcc uuid not null default gen_random_uuid(),
+  business_id_bcc uuid not null,
+  user_id_bcc uuid, -- puede ser null para usuarios no autenticados
+  contact_type_bcc character varying(50) not null, -- 'phone', 'email', 'website', 'whatsapp', 'facebook', 'instagram', 'tiktok', etc.
+  created_at_bcc timestamp with time zone not null default now(),
+  constraint business_contact_clicks_pkey primary key (id_bcc),
+  constraint business_contact_clicks_business_id_fkey foreign key (business_id_bcc) 
+    references public.businesses(id_bus) on delete cascade
+);
+
+-- Índices para consultas eficientes
+create index idx_business_contact_clicks_business on public.business_contact_clicks(business_id_bcc);
+create index idx_business_contact_clicks_created on public.business_contact_clicks(created_at_bcc);
+create index idx_business_contact_clicks_type on public.business_contact_clicks(contact_type_bcc);
+
+-- Habilitar RLS
+alter table public.business_contact_clicks enable row level security;
+
+-- Políticas RLS
+create policy "business_contact_clicks_insert_all"
+  on public.business_contact_clicks for insert
+  to authenticated, anon
+  with check (true);
+
+create policy "business_contact_clicks_select_owner"
+  on public.business_contact_clicks for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.businesses 
+      where id_bus = business_id_bcc 
+      and owner_id_bus = auth.uid()
+    )
+  );
+
+create policy "business_contact_clicks_select_admin"
+  on public.business_contact_clicks for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles 
+      where id_prf = auth.uid() 
+      and role_prf = 'admin'
+    )
+  );
+
 create table public.promotions (
   id_prm uuid not null default gen_random_uuid(),
   business_id_prm uuid,

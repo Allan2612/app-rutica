@@ -1,0 +1,1 @@
+export { FavoritesBarChart } from './FavoritesBarChart';

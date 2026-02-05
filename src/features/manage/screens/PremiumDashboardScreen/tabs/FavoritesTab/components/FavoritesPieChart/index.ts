@@ -1,0 +1,1 @@
+export { FavoritesPieChart } from './FavoritesPieChart';

@@ -1,0 +1,1 @@
+export { TopContactHighlight } from './TopContactHighlight';

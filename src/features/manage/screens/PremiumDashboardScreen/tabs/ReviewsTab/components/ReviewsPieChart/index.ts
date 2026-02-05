@@ -1,0 +1,1 @@
+export { ReviewsPieChart } from './ReviewsPieChart';

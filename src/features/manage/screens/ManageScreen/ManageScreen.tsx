@@ -2,9 +2,10 @@ import { memo, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
-import { CalendarDays, Landmark, Shield, Store, Tag } from 'lucide-react-native';
+import { CalendarDays, Crown, Landmark, Shield, Store, Tag } from 'lucide-react-native';
 import type { UserRole } from '@/types/enums';
 import { useThemedColors } from '@/hooks';
+import { useUserSubscriptionSummary } from '@/hooks/useUserSubscriptions';
 import { useAuthStore } from '@/store';
 import { Screen } from '@/components/layout';
 import { GuestCTA, ManageCard } from '@/components/manage';
@@ -21,14 +22,15 @@ function normalizeRole(value: unknown): UserRole | null {
 }
 
 type ManageAction = {
-  key: 'businesses' | 'promotions' | 'events' | 'attractions' | 'admin';
+  key: 'businesses' | 'promotions' | 'events' | 'attractions' | 'admin' | 'premium';
   title: string;
   description: string;
   href: string;
   roles: readonly UserRole[];
   icon: (color: string) => ReactElement;
-  variant?: 'default' | 'admin';
+  variant?: 'default' | 'admin' | 'premium';
   badgeText?: string;
+  requiresActiveSubscription?: boolean;
 };
 
 export const ManageScreen = memo(function ManageScreen() {
@@ -38,6 +40,9 @@ export const ManageScreen = memo(function ManageScreen() {
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const role = useAuthStore((state) => state.role);
+
+  // Obtener resumen de suscripciones del usuario
+  const { data: subscriptionSummary } = useUserSubscriptionSummary();
 
   const normalizedRole = useMemo(() => normalizeRole(role), [role]);
   const effectiveRole: UserRole = normalizedRole ?? 'buyer';
@@ -88,6 +93,17 @@ export const ManageScreen = memo(function ManageScreen() {
         icon: (color) => <Landmark color={color} size={26} strokeWidth={2} />,
       },
       {
+        key: 'premium',
+        title: 'Mi Premium',
+        description: 'Accede a tus beneficios y herramientas premium.',
+        href: '/(app)/(tabs)/manage/premium',
+        roles: ['seller', 'admin', 'premium'] as const,
+        icon: (color) => <Crown color={color} size={26} strokeWidth={2} />,
+        variant: 'premium',
+        badgeText: 'Premium',
+        requiresActiveSubscription: true,
+      },
+      {
         key: 'admin',
         title: 'Panel de Administración',
         description: 'Herramientas avanzadas y control total.',
@@ -116,6 +132,13 @@ export const ManageScreen = memo(function ManageScreen() {
     if (action.key === 'admin') {
       return effectiveRole === 'admin';
     }
+    // Premium card solo visible si tiene suscripciones activas
+    if (action.key === 'premium') {
+      return (
+        action.roles.includes(effectiveRole) &&
+        subscriptionSummary?.hasActiveSubscriptions
+      );
+    }
     return action.roles.includes(effectiveRole);
   });
 
@@ -141,8 +164,11 @@ export const ManageScreen = memo(function ManageScreen() {
             {visibleActions.map((action, index) => {
               const isLastInRow = (index + 1) % columns === 0;
               const marginRight = columns === 1 || isLastInRow ? 0 : gap;
-              const iconColor =
-                action.variant === 'admin' ? colors.text.primary : colors.primary[600];
+              // Color del icono según variante
+              let iconColor: string = colors.primary[600];
+              if (action.variant === 'admin' || action.variant === 'premium') {
+                iconColor = colors.text.primary;
+              }
 
               return (
                 <View

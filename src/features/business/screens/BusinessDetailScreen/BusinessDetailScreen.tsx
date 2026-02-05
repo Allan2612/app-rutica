@@ -140,6 +140,7 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
 
                         {/* Contact Section with Social Links */}
                         <ContactSection
+                            businessId={business.id}
                             phone={business.contactPhone}
                             email={business.contactEmail}
                             website={business.website}
