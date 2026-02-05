@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
     stepIndicator: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
         paddingVertical: 20,
         paddingHorizontal: 16,
@@ -39,5 +39,6 @@ export const styles = StyleSheet.create({
         height: 2,
         width: 60,
         marginHorizontal: 8,
+        marginTop: 19,
     },
 });

@@ -1,11 +1,13 @@
-import { memo } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
-import { Crown, Check, Sparkles, Clock, XCircle } from 'lucide-react-native';
+import { memo, useState, useMemo } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { Crown } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useSubscriptions } from '@/features/user/hooks/useSubscriptions';
 import { getSubscriptionPlanInfo } from '@/types/entities';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { SubscriptionCard } from './SubscriptionCard';
+import { LoadMoreButton } from './LoadMoreButton';
+import { NoSubscriptionView } from './NoSubscriptionView';
+import { AddMorePlansButton } from './AddMorePlansButton';
 import { styles } from './styles';
 
 interface PremiumSectionProps {
@@ -17,12 +19,14 @@ export const PremiumSection = memo(function PremiumSection({
 }: PremiumSectionProps) {
     const colors = useThemedColors();
     const { approvedSubscriptions, pendingSubscriptions, isPremium, isLoading } = useSubscriptions();
+    const [visibleCount, setVisibleCount] = useState(3);
 
     // Obtener información de todos los planes aprobados
     const approvedPlans = approvedSubscriptions
         .map(sub => ({
             subscription: sub,
             planInfo: sub.subscription?.type_sub ? getSubscriptionPlanInfo(sub.subscription.type_sub) : null,
+            status: 'approved' as const,
         }))
         .filter(item => item.planInfo);
 
@@ -31,8 +35,25 @@ export const PremiumSection = memo(function PremiumSection({
         .map(sub => ({
             subscription: sub,
             planInfo: sub.subscription?.type_sub ? getSubscriptionPlanInfo(sub.subscription.type_sub) : null,
+            status: 'pending' as const,
         }))
         .filter(item => item.planInfo);
+
+    // Combinar todas las suscripciones (aprobadas primero, luego pendientes)
+    const allPlans = useMemo(() => {
+        return [...approvedPlans, ...pendingPlans];
+    }, [approvedSubscriptions, pendingSubscriptions]);
+
+    // Obtener planes visibles según paginación
+    const visiblePlans = useMemo(() => {
+        return allPlans.slice(0, visibleCount);
+    }, [allPlans, visibleCount]);
+
+    const hasMore = allPlans.length > visibleCount;
+
+    const handleLoadMore = () => {
+        setVisibleCount(prev => Math.min(prev + 5, allPlans.length));
+    };
 
     if (isLoading) {
         return (
@@ -86,160 +107,37 @@ export const PremiumSection = memo(function PremiumSection({
 
             <View style={styles.content}>
                 {(isPremium || pendingPlans.length > 0) ? (
-                    // Usuario con suscripciones - mostrar aprobadas y pendientes
                     <>
-                        {/* Suscripciones Aprobadas */}
-                        {approvedPlans.map(({ subscription, planInfo }, index) => (
-                            <View
+                        {visiblePlans.map(({ subscription, planInfo, status }, index) => (
+                            <SubscriptionCard
                                 key={subscription.id_psub}
-                                style={[
-                                    styles.subscriptionCard,
-                                    {
-                                        backgroundColor: colors.background.tertiary,
-                                        marginBottom: 12,
-                                    },
-                                ]}
-                            >
-                                <View style={styles.subscriptionHeader}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text
-                                            style={[styles.subscriptionName, { color: colors.text.primary }]}
-                                        >
-                                            {planInfo?.name}
-                                        </Text>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                                            <Check size={14} color={colors.success} />
-                                            <Text style={[{ color: colors.success, fontSize: 12, marginLeft: 4 }]}>
-                                                Aprobado
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <Text
-                                        style={[styles.subscriptionPrice, { color: colors.primary[500] }]}
-                                    >
-                                        {planInfo?.price}
-                                    </Text>
-                                </View>
-
-                                {index === 0 && (
-                                    <Text style={[styles.subscriptionDate, { color: colors.text.secondary }]}>
-                                        Activo desde:{' '}
-                                        {format(new Date(subscription.approved_at_psub || subscription.subscribed_at_psub), "d 'de' MMMM, yyyy", {
-                                            locale: es,
-                                        })}
-                                    </Text>
-                                )}
-
-                                <View style={styles.featuresList}>
-                                    {planInfo?.features.slice(0, 3).map((feature: string, featureIndex: number) => (
-                                        <View key={featureIndex} style={styles.featureItem}>
-                                            <Check size={14} color={colors.success} />
-                                            <Text
-                                                style={[styles.featureText, { color: colors.text.secondary }]}
-                                            >
-                                                {feature}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
+                                subscription={subscription}
+                                planInfo={planInfo!}
+                                status={status}
+                                isFirst={index === 0}
+                                colors={colors}
+                            />
                         ))}
 
-                        {/* Suscripciones Pendientes */}
-                        {pendingPlans.map(({ subscription, planInfo }) => (
-                            <View
-                                key={subscription.id_psub}
-                                style={[
-                                    styles.subscriptionCard,
-                                    {
-                                        backgroundColor: colors.warning + '10',
-                                        borderWidth: 1,
-                                        borderColor: colors.warning + '40',
-                                        marginBottom: 12,
-                                    },
-                                ]}
-                            >
-                                <View style={styles.subscriptionHeader}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text
-                                            style={[styles.subscriptionName, { color: colors.text.primary }]}
-                                        >
-                                            {planInfo?.name}
-                                        </Text>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                                            <Clock size={14} color={colors.warning} />
-                                            <Text style={[{ color: colors.warning, fontSize: 12, marginLeft: 4 }]}>
-                                                Pendiente de aprobación
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <Text
-                                        style={[styles.subscriptionPrice, { color: colors.text.secondary }]}
-                                    >
-                                        {planInfo?.price}
-                                    </Text>
-                                </View>
-
-                                <Text style={[styles.subscriptionDate, { color: colors.text.secondary }]}>
-                                    Solicitado el:{' '}
-                                    {format(new Date(subscription.subscribed_at_psub), "d 'de' MMMM, yyyy", {
-                                        locale: es,
-                                    })}
-                                </Text>
-                                <Text style={[{ color: colors.text.secondary, fontSize: 13, marginTop: 4 }]}>
-                                    Referencia de pago: {subscription.payment_reference_psub}
-                                </Text>
-                            </View>
-                        ))}
+                        {hasMore && (
+                            <LoadMoreButton
+                                onPress={handleLoadMore}
+                                colors={colors}
+                            />
+                        )}
                     </>
                 ) : (
-                    // Usuario sin suscripción
-                    <View style={styles.noSubscription}>
-                        <Sparkles
-                            size={40}
-                            color={colors.warning}
-                            style={styles.noSubscriptionIcon}
-                        />
-                        <Text
-                            style={[styles.noSubscriptionTitle, { color: colors.text.primary }]}
-                        >
-                            ¡Hazte Premium!
-                        </Text>
-                        <Text
-                            style={[styles.noSubscriptionText, { color: colors.text.secondary }]}
-                        >
-                            Desbloquea funciones exclusivas como galerías extendidas, dashboard
-                            de promociones y mucho más.
-                        </Text>
-                        <Pressable
-                            style={[
-                                styles.subscribeButton,
-                                { backgroundColor: colors.primary[500] },
-                            ]}
-                            onPress={onSubscribePress}
-                        >
-                            <Text style={styles.subscribeButtonText}>Ver Planes Premium</Text>
-                        </Pressable>
-                    </View>
+                    <NoSubscriptionView
+                        onSubscribePress={onSubscribePress}
+                        colors={colors}
+                    />
                 )}
 
-                {/* Botón para adquirir más planes - visible siempre */}
                 {(isPremium || pendingPlans.length > 0) && (
-                    <Pressable
-                        style={[
-                            styles.addMoreButton,
-                            {
-                                backgroundColor: colors.background.primary,
-                                borderColor: colors.primary[500],
-                            },
-                        ]}
+                    <AddMorePlansButton
                         onPress={onSubscribePress}
-                    >
-                        <Crown size={16} color={colors.primary[500]} />
-                        <Text style={[styles.addMoreButtonText, { color: colors.primary[500] }]}>
-                            Adquirir Más Planes
-                        </Text>
-                    </Pressable>
+                        colors={colors}
+                    />
                 )}
             </View>
         </View>

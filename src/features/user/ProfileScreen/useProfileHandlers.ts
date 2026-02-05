@@ -26,8 +26,8 @@ export function useProfileHandlers(setPremiumRefreshKey: (fn: (prev: number) => 
         setPremiumRefreshKey(prev => prev + 1);
         Toast.show({
             type: 'success',
-            text1: '¡Bienvenido a Premium!',
-            text2: `${planNames} será${planCount > 1 ? 'n' : ''} activado${planCount > 1 ? 's' : ''} una vez verificado el pago`,
+            text1: planCount > 1 ? '¡Planes Adquiridos con Éxito!' : '¡Plan Adquirido con Éxito!',
+            text2: `${planNames} ${planCount > 1 ? 'han sido adquiridos' : 'ha sido adquirido'} correctamente. ${planCount > 1 ? 'Serán activados' : 'Será activado'} una vez verificado el pago.`,
             position: 'top',
             visibilityTime: 5000,
             topOffset: 50,

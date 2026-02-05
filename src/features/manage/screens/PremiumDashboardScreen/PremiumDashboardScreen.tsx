@@ -62,6 +62,44 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
     setVisibleContactTypes(newVisible);
   };
 
+  // Normalizar businessOptions: convertir null a undefined
+  const normalizedBusinessOptions = businessOptions?.map(opt => ({
+    ...opt,
+    logoUrl: opt.logoUrl ?? undefined,
+  }));
+
+  // Normalizar stats: convertir null a undefined
+  const normalizedStats = stats ? {
+    ...stats,
+    topBusiness: stats.topBusiness ? {
+      ...stats.topBusiness,
+      logoUrl: stats.topBusiness.logoUrl ?? undefined,
+    } : undefined,
+    businessesStats: stats.businessesStats.map(bs => ({
+      ...bs,
+      logoUrl: bs.logoUrl ?? undefined,
+    })),
+  } : undefined;
+
+  // Normalizar contactStats: convertir null a undefined
+  const normalizedContactStats = contactStats ? {
+    ...contactStats,
+    topContactType: contactStats.topContactType ?? undefined,
+  } : undefined;
+
+  // Normalizar reviewStats: convertir null a undefined
+  const normalizedReviewStats = reviewStats ? {
+    ...reviewStats,
+    businessesStats: reviewStats.businessesStats.map(bs => ({
+      ...bs,
+      logoUrl: bs.logoUrl ?? undefined,
+    })),
+    recentReviews: reviewStats.recentReviews.map(rr => ({
+      ...rr,
+      comment: rr.comment ?? undefined,
+    })),
+  } : undefined;
+
   const showTabs = !isLoadingAll && !!stats && stats.totalBusinesses > 0;
 
   return (
@@ -110,12 +148,12 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
             {activeTab === 'favorites' && (
               <FavoritesTab
                 colors={colors}
-                businessOptions={businessOptions}
+                businessOptions={normalizedBusinessOptions}
                 selectedBusinessId={selectedFavoritesBusinessId}
                 onSelectBusiness={setSelectedFavoritesBusinessId}
                 period={favoritesPeriod}
                 onPeriodChange={setFavoritesPeriod}
-                stats={stats}
+                stats={normalizedStats!}
                 peakDay={peakDay}
                 lineChartData={lineChartData}
                 barChartData={barChartData}
@@ -128,12 +166,12 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
             {activeTab === 'contacts' && (
               <ContactsTab
                 colors={colors}
-                businessOptions={businessOptions}
+                businessOptions={normalizedBusinessOptions}
                 selectedBusinessId={selectedBusinessId}
                 onSelectBusiness={setSelectedBusinessId}
                 period={contactPeriod}
                 onPeriodChange={setContactPeriod}
-                contactStats={contactStats}
+                contactStats={normalizedContactStats}
                 contactLineData={contactLineData}
                 contactBarData={contactBarData}
                 contactPieData={contactPieData}
@@ -146,14 +184,14 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
             {activeTab === 'reviews' && (
               <ReviewsTab
                 colors={colors}
-                businessOptions={businessOptions}
+                businessOptions={normalizedBusinessOptions}
                 selectedBusinessId={selectedReviewBusinessId}
                 onSelectBusiness={setSelectedReviewBusinessId}
                 period={reviewPeriod}
                 onPeriodChange={setReviewPeriod}
                 reviewType={reviewType}
                 onReviewTypeChange={setReviewType}
-                reviewStats={reviewStats}
+                reviewStats={normalizedReviewStats}
                 reviewPieData={reviewPieData}
               />
             )}
