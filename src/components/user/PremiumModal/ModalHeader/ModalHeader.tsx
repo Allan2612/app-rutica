@@ -5,7 +5,7 @@ import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 interface ModalHeaderProps {
-    step: 'plans' | 'business' | 'payment';
+    step: 'plans' | 'business' | 'entity' | 'payment';
     onClose: () => void;
 }
 
@@ -21,6 +21,8 @@ export const ModalHeader = memo(function ModalHeader({
                 return 'Planes Premium';
             case 'business':
                 return 'Seleccionar Negocio';
+            case 'entity':
+                return 'Seleccionar Publicación';
             case 'payment':
                 return 'Confirmar Pago';
             default:

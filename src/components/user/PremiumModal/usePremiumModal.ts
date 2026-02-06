@@ -4,29 +4,60 @@ import { useSubscriptions } from '@/features/user/hooks/useSubscriptions';
 import { SUBSCRIPTION_PLANS } from '@/types/entities';
 import type { SubscriptionType } from '@/types/enums';
 
-type Step = 'plans' | 'business' | 'payment';
+type Step = 'plans' | 'business' | 'entity' | 'payment';
 type PaymentMethod = 'sinpe' | 'transfer';
+type EntityType = 'attraction' | 'event';
 
 // Planes que requieren seleccionar un negocio
 const BUSINESS_REQUIRED_PLANS: SubscriptionType[] = [
     'package_products',
     'gallery_business',
     'promotions',
-    'dashboard',
+    // 'dashboard' no requiere negocio - es una suscripción a nivel de perfil
     'full_premium', // Full premium también requiere negocio para productos
+];
+
+// Planes que requieren seleccionar atracción/evento
+const ENTITY_REQUIRED_PLANS: SubscriptionType[] = [
+    'gallery_attractions',
 ];
 
 interface UsePremiumModalParams {
     onClose: () => void;
     onSuccess?: (planNames: string, planCount: number) => void;
+    onSubscribed?: () => void;
+    initialPlan?: SubscriptionType;
+    preSelectedEntityId?: string;
+    preSelectedEntityType?: EntityType;
 }
 
-export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
+export function usePremiumModal({
+    onClose,
+    onSuccess,
+    onSubscribed,
+    initialPlan,
+    preSelectedEntityId,
+    preSelectedEntityType,
+}: UsePremiumModalParams) {
     const { subscribe, isLoading, approvedSubscriptions, pendingSubscriptions } = useSubscriptions();
 
-    const [step, setStep] = useState<Step>('plans');
-    const [selectedPlans, setSelectedPlans] = useState<SubscriptionType[]>([]);
+    const [step, setStep] = useState<Step>(() => {
+        // Si hay plan inicial con entidad pre-seleccionada, ir directo al pago
+        if (initialPlan && preSelectedEntityId && preSelectedEntityType) {
+            return 'payment';
+        }
+        return 'plans';
+    });
+    const [selectedPlans, setSelectedPlans] = useState<SubscriptionType[]>(() =>
+        initialPlan ? [initialPlan] : []
+    );
     const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
+    const [selectedEntityId, setSelectedEntityId] = useState<string | null>(
+        preSelectedEntityId ?? null
+    );
+    const [selectedEntityType, setSelectedEntityType] = useState<EntityType | null>(
+        preSelectedEntityType ?? null
+    );
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('sinpe');
     const [paymentReference, setPaymentReference] = useState('');
     const [paymentNote, setPaymentNote] = useState('');
@@ -35,6 +66,11 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
     // Verificar si los planes seleccionados requieren un negocio
     const requiresBusinessSelection = selectedPlans.some(plan =>
         BUSINESS_REQUIRED_PLANS.includes(plan)
+    );
+
+    // Verificar si los planes seleccionados requieren una atracción/evento
+    const requiresEntitySelection = selectedPlans.some(plan =>
+        ENTITY_REQUIRED_PLANS.includes(plan)
     );
 
     const handleSelectPlan = useCallback((planType: SubscriptionType) => {
@@ -55,13 +91,21 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
                 return [...current, planType];
             }
         });
-        // Limpiar negocio seleccionado cuando cambian los planes
+        // Limpiar selecciones cuando cambian los planes
         setSelectedBusinessId(null);
+        setSelectedEntityId(null);
+        setSelectedEntityType(null);
         setError(null);
     }, []);
 
     const handleSelectBusiness = useCallback((businessId: string) => {
         setSelectedBusinessId(businessId);
+        setError(null);
+    }, []);
+
+    const handleSelectEntity = useCallback((entityId: string, entityType: EntityType) => {
+        setSelectedEntityId(entityId);
+        setSelectedEntityType(entityType);
         setError(null);
     }, []);
 
@@ -109,6 +153,9 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
             // Si requiere seleccionar negocio, ir al paso de negocio
             if (requiresBusinessSelection) {
                 setStep('business');
+            } else if (requiresEntitySelection) {
+                // Si requiere seleccionar atracción/evento, ir al paso de entity
+                setStep('entity');
             } else {
                 setStep('payment');
             }
@@ -120,19 +167,31 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
             }
             setStep('payment');
             setError(null);
+        } else if (step === 'entity') {
+            if (!selectedEntityId || !selectedEntityType) {
+                setError('Selecciona una atracción o evento para continuar');
+                return;
+            }
+            setStep('payment');
+            setError(null);
         }
-    }, [step, selectedPlans, selectedBusinessId, requiresBusinessSelection, approvedSubscriptions, pendingSubscriptions]);
+    }, [step, selectedPlans, selectedBusinessId, selectedEntityId, selectedEntityType, requiresBusinessSelection, requiresEntitySelection, approvedSubscriptions, pendingSubscriptions]);
 
     const handleBack = useCallback(() => {
         if (step === 'payment') {
-            // Si había paso de negocio, volver a él
+            // Determinar a qué paso volver
             if (requiresBusinessSelection) {
                 setStep('business');
+            } else if (requiresEntitySelection) {
+                setStep('entity');
             } else {
                 setStep('plans');
             }
             setError(null);
         } else if (step === 'business') {
+            setStep('plans');
+            setError(null);
+        } else if (step === 'entity') {
             setStep('plans');
             setError(null);
         } else {
@@ -154,14 +213,22 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
             return;
         }
 
+        // Validar que si se requiere entidad, esté seleccionada
+        if (requiresEntitySelection && (!selectedEntityId || !selectedEntityType)) {
+            setError('Debes seleccionar una atracción o evento');
+            return;
+        }
+
         try {
             setError(null);
-            // Pasar businessId al servicio si aplica
+            // Pasar businessId y entityId/entityType al servicio según aplique
             await subscribe(
                 selectedPlans,
                 paymentReference.trim(),
                 paymentNote.trim() || undefined,
-                selectedBusinessId || undefined
+                selectedBusinessId || undefined,
+                selectedEntityId || undefined,
+                selectedEntityType || undefined
             );
 
             const planNames = SUBSCRIPTION_PLANS
@@ -174,6 +241,8 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
             setStep('plans');
             setSelectedPlans([]);
             setSelectedBusinessId(null);
+            setSelectedEntityId(null);
+            setSelectedEntityType(null);
             setPaymentMethod('sinpe');
             setPaymentReference('');
             setPaymentNote('');
@@ -182,17 +251,20 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
 
             setTimeout(() => {
                 onSuccess?.(planNames, planCount);
+                onSubscribed?.();
             }, 100);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Error al procesar la suscripción';
             setError(message);
         }
-    }, [selectedPlans, selectedBusinessId, requiresBusinessSelection, paymentReference, paymentNote, subscribe, onClose, onSuccess]);
+    }, [selectedPlans, selectedBusinessId, selectedEntityId, selectedEntityType, requiresBusinessSelection, requiresEntitySelection, paymentReference, paymentNote, subscribe, onClose, onSuccess, onSubscribed]);
 
     const handleClose = useCallback(() => {
         setStep('plans');
         setSelectedPlans([]);
         setSelectedBusinessId(null);
+        setSelectedEntityId(null);
+        setSelectedEntityType(null);
         setPaymentMethod('sinpe');
         setPaymentReference('');
         setPaymentNote('');
@@ -204,7 +276,10 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
         step,
         selectedPlans,
         selectedBusinessId,
+        selectedEntityId,
+        selectedEntityType,
         requiresBusinessSelection,
+        requiresEntitySelection,
         paymentMethod,
         paymentReference,
         paymentNote,
@@ -215,6 +290,7 @@ export function usePremiumModal({ onClose, onSuccess }: UsePremiumModalParams) {
         setPaymentNote,
         handleSelectPlan,
         handleSelectBusiness,
+        handleSelectEntity,
         handleContinue,
         handleBack,
         handleSubmit,

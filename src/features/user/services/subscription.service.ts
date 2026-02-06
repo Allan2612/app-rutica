@@ -258,13 +258,17 @@ export async function createSubscription(
  * @param subscriptionTypes - Tipos de suscripción a crear
  * @param paymentReference - Referencia de pago
  * @param paymentNote - Nota opcional del pago
- * @param businessId - ID del negocio al que aplicar (requerido para paquetes de productos/galería)
+ * @param businessId - ID del negocio al que aplicar (requerido para paquetes de productos/galería business)
+ * @param entityId - ID de la atracción/evento al que aplicar (para gallery_attractions)
+ * @param entityType - Tipo de entidad: 'attraction' o 'event'
  */
 export async function createMultipleSubscriptions(
     subscriptionTypes: SubscriptionType[],
     paymentReference: string,
     paymentNote?: string,
-    businessId?: string
+    businessId?: string,
+    entityId?: string,
+    entityType?: 'attraction' | 'event'
 ): Promise<ProfileSubscription[]> {
     const {
         data: { user },
@@ -303,6 +307,11 @@ export async function createMultipleSubscriptions(
     // la suscripción al negocio específico
     if (businessId && createdSubscriptions.length > 0) {
         await createSubscriptionUsageRecords(user.id, createdSubscriptions, validPlans, businessId);
+    }
+
+    // Si hay entityId (atracción/evento), crear registros de usage
+    if (entityId && entityType && createdSubscriptions.length > 0) {
+        await createEntitySubscriptionUsageRecords(user.id, createdSubscriptions, validPlans, entityId, entityType);
     }
 
     return createdSubscriptions;
@@ -388,6 +397,67 @@ async function createSubscriptionUsageRecords(
             console.error('Error creating subscription_usage records:', usageError);
             // No lanzamos error para no bloquear la creación de la suscripción
             // El admin puede crear estos registros manualmente al aprobar
+        }
+    }
+}
+
+/**
+ * Crea registros de subscription_usage para vincular suscripciones a una atracción o evento
+ */
+async function createEntitySubscriptionUsageRecords(
+    userId: string,
+    subscriptions: ProfileSubscription[],
+    plans: Subscription[],
+    entityId: string,
+    entityType: 'attraction' | 'event'
+): Promise<void> {
+    const usageInserts: Array<{
+        profile_subscription_id_sus: string;
+        profile_id_sus: string;
+        resource_type_sus: string;
+        attraction_id_sus?: string;
+        event_id_sus?: string;
+        max_quota_sus: number;
+        used_count_sus: number;
+    }> = [];
+
+    for (let i = 0; i < subscriptions.length; i++) {
+        const subscription = subscriptions[i];
+        const plan = plans[i];
+
+        // Solo procesar gallery_attractions
+        if (plan.type_sub === 'gallery_attractions') {
+            const baseRecord = {
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                max_quota_sus: 10, // 10 fotos de galería
+                used_count_sus: 0,
+            };
+
+            if (entityType === 'attraction') {
+                usageInserts.push({
+                    ...baseRecord,
+                    resource_type_sus: 'photo_attraction',
+                    attraction_id_sus: entityId,
+                });
+            } else if (entityType === 'event') {
+                usageInserts.push({
+                    ...baseRecord,
+                    resource_type_sus: 'photo_event',
+                    event_id_sus: entityId,
+                });
+            }
+        }
+    }
+
+    if (usageInserts.length > 0) {
+        const { error: usageError } = await supabase
+            .from('subscription_usage')
+            .insert(usageInserts as never);
+
+        if (usageError) {
+            console.error('Error creating entity subscription_usage records:', usageError);
+            // No lanzamos error para no bloquear la creación de la suscripción
         }
     }
 }

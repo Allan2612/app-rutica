@@ -6,6 +6,7 @@ import type { UserRole } from '@/types/enums';
 import { StepIndicator } from './StepIndicator';
 import { PlansStep } from './PlansStep';
 import { BusinessStep } from './BusinessStep';
+import { EntityStep } from './EntityStep';
 import { PaymentStep } from './PaymentStep';
 import { ModalHeader } from './ModalHeader';
 import { BuyerNotice } from './BuyerNotice';
@@ -19,7 +20,11 @@ interface PremiumModalProps {
     onClose: () => void;
     onSuccess?: (planNames: string, planCount: number) => void;
     onInfo?: (title: string, message: string) => void;
-    userRole: UserRole | null;
+    onSubscribed?: () => void;
+    userRole?: UserRole | null;
+    initialPlan?: import('@/types/enums').SubscriptionType;
+    preSelectedEntityId?: string;
+    preSelectedEntityType?: 'attraction' | 'event';
 }
 
 // Configuración de pago
@@ -33,7 +38,11 @@ export const PremiumModal = memo(function PremiumModal({
     onClose,
     onSuccess,
     onInfo,
+    onSubscribed,
     userRole,
+    initialPlan,
+    preSelectedEntityId,
+    preSelectedEntityType,
 }: PremiumModalProps) {
     const colors = useThemedColors();
     const isBuyer = userRole === 'buyer';
@@ -42,7 +51,10 @@ export const PremiumModal = memo(function PremiumModal({
         step,
         selectedPlans,
         selectedBusinessId,
+        selectedEntityId,
+        selectedEntityType,
         requiresBusinessSelection,
+        requiresEntitySelection,
         paymentMethod,
         paymentReference,
         paymentNote,
@@ -53,11 +65,19 @@ export const PremiumModal = memo(function PremiumModal({
         setPaymentNote,
         handleSelectPlan,
         handleSelectBusiness,
+        handleSelectEntity,
         handleContinue,
         handleBack,
         handleSubmit,
         handleClose,
-    } = usePremiumModal({ onClose, onSuccess });
+    } = usePremiumModal({
+        onClose,
+        onSuccess,
+        onSubscribed,
+        initialPlan,
+        preSelectedEntityId,
+        preSelectedEntityType,
+    });
 
     // Renderizar el contenido según el paso actual
     const renderStepContent = () => {
@@ -77,6 +97,17 @@ export const PremiumModal = memo(function PremiumModal({
                     selectedPlans={selectedPlans}
                     selectedBusinessId={selectedBusinessId}
                     onSelectBusiness={handleSelectBusiness}
+                />
+            );
+        }
+
+        if (step === 'entity') {
+            return (
+                <EntityStep
+                    selectedPlans={selectedPlans}
+                    selectedEntityId={selectedEntityId}
+                    selectedEntityType={selectedEntityType}
+                    onSelectEntity={handleSelectEntity}
                 />
             );
         }
@@ -127,7 +158,9 @@ export const PremiumModal = memo(function PremiumModal({
                             step={step}
                             selectedPlans={selectedPlans}
                             selectedBusinessId={selectedBusinessId}
+                            selectedEntityId={selectedEntityId}
                             requiresBusinessSelection={requiresBusinessSelection}
+                            requiresEntitySelection={requiresEntitySelection}
                             isLoading={isLoading}
                             onBack={handleBack}
                             onContinue={handleContinue}

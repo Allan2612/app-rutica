@@ -5,10 +5,12 @@ import type { SubscriptionType } from '@/types/enums';
 import { styles } from './styles';
 
 interface ModalFooterProps {
-    step: 'plans' | 'business' | 'payment';
+    step: 'plans' | 'business' | 'entity' | 'payment';
     selectedPlans: SubscriptionType[];
     selectedBusinessId: string | null;
+    selectedEntityId: string | null;
     requiresBusinessSelection: boolean;
+    requiresEntitySelection: boolean;
     isLoading: boolean;
     onBack: () => void;
     onContinue: () => void;
@@ -19,7 +21,9 @@ export const ModalFooter = memo(function ModalFooter({
     step,
     selectedPlans,
     selectedBusinessId,
+    selectedEntityId,
     requiresBusinessSelection,
+    requiresEntitySelection,
     isLoading,
     onBack,
     onContinue,
@@ -30,7 +34,8 @@ export const ModalFooter = memo(function ModalFooter({
     // Determinar si el botón continuar debe estar deshabilitado
     const isContinueDisabled =
         (step === 'plans' && selectedPlans.length === 0) ||
-        (step === 'business' && !selectedBusinessId);
+        (step === 'business' && !selectedBusinessId) ||
+        (step === 'entity' && !selectedEntityId);
 
     // Determinar texto del botón secundario
     const getBackButtonText = () => {
@@ -42,6 +47,7 @@ export const ModalFooter = memo(function ModalFooter({
     const getContinueButtonText = () => {
         if (step === 'plans') return 'Continuar';
         if (step === 'business') return 'Continuar';
+        if (step === 'entity') return 'Continuar';
         return 'Pagar Premium';
     };
 

@@ -1,11 +1,11 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 interface StepIndicatorProps {
-  currentStep: 'plans' | 'business' | 'payment';
+  currentStep: 'plans' | 'business' | 'entity' | 'payment';
 }
 
 export const StepIndicator = memo(function StepIndicator({
@@ -13,8 +13,16 @@ export const StepIndicator = memo(function StepIndicator({
 }: StepIndicatorProps) {
   const colors = useThemedColors();
 
+  // Determinar el label del paso 2 basado en el flujo actual
+  const step2Label = useMemo(() => {
+    if (currentStep === 'entity') return 'Publicación';
+    return 'Negocio';
+  }, [currentStep]);
+
   // Determinar qué pasos están completados
-  const isStep1Completed = currentStep === 'business' || currentStep === 'payment';
+  // Los pasos intermedios son business o entity
+  const isStep1Completed = currentStep === 'business' || currentStep === 'entity' || currentStep === 'payment';
+  const isStep2Active = currentStep === 'business' || currentStep === 'entity';
   const isStep2Completed = currentStep === 'payment';
 
   // Siempre mostrar 3 pasos: Plan → Negocio → Pago
@@ -69,21 +77,21 @@ export const StepIndicator = memo(function StepIndicator({
         ]}
       />
 
-      {/* Paso 2 - Negocio */}
+      {/* Paso 2 - Negocio o Publicación */}
       <View style={styles.stepWrapper}>
         <View
           style={[
             styles.stepCircle,
-            (currentStep === 'business' || isStep2Completed) && styles.stepCircleActive,
+            (isStep2Active || isStep2Completed) && styles.stepCircleActive,
             {
               backgroundColor:
-                currentStep === 'business' || isStep2Completed
+                isStep2Active || isStep2Completed
                   ? colors.primary[500]
                   : colors.isDark
                     ? colors.background.tertiary
                     : colors.background.primary,
               borderColor:
-                currentStep === 'business' || isStep2Completed ? colors.primary[500] : colors.border.medium,
+                isStep2Active || isStep2Completed ? colors.primary[500] : colors.border.medium,
             },
           ]}
         >
@@ -93,7 +101,7 @@ export const StepIndicator = memo(function StepIndicator({
             <Text
               style={[
                 styles.stepNumber,
-                { color: currentStep === 'business' ? '#ffffff' : colors.text.secondary },
+                { color: isStep2Active ? '#ffffff' : colors.text.secondary },
               ]}
             >
               2
@@ -103,10 +111,10 @@ export const StepIndicator = memo(function StepIndicator({
         <Text
           style={[
             styles.stepLabel,
-            { color: currentStep === 'business' || isStep2Completed ? colors.primary[500] : colors.text.tertiary },
+            { color: isStep2Active || isStep2Completed ? colors.primary[500] : colors.text.tertiary },
           ]}
         >
-          Negocio
+          {step2Label}
         </Text>
       </View>
 

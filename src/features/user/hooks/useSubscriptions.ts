@@ -22,7 +22,9 @@ interface UseSubscriptionsReturn {
         subscriptionTypes: SubscriptionType[],
         paymentReference: string,
         paymentNote?: string,
-        businessId?: string
+        businessId?: string,
+        entityId?: string,
+        entityType?: 'attraction' | 'event'
     ) => Promise<ProfileSubscription[]>;
     cancelSubscription: (subscriptionId: string) => Promise<void>;
     refreshSubscriptions: () => Promise<void>;
@@ -83,7 +85,9 @@ export function useSubscriptions(): UseSubscriptionsReturn {
             subscriptionTypes: SubscriptionType[],
             paymentReference: string,
             paymentNote?: string,
-            businessId?: string
+            businessId?: string,
+            entityId?: string,
+            entityType?: 'attraction' | 'event'
         ): Promise<ProfileSubscription[]> => {
             if (!user?.id) {
                 throw new Error('No hay usuario autenticado');
@@ -96,7 +100,9 @@ export function useSubscriptions(): UseSubscriptionsReturn {
                     subscriptionTypes,
                     paymentReference,
                     paymentNote,
-                    businessId
+                    businessId,
+                    entityId,
+                    entityType
                 );
 
                 // Recargar todas las suscripciones después de crear nuevas

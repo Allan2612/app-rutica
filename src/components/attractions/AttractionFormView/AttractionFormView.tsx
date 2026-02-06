@@ -41,6 +41,11 @@ interface AttractionFormViewProps {
     onLocationSelect: (location: any) => void;
     onCancel: () => void;
     onSubmit: () => void;
+    // Props opcionales para cuota de galería premium
+    maxGalleryImages?: number;
+    galleryHelperText?: string;
+    showGalleryPremiumUpsell?: boolean;
+    onGalleryPremiumPress?: () => void;
 }
 
 export const AttractionFormView = memo(function AttractionFormView({
@@ -57,6 +62,10 @@ export const AttractionFormView = memo(function AttractionFormView({
     onLocationSelect,
     onCancel,
     onSubmit,
+    maxGalleryImages = 3,
+    galleryHelperText,
+    showGalleryPremiumUpsell = false,
+    onGalleryPremiumPress,
 }: AttractionFormViewProps) {
     return (
         <GenericFormView
@@ -102,7 +111,10 @@ export const AttractionFormView = memo(function AttractionFormView({
                 showLogo={false}
                 sectionTitle="Imágenes de la Atracción"
                 coverHelperText="Esta imagen se mostrará como principal de la atracción"
-                galleryHelperText="Agrega hasta 3 imágenes adicionales de la atracción"
+                galleryHelperText={galleryHelperText || `Agrega hasta ${maxGalleryImages} imágenes adicionales de la atracción`}
+                maxGalleryImages={maxGalleryImages}
+                showPremiumUpsell={showGalleryPremiumUpsell}
+                onPremiumPress={onGalleryPremiumPress}
             />
         </GenericFormView>
     );
