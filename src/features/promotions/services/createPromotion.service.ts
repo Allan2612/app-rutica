@@ -6,6 +6,7 @@
 import { supabase } from '@/lib/supabase/client';
 import type { PromotionFormData } from '@/types/entities';
 import { generateUUID, isNewImage, uploadPromotionImage } from './promotions.helpers';
+import { syncResourceUsage } from '@/services/subscriptionQuota.service';
 
 /**
  * Crea una nueva promoción con toda su información
@@ -110,17 +111,17 @@ export async function createPromotionComplete(
         if (data.coverUri && isNewImage(data.coverUri)) {
             try {
                 const coverPath = await uploadPromotionImage(promotionId, data.coverUri, 'flyer');
-                
+
                 const imageInsert = {
                     id_pim: generateUUID(),
                     promotion_id_pim: promotionId,
                     path_pim: coverPath,
                 };
-                
+
                 const { error: imgInsertError } = await supabase
                     .from('promotion_images')
                     .insert(imageInsert as any);
-                
+
                 if (imgInsertError) {
                     throw imgInsertError;
                 }
@@ -136,17 +137,17 @@ export async function createPromotionComplete(
                 if (isNewImage(galleryUri)) {
                     try {
                         const galleryPath = await uploadPromotionImage(promotionId, galleryUri, 'flyer');
-                        
+
                         const imageInsert = {
                             id_pim: generateUUID(),
                             promotion_id_pim: promotionId,
                             path_pim: galleryPath,
                         };
-                        
+
                         const { error: imgInsertError } = await supabase
                             .from('promotion_images')
                             .insert(imageInsert as any);
-                        
+
                         if (imgInsertError) {
                             console.error('[createPromotion] Error inserting gallery image:', imgInsertError);
                             throw imgInsertError;
@@ -159,6 +160,9 @@ export async function createPromotionComplete(
             }
         }
 
+        // 6. Sincronizar cuota de promociones para el negocio
+        await syncResourceUsage(userId, 'promotion', data.businessId, 'business');
+
         return promotionId;
     } catch (error) {
         // Rollback: eliminar la promoción si algo falló
@@ -168,7 +172,7 @@ export async function createPromotionComplete(
         await supabase.from('promotion_scope_categories').delete().eq('promotion_id_psc', promotionId);
         await supabase.from('promotion_combo_items').delete().eq('promotion_id_pci', promotionId);
         await supabase.from('promotions').delete().eq('id_prm', promotionId);
-        
+
         throw error;
     }
 }

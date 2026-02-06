@@ -433,11 +433,12 @@ async function getCurrentResourceCount(
         }
 
         case 'promotion': {
+            // Contar TODAS las promociones del negocio (activas o no)
+            // para llevar el control correcto de cuota
             const { count, error } = await supabase
                 .from('promotions')
                 .select('*', { count: 'exact', head: true })
-                .eq('business_id_prm', entityId)
-                .eq('is_active_prm', true);
+                .eq('business_id_prm', entityId);
 
             if (error) throw error;
             return count ?? 0;

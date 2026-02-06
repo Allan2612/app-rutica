@@ -99,7 +99,7 @@ export const DEFAULT_RESOURCE_LIMITS: Record<ResourceType, ResourceLimits> = {
         quotaPerPurchase: 10, // 10 fotos extra por compra de gallery_attractions
     },
     promotion: {
-        freeLimit: 0,        // 0 promociones gratis
+        freeLimit: 5,        // 5 promociones gratis por negocio
         quotaPerPurchase: 10, // 10 promociones por compra
     },
 };
