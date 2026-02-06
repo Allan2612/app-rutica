@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Toast from 'react-native-toast-message';
 import { useSubscriptions } from '@/features/user/hooks/useSubscriptions';
 import { checkBusinessFullPremiumStatus } from '@/features/user/services/subscription.service';
@@ -35,6 +35,7 @@ const ENTITY_REQUIRED_PLANS: SubscriptionType[] = [
 ];
 
 interface UsePremiumModalParams {
+    visible: boolean;
     onClose: () => void;
     onSuccess?: (planNames: string, planCount: number) => void;
     onSubscribed?: () => void;
@@ -45,6 +46,7 @@ interface UsePremiumModalParams {
 }
 
 export function usePremiumModal({
+    visible,
     onClose,
     onSuccess,
     onSubscribed,
@@ -86,6 +88,44 @@ export function usePremiumModal({
     const [paymentReference, setPaymentReference] = useState('');
     const [paymentNote, setPaymentNote] = useState('');
     const [error, setError] = useState<string | null>(null);
+
+    // Reiniciar estado cuando el modal se vuelve visible con props pre-seleccionadas
+    useEffect(() => {
+        if (visible) {
+            // Restablecer al estado inicial basado en las props
+            if (initialPlan && (preSelectedEntityId || preSelectedBusinessId)) {
+                setStep('payment');
+                setSelectedPlans([initialPlan]);
+
+                if (preSelectedBusinessId) {
+                    setBusinessSelections({ [initialPlan]: preSelectedBusinessId });
+                } else {
+                    setBusinessSelections({});
+                }
+
+                if (preSelectedEntityId && preSelectedEntityType) {
+                    setEntitySelections({ [initialPlan]: { entityId: preSelectedEntityId, entityType: preSelectedEntityType } });
+                } else {
+                    setEntitySelections({});
+                }
+            } else if (initialPlan) {
+                setStep('plans');
+                setSelectedPlans([initialPlan]);
+                setBusinessSelections({});
+                setEntitySelections({});
+            } else {
+                setStep('plans');
+                setSelectedPlans([]);
+                setBusinessSelections({});
+                setEntitySelections({});
+            }
+
+            setPaymentMethod('sinpe');
+            setPaymentReference('');
+            setPaymentNote('');
+            setError(null);
+        }
+    }, [visible, initialPlan, preSelectedBusinessId, preSelectedEntityId, preSelectedEntityType]);
 
     // Planes seleccionados que requieren un negocio
     const businessRequiredPlans = selectedPlans.filter(plan =>

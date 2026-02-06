@@ -145,6 +145,9 @@ export const EditBusinessScreen = memo(function EditBusinessScreen() {
                 onClose={handleClosePremiumModal}
                 onSuccess={handlePremiumSuccess}
                 userRole={profile?.role_prf || null}
+                initialPlan="gallery_business"
+                preSelectedBusinessId={id}
+                preSelectedBusinessName={business?.name ?? ''}
             />
         </>
     );

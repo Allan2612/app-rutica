@@ -78,6 +78,7 @@ export const PremiumModal = memo(function PremiumModal({
         handleSubmit,
         handleClose,
     } = usePremiumModal({
+        visible,
         onClose,
         onSuccess,
         onSubscribed,
