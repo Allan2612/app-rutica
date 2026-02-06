@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { MapPin, Calendar, Check, Compass } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
@@ -24,12 +24,16 @@ export const EntityStep = memo(function EntityStep({
     onSelectEntity,
 }: EntityStepProps) {
     const colors = useThemedColors();
-    const [activeTab, setActiveTab] = useState<EntityType>('attraction');
+
+    // Determinar qué tipo de entidades mostrar según el plan seleccionado
+    const isGalleryAttractions = selectedPlans.includes('gallery_attractions');
+    const isGalleryEvents = selectedPlans.includes('gallery_events');
+    const entityTypeToShow: EntityType = isGalleryEvents ? 'event' : 'attraction';
 
     const { data: attractions = [], isLoading: isLoadingAttractions } = useUserAttractions();
     const { data: events = [], isLoading: isLoadingEvents } = useUserEvents();
 
-    const isLoading = isLoadingAttractions || isLoadingEvents;
+    const isLoading = isGalleryAttractions ? isLoadingAttractions : isLoadingEvents;
 
     // Obtener nombres de los planes seleccionados
     const selectedPlansNames = SUBSCRIPTION_PLANS
@@ -48,26 +52,23 @@ export const EntityStep = memo(function EntityStep({
         );
     }
 
-    const hasAttractions = attractions.length > 0;
-    const hasEvents = events.length > 0;
-    const hasNoEntities = !hasAttractions && !hasEvents;
+    const entityList = entityTypeToShow === 'attraction' ? attractions : events;
+    const entityLabel = entityTypeToShow === 'attraction' ? 'atracciones' : 'eventos';
+    const EntityIcon = entityTypeToShow === 'attraction' ? MapPin : Calendar;
 
-    if (hasNoEntities) {
+    if (entityList.length === 0) {
         return (
             <View style={styles.emptyContainer}>
                 <Compass size={48} color={colors.text.tertiary} />
                 <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-                    No tienes publicaciones
+                    No tienes {entityLabel}
                 </Text>
                 <Text style={[styles.emptySubtitle, { color: colors.text.secondary }]}>
-                    Debes crear una atracción o evento antes de poder comprar este paquete.
+                    Debes crear {entityTypeToShow === 'attraction' ? 'una atracción' : 'un evento'} antes de poder comprar este paquete.
                 </Text>
             </View>
         );
     }
-
-    const currentList = activeTab === 'attraction' ? attractions : events;
-    const isEmpty = currentList.length === 0;
 
     return (
         <View style={styles.container}>
@@ -85,119 +86,47 @@ export const EntityStep = memo(function EntityStep({
                 Selecciona la publicación a la que deseas aplicar este paquete
             </Text>
 
-            {/* Tabs */}
-            <View style={[styles.tabsContainer, { backgroundColor: colors.background.tertiary }]}>
-                <Pressable
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor: activeTab === 'attraction'
-                                ? colors.primary[500]
-                                : 'transparent',
-                        },
-                    ]}
-                    onPress={() => setActiveTab('attraction')}
-                >
-                    <MapPin
-                        size={16}
-                        color={activeTab === 'attraction' ? '#FFFFFF' : colors.text.secondary}
-                    />
-                    <Text style={[
-                        styles.tabText,
-                        { color: activeTab === 'attraction' ? '#FFFFFF' : colors.text.secondary },
-                    ]}>
-                        Atracciones ({attractions.length})
-                    </Text>
-                </Pressable>
-                <Pressable
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor: activeTab === 'event'
-                                ? colors.primary[500]
-                                : 'transparent',
-                        },
-                    ]}
-                    onPress={() => setActiveTab('event')}
-                >
-                    <Calendar
-                        size={16}
-                        color={activeTab === 'event' ? '#FFFFFF' : colors.text.secondary}
-                    />
-                    <Text style={[
-                        styles.tabText,
-                        { color: activeTab === 'event' ? '#FFFFFF' : colors.text.secondary },
-                    ]}>
-                        Eventos ({events.length})
-                    </Text>
-                </Pressable>
-            </View>
-
             {/* Lista de entidades */}
-            {isEmpty ? (
-                <View style={styles.emptyContainer}>
-                    {activeTab === 'attraction' ? (
-                        <MapPin size={40} color={colors.text.tertiary} />
-                    ) : (
-                        <Calendar size={40} color={colors.text.tertiary} />
-                    )}
-                    <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-                        No tienes {activeTab === 'attraction' ? 'atracciones' : 'eventos'}
-                    </Text>
-                    <Text style={[styles.emptySubtitle, { color: colors.text.secondary }]}>
-                        Cambia de pestaña o crea {activeTab === 'attraction' ? 'una atracción' : 'un evento'} primero.
-                    </Text>
-                </View>
-            ) : (
-                <ScrollView style={styles.listContainer} showsVerticalScrollIndicator={false}>
-                    {currentList.map((entity: any) => {
-                        // Las atracciones usan id_atr/name_atr, los eventos usan id_evt/name_evt
-                        const entityId = activeTab === 'attraction' ? entity.id_atr : entity.id_evt;
-                        const entityName = activeTab === 'attraction' ? entity.name_atr : entity.name_evt;
-                        const isSelected = selectedEntityId === entityId && selectedEntityType === activeTab;
+            <ScrollView style={styles.listContainer} showsVerticalScrollIndicator={false}>
+                {entityList.map((entity: any) => {
+                    const entityId = entityTypeToShow === 'attraction' ? entity.id_atr : entity.id_evt;
+                    const entityName = entityTypeToShow === 'attraction' ? entity.name_atr : entity.name_evt;
+                    const isSelected = selectedEntityId === entityId && selectedEntityType === entityTypeToShow;
 
-                        return (
-                            <Pressable
-                                key={entityId}
-                                style={[
-                                    styles.entityCard,
-                                    {
-                                        backgroundColor: isSelected
-                                            ? colors.primary[500]
-                                            : colors.background.secondary,
-                                        borderColor: isSelected ? colors.primary[500] : colors.border.medium,
-                                    },
-                                ]}
-                                onPress={() => onSelectEntity(entityId, activeTab)}
-                            >
-                                <View style={styles.entityCardContent}>
-                                    {activeTab === 'attraction' ? (
-                                        <MapPin
-                                            size={20}
-                                            color={isSelected ? '#FFFFFF' : colors.text.tertiary}
-                                        />
-                                    ) : (
-                                        <Calendar
-                                            size={20}
-                                            color={isSelected ? '#FFFFFF' : colors.text.tertiary}
-                                        />
-                                    )}
-                                    <Text
-                                        style={[
-                                            styles.entityName,
-                                            { color: isSelected ? '#FFFFFF' : colors.text.primary },
-                                        ]}
-                                        numberOfLines={1}
-                                    >
-                                        {entityName}
-                                    </Text>
-                                    {isSelected && <Check size={20} color="#FFFFFF" />}
-                                </View>
-                            </Pressable>
-                        );
-                    })}
-                </ScrollView>
-            )}
+                    return (
+                        <Pressable
+                            key={entityId}
+                            style={[
+                                styles.entityCard,
+                                {
+                                    backgroundColor: isSelected
+                                        ? colors.primary[500]
+                                        : colors.background.secondary,
+                                    borderColor: isSelected ? colors.primary[500] : colors.border.medium,
+                                },
+                            ]}
+                            onPress={() => onSelectEntity(entityId, entityTypeToShow)}
+                        >
+                            <View style={styles.entityCardContent}>
+                                <EntityIcon
+                                    size={20}
+                                    color={isSelected ? '#FFFFFF' : colors.text.tertiary}
+                                />
+                                <Text
+                                    style={[
+                                        styles.entityName,
+                                        { color: isSelected ? '#FFFFFF' : colors.text.primary },
+                                    ]}
+                                    numberOfLines={1}
+                                >
+                                    {entityName}
+                                </Text>
+                                {isSelected && <Check size={20} color="#FFFFFF" />}
+                            </View>
+                        </Pressable>
+                    );
+                })}
+            </ScrollView>
         </View>
     );
 });

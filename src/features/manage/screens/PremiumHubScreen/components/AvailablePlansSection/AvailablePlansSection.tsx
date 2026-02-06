@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Tag, BarChart3, Images, Package, Camera, Sparkles, Check } from 'lucide-react-native';
+import { Tag, BarChart3, Images, Package, Camera, Calendar, Sparkles, Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { SUBSCRIPTION_PLANS } from '@/types/entities';
 import { styles } from './styles';
@@ -11,6 +11,7 @@ const PLAN_ICONS: Record<string, typeof Tag> = {
     gallery_business: Images,
     package_products: Package,
     gallery_attractions: Camera,
+    gallery_events: Calendar,
     full_premium: Sparkles,
 };
 
@@ -20,6 +21,7 @@ const PLAN_COLORS: Record<string, { icon: string; bg: string }> = {
     gallery_business: { icon: '#8b5cf6', bg: '#ede9fe' },
     package_products: { icon: '#10b981', bg: '#d1fae5' },
     gallery_attractions: { icon: '#ec4899', bg: '#fce7f3' },
+    gallery_events: { icon: '#06b6d4', bg: '#cffafe' },
     full_premium: { icon: '#f59e0b', bg: '#fef3c7' },
 };
 

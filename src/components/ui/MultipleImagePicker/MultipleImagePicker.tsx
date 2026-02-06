@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { View, Text, Pressable, Image, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import { View, Text, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
 import { Plus, X } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useThemedColors } from '@/hooks';
@@ -56,11 +56,7 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
         <View style={styles.container}>
             <Text style={[styles.label, { color: colors.text.primary }]}>{label}</Text>
 
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
+            <View style={styles.gridContainer}>
                 {images.map((uri, index) => (
                     <View key={`${uri}-${index}`} style={styles.imageWrapper}>
                         <Image source={{ uri }} style={styles.image} resizeMode="cover" />
@@ -101,7 +97,7 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
                         )}
                     </Pressable>
                 )}
-            </ScrollView>
+            </View>
 
             {helperText && (
                 <Text style={[styles.helperText, { color: colors.text.tertiary }]}>{helperText}</Text>

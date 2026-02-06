@@ -11,35 +11,6 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
   },
-  header: {
-    paddingBottom: spacing.lg,
-    marginBottom: spacing.lg,
-    borderBottomWidth: 1,
-    width: '100%',
-    maxWidth: 600,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  headerTitle: {
-    fontSize: typography.sizes['2xl'],
-    fontWeight: typography.fontWeights.bold,
-  },
-  headerSubtitle: {
-    fontSize: typography.sizes.sm,
-    lineHeight: 20,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

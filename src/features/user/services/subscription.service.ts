@@ -425,8 +425,8 @@ async function createEntitySubscriptionUsageRecords(
         const subscription = subscriptions[i];
         const plan = plans[i];
 
-        // Solo procesar gallery_attractions
-        if (plan.type_sub === 'gallery_attractions') {
+        // Procesar gallery_attractions y gallery_events
+        if (plan.type_sub === 'gallery_attractions' || plan.type_sub === 'gallery_events') {
             const baseRecord = {
                 profile_subscription_id_sus: subscription.id_psub,
                 profile_id_sus: userId,
@@ -434,13 +434,13 @@ async function createEntitySubscriptionUsageRecords(
                 used_count_sus: 0,
             };
 
-            if (entityType === 'attraction') {
+            if (entityType === 'attraction' && plan.type_sub === 'gallery_attractions') {
                 usageInserts.push({
                     ...baseRecord,
                     resource_type_sus: 'photo_attraction',
                     attraction_id_sus: entityId,
                 });
-            } else if (entityType === 'event') {
+            } else if (entityType === 'event' && plan.type_sub === 'gallery_events') {
                 usageInserts.push({
                     ...baseRecord,
                     resource_type_sus: 'photo_event',

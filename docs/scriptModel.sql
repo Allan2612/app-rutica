@@ -430,8 +430,29 @@ VALUES
   ('dashboard', 'Dashboard Premium', 'Acceso a estadísticas avanzadas', 8000, ARRAY['Estadísticas detalladas', 'Reportes mensuales'], 2),
   ('gallery_business', 'Galería Negocio', 'Galería extendida para tu negocio', 3000, ARRAY['Hasta 20 fotos', 'Videos cortos'], 3),
   ('package_products', 'Productos', 'Gestión de productos en tu negocio', 6000, ARRAY['Catálogo de productos', 'Precios y descripciones'], 4),
-  ('gallery_attractions', 'Galería Atracciones', 'Galería extendida para atracciones', 3000, ARRAY['Hasta 20 fotos', 'Videos cortos'], 5),
-  ('full_premium', 'Premium Completo', 'Acceso a todas las funcionalidades', 15000, ARRAY['Todas las funciones', 'Soporte prioritario'], 6);
+  (
+    'gallery_attractions',
+    'Galería Atracciones',
+    'Hasta 10 fotos para tus atracciones',
+    2000.00,
+    ARRAY['Hasta 10 fotos por atracción', 'Mayor visibilidad', 'Destaca en búsquedas'],
+    false,
+    true,
+    5,
+    10
+);
+(
+    'gallery_events',
+    'Galería Eventos',
+    'Hasta 10 fotos para tus eventos',
+    2000.00,
+    ARRAY['Hasta 10 fotos por evento', 'Mayor visibilidad', 'Destaca en búsquedas'],
+    false,
+    true,
+    6,
+    10
+);
+  ('full_premium', 'Premium Completo', 'Acceso a todas las funcionalidades', 12500, ARRAY['Todas las funciones', 'Soporte prioritario'], 6);
 
 create table public.attractions (
   id_atr uuid not null default gen_random_uuid(),

@@ -20,6 +20,7 @@ const BUSINESS_REQUIRED_PLANS: SubscriptionType[] = [
 // Planes que requieren seleccionar atracción/evento
 const ENTITY_REQUIRED_PLANS: SubscriptionType[] = [
     'gallery_attractions',
+    'gallery_events',
 ];
 
 interface UsePremiumModalParams {

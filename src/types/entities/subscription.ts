@@ -96,7 +96,7 @@ export const DEFAULT_RESOURCE_LIMITS: Record<ResourceType, ResourceLimits> = {
     },
     photo_event: {
         freeLimit: 3,        // 3 fotos gratis en galería de evento
-        quotaPerPurchase: 10, // 10 fotos extra por compra de gallery_attractions
+        quotaPerPurchase: 10, // 10 fotos extra por compra de gallery_events
     },
     promotion: {
         freeLimit: 5,        // 5 promociones gratis por negocio
@@ -111,7 +111,7 @@ export const RESOURCE_TO_SUBSCRIPTION: Record<ResourceType, SubscriptionType> = 
     product: 'package_products',
     photo_business: 'gallery_business',
     photo_attraction: 'gallery_attractions',
-    photo_event: 'gallery_attractions',
+    photo_event: 'gallery_events',
     promotion: 'promotions',
 };
 

@@ -9,6 +9,12 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.medium,
     },
+    gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.md,
+        paddingVertical: spacing.xs,
+    },
     scrollContent: {
         gap: spacing.md,
         paddingVertical: spacing.xs,

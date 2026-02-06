@@ -68,6 +68,10 @@ interface EventFormViewProps {
     galleryHelperText?: string;
     showGalleryPremiumUpsell?: boolean;
     onGalleryPremiumPress?: () => void;
+    /** Nombre del paquete premium para el upsell (ej: 'Galería Eventos') */
+    premiumPackageName?: string;
+    /** Mensaje personalizado para el banner de upsell */
+    upsellMessage?: string;
 }
 
 export const EventFormView = memo(function EventFormView({
@@ -88,6 +92,8 @@ export const EventFormView = memo(function EventFormView({
     galleryHelperText,
     showGalleryPremiumUpsell = false,
     onGalleryPremiumPress,
+    premiumPackageName = 'Galería Eventos',
+    upsellMessage,
 }: EventFormViewProps) {
     return (
         <GenericFormView
@@ -172,6 +178,8 @@ export const EventFormView = memo(function EventFormView({
                 maxGalleryImages={maxGalleryImages}
                 showPremiumUpsell={showGalleryPremiumUpsell}
                 onPremiumPress={onGalleryPremiumPress}
+                premiumPackageName={premiumPackageName}
+                upsellMessage={upsellMessage}
             />
         </GenericFormView>
     );

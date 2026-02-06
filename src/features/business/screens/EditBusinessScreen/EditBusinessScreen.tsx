@@ -40,23 +40,39 @@ export const EditBusinessScreen = memo(function EditBusinessScreen() {
     // El hook ya devuelve totalQuota que es freeLimit + premiumQuota
     const maxGalleryImages = galleryQuota?.totalQuota ?? 3;
 
-    // Mostrar upsell cuando: no tiene premium Y las fotos en el form >= límite gratis (3)
+    // Mostrar upsell cuando: no tiene premium Y fotos >= límite gratis, O tiene premium Y fotos >= totalQuota
     const showGalleryPremiumUpsell = useMemo(() => {
         if (!galleryQuota) return false;
-        const { hasPremium, freeQuota } = galleryQuota;
-        // Mostrar si no tiene premium y ya tiene 3+ fotos en el formulario
-        return !hasPremium && formData.galleryUris.length >= freeQuota;
+        const { hasPremium, freeQuota, totalQuota } = galleryQuota;
+        const currentCount = formData.galleryUris.length;
+        if (!hasPremium) {
+            return currentCount >= freeQuota;
+        }
+        // Mostrar upsell cuando el usuario premium agotó su cuota
+        return currentCount >= totalQuota;
     }, [galleryQuota, formData.galleryUris.length]);
+
+    // Mensaje de upsell personalizado
+    const upsellMessage = useMemo(() => {
+        if (!galleryQuota) return undefined;
+        const { hasPremium } = galleryQuota;
+        if (hasPremium) {
+            return '¡Usaste todas las fotos de tu paquete! Compra otro paquete Galería Empresa para añadir 10 fotos más.';
+        }
+        return 'Ya usaste tus 3 fotos gratuitas. Con el paquete Galería Empresa puedes añadir 10 fotos más a tu galería.';
+    }, [galleryQuota]);
 
     // Texto de ayuda con información de cuota
     const galleryHelperText = useMemo(() => {
         if (!galleryQuota) return `Hasta ${maxGalleryImages} imágenes adicionales`;
-        const { hasPremium, totalQuota, usedCount, availableCount } = galleryQuota;
+        const { hasPremium, totalQuota } = galleryQuota;
+        const currentCount = formData.galleryUris.length;
+        const remaining = Math.max(0, totalQuota - currentCount);
         if (hasPremium) {
-            return `Galería Premium: ${usedCount}/${totalQuota} fotos usadas (${availableCount} disponibles)`;
+            return `Galería Premium: ${currentCount}/${totalQuota} fotos usadas (${remaining} disponibles)`;
         }
         return `Hasta ${totalQuota} imágenes adicionales (Plan gratuito)`;
-    }, [galleryQuota, maxGalleryImages]);
+    }, [galleryQuota, maxGalleryImages, formData.galleryUris.length]);
 
     // Handlers para el modal premium
     const handleOpenPremiumModal = useCallback(() => {
@@ -121,6 +137,8 @@ export const EditBusinessScreen = memo(function EditBusinessScreen() {
                 galleryHelperText={galleryHelperText}
                 showGalleryPremiumUpsell={showGalleryPremiumUpsell}
                 onGalleryPremiumPress={handleOpenPremiumModal}
+                premiumPackageName="Galería Empresa"
+                upsellMessage={upsellMessage}
             />
             <PremiumModal
                 visible={isPremiumModalVisible}

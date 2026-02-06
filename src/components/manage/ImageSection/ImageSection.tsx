@@ -25,6 +25,14 @@ interface ImageSectionProps {
     showGalleryPremiumUpsell?: boolean;
     /** Callback cuando se presiona el botón de comprar premium */
     onGalleryPremiumPress?: () => void;
+    /** Nombre del paquete premium para el upsell */
+    premiumPackageName?: string;
+    /** Mensaje personalizado para el banner de upsell */
+    upsellMessage?: string;
+    /** Alias para showGalleryPremiumUpsell */
+    showPremiumUpsell?: boolean;
+    /** Alias para onGalleryPremiumPress */
+    onPremiumPress?: () => void;
 }
 
 export const ImageSection = memo(function ImageSection({
@@ -44,8 +52,20 @@ export const ImageSection = memo(function ImageSection({
     maxGalleryImages = 3,
     showGalleryPremiumUpsell = false,
     onGalleryPremiumPress,
+    premiumPackageName = 'Galería Empresa',
+    upsellMessage,
+    showPremiumUpsell,
+    onPremiumPress,
 }: ImageSectionProps) {
     const colors = useThemedColors();
+
+    // Soportar ambos nombres de props para compatibilidad
+    const shouldShowUpsell = showPremiumUpsell ?? showGalleryPremiumUpsell;
+    const handlePremiumPress = onPremiumPress ?? onGalleryPremiumPress;
+
+    // Mensaje por defecto si no se proporciona uno
+    const defaultMessage = `Ya usaste tus 3 fotos gratuitas. Con el paquete ${premiumPackageName} puedes añadir 10 fotos más a tu galería.`;
+    const displayMessage = upsellMessage || defaultMessage;
 
     return (
         <View style={styles.section}>
@@ -84,7 +104,7 @@ export const ImageSection = memo(function ImageSection({
             />
 
             {/* Banner de upsell para galería premium */}
-            {showGalleryPremiumUpsell && onGalleryPremiumPress && (
+            {shouldShowUpsell && handlePremiumPress && (
                 <View style={{
                     backgroundColor: colors.primary[50],
                     borderRadius: 12,
@@ -110,14 +130,10 @@ export const ImageSection = memo(function ImageSection({
                         marginBottom: 12,
                         lineHeight: 20,
                     }}>
-                        Ya usaste tus 3 fotos gratuitas. Con el paquete{' '}
-                        <Text style={{ fontWeight: '600', color: colors.primary[600] }}>
-                            Galería Empresa
-                        </Text>{' '}
-                        puedes añadir 10 fotos más a tu galería.
+                        {displayMessage}
                     </Text>
                     <Pressable
-                        onPress={onGalleryPremiumPress}
+                        onPress={handlePremiumPress}
                         style={({ pressed }) => ({
                             backgroundColor: pressed ? colors.primary[600] : colors.primary[500],
                             borderRadius: 8,
@@ -130,7 +146,7 @@ export const ImageSection = memo(function ImageSection({
                     >
                         <Ionicons name="star" size={18} color="#fff" style={{ marginRight: 6 }} />
                         <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
-                            Comprar Galería Empresa
+                            Comprar {premiumPackageName}
                         </Text>
                     </Pressable>
                 </View>

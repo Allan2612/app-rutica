@@ -94,7 +94,8 @@ export type SubscriptionType =
   | 'dashboard'             // Dashboard de negocio con estadísticas
   | 'gallery_business'      // Galería extendida para empresa
   | 'package_products'      // Hasta 20 productos con 3 fotos cada uno
-  | 'gallery_attractions'   // Galería de hasta 10 fotos para atracciones/eventos
+  | 'gallery_attractions'   // Galería de hasta 10 fotos para atracciones
+  | 'gallery_events'        // Galería de hasta 10 fotos para eventos
   | 'full_premium';         // Acceso completo a todas las funcionalidades
 
 /**

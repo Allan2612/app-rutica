@@ -4,6 +4,7 @@ import {
     Images,
     Package,
     Camera,
+    Calendar,
     Sparkles,
     Crown,
 } from 'lucide-react-native';
@@ -41,6 +42,11 @@ export const SUBSCRIPTION_CONFIG: Record<
         icon: Camera,
         iconColor: '#ec4899',
         iconBg: '#fce7f3',
+    },
+    gallery_events: {
+        icon: Calendar,
+        iconColor: '#06b6d4',
+        iconBg: '#cffafe',
     },
     full_premium: {
         icon: Sparkles,

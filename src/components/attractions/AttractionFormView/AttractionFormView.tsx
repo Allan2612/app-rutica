@@ -6,7 +6,7 @@ import {
     LocationSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
-import type { Category } from '@/types/entities';
+import type { CategoryOption } from '@/types/entities';
 
 interface AttractionFormData {
     name: string;
@@ -32,7 +32,7 @@ interface AttractionFormViewProps {
     subtitle: string;
     formData: AttractionFormData;
     errors: AttractionFormErrors;
-    categories: Category[];
+    categories: CategoryOption[];
     loadingCategories: boolean;
     isSubmitting: boolean;
     hasChanges: boolean;
@@ -46,6 +46,10 @@ interface AttractionFormViewProps {
     galleryHelperText?: string;
     showGalleryPremiumUpsell?: boolean;
     onGalleryPremiumPress?: () => void;
+    /** Nombre del paquete premium para el upsell (ej: 'Galería Atracciones') */
+    premiumPackageName?: string;
+    /** Mensaje personalizado para el banner de upsell */
+    upsellMessage?: string;
 }
 
 export const AttractionFormView = memo(function AttractionFormView({
@@ -66,6 +70,8 @@ export const AttractionFormView = memo(function AttractionFormView({
     galleryHelperText,
     showGalleryPremiumUpsell = false,
     onGalleryPremiumPress,
+    premiumPackageName = 'Galería Atracciones',
+    upsellMessage,
 }: AttractionFormViewProps) {
     return (
         <GenericFormView
@@ -115,6 +121,8 @@ export const AttractionFormView = memo(function AttractionFormView({
                 maxGalleryImages={maxGalleryImages}
                 showPremiumUpsell={showGalleryPremiumUpsell}
                 onPremiumPress={onGalleryPremiumPress}
+                premiumPackageName={premiumPackageName}
+                upsellMessage={upsellMessage}
             />
         </GenericFormView>
     );

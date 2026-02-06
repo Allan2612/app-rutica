@@ -46,8 +46,8 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
       icon: Crown,
       iconColor: '#eab308',
       iconBg: '#fef9c3',
-      showBadge: false,
-      badgeCount: 0,
+      showBadge: true,
+      badgeCount: subscriptionStats?.pending || 0,
     },
     {
       key: 'reviews',

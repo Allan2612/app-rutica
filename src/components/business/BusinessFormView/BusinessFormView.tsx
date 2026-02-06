@@ -23,6 +23,9 @@ interface BusinessFormData {
     logoUri: string | null;
     coverUri: string | null;
     galleryUris: string[];
+    facebook: string;
+    instagram: string;
+    tiktok: string;
 }
 
 interface BusinessFormErrors {
@@ -51,6 +54,10 @@ interface BusinessFormViewProps {
     showGalleryPremiumUpsell?: boolean;
     /** Callback cuando se presiona el botón de comprar premium */
     onGalleryPremiumPress?: () => void;
+    /** Nombre del paquete premium para el upsell (ej: 'Galería Empresa') */
+    premiumPackageName?: string;
+    /** Mensaje personalizado para el banner de upsell */
+    upsellMessage?: string;
 }
 
 export const BusinessFormView = memo(function BusinessFormView({
@@ -71,6 +78,8 @@ export const BusinessFormView = memo(function BusinessFormView({
     galleryHelperText,
     showGalleryPremiumUpsell = false,
     onGalleryPremiumPress,
+    premiumPackageName = 'Galería Empresa',
+    upsellMessage,
 }: BusinessFormViewProps) {
     return (
         <GenericFormView
@@ -109,6 +118,8 @@ export const BusinessFormView = memo(function BusinessFormView({
                 galleryHelperText={galleryHelperText}
                 showGalleryPremiumUpsell={showGalleryPremiumUpsell}
                 onGalleryPremiumPress={onGalleryPremiumPress}
+                premiumPackageName={premiumPackageName}
+                upsellMessage={upsellMessage}
             />
 
             <LocationSection

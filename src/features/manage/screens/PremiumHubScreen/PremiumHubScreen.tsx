@@ -1,16 +1,18 @@
 import { memo, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
-import { Crown, Plus } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { useUserSubscriptionDetails } from '@/hooks/useUserSubscriptions';
 import { useAuthStore } from '@/store';
-import { BackButton } from '@/components/ui';
 import { PremiumModal } from '@/components/user/PremiumModal/PremiumModal';
-import { SubscriptionCard } from './components/SubscriptionCard';
-import { DashboardCard } from './components/DashboardCard';
-import { FullPremiumCard } from './components/FullPremiumCard';
-import { AvailablePlansSection } from './components/AvailablePlansSection';
+import {
+  HeaderSection,
+  DashboardCard,
+  FullPremiumCard,
+  AvailablePlansSection,
+  MyPackagesSection,
+} from './components';
 import { styles } from './styles';
 
 export const PremiumHubScreen = memo(function PremiumHubScreen() {
@@ -20,9 +22,9 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
   const userRole = useAuthStore((state) => state.role);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
-  const handleDashboardPress = () => {
+  const handleDashboardPress = useCallback(() => {
     router.push('/(app)/(tabs)/manage/premium/dashboard' as any);
-  };
+  }, [router]);
 
   const handleOpenPremiumModal = useCallback(() => {
     setShowPremiumModal(true);
@@ -50,23 +52,7 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-          <View style={styles.headerRow}>
-            <BackButton href="/(app)/(tabs)/manage" />
-            <View style={styles.headerContent}>
-              <View style={styles.titleRow}>
-                <Crown color="#f59e0b" size={24} strokeWidth={2} />
-                <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
-                  Mi Premium
-                </Text>
-              </View>
-              <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
-                Gestiona tus suscripciones y consulta el uso de cada paquete.
-              </Text>
-            </View>
-          </View>
-        </View>
+        <HeaderSection />
 
         {/* Loading State */}
         {isLoading && (
@@ -113,19 +99,7 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
         )}
 
         {/* Other Subscriptions */}
-        {!isLoading && otherSubscriptions.length > 0 && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-              Mis Paquetes
-            </Text>
-            {otherSubscriptions.map((subscription) => (
-              <SubscriptionCard
-                key={subscription.id}
-                subscription={subscription}
-              />
-            ))}
-          </View>
-        )}
+        {!isLoading && <MyPackagesSection subscriptions={otherSubscriptions} />}
 
         {/* Acquire Package Button */}
         {!isLoading && (
