@@ -226,6 +226,9 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
         onClose={handleClosePremiumModal}
         onSuccess={handlePremiumSuccess}
         userRole={profile?.role_prf || null}
+        initialPlan="promotions"
+        preSelectedBusinessId={formData.businessId || undefined}
+        preSelectedBusinessName={businesses.find((b: any) => b.id === formData.businessId)?.name}
       />
     </View>
   );

@@ -312,6 +312,9 @@ export const ManagePromotionsScreen = memo(function ManagePromotionsScreen() {
         onClose={handleClosePremiumModal}
         onSuccess={handlePremiumSuccess}
         userRole={profile?.role_prf || null}
+        initialPlan="promotions"
+        preSelectedBusinessId={singleBusinessQuota?.businessId}
+        preSelectedBusinessName={singleBusinessQuota?.businessName}
       />
     </View>
   );
