@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useThemedColors, useProductQuota } from '@/hooks';
 import { useBusinessProducts } from '@/features/products/hooks';
+import { useBusinessById } from '@/features/business/hooks';
 import { useProfile } from '@/features/user/hooks';
 import { ConfirmDeleteDialog } from '@/components/manage';
 import { PremiumModal } from '@/components/user';
@@ -15,9 +16,11 @@ export const ManageProductsScreen = memo(function ManageProductsScreen() {
     const { id: businessId } = useLocalSearchParams<{ id: string }>();
 
     const { data: products = [], isLoading, refetch: refetchProducts } = useBusinessProducts(businessId || '');
+    const { data: business } = useBusinessById(businessId || '');
     const { quotaInfo, invalidateQuota } = useProductQuota(businessId || '');
     const { profile } = useProfile();
 
+    const businessName = business?.name || '';
     const canAddProduct = quotaInfo?.canAdd ?? true;
     const hasReachedLimit = quotaInfo && !quotaInfo.canAdd;
 
@@ -92,6 +95,9 @@ export const ManageProductsScreen = memo(function ManageProductsScreen() {
                 onClose={handleClosePremiumModal}
                 onSuccess={handlePremiumSuccess}
                 userRole={profile?.role_prf || null}
+                initialPlan="package_products"
+                preSelectedBusinessId={businessId}
+                preSelectedBusinessName={businessName}
             />
         </View>
     );

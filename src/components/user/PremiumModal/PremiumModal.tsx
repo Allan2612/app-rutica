@@ -23,8 +23,11 @@ interface PremiumModalProps {
     onSubscribed?: () => void;
     userRole?: UserRole | null;
     initialPlan?: import('@/types/enums').SubscriptionType;
+    preSelectedBusinessId?: string;
+    preSelectedBusinessName?: string;
     preSelectedEntityId?: string;
     preSelectedEntityType?: 'attraction' | 'event';
+    preSelectedEntityName?: string;
 }
 
 // Configuración de pago
@@ -41,8 +44,11 @@ export const PremiumModal = memo(function PremiumModal({
     onSubscribed,
     userRole,
     initialPlan,
+    preSelectedBusinessId,
+    preSelectedBusinessName,
     preSelectedEntityId,
     preSelectedEntityType,
+    preSelectedEntityName,
 }: PremiumModalProps) {
     const colors = useThemedColors();
     const isBuyer = userRole === 'buyer';
@@ -76,6 +82,7 @@ export const PremiumModal = memo(function PremiumModal({
         onSuccess,
         onSubscribed,
         initialPlan,
+        preSelectedBusinessId,
         preSelectedEntityId,
         preSelectedEntityType,
     });
@@ -115,6 +122,10 @@ export const PremiumModal = memo(function PremiumModal({
         return (
             <PaymentStep
                 selectedPlans={selectedPlans}
+                businessSelections={businessSelections}
+                entitySelections={entitySelections}
+                preSelectedBusinessName={preSelectedBusinessName}
+                preSelectedEntityName={preSelectedEntityName}
                 paymentMethod={paymentMethod}
                 paymentReference={paymentReference}
                 paymentNote={paymentNote}

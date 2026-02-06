@@ -155,6 +155,7 @@ export const EditEventScreen = memo(function EditEventScreen() {
         onSubscribed={handlePremiumSubscribed}
         preSelectedEntityId={id}
         preSelectedEntityType="event"
+        preSelectedEntityName={event?.name ?? ''}
       />
     </>
   );

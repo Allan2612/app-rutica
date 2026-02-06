@@ -39,6 +39,7 @@ interface UsePremiumModalParams {
     onSuccess?: (planNames: string, planCount: number) => void;
     onSubscribed?: () => void;
     initialPlan?: SubscriptionType;
+    preSelectedBusinessId?: string;
     preSelectedEntityId?: string;
     preSelectedEntityType?: EntityType;
 }
@@ -48,14 +49,18 @@ export function usePremiumModal({
     onSuccess,
     onSubscribed,
     initialPlan,
+    preSelectedBusinessId,
     preSelectedEntityId,
     preSelectedEntityType,
 }: UsePremiumModalParams) {
     const { subscribe, isLoading, approvedSubscriptions, pendingSubscriptions } = useSubscriptions();
 
     const [step, setStep] = useState<Step>(() => {
-        // Si hay plan inicial con entidad pre-seleccionada, ir directo al pago
+        // Si hay plan inicial con entidad o negocio pre-seleccionado, ir directo al pago
         if (initialPlan && preSelectedEntityId && preSelectedEntityType) {
+            return 'payment';
+        }
+        if (initialPlan && preSelectedBusinessId) {
             return 'payment';
         }
         return 'plans';
@@ -64,7 +69,12 @@ export function usePremiumModal({
         initialPlan ? [initialPlan] : []
     );
     // Mapa de paquete -> negocio seleccionado para soportar múltiples paquetes de negocio
-    const [businessSelections, setBusinessSelections] = useState<BusinessSelections>({});
+    const [businessSelections, setBusinessSelections] = useState<BusinessSelections>(() => {
+        if (initialPlan && preSelectedBusinessId) {
+            return { [initialPlan]: preSelectedBusinessId };
+        }
+        return {};
+    });
     // Mapa de paquete -> entidad seleccionada para soportar múltiples paquetes de entidad
     const [entitySelections, setEntitySelections] = useState<EntitySelections>(() => {
         if (initialPlan && preSelectedEntityId && preSelectedEntityType) {

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { View } from 'react-native';
 import type { SubscriptionType } from '@/types/enums';
+import type { BusinessSelections, EntitySelections } from '../usePremiumModal';
 import { PlansSummary } from '../PlansSummary';
 import { PaymentMethodSelector } from '../PaymentMethodSelector';
 import { PaymentInfo } from '../PaymentInfo';
@@ -9,6 +10,10 @@ import { styles } from './styles';
 
 interface PaymentStepProps {
   selectedPlans: SubscriptionType[];
+  businessSelections: BusinessSelections;
+  entitySelections: EntitySelections;
+  preSelectedBusinessName?: string;
+  preSelectedEntityName?: string;
   paymentMethod: 'sinpe' | 'transfer';
   paymentReference: string;
   paymentNote: string;
@@ -24,6 +29,10 @@ interface PaymentStepProps {
 
 export const PaymentStep = memo(function PaymentStep({
   selectedPlans,
+  businessSelections,
+  entitySelections,
+  preSelectedBusinessName,
+  preSelectedEntityName,
   paymentMethod,
   paymentReference,
   paymentNote,
@@ -38,7 +47,13 @@ export const PaymentStep = memo(function PaymentStep({
 }: PaymentStepProps) {
   return (
     <View style={styles.paymentContainer}>
-      <PlansSummary selectedPlans={selectedPlans} />
+      <PlansSummary
+        selectedPlans={selectedPlans}
+        businessSelections={businessSelections}
+        entitySelections={entitySelections}
+        preSelectedBusinessName={preSelectedBusinessName}
+        preSelectedEntityName={preSelectedEntityName}
+      />
 
       <PaymentMethodSelector
         selectedMethod={paymentMethod}

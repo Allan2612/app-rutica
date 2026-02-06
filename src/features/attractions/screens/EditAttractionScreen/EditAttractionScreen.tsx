@@ -143,6 +143,7 @@ export const EditAttractionScreen = memo(function EditAttractionScreen() {
                 initialPlan="gallery_attractions"
                 preSelectedEntityId={id}
                 preSelectedEntityType="attraction"
+                preSelectedEntityName={attraction?.name ?? ''}
             />
         </>
     );
