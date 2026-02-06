@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SingleImagePicker, MultipleImagePicker } from '@/components/ui';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
@@ -20,6 +21,10 @@ interface ImageSectionProps {
     galleryLabel?: string;
     galleryHelperText?: string;
     maxGalleryImages?: number;
+    /** Mostrar banner de upsell para galería premium */
+    showGalleryPremiumUpsell?: boolean;
+    /** Callback cuando se presiona el botón de comprar premium */
+    onGalleryPremiumPress?: () => void;
 }
 
 export const ImageSection = memo(function ImageSection({
@@ -37,6 +42,8 @@ export const ImageSection = memo(function ImageSection({
     galleryLabel = 'Galería (Opcional)',
     galleryHelperText = 'Hasta 3 imágenes adicionales del lugar o comercio',
     maxGalleryImages = 3,
+    showGalleryPremiumUpsell = false,
+    onGalleryPremiumPress,
 }: ImageSectionProps) {
     const colors = useThemedColors();
 
@@ -75,6 +82,59 @@ export const ImageSection = memo(function ImageSection({
                 label={galleryLabel}
                 helperText={galleryHelperText}
             />
+
+            {/* Banner de upsell para galería premium */}
+            {showGalleryPremiumUpsell && onGalleryPremiumPress && (
+                <View style={{
+                    backgroundColor: colors.primary[50],
+                    borderRadius: 12,
+                    padding: 16,
+                    marginTop: 12,
+                    borderWidth: 1,
+                    borderColor: colors.primary[200],
+                }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                        <Ionicons name="images" size={24} color={colors.primary[600]} />
+                        <Text style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: colors.primary[700],
+                            marginLeft: 8,
+                        }}>
+                            ¡Amplía tu galería!
+                        </Text>
+                    </View>
+                    <Text style={{
+                        fontSize: 14,
+                        color: colors.text.secondary,
+                        marginBottom: 12,
+                        lineHeight: 20,
+                    }}>
+                        Ya usaste tus 3 fotos gratuitas. Con el paquete{' '}
+                        <Text style={{ fontWeight: '600', color: colors.primary[600] }}>
+                            Galería Empresa
+                        </Text>{' '}
+                        puedes añadir 10 fotos más a tu galería.
+                    </Text>
+                    <Pressable
+                        onPress={onGalleryPremiumPress}
+                        style={({ pressed }) => ({
+                            backgroundColor: pressed ? colors.primary[600] : colors.primary[500],
+                            borderRadius: 8,
+                            paddingVertical: 10,
+                            paddingHorizontal: 16,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        })}
+                    >
+                        <Ionicons name="star" size={18} color="#fff" style={{ marginRight: 6 }} />
+                        <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
+                            Comprar Galería Empresa
+                        </Text>
+                    </Pressable>
+                </View>
+            )}
         </View>
     );
 });

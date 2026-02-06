@@ -3,6 +3,7 @@ import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
+import { syncResourceUsage } from '@/services/subscriptionQuota.service';
 import type { BusinessDetailForEdit } from '@/types/entities/business';
 import { canUserEdit } from '@/utils/permissionHelpers';
 
@@ -148,7 +149,7 @@ export async function getBusinessForEdit(
 
     if (businessError) throw businessError;
     if (!businessData) throw new Error('No se encontró el negocio');
-    
+
     // Verificar permisos: debe ser el propietario O admin
     const hasPermission = await canUserEdit(userId, (businessData as any).owner_id_bus);
     if (!hasPermission) {
@@ -403,17 +404,21 @@ export async function updateBusinessComplete(
                 await supabase.from('business_images').delete().in('id_bim', idsToDelete);
             }
 
-            // Subir nuevas imágenes (hasta 4 total)
+            // Subir nuevas imágenes
+            // El límite real de cuota se aplica en el UI (MultipleImagePicker)
+            // Aquí subimos todas las imágenes nuevas proporcionadas
             const remainingCount = currentGallery.length - imagesToDelete.length;
-            const maxNew = Math.min(newUris.length, 4 - remainingCount);
 
-            for (let i = 0; i < maxNew; i++) {
+            for (let i = 0; i < newUris.length; i++) {
                 try {
                     await uploadImage(newUris[i], businessId, 'gallery', 2 + remainingCount + i);
                 } catch (error) {
                     console.error(`Error subiendo galería ${i}:`, error);
                 }
             }
+
+            // Sincronizar el contador de uso de cuota premium para fotos de galería
+            await syncResourceUsage(userId, 'photo_business', businessId, 'business');
         }
 
         // 4. Preparar social links

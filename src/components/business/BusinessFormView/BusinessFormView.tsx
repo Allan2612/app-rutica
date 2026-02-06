@@ -45,6 +45,12 @@ interface BusinessFormViewProps {
     onLocationSelect: (location: any) => void;
     onCancel: () => void;
     onSubmit: () => void;
+    maxGalleryImages?: number;
+    galleryHelperText?: string;
+    /** Mostrar banner de upsell para galería premium */
+    showGalleryPremiumUpsell?: boolean;
+    /** Callback cuando se presiona el botón de comprar premium */
+    onGalleryPremiumPress?: () => void;
 }
 
 export const BusinessFormView = memo(function BusinessFormView({
@@ -61,6 +67,10 @@ export const BusinessFormView = memo(function BusinessFormView({
     onLocationSelect,
     onCancel,
     onSubmit,
+    maxGalleryImages = 3,
+    galleryHelperText,
+    showGalleryPremiumUpsell = false,
+    onGalleryPremiumPress,
 }: BusinessFormViewProps) {
     return (
         <GenericFormView
@@ -95,6 +105,10 @@ export const BusinessFormView = memo(function BusinessFormView({
                 onLogoChange={(uri) => onFieldChange('logoUri', uri)}
                 onCoverChange={(uri) => onFieldChange('coverUri', uri)}
                 onGalleryChange={(uris) => onFieldChange('galleryUris', uris)}
+                maxGalleryImages={maxGalleryImages}
+                galleryHelperText={galleryHelperText}
+                showGalleryPremiumUpsell={showGalleryPremiumUpsell}
+                onGalleryPremiumPress={onGalleryPremiumPress}
             />
 
             <LocationSection

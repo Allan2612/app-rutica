@@ -263,6 +263,75 @@ export async function decrementUsage(
 }
 
 /**
+ * Sincroniza el used_count_sus basándose en el conteo real de recursos
+ * Útil para fotos de galería donde se pueden agregar/eliminar múltiples a la vez
+ */
+export async function syncResourceUsage(
+    userId: string,
+    resourceType: ResourceType,
+    entityId: string,
+    entityType: 'business' | 'attraction' | 'event'
+): Promise<void> {
+    const entityColumn = getEntityColumn(entityType);
+    const limits = DEFAULT_RESOURCE_LIMITS[resourceType];
+    const freeLimit = limits.freeLimit;
+
+    // 1. Obtener conteo real de recursos
+    const currentCount = await getCurrentResourceCount(resourceType, entityId, entityType);
+
+    // 2. Calcular cuántos recursos premium están en uso
+    // Si hay 5 fotos y el límite gratuito es 3, se usan 2 cuotas premium
+    const premiumUsed = Math.max(0, currentCount - freeLimit);
+
+    // 3. Obtener registros de subscription_usage para este recurso
+    const { data: usageRecords, error } = await supabase
+        .from('subscription_usage')
+        .select(`
+            id_sus,
+            max_quota_sus,
+            used_count_sus,
+            profile_subscription:profile_subscription_id_sus (
+                status_psub
+            )
+        `)
+        .eq('profile_id_sus', userId)
+        .eq('resource_type_sus', resourceType)
+        .eq(entityColumn, entityId);
+
+    if (error) {
+        console.error('Error fetching usage records:', error);
+        return;
+    }
+
+    // 4. Distribuir el uso entre las suscripciones aprobadas
+    let remainingToDistribute = premiumUsed;
+
+    for (const record of (usageRecords as unknown as any[] || [])) {
+        // Solo actualizar suscripciones aprobadas
+        if (record.profile_subscription?.status_psub !== 'approved') {
+            continue;
+        }
+
+        // Calcular cuánto asignar a esta suscripción
+        const maxForThis = record.max_quota_sus;
+        const assignToThis = Math.min(remainingToDistribute, maxForThis);
+        remainingToDistribute -= assignToThis;
+
+        // Actualizar si el valor cambió
+        if (record.used_count_sus !== assignToThis) {
+            const { error: updateError } = await (supabase as any)
+                .from('subscription_usage')
+                .update({ used_count_sus: assignToThis })
+                .eq('id_sus', record.id_sus);
+
+            if (updateError) {
+                console.error('Error updating usage count:', updateError);
+            }
+        }
+    }
+}
+
+/**
  * Verifica si el usuario puede añadir un nuevo recurso
  * Retorna el ID de suscripción a usar si está en rango premium
  */
@@ -328,33 +397,36 @@ async function getCurrentResourceCount(
         }
 
         case 'photo_business': {
+            // Las fotos de galería tienen sort_order_bim > 1 (0=logo, 1=cover, 2+=gallery)
             const { count, error } = await supabase
                 .from('business_images')
                 .select('*', { count: 'exact', head: true })
                 .eq('business_id_bim', entityId)
-                .like('image_type_bim', 'gallery%');
+                .gt('sort_order_bim', 1);
 
             if (error) throw error;
             return count ?? 0;
         }
 
         case 'photo_attraction': {
+            // Las fotos de galería tienen sort_order_aim > 0 (0=cover, 1+=gallery)
             const { count, error } = await supabase
                 .from('attraction_images')
                 .select('*', { count: 'exact', head: true })
                 .eq('attraction_id_aim', entityId)
-                .like('image_type_aim', 'gallery%');
+                .gt('sort_order_aim', 0);
 
             if (error) throw error;
             return count ?? 0;
         }
 
         case 'photo_event': {
+            // Las fotos de galería tienen sort_order_eim > 0 (0=cover, 1+=gallery)
             const { count, error } = await supabase
                 .from('event_images')
                 .select('*', { count: 'exact', head: true })
                 .eq('event_id_eim', entityId)
-                .like('image_type_eim', 'gallery%');
+                .gt('sort_order_eim', 0);
 
             if (error) throw error;
             return count ?? 0;

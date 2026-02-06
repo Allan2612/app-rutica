@@ -198,10 +198,10 @@ export async function createBusinessComplete(
             }
         }
 
-        // Galería (sort_order = 2, 3, 4, 5 - hasta 4 imágenes)
+        // Galería (sort_order = 2, 3, ...)
+        // El límite real de cuota se aplica en el UI (MultipleImagePicker)
         if (data.galleryUris && data.galleryUris.length > 0) {
-            const maxGallery = Math.min(data.galleryUris.length, 4);
-            for (let i = 0; i < maxGallery; i++) {
+            for (let i = 0; i < data.galleryUris.length; i++) {
                 try {
                     await uploadImage(data.galleryUris[i], businessId, 'gallery', 2 + i);
                 } catch (error) {
