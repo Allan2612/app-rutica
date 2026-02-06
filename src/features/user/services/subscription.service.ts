@@ -255,11 +255,16 @@ export async function createSubscription(
 /**
  * Crea múltiples suscripciones en una sola operación
  * Útil cuando el usuario compra varios paquetes a la vez
+ * @param subscriptionTypes - Tipos de suscripción a crear
+ * @param paymentReference - Referencia de pago
+ * @param paymentNote - Nota opcional del pago
+ * @param businessId - ID del negocio al que aplicar (requerido para paquetes de productos/galería)
  */
 export async function createMultipleSubscriptions(
     subscriptionTypes: SubscriptionType[],
     paymentReference: string,
-    paymentNote?: string
+    paymentNote?: string,
+    businessId?: string
 ): Promise<ProfileSubscription[]> {
     const {
         data: { user },
@@ -291,7 +296,100 @@ export async function createMultipleSubscriptions(
         .select();
 
     if (error) throw error;
-    return (data as ProfileSubscription[]) || [];
+
+    const createdSubscriptions = (data as ProfileSubscription[]) || [];
+
+    // Si hay businessId, crear registros en subscription_usage para vincular
+    // la suscripción al negocio específico
+    if (businessId && createdSubscriptions.length > 0) {
+        await createSubscriptionUsageRecords(user.id, createdSubscriptions, validPlans, businessId);
+    }
+
+    return createdSubscriptions;
+}
+
+/**
+ * Crea registros de subscription_usage para vincular suscripciones a un negocio
+ */
+async function createSubscriptionUsageRecords(
+    userId: string,
+    subscriptions: ProfileSubscription[],
+    plans: Subscription[],
+    businessId: string
+): Promise<void> {
+    // Mapear tipo de suscripción a tipo de recurso y cuota
+    const subscriptionConfig: Partial<Record<SubscriptionType, { resourceType: string; quota: number }>> = {
+        'package_products': { resourceType: 'product', quota: 20 },
+        'gallery_business': { resourceType: 'photo_business', quota: 10 },
+        'promotions': { resourceType: 'promotion', quota: 10 },
+        // dashboard no consume recursos directos
+    };
+
+    const usageInserts: Array<{
+        profile_subscription_id_sus: string;
+        profile_id_sus: string;
+        resource_type_sus: string;
+        business_id_sus: string;
+        max_quota_sus: number;
+        used_count_sus: number;
+    }> = [];
+
+    for (let i = 0; i < subscriptions.length; i++) {
+        const subscription = subscriptions[i];
+        const plan = plans[i];
+
+        if (plan.type_sub === 'full_premium') {
+            // Full premium - crear usage para productos, fotos y promociones
+            usageInserts.push({
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                resource_type_sus: 'product',
+                business_id_sus: businessId,
+                max_quota_sus: 20, // 20 productos
+                used_count_sus: 0,
+            });
+            usageInserts.push({
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                resource_type_sus: 'photo_business',
+                business_id_sus: businessId,
+                max_quota_sus: 10, // 10 fotos de galería
+                used_count_sus: 0,
+            });
+            usageInserts.push({
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                resource_type_sus: 'promotion',
+                business_id_sus: businessId,
+                max_quota_sus: 10, // 10 promociones
+                used_count_sus: 0,
+            });
+        } else {
+            const config = subscriptionConfig[plan.type_sub as SubscriptionType];
+            if (config) {
+                usageInserts.push({
+                    profile_subscription_id_sus: subscription.id_psub,
+                    profile_id_sus: userId,
+                    resource_type_sus: config.resourceType,
+                    business_id_sus: businessId,
+                    max_quota_sus: config.quota,
+                    used_count_sus: 0,
+                });
+            }
+        }
+    }
+
+    if (usageInserts.length > 0) {
+        const { error: usageError } = await supabase
+            .from('subscription_usage')
+            .insert(usageInserts as never);
+
+        if (usageError) {
+            console.error('Error creating subscription_usage records:', usageError);
+            // No lanzamos error para no bloquear la creación de la suscripción
+            // El admin puede crear estos registros manualmente al aprobar
+        }
+    }
 }
 
 /**

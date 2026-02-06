@@ -5,8 +5,10 @@ import type { SubscriptionType } from '@/types/enums';
 import { styles } from './styles';
 
 interface ModalFooterProps {
-    step: 'plans' | 'payment';
+    step: 'plans' | 'business' | 'payment';
     selectedPlans: SubscriptionType[];
+    selectedBusinessId: string | null;
+    requiresBusinessSelection: boolean;
     isLoading: boolean;
     onBack: () => void;
     onContinue: () => void;
@@ -16,12 +18,41 @@ interface ModalFooterProps {
 export const ModalFooter = memo(function ModalFooter({
     step,
     selectedPlans,
+    selectedBusinessId,
+    requiresBusinessSelection,
     isLoading,
     onBack,
     onContinue,
     onSubmit,
 }: ModalFooterProps) {
     const colors = useThemedColors();
+
+    // Determinar si el botón continuar debe estar deshabilitado
+    const isContinueDisabled =
+        (step === 'plans' && selectedPlans.length === 0) ||
+        (step === 'business' && !selectedBusinessId);
+
+    // Determinar texto del botón secundario
+    const getBackButtonText = () => {
+        if (step === 'plans') return 'Cancelar';
+        return 'Atrás';
+    };
+
+    // Determinar texto del botón principal
+    const getContinueButtonText = () => {
+        if (step === 'plans') return 'Continuar';
+        if (step === 'business') return 'Continuar';
+        return 'Pagar Premium';
+    };
+
+    // Determinar acción del botón principal
+    const handlePrimaryAction = () => {
+        if (step === 'payment') {
+            onSubmit();
+        } else {
+            onContinue();
+        }
+    };
 
     return (
         <View style={[styles.footer, { borderTopColor: colors.border.light }]}>
@@ -36,7 +67,7 @@ export const ModalFooter = memo(function ModalFooter({
                 onPress={onBack}
             >
                 <Text style={[styles.backButtonText, { color: colors.text.primary }]}>
-                    {step === 'plans' ? 'Cancelar' : 'Atrás'}
+                    {getBackButtonText()}
                 </Text>
             </Pressable>
 
@@ -44,16 +75,16 @@ export const ModalFooter = memo(function ModalFooter({
                 style={[
                     styles.continueButton,
                     { backgroundColor: colors.primary[500] },
-                    (step === 'plans' && selectedPlans.length === 0) && styles.continueButtonDisabled,
+                    isContinueDisabled && styles.continueButtonDisabled,
                 ]}
-                onPress={step === 'plans' ? onContinue : onSubmit}
-                disabled={isLoading || (step === 'plans' && selectedPlans.length === 0)}
+                onPress={handlePrimaryAction}
+                disabled={isLoading || isContinueDisabled}
             >
                 {isLoading ? (
                     <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
                     <Text style={styles.continueButtonText}>
-                        {step === 'plans' ? 'Continuar' : 'Pagar Premium'}
+                        {getContinueButtonText()}
                     </Text>
                 )}
             </Pressable>

@@ -39,41 +39,22 @@ export async function getResourceQuota(
     entityType: 'business' | 'attraction' | 'event'
 ): Promise<QuotaInfo> {
     const limits = DEFAULT_RESOURCE_LIMITS[resourceType];
-    const requiredSubscriptionType = RESOURCE_TO_SUBSCRIPTION[resourceType];
 
-    // 1. Obtener suscripciones aprobadas del tipo requerido
-    const { data: subscriptions, error: subError } = await supabase
-        .from('profile_subscriptions')
-        .select(`
-      id_psub,
-      subscription:subscription_id_psub (
-        type_sub,
-        quota_sub
-      )
-    `)
-        .eq('profile_id_psub', userId)
-        .eq('status_psub', 'approved');
-
-    if (subError) {
-        console.error('Error fetching subscriptions:', subError);
-        throw subError;
-    }
-
-    // Filtrar suscripciones del tipo requerido o full_premium
-    const relevantSubs = (subscriptions as unknown as ApprovedSubscription[] || []).filter(
-        (s) =>
-            s.subscription?.type_sub === requiredSubscriptionType ||
-            s.subscription?.type_sub === 'full_premium'
-    );
-
-    const hasPremium = relevantSubs.length > 0;
-
-    // 2. Obtener uso actual de las suscripciones
+    // 1. Obtener uso actual de las suscripciones para ESTE negocio específico
     const entityColumn = getEntityColumn(entityType);
 
     const { data: usageData, error: usageError } = await supabase
         .from('subscription_usage')
-        .select('id_sus, profile_subscription_id_sus, max_quota_sus, used_count_sus')
+        .select(`
+            id_sus,
+            profile_subscription_id_sus,
+            max_quota_sus,
+            used_count_sus,
+            profile_subscription:profile_subscription_id_sus (
+                id_psub,
+                status_psub
+            )
+        `)
         .eq('profile_id_sus', userId)
         .eq('resource_type_sus', resourceType)
         .eq(entityColumn, entityId);
@@ -83,38 +64,35 @@ export async function getResourceQuota(
         throw usageError;
     }
 
-    // 3. Calcular cuota premium total y usada
+    // 2. Calcular cuota premium basada SOLO en registros de uso para ESTE negocio
+    // que tengan suscripción aprobada
     let premiumQuota = 0;
     let premiumUsed = 0;
     let subscriptionIdToUse: string | undefined;
 
-    for (const sub of relevantSubs) {
-        const quota = sub.subscription?.quota_sub ?? 0;
-        premiumQuota += quota;
+    for (const usage of (usageData as unknown as any[] || [])) {
+        // Verificar que la suscripción esté aprobada
+        const subscription = usage.profile_subscription;
+        if (subscription?.status_psub !== 'approved') {
+            continue;
+        }
 
-        // Buscar si ya existe registro de uso para esta suscripción
-        const usage = (usageData as unknown as SubscriptionUsageRow[] || []).find(
-            (u) => u.profile_subscription_id_sus === sub.id_psub
-        );
+        premiumQuota += usage.max_quota_sus;
+        premiumUsed += usage.used_count_sus;
 
-        if (usage) {
-            premiumUsed += usage.used_count_sus;
-            // Si tiene cuota disponible, guardar ID para usar
-            if (!subscriptionIdToUse && usage.used_count_sus < usage.max_quota_sus) {
-                subscriptionIdToUse = sub.id_psub;
-            }
-        } else {
-            // No tiene registro de uso, así que tiene toda su cuota disponible
-            if (!subscriptionIdToUse) {
-                subscriptionIdToUse = sub.id_psub;
-            }
+        // Si tiene cuota disponible, guardar ID para usar
+        if (!subscriptionIdToUse && usage.used_count_sus < usage.max_quota_sus) {
+            subscriptionIdToUse = usage.profile_subscription_id_sus;
         }
     }
 
-    // 4. Obtener conteo actual de recursos (productos/fotos/etc)
+    // hasPremium solo si HAY registros de uso aprobados para ESTE negocio
+    const hasPremium = premiumQuota > 0;
+
+    // 3. Obtener conteo actual de recursos (productos/fotos/etc)
     const currentCount = await getCurrentResourceCount(resourceType, entityId, entityType);
 
-    // 5. Calcular cuotas finales
+    // 4. Calcular cuotas finales
     const freeQuota = limits.freeLimit;
     const totalQuota = freeQuota + premiumQuota;
     const usedCount = currentCount;

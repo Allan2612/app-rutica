@@ -21,7 +21,8 @@ interface UseSubscriptionsReturn {
     subscribe: (
         subscriptionTypes: SubscriptionType[],
         paymentReference: string,
-        paymentNote?: string
+        paymentNote?: string,
+        businessId?: string
     ) => Promise<ProfileSubscription[]>;
     cancelSubscription: (subscriptionId: string) => Promise<void>;
     refreshSubscriptions: () => Promise<void>;
@@ -81,7 +82,8 @@ export function useSubscriptions(): UseSubscriptionsReturn {
         async (
             subscriptionTypes: SubscriptionType[],
             paymentReference: string,
-            paymentNote?: string
+            paymentNote?: string,
+            businessId?: string
         ): Promise<ProfileSubscription[]> => {
             if (!user?.id) {
                 throw new Error('No hay usuario autenticado');
@@ -93,7 +95,8 @@ export function useSubscriptions(): UseSubscriptionsReturn {
                 const newSubscriptions = await createMultipleSubscriptions(
                     subscriptionTypes,
                     paymentReference,
-                    paymentNote
+                    paymentNote,
+                    businessId
                 );
 
                 // Recargar todas las suscripciones después de crear nuevas

@@ -5,7 +5,7 @@ import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 interface ModalHeaderProps {
-    step: 'plans' | 'payment';
+    step: 'plans' | 'business' | 'payment';
     onClose: () => void;
 }
 
@@ -14,6 +14,19 @@ export const ModalHeader = memo(function ModalHeader({
     onClose,
 }: ModalHeaderProps) {
     const colors = useThemedColors();
+
+    const getTitle = () => {
+        switch (step) {
+            case 'plans':
+                return 'Planes Premium';
+            case 'business':
+                return 'Seleccionar Negocio';
+            case 'payment':
+                return 'Confirmar Pago';
+            default:
+                return 'Premium';
+        }
+    };
 
     return (
         <View
@@ -30,7 +43,7 @@ export const ModalHeader = memo(function ModalHeader({
             <View style={styles.headerTitleRow}>
                 <Crown size={26} color={colors.warning} strokeWidth={2} />
                 <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
-                    {step === 'plans' ? 'Planes Premium' : 'Confirmar Pago'}
+                    {getTitle()}
                 </Text>
             </View>
             <Pressable

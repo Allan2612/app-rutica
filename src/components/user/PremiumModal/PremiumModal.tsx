@@ -5,6 +5,7 @@ import { useThemedColors } from '@/hooks';
 import type { UserRole } from '@/types/enums';
 import { StepIndicator } from './StepIndicator';
 import { PlansStep } from './PlansStep';
+import { BusinessStep } from './BusinessStep';
 import { PaymentStep } from './PaymentStep';
 import { ModalHeader } from './ModalHeader';
 import { BuyerNotice } from './BuyerNotice';
@@ -40,6 +41,8 @@ export const PremiumModal = memo(function PremiumModal({
     const {
         step,
         selectedPlans,
+        selectedBusinessId,
+        requiresBusinessSelection,
         paymentMethod,
         paymentReference,
         paymentNote,
@@ -49,11 +52,52 @@ export const PremiumModal = memo(function PremiumModal({
         setPaymentReference,
         setPaymentNote,
         handleSelectPlan,
+        handleSelectBusiness,
         handleContinue,
         handleBack,
         handleSubmit,
         handleClose,
     } = usePremiumModal({ onClose, onSuccess });
+
+    // Renderizar el contenido según el paso actual
+    const renderStepContent = () => {
+        if (step === 'plans') {
+            return (
+                <PlansStep
+                    selectedPlans={isBuyer ? [] : selectedPlans}
+                    onSelectPlan={isBuyer ? () => { } : handleSelectPlan}
+                    isBuyer={isBuyer}
+                />
+            );
+        }
+
+        if (step === 'business') {
+            return (
+                <BusinessStep
+                    selectedPlans={selectedPlans}
+                    selectedBusinessId={selectedBusinessId}
+                    onSelectBusiness={handleSelectBusiness}
+                />
+            );
+        }
+
+        return (
+            <PaymentStep
+                selectedPlans={selectedPlans}
+                paymentMethod={paymentMethod}
+                paymentReference={paymentReference}
+                paymentNote={paymentNote}
+                error={error}
+                sinpeNumber={SINPE_NUMBER}
+                sinpeName={SINPE_NAME}
+                ibanAccount={IBAN_ACCOUNT}
+                transferName={TRANSFER_NAME}
+                onMethodChange={setPaymentMethod}
+                onReferenceChange={setPaymentReference}
+                onNoteChange={setPaymentNote}
+            />
+        );
+    };
 
     return (
         <AccessibleModal
@@ -75,34 +119,15 @@ export const PremiumModal = memo(function PremiumModal({
                     {isBuyer && <BuyerNotice />}
 
                     <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                        {step === 'plans' ? (
-                            <PlansStep
-                                selectedPlans={isBuyer ? [] : selectedPlans}
-                                onSelectPlan={isBuyer ? () => { } : handleSelectPlan}
-                                isBuyer={isBuyer}
-                            />
-                        ) : (
-                            <PaymentStep
-                                selectedPlans={selectedPlans}
-                                paymentMethod={paymentMethod}
-                                paymentReference={paymentReference}
-                                paymentNote={paymentNote}
-                                error={error}
-                                sinpeNumber={SINPE_NUMBER}
-                                sinpeName={SINPE_NAME}
-                                ibanAccount={IBAN_ACCOUNT}
-                                transferName={TRANSFER_NAME}
-                                onMethodChange={setPaymentMethod}
-                                onReferenceChange={setPaymentReference}
-                                onNoteChange={setPaymentNote}
-                            />
-                        )}
+                        {renderStepContent()}
                     </ScrollView>
 
                     {!isBuyer && (
                         <ModalFooter
                             step={step}
                             selectedPlans={selectedPlans}
+                            selectedBusinessId={selectedBusinessId}
+                            requiresBusinessSelection={requiresBusinessSelection}
                             isLoading={isLoading}
                             onBack={handleBack}
                             onContinue={handleContinue}

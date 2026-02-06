@@ -13,9 +13,9 @@ export const styles = StyleSheet.create({
         gap: 8,
     },
     stepCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         borderWidth: 2,
         alignItems: 'center',
         justifyContent: 'center',
@@ -28,17 +28,17 @@ export const styles = StyleSheet.create({
         elevation: 3,
     },
     stepNumber: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '700',
     },
     stepLabel: {
-        fontSize: 13,
+        fontSize: 11,
         fontWeight: '600',
     },
     stepLine: {
         height: 2,
-        width: 60,
-        marginHorizontal: 8,
-        marginTop: 19,
+        width: 40,
+        marginHorizontal: 6,
+        marginTop: 17,
     },
 });
