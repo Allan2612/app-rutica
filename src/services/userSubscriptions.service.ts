@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import type { SubscriptionType, SubscriptionStatus } from '@/types/enums';
+import { SUBSCRIPTION_PLANS } from '@/types/entities';
 
 // ============================================
 // Types
@@ -73,12 +74,16 @@ export async function getUserActiveSubscriptions(
     .map((item) => {
       const sub = item.subscription!;
 
+      // Usar los features del código como fuente de verdad (no de la BD)
+      const planInfo = SUBSCRIPTION_PLANS.find(p => p.type === sub.type_sub);
+      const features = planInfo?.features || sub.features_sub || [];
+
       return {
         id: item.id_psub,
         subscriptionType: sub.type_sub,
         subscriptionName: sub.name_sub,
         subscriptionDescription: sub.description_sub,
-        features: sub.features_sub || [],
+        features,
         approvedAt: item.approved_at_psub || '',
       };
     });
@@ -155,6 +160,7 @@ export interface UserSubscriptionDetail {
   price: number;
   status: SubscriptionStatus;
   approvedAt: string | null;
+  expiresAt: string | null;
   subscribedAt: string;
   usageDetails: SubscriptionUsageDetail[];
 }
@@ -177,6 +183,7 @@ export async function getUserSubscriptionDetails(
       status_psub,
       approved_at_psub,
       subscribed_at_psub,
+      expires_at_psub,
       subscription:subscription_id_psub (
         type_sub,
         name_sub,
@@ -297,15 +304,22 @@ export async function getUserSubscriptionDetails(
   // 5. Construir resultado final
   return subscriptionsData.map((sub: any) => {
     const subscription = sub.subscription;
+    const subscriptionType = subscription?.type_sub || 'unknown';
+
+    // Usar los features del código como fuente de verdad (no de la BD)
+    const planInfo = SUBSCRIPTION_PLANS.find(p => p.type === subscriptionType);
+    const features = planInfo?.features || subscription?.features_sub || [];
+
     return {
       id: sub.id_psub,
-      subscriptionType: subscription?.type_sub || 'unknown',
+      subscriptionType,
       subscriptionName: subscription?.name_sub || 'Desconocido',
       subscriptionDescription: subscription?.description_sub || '',
-      features: subscription?.features_sub || [],
+      features,
       price: subscription?.price_sub || 0,
       status: sub.status_psub,
       approvedAt: sub.approved_at_psub,
+      expiresAt: sub.expires_at_psub,
       subscribedAt: sub.subscribed_at_psub,
       usageDetails: usageBySubscription.get(sub.id_psub) || [],
     };

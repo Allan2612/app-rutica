@@ -21,6 +21,7 @@ export interface SubscriptionStats {
     approved: number;
     rejected: number;
     cancelled: number;
+    expired: number;
     total: number;
 }
 
@@ -102,6 +103,7 @@ export async function getSubscriptionStats(): Promise<SubscriptionStats> {
         approved: 0,
         rejected: 0,
         cancelled: 0,
+        expired: 0,
         total: 0,
     };
 
@@ -118,6 +120,7 @@ export async function getSubscriptionStats(): Promise<SubscriptionStats> {
 
 /**
  * Aprueba una suscripción
+ * Para suscripciones mensuales (dashboard, full_premium), calcula fecha de expiración
  */
 export async function approveSubscription(subscriptionId: string): Promise<ProfileSubscription> {
     const {
@@ -126,13 +129,40 @@ export async function approveSubscription(subscriptionId: string): Promise<Profi
 
     if (!user) throw new Error('No authenticated user');
 
+    // Primero obtener la suscripción para saber el tipo
+    const { data: subscription, error: fetchError } = await supabase
+        .from('profile_subscriptions')
+        .select(`
+            *,
+            subscription:subscription_id_psub (
+                type_sub
+            )
+        `)
+        .eq('id_psub', subscriptionId)
+        .single();
+
+    if (fetchError) throw fetchError;
+    if (!subscription) throw new Error('Suscripción no encontrada');
+
+    const subscriptionType = (subscription as any).subscription?.type_sub;
+    const approvalDate = new Date();
+
+    // Calcular fecha de expiración para suscripciones mensuales
+    let expiresAt: string | null = null;
+    if (subscriptionType === 'dashboard' || subscriptionType === 'full_premium') {
+        const expiryDate = new Date(approvalDate);
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+        expiresAt = expiryDate.toISOString();
+    }
+
     const { data, error } = await supabase
         .from('profile_subscriptions')
         .update({
             status_psub: 'approved',
-            approved_at_psub: new Date().toISOString(),
+            approved_at_psub: approvalDate.toISOString(),
             approved_by_psub: user.id,
-            updated_at_psub: new Date().toISOString(),
+            expires_at_psub: expiresAt,
+            updated_at_psub: approvalDate.toISOString(),
         } as never)
         .eq('id_psub', subscriptionId)
         .select()

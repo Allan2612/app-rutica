@@ -34,60 +34,100 @@ export const AvailablePlansSection = memo(function AvailablePlansSection({
 }: AvailablePlansSectionProps) {
     const colors = useThemedColors();
 
+    // Separar paquetes de pago único vs mensualidades
+    const packagePlans = SUBSCRIPTION_PLANS.filter(plan => !plan.isMonthly && plan.type !== 'gallery_events');
+    const galleryEventsPlan = SUBSCRIPTION_PLANS.find(plan => plan.type === 'gallery_events');
+    const monthlyPlans = SUBSCRIPTION_PLANS.filter(plan => plan.isMonthly);
+    const fullPremiumPlan = monthlyPlans.find(plan => plan.type === 'full_premium');
+    const dashboardPlan = monthlyPlans.find(plan => plan.type === 'dashboard');
+
+    const renderPlanCard = (plan: typeof SUBSCRIPTION_PLANS[0], isFeatured: boolean = false) => {
+        const Icon = PLAN_ICONS[plan.type] || Tag;
+        const colorConfig = PLAN_COLORS[plan.type] || PLAN_COLORS.promotions;
+
+        return (
+            <Pressable
+                key={plan.type}
+                style={[
+                    isFeatured ? styles.featuredPlanCard : styles.planCard,
+                    {
+                        backgroundColor: colors.background.primary,
+                        borderColor: isFeatured ? colorConfig.icon : colors.border.medium,
+                        borderWidth: isFeatured ? 2 : 1,
+                    },
+                ]}
+                onPress={() => onBuyPress(plan.type)}
+            >
+                {isFeatured && (
+                    <View style={[styles.featuredBadge, { backgroundColor: colorConfig.icon }]}>
+                        <Sparkles color="#FFFFFF" size={10} />
+                        <Text style={styles.featuredBadgeText}>Popular</Text>
+                    </View>
+                )}
+
+                <View style={[styles.planIconContainer, { backgroundColor: colorConfig.bg }]}>
+                    <Icon color={colorConfig.icon} size={20} strokeWidth={2} />
+                </View>
+
+                <Text style={[styles.planName, { color: colors.text.primary }]} numberOfLines={1}>
+                    {plan.name}
+                </Text>
+
+                <Text style={[styles.planPrice, { color: colorConfig.icon }]}>
+                    {plan.price}
+                </Text>
+
+                <View style={isFeatured ? styles.featuresListFeatured : styles.featuresList}>
+                    {(isFeatured ? plan.features : plan.features.slice(0, 2)).map((feature, index) => (
+                        <View key={index} style={styles.featureItem}>
+                            <Check color={colorConfig.icon} size={12} strokeWidth={2.5} />
+                            <Text style={[styles.featureText, { color: colors.text.secondary }]} numberOfLines={isFeatured ? undefined : 1}>
+                                {feature}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            </Pressable>
+        );
+    };
+
     return (
         <View style={styles.container}>
+            {/* Sección de Paquetes */}
             <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
                 Paquetes Disponibles
             </Text>
             <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
-                Potencia tu negocio con nuestros paquetes premium
+                Pago único
             </Text>
 
             <View style={styles.grid}>
-                {SUBSCRIPTION_PLANS.map((plan) => {
-                    const Icon = PLAN_ICONS[plan.type] || Tag;
-                    const colorConfig = PLAN_COLORS[plan.type] || PLAN_COLORS.promotions;
-                    const isFullPremium = plan.type === 'full_premium';
-
-                    return (
-                        <Pressable
-                            key={plan.type}
-                            style={[styles.planCard, { backgroundColor: colors.background.primary, borderColor: isFullPremium ? colorConfig.icon : colors.border.medium, borderWidth: isFullPremium ? 2 : 1 }]}
-                            onPress={() => onBuyPress(plan.type)}
-                        >
-                            {isFullPremium && (
-                                <View style={[styles.featuredBadge, { backgroundColor: colorConfig.icon }]}>
-                                    <Sparkles color="#FFFFFF" size={10} />
-                                    <Text style={styles.featuredBadgeText}>Popular</Text>
-                                </View>
-                            )}
-
-                            <View style={[styles.planIconContainer, { backgroundColor: colorConfig.bg }]}>
-                                <Icon color={colorConfig.icon} size={20} strokeWidth={2} />
-                            </View>
-
-                            <Text style={[styles.planName, { color: colors.text.primary }]} numberOfLines={1}>
-                                {plan.name}
-                            </Text>
-
-                            <Text style={[styles.planPrice, { color: colorConfig.icon }]}>
-                                {plan.price}
-                            </Text>
-
-                            <View style={styles.featuresList}>
-                                {plan.features.slice(0, 2).map((feature, index) => (
-                                    <View key={index} style={styles.featureItem}>
-                                        <Check color={colorConfig.icon} size={12} strokeWidth={2.5} />
-                                        <Text style={[styles.featureText, { color: colors.text.secondary }]} numberOfLines={1}>
-                                            {feature}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </Pressable>
-                    );
-                })}
+                {packagePlans.map((plan) => renderPlanCard(plan, false))}
             </View>
+
+            {/* Galería Eventos - Centrado */}
+            {galleryEventsPlan && (
+                <View style={styles.centeredContainer}>
+                    {renderPlanCard(galleryEventsPlan, false)}
+                </View>
+            )}
+
+            {/* Sección de Mensualidades */}
+            {monthlyPlans.length > 0 && (
+                <>
+                    <Text style={[styles.sectionTitle, styles.sectionTitleSpacing, { color: colors.text.primary }]}>
+                        Mensualidades
+                    </Text>
+                    <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
+                        Pago mensual recurrente
+                    </Text>
+
+                    <View style={styles.grid}>
+                        {dashboardPlan && renderPlanCard(dashboardPlan, false)}
+                        {fullPremiumPlan && renderPlanCard(fullPremiumPlan, true)}
+                    </View>
+                </>
+            )}
         </View>
     );
 });

@@ -76,6 +76,19 @@ export const SubscriptionRequestCard = memo(function SubscriptionRequestCard({
                         {format(new Date(subscription.created_at_psub), "d 'de' MMMM, yyyy - HH:mm", { locale: es })}
                     </Text>
                 </View>
+                {subscription.expires_at_psub && (
+                    <View style={styles.detailRow}>
+                        <Text style={[styles.detailLabel, { color: colors.text.tertiary }]}>
+                            {subscription.status_psub === 'expired' ? 'Expiró el:' : 'Expira el:'}
+                        </Text>
+                        <Text style={[
+                            styles.detailValue,
+                            { color: subscription.status_psub === 'expired' ? '#ef4444' : colors.text.primary }
+                        ]}>
+                            {format(new Date(subscription.expires_at_psub), "d 'de' MMMM, yyyy - HH:mm", { locale: es })}
+                        </Text>
+                    </View>
+                )}
                 {subscription.payment_note_psub && (
                     <View style={styles.detailRow}>
                         <Text style={[styles.detailLabel, { color: colors.text.tertiary }]}>

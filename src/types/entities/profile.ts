@@ -55,6 +55,7 @@ export interface ProfileSubscription {
   rejected_by_psub: string | null;
   rejection_reason_psub: string | null;
   cancelled_at_psub: string | null;
+  expires_at_psub: string | null; // Fecha de expiración para suscripciones mensuales
   created_at_psub: string;
   updated_at_psub: string;
   // Relación con subscription (cuando se hace JOIN)
@@ -194,6 +195,7 @@ export interface SubscriptionPlanInfo {
   features: string[];
   price: string;
   priceValue: number;
+  isMonthly?: boolean; // true para mensualidades, false/undefined para paquetes
 }
 
 /**
@@ -222,8 +224,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
       'Clicks en contacto y redes sociales',
       'Interacciones con productos',
     ],
-    price: '₡3,500',
+    price: '₡3,500/mes',
     priceValue: 3500,
+    isMonthly: true,
   },
   {
     type: 'gallery_business',
@@ -243,7 +246,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
     description: 'Publica hasta 20 productos por negocio',
     features: [
       'Hasta 20 productos por negocio',
-      '3 fotos por producto',
+      '2 fotos por producto',
       'Catálogo completo',
     ],
     price: '₡5,000',
@@ -281,13 +284,12 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
       'Dashboard con estadísticas completas',
       'Hasta 10 promociones simultáneas',
       'Galería extendida para empresas (10 fotos)',
-      'Hasta 20 productos con 3 fotos cada uno',
-      'Galería de atracciones (10 fotos)',
-      'Galería de eventos (10 fotos)',
+      'Hasta 20 productos con 2 fotos cada uno',
       'Soporte prioritario',
     ],
     price: '₡12,500/mes',
     priceValue: 12500,
+    isMonthly: true,
   },
 ];
 

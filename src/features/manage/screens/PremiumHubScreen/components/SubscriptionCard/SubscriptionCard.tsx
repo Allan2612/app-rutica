@@ -47,6 +47,14 @@ export const SubscriptionCard = memo(function SubscriptionCard({
         })
         : null;
 
+    const expiresDate = subscription.expiresAt
+        ? new Date(subscription.expiresAt).toLocaleDateString('es-CR', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        })
+        : null;
+
     return (
         <View style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}>
             <View style={styles.header}>
@@ -66,6 +74,14 @@ export const SubscriptionCard = memo(function SubscriptionCard({
                                 <View style={[styles.metaDot, { backgroundColor: colors.text.tertiary }]} />
                                 <Text style={[styles.date, { color: colors.text.tertiary }]}>
                                     {approvedDate}
+                                </Text>
+                            </>
+                        )}
+                        {expiresDate && (
+                            <>
+                                <View style={[styles.metaDot, { backgroundColor: colors.text.tertiary }]} />
+                                <Text style={[styles.date, { color: '#f59e0b' }]}>
+                                    Expira: {expiresDate}
                                 </Text>
                             </>
                         )}

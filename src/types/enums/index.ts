@@ -93,7 +93,7 @@ export type SubscriptionType =
   | 'promotions'            // Promociones ilimitadas
   | 'dashboard'             // Dashboard de negocio con estadísticas
   | 'gallery_business'      // Galería extendida para empresa
-  | 'package_products'      // Hasta 20 productos con 3 fotos cada uno
+  | 'package_products'      // Hasta 20 productos con 2 fotos cada uno
   | 'gallery_attractions'   // Galería de hasta 10 fotos para atracciones
   | 'gallery_events'        // Galería de hasta 10 fotos para eventos
   | 'full_premium';         // Acceso completo a todas las funcionalidades
@@ -106,7 +106,8 @@ export type SubscriptionStatus =
   | 'pending'    // Pendiente de aprobación
   | 'approved'   // Aprobada por admin
   | 'rejected'   // Rechazada por admin
-  | 'cancelled'; // Cancelada por usuario
+  | 'cancelled'  // Cancelada por usuario
+  | 'expired';   // Expirada (para suscripciones mensuales)
 
 /**
  * Tipo de recurso consumible por suscripción

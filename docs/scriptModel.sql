@@ -475,6 +475,82 @@ create table public.attractions (
   constraint attractions_reviewed_by_atr_fkey foreign key (reviewed_by_atr) references public.profiles(id_prf)
 );
 
+--Control de ecxpiración de suscripciones mensuales (nuevo campo + función)
+-- Paso 1: Agregar 'expired' al enum subscription_status
+ALTER TYPE public.subscription_status ADD VALUE IF NOT EXISTS 'expired';
+
+-- Paso 2: Agregar campo de expiración a profile_subscriptions
+ALTER TABLE public.profile_subscriptions 
+ADD COLUMN IF NOT EXISTS expires_at_psub timestamptz;
+
+-- Paso 3: Agregar índice para búsquedas de expiración
+CREATE INDEX IF NOT EXISTS idx_profile_subscriptions_expires_at 
+ON public.profile_subscriptions(expires_at_psub) 
+WHERE expires_at_psub IS NOT NULL AND status_psub = 'approved';
+
+-- Paso 4: Comentario del nuevo campo
+COMMENT ON COLUMN public.profile_subscriptions.expires_at_psub IS 
+'Fecha de expiración para suscripciones mensuales. NULL para paquetes de pago único.';
+
+-- Paso 5: Función que expira las suscripciones mensuales vencidas
+CREATE OR REPLACE FUNCTION public.expire_monthly_subscriptions()
+RETURNS integer
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  expired_count integer;
+BEGIN
+  -- Actualizar suscripciones que han expirado
+  UPDATE public.profile_subscriptions
+  SET 
+    status_psub = 'expired',
+    updated_at_psub = now()
+  WHERE 
+    status_psub = 'approved'
+    AND expires_at_psub IS NOT NULL
+    AND expires_at_psub <= now();
+  
+  -- Obtener cantidad de filas afectadas
+  GET DIAGNOSTICS expired_count = ROW_COUNT;
+  
+  -- Log opcional (puedes ver en los logs de Supabase)
+  RAISE NOTICE 'Expired % monthly subscriptions at %', expired_count, now();
+  
+  RETURN expired_count;
+END;
+$$;
+
+-- Paso 6: Grant para que la función pueda ser llamada por service_role
+GRANT EXECUTE ON FUNCTION public.expire_monthly_subscriptions() TO service_role;
+
+-- Paso 7: Función para establecer fecha de expiración al aprobar (helper)
+-- Esta función calcula 1 mes desde la fecha de aprobación
+CREATE OR REPLACE FUNCTION public.calculate_subscription_expiry(
+  subscription_type text,
+  approval_date timestamptz DEFAULT now()
+)
+RETURNS timestamptz
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  -- Solo los tipos mensuales tienen expiración
+  IF subscription_type IN ('dashboard', 'full_premium') THEN
+    RETURN approval_date + INTERVAL '1 month';
+  ELSE
+    -- Paquetes de pago único no expiran
+    RETURN NULL;
+  END IF;
+END;
+$$;
+
+
+ SELECT cron.schedule(
+  'expire-monthly-subscriptions',  -- nombre del job
+   '0 0 * * *',                     -- cron: cada día a medianoche
+   $$SELECT public.expire_monthly_subscriptions()$$
+ );
+
 create table public.products (
   id_prd uuid not null default gen_random_uuid(),
   business_id_prd uuid,

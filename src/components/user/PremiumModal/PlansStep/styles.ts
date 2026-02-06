@@ -9,4 +9,13 @@ export const styles = StyleSheet.create({
         marginBottom: 16,
         textAlign: 'center',
     },
+    categoryTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    categorySubtitle: {
+        fontSize: 12,
+        marginBottom: 12,
+    },
 });

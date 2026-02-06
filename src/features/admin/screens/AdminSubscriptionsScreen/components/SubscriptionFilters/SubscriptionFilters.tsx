@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, TextInput, Pressable } from 'react-native';
-import { Search, CheckCircle, Users, Clock, XCircle } from 'lucide-react-native';
+import { Search, CheckCircle, Users, Clock, XCircle, TimerOff } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import type { SubscriptionStatus } from '@/types/enums';
 import { styles } from './styles';
@@ -15,6 +15,7 @@ interface SubscriptionFiltersProps {
 const statusFilters: { key: SubscriptionStatus | 'all'; label: string; icon: typeof Clock }[] = [
     { key: 'pending', label: 'Pendientes', icon: Clock },
     { key: 'approved', label: 'Aprobadas', icon: CheckCircle },
+    { key: 'expired', label: 'Expiradas', icon: TimerOff },
     { key: 'rejected', label: 'Rechazadas', icon: XCircle },
     { key: 'all', label: 'Todas', icon: Users },
 ];

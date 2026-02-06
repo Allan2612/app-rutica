@@ -11,6 +11,9 @@ export const styles = StyleSheet.create({
         marginBottom: 4,
         textAlign: 'center',
     },
+    sectionTitleSpacing: {
+        marginTop: 24,
+    },
     sectionSubtitle: {
         fontSize: 14,
         textAlign: 'center',
@@ -28,6 +31,23 @@ export const styles = StyleSheet.create({
         width: '48%',
         position: 'relative',
         overflow: 'hidden',
+    },
+    centeredContainer: {
+        marginTop: 12,
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    featuredPlanCard: {
+        borderRadius: 12,
+        padding: 12,
+        width: '48%',
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    featuresListFeatured: {
+        gap: 6,
+        marginTop: 4,
     },
     featuredBadge: {
         position: 'absolute',
