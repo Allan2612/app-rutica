@@ -14,7 +14,7 @@ export function useEventPostReviews(
     selectedReviewId: string | null,
     selectedReviewUserId: string | null
 ) {
-    const { data: reviews } = useEventReviews(eventId);
+    const { data: reviews = [] } = useEventReviews(eventId);
     const { data: userReview } = useUserEventReview(eventId, userId);
 
     const createReview = useCreateEventReview();
