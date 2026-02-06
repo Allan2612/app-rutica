@@ -13,13 +13,13 @@ export const LimitBanner = memo<LimitBannerProps>(function LimitBanner({ quotaIn
     const colors = useThemedColors();
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.error[50], borderColor: colors.error[200] }]}>
-            <Lock color={colors.error[600]} size={20} />
+        <View style={[styles.container, { backgroundColor: colors.error[50], borderColor: colors.error }]}>
+            <Lock color={colors.error} size={20} />
             <View style={styles.content}>
-                <Text style={[styles.title, { color: colors.error[800] }]}>
+                <Text style={[styles.title, { color: colors.error }]}>
                     Límite de productos alcanzado
                 </Text>
-                <Text style={[styles.text, { color: colors.error[700] }]}>
+                <Text style={[styles.text, { color: colors.error }]}>
                     {quotaInfo.hasPremium
                         ? 'Has usado toda tu cuota. Adquiere otro paquete para añadir más productos.'
                         : `Has alcanzado el límite de ${quotaInfo.freeQuota} productos gratuitos.`}

@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store';
 import {
   getUserActiveSubscriptions,
   getUserSubscriptionSummary,
+  getUserSubscriptionDetails,
 } from '@/services/userSubscriptions.service';
 import type { SubscriptionType } from '@/types/enums';
 
@@ -14,6 +15,7 @@ export const userSubscriptionKeys = {
   all: ['user', 'subscriptions'] as const,
   active: (userId: string) => [...userSubscriptionKeys.all, 'active', userId] as const,
   summary: (userId: string) => [...userSubscriptionKeys.all, 'summary', userId] as const,
+  details: (userId: string) => [...userSubscriptionKeys.all, 'details', userId] as const,
 };
 
 // ============================================
@@ -61,4 +63,18 @@ export function useHasActiveSubscription(subscriptionType: SubscriptionType) {
  */
 export function useHasFullPremium() {
   return useHasActiveSubscription('full_premium');
+}
+
+/**
+ * Hook para obtener las suscripciones con detalle completo de consumo
+ */
+export function useUserSubscriptionDetails() {
+  const userId = useAuthStore((state) => state.user?.id);
+
+  return useQuery({
+    queryKey: userSubscriptionKeys.details(userId ?? ''),
+    queryFn: () => getUserSubscriptionDetails(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
 }

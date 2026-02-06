@@ -65,71 +65,31 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
   },
-  grid: {
-    gap: spacing.md,
+  section: {
     width: '100%',
     maxWidth: 600,
+    marginBottom: spacing.xl,
   },
-  subscriptionCard: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardContent: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: typography.sizes.base,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.xs,
-  },
-  cardDescription: {
-    fontSize: typography.sizes.sm,
-    lineHeight: 18,
-  },
-  chevron: {
-    marginLeft: spacing.sm,
-  },
-  featuresSection: {
-    width: '100%',
-    maxWidth: 600,
-    marginTop: spacing.xl,
-  },
-  featuresTitle: {
+  sectionTitle: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.md,
   },
-  featuresList: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  featureItem: {
+  acquireButton: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 8,
+    marginTop: spacing.lg,
+    alignSelf: 'center',
   },
-  featureBullet: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginTop: 6,
-  },
-  featureText: {
-    flex: 1,
+  acquireButtonText: {
+    color: '#FFFFFF',
     fontSize: typography.sizes.sm,
-    lineHeight: 20,
+    fontWeight: typography.fontWeights.medium,
   },
 });
+
