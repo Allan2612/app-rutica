@@ -88,4 +88,35 @@ export const styles = StyleSheet.create({
     listContainer: {
         maxHeight: 300,
     },
+    planSection: {
+        marginBottom: 20,
+        paddingBottom: 16,
+        borderBottomWidth: 1,
+    },
+    planHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 8,
+    },
+    planName: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    planSubtitle: {
+        fontSize: 13,
+        marginBottom: 12,
+    },
+    entityList: {
+        gap: 8,
+    },
+    emptyPlanMessage: {
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    emptyPlanText: {
+        fontSize: 13,
+        textAlign: 'center',
+    },
 });

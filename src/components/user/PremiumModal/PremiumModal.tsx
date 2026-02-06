@@ -50,9 +50,10 @@ export const PremiumModal = memo(function PremiumModal({
     const {
         step,
         selectedPlans,
-        selectedBusinessId,
-        selectedEntityId,
-        selectedEntityType,
+        businessSelections,
+        businessRequiredPlans,
+        entitySelections,
+        entityRequiredPlans,
         requiresBusinessSelection,
         requiresEntitySelection,
         paymentMethod,
@@ -94,8 +95,8 @@ export const PremiumModal = memo(function PremiumModal({
         if (step === 'business') {
             return (
                 <BusinessStep
-                    selectedPlans={selectedPlans}
-                    selectedBusinessId={selectedBusinessId}
+                    businessRequiredPlans={businessRequiredPlans}
+                    businessSelections={businessSelections}
                     onSelectBusiness={handleSelectBusiness}
                 />
             );
@@ -104,9 +105,8 @@ export const PremiumModal = memo(function PremiumModal({
         if (step === 'entity') {
             return (
                 <EntityStep
-                    selectedPlans={selectedPlans}
-                    selectedEntityId={selectedEntityId}
-                    selectedEntityType={selectedEntityType}
+                    entityRequiredPlans={entityRequiredPlans}
+                    entitySelections={entitySelections}
                     onSelectEntity={handleSelectEntity}
                 />
             );
@@ -157,10 +157,10 @@ export const PremiumModal = memo(function PremiumModal({
                         <ModalFooter
                             step={step}
                             selectedPlans={selectedPlans}
-                            selectedBusinessId={selectedBusinessId}
-                            selectedEntityId={selectedEntityId}
-                            requiresBusinessSelection={requiresBusinessSelection}
-                            requiresEntitySelection={requiresEntitySelection}
+                            businessSelections={businessSelections}
+                            businessRequiredPlans={businessRequiredPlans}
+                            entitySelections={entitySelections}
+                            entityRequiredPlans={entityRequiredPlans}
                             isLoading={isLoading}
                             onBack={handleBack}
                             onContinue={handleContinue}

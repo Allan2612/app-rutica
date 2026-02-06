@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 14,
-        marginBottom: 16,
+        marginBottom: 20,
         textAlign: 'center',
     },
     loadingContainer: {
@@ -35,13 +35,34 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         paddingHorizontal: 20,
     },
+    planSection: {
+        marginBottom: 20,
+        paddingBottom: 16,
+        borderBottomWidth: 1,
+    },
+    planHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 8,
+    },
+    planName: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    planSubtitle: {
+        fontSize: 13,
+        marginBottom: 12,
+    },
+    businessList: {
+        gap: 8,
+    },
     businessCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: 14,
         borderRadius: 12,
         borderWidth: 2,
-        marginBottom: 12,
     },
     businessCardContent: {
         flex: 1,
@@ -51,20 +72,7 @@ export const styles = StyleSheet.create({
     },
     businessName: {
         flex: 1,
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '600',
-    },
-    selectedPlansInfo: {
-        marginBottom: 20,
-        padding: 12,
-        borderRadius: 8,
-    },
-    selectedPlansTitle: {
-        fontSize: 12,
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    selectedPlansText: {
-        fontSize: 13,
     },
 });

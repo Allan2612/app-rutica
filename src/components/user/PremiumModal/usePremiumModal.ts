@@ -1,12 +1,23 @@
 import { useState, useCallback } from 'react';
 import Toast from 'react-native-toast-message';
 import { useSubscriptions } from '@/features/user/hooks/useSubscriptions';
+import { checkBusinessFullPremiumStatus } from '@/features/user/services/subscription.service';
 import { SUBSCRIPTION_PLANS } from '@/types/entities';
 import type { SubscriptionType } from '@/types/enums';
 
 type Step = 'plans' | 'business' | 'entity' | 'payment';
 type PaymentMethod = 'sinpe' | 'transfer';
 type EntityType = 'attraction' | 'event';
+
+// Tipo para las selecciones de entidades por paquete
+export type EntitySelection = {
+    entityId: string;
+    entityType: EntityType;
+};
+export type EntitySelections = Partial<Record<SubscriptionType, EntitySelection>>;
+
+// Tipo para las selecciones de negocios por paquete
+export type BusinessSelections = Partial<Record<SubscriptionType, string>>;
 
 // Planes que requieren seleccionar un negocio
 const BUSINESS_REQUIRED_PLANS: SubscriptionType[] = [
@@ -52,39 +63,39 @@ export function usePremiumModal({
     const [selectedPlans, setSelectedPlans] = useState<SubscriptionType[]>(() =>
         initialPlan ? [initialPlan] : []
     );
-    const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
-    const [selectedEntityId, setSelectedEntityId] = useState<string | null>(
-        preSelectedEntityId ?? null
-    );
-    const [selectedEntityType, setSelectedEntityType] = useState<EntityType | null>(
-        preSelectedEntityType ?? null
-    );
+    // Mapa de paquete -> negocio seleccionado para soportar múltiples paquetes de negocio
+    const [businessSelections, setBusinessSelections] = useState<BusinessSelections>({});
+    // Mapa de paquete -> entidad seleccionada para soportar múltiples paquetes de entidad
+    const [entitySelections, setEntitySelections] = useState<EntitySelections>(() => {
+        if (initialPlan && preSelectedEntityId && preSelectedEntityType) {
+            return { [initialPlan]: { entityId: preSelectedEntityId, entityType: preSelectedEntityType } };
+        }
+        return {};
+    });
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('sinpe');
     const [paymentReference, setPaymentReference] = useState('');
     const [paymentNote, setPaymentNote] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    // Verificar si los planes seleccionados requieren un negocio
-    const requiresBusinessSelection = selectedPlans.some(plan =>
+    // Planes seleccionados que requieren un negocio
+    const businessRequiredPlans = selectedPlans.filter(plan =>
         BUSINESS_REQUIRED_PLANS.includes(plan)
     );
 
-    // Verificar si los planes seleccionados requieren una atracción/evento
-    const requiresEntitySelection = selectedPlans.some(plan =>
+    // Verificar si hay planes que requieren seleccionar negocio
+    const requiresBusinessSelection = businessRequiredPlans.length > 0;
+
+    // Planes seleccionados que requieren una atracción/evento
+    const entityRequiredPlans = selectedPlans.filter(plan =>
         ENTITY_REQUIRED_PLANS.includes(plan)
     );
+
+    // Verificar si hay planes que requieren seleccionar una atracción/evento
+    const requiresEntitySelection = entityRequiredPlans.length > 0;
 
     const handleSelectPlan = useCallback((planType: SubscriptionType) => {
         setSelectedPlans(current => {
             const isSelected = current.includes(planType);
-
-            if (planType === 'full_premium') {
-                return isSelected ? [] : ['full_premium'];
-            }
-
-            if (current.includes('full_premium')) {
-                return [planType];
-            }
 
             if (isSelected) {
                 return current.filter(p => p !== planType);
@@ -93,20 +104,58 @@ export function usePremiumModal({
             }
         });
         // Limpiar selecciones cuando cambian los planes
-        setSelectedBusinessId(null);
-        setSelectedEntityId(null);
-        setSelectedEntityType(null);
+        setBusinessSelections({});
+        setEntitySelections({});
         setError(null);
     }, []);
 
-    const handleSelectBusiness = useCallback((businessId: string) => {
-        setSelectedBusinessId(businessId);
+    const handleSelectBusiness = useCallback(async (planType: SubscriptionType, businessId: string) => {
+        // Si es full_premium, verificar si este negocio ya tiene uno activo o pendiente
+        if (planType === 'full_premium') {
+            try {
+                const { hasActive, hasPending } = await checkBusinessFullPremiumStatus(businessId);
+
+                if (hasActive) {
+                    Toast.show({
+                        type: 'info',
+                        text1: 'Plan Premium Completo Activo',
+                        text2: 'Este negocio ya tiene el plan Premium Completo activado.',
+                        position: 'top',
+                        visibilityTime: 4000,
+                        topOffset: 100,
+                    });
+                    return;
+                }
+
+                if (hasPending) {
+                    Toast.show({
+                        type: 'info',
+                        text1: 'Plan Premium Completo Pendiente',
+                        text2: 'Este negocio ya tiene una solicitud pendiente del plan Premium Completo.',
+                        position: 'top',
+                        visibilityTime: 4000,
+                        topOffset: 100,
+                    });
+                    return;
+                }
+            } catch (err) {
+                // Si hay error en la verificación, permitir continuar
+                console.error('Error checking business full premium status:', err);
+            }
+        }
+
+        setBusinessSelections(current => ({
+            ...current,
+            [planType]: businessId,
+        }));
         setError(null);
     }, []);
 
-    const handleSelectEntity = useCallback((entityId: string, entityType: EntityType) => {
-        setSelectedEntityId(entityId);
-        setSelectedEntityType(entityType);
+    const handleSelectEntity = useCallback((planType: SubscriptionType, entityId: string, entityType: EntityType) => {
+        setEntitySelections(current => ({
+            ...current,
+            [planType]: { entityId, entityType },
+        }));
         setError(null);
     }, []);
 
@@ -115,40 +164,6 @@ export function usePremiumModal({
             if (selectedPlans.length === 0) {
                 setError('Selecciona al menos un plan para continuar');
                 return;
-            }
-
-            if (selectedPlans.includes('full_premium')) {
-                const hasActiveFullPremium = approvedSubscriptions.some(
-                    sub => sub.subscription?.type_sub === 'full_premium'
-                );
-
-                const hasPendingFullPremium = pendingSubscriptions.some(
-                    sub => sub.subscription?.type_sub === 'full_premium'
-                );
-
-                if (hasActiveFullPremium) {
-                    Toast.show({
-                        type: 'info',
-                        text1: 'Plan Premium Completo Activo',
-                        text2: 'Ya tienes el plan Premium Completo activado. No es necesario comprarlo nuevamente.',
-                        position: 'top',
-                        visibilityTime: 4000,
-                        topOffset: 100,
-                    });
-                    return;
-                }
-
-                if (hasPendingFullPremium) {
-                    Toast.show({
-                        type: 'info',
-                        text1: 'Plan Premium Completo Pendiente',
-                        text2: 'Ya tienes una solicitud pendiente del plan Premium Completo. Espera a que sea aprobada antes de comprarlo nuevamente.',
-                        position: 'top',
-                        visibilityTime: 4000,
-                        topOffset: 100,
-                    });
-                    return;
-                }
             }
 
             // Si requiere seleccionar negocio, ir al paso de negocio
@@ -162,29 +177,54 @@ export function usePremiumModal({
             }
             setError(null);
         } else if (step === 'business') {
-            if (!selectedBusinessId) {
-                setError('Selecciona un negocio para continuar');
+            // Verificar que todos los planes que requieren negocio tengan uno seleccionado
+            const missingBusinessSelections = businessRequiredPlans.filter(plan => !businessSelections[plan]);
+            if (missingBusinessSelections.length > 0) {
+                const missingNames = SUBSCRIPTION_PLANS
+                    .filter(p => missingBusinessSelections.includes(p.type))
+                    .map(p => p.name)
+                    .join(', ');
+                setError(`Selecciona un negocio para: ${missingNames}`);
                 return;
             }
-            setStep('payment');
+            // Si también requiere selección de entidad, ir a ese paso
+            if (requiresEntitySelection) {
+                setStep('entity');
+            } else {
+                setStep('payment');
+            }
             setError(null);
         } else if (step === 'entity') {
-            if (!selectedEntityId || !selectedEntityType) {
-                setError('Selecciona una atracción o evento para continuar');
+            // Verificar que todos los planes que requieren entidad tengan una seleccionada
+            const missingSelections = entityRequiredPlans.filter(plan => !entitySelections[plan]);
+            if (missingSelections.length > 0) {
+                const missingNames = SUBSCRIPTION_PLANS
+                    .filter(p => missingSelections.includes(p.type))
+                    .map(p => p.name)
+                    .join(', ');
+                setError(`Selecciona una entidad para: ${missingNames}`);
                 return;
             }
             setStep('payment');
             setError(null);
         }
-    }, [step, selectedPlans, selectedBusinessId, selectedEntityId, selectedEntityType, requiresBusinessSelection, requiresEntitySelection, approvedSubscriptions, pendingSubscriptions]);
+    }, [step, selectedPlans, businessSelections, businessRequiredPlans, entitySelections, entityRequiredPlans, requiresBusinessSelection, requiresEntitySelection, approvedSubscriptions, pendingSubscriptions]);
 
     const handleBack = useCallback(() => {
         if (step === 'payment') {
-            // Determinar a qué paso volver
+            // Determinar a qué paso volver (en orden inverso al flujo)
+            if (requiresEntitySelection) {
+                setStep('entity');
+            } else if (requiresBusinessSelection) {
+                setStep('business');
+            } else {
+                setStep('plans');
+            }
+            setError(null);
+        } else if (step === 'entity') {
+            // Desde entity, volver a business si hay paquetes que lo requieren
             if (requiresBusinessSelection) {
                 setStep('business');
-            } else if (requiresEntitySelection) {
-                setStep('entity');
             } else {
                 setStep('plans');
             }
@@ -192,13 +232,10 @@ export function usePremiumModal({
         } else if (step === 'business') {
             setStep('plans');
             setError(null);
-        } else if (step === 'entity') {
-            setStep('plans');
-            setError(null);
         } else {
             onClose();
         }
-    }, [step, requiresBusinessSelection, onClose]);
+    }, [step, requiresBusinessSelection, requiresEntitySelection, onClose]);
 
     const handleSubmit = useCallback(async () => {
         if (selectedPlans.length === 0) return;
@@ -208,28 +245,33 @@ export function usePremiumModal({
             return;
         }
 
-        // Validar que si se requiere negocio, esté seleccionado
-        if (requiresBusinessSelection && !selectedBusinessId) {
-            setError('Debes seleccionar un negocio');
-            return;
+        // Validar que todos los planes que requieren negocio tengan uno seleccionado
+        if (requiresBusinessSelection) {
+            const missingBusinessSelections = businessRequiredPlans.filter(plan => !businessSelections[plan]);
+            if (missingBusinessSelections.length > 0) {
+                setError('Debes seleccionar un negocio para cada paquete');
+                return;
+            }
         }
 
-        // Validar que si se requiere entidad, esté seleccionada
-        if (requiresEntitySelection && (!selectedEntityId || !selectedEntityType)) {
-            setError('Debes seleccionar una atracción o evento');
-            return;
+        // Validar que todos los planes que requieren entidad tengan selección
+        if (requiresEntitySelection) {
+            const missingSelections = entityRequiredPlans.filter(plan => !entitySelections[plan]);
+            if (missingSelections.length > 0) {
+                setError('Debes seleccionar una entidad para cada paquete');
+                return;
+            }
         }
 
         try {
             setError(null);
-            // Pasar businessId y entityId/entityType al servicio según aplique
+            // Pasar businessSelections y entitySelections al servicio
             await subscribe(
                 selectedPlans,
                 paymentReference.trim(),
                 paymentNote.trim() || undefined,
-                selectedBusinessId || undefined,
-                selectedEntityId || undefined,
-                selectedEntityType || undefined
+                businessSelections,
+                entitySelections
             );
 
             const planNames = SUBSCRIPTION_PLANS
@@ -241,9 +283,8 @@ export function usePremiumModal({
 
             setStep('plans');
             setSelectedPlans([]);
-            setSelectedBusinessId(null);
-            setSelectedEntityId(null);
-            setSelectedEntityType(null);
+            setBusinessSelections({});
+            setEntitySelections({});
             setPaymentMethod('sinpe');
             setPaymentReference('');
             setPaymentNote('');
@@ -258,14 +299,13 @@ export function usePremiumModal({
             const message = err instanceof Error ? err.message : 'Error al procesar la suscripción';
             setError(message);
         }
-    }, [selectedPlans, selectedBusinessId, selectedEntityId, selectedEntityType, requiresBusinessSelection, requiresEntitySelection, paymentReference, paymentNote, subscribe, onClose, onSuccess, onSubscribed]);
+    }, [selectedPlans, businessSelections, businessRequiredPlans, entitySelections, entityRequiredPlans, requiresBusinessSelection, requiresEntitySelection, paymentReference, paymentNote, subscribe, onClose, onSuccess, onSubscribed]);
 
     const handleClose = useCallback(() => {
         setStep('plans');
         setSelectedPlans([]);
-        setSelectedBusinessId(null);
-        setSelectedEntityId(null);
-        setSelectedEntityType(null);
+        setBusinessSelections({});
+        setEntitySelections({});
         setPaymentMethod('sinpe');
         setPaymentReference('');
         setPaymentNote('');
@@ -276,9 +316,10 @@ export function usePremiumModal({
     return {
         step,
         selectedPlans,
-        selectedBusinessId,
-        selectedEntityId,
-        selectedEntityType,
+        businessSelections,
+        businessRequiredPlans,
+        entitySelections,
+        entityRequiredPlans,
         requiresBusinessSelection,
         requiresEntitySelection,
         paymentMethod,

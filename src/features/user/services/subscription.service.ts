@@ -166,6 +166,69 @@ export async function hasActiveSubscription(): Promise<boolean> {
 }
 
 /**
+ * Verifica si un negocio ya tiene full_premium activo o pendiente
+ * @returns { hasActive: boolean, hasPending: boolean }
+ */
+export async function checkBusinessFullPremiumStatus(businessId: string): Promise<{
+    hasActive: boolean;
+    hasPending: boolean;
+}> {
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return { hasActive: false, hasPending: false };
+
+    // Buscar subscription_usage vinculados a este negocio con full_premium
+    const { data: usageData, error: usageError } = await supabase
+        .from('subscription_usage')
+        .select(`
+            profile_subscription_id_sus,
+            profile_subscription:profile_subscription_id_sus (
+                status_psub,
+                subscription:subscription_id_psub (
+                    type_sub
+                )
+            )
+        `)
+        .eq('profile_id_sus', user.id)
+        .eq('business_id_sus', businessId);
+
+    if (usageError || !usageData) {
+        return { hasActive: false, hasPending: false };
+    }
+
+    let hasActive = false;
+    let hasPending = false;
+
+    // Cast the data to access the joined fields
+    const typedUsageData = usageData as Array<{
+        profile_subscription_id_sus: string;
+        profile_subscription: {
+            status_psub: string;
+            subscription: {
+                type_sub: string;
+            } | null;
+        } | null;
+    }>;
+
+    for (const usage of typedUsageData) {
+        const sub = usage.profile_subscription;
+        if (!sub?.subscription) continue;
+
+        if (sub.subscription.type_sub === 'full_premium') {
+            if (sub.status_psub === 'approved') {
+                hasActive = true;
+            } else if (sub.status_psub === 'pending') {
+                hasPending = true;
+            }
+        }
+    }
+
+    return { hasActive, hasPending };
+}
+
+/**
  * Verifica si el usuario tiene un tipo específico de suscripción aprobada
  */
 export async function hasSubscriptionType(
@@ -252,23 +315,31 @@ export async function createSubscription(
     return data as ProfileSubscription;
 }
 
+// Tipo para las selecciones de entidades por paquete
+type EntitySelection = {
+    entityId: string;
+    entityType: 'attraction' | 'event';
+};
+type EntitySelections = Partial<Record<SubscriptionType, EntitySelection>>;
+
+// Tipo para las selecciones de negocios por paquete
+type BusinessSelections = Partial<Record<SubscriptionType, string>>;
+
 /**
  * Crea múltiples suscripciones en una sola operación
  * Útil cuando el usuario compra varios paquetes a la vez
  * @param subscriptionTypes - Tipos de suscripción a crear
  * @param paymentReference - Referencia de pago
  * @param paymentNote - Nota opcional del pago
- * @param businessId - ID del negocio al que aplicar (requerido para paquetes de productos/galería business)
- * @param entityId - ID de la atracción/evento al que aplicar (para gallery_attractions)
- * @param entityType - Tipo de entidad: 'attraction' o 'event'
+ * @param businessSelections - Mapa de paquete -> ID del negocio al que aplicar
+ * @param entitySelections - Mapa de paquete -> entidad seleccionada (para gallery_attractions/events)
  */
 export async function createMultipleSubscriptions(
     subscriptionTypes: SubscriptionType[],
     paymentReference: string,
     paymentNote?: string,
-    businessId?: string,
-    entityId?: string,
-    entityType?: 'attraction' | 'event'
+    businessSelections?: BusinessSelections,
+    entitySelections?: EntitySelections
 ): Promise<ProfileSubscription[]> {
     const {
         data: { user },
@@ -303,15 +374,15 @@ export async function createMultipleSubscriptions(
 
     const createdSubscriptions = (data as ProfileSubscription[]) || [];
 
-    // Si hay businessId, crear registros en subscription_usage para vincular
-    // la suscripción al negocio específico
-    if (businessId && createdSubscriptions.length > 0) {
-        await createSubscriptionUsageRecords(user.id, createdSubscriptions, validPlans, businessId);
+    // Si hay businessSelections, crear registros en subscription_usage para vincular
+    // cada suscripción a su negocio específico
+    if (businessSelections && Object.keys(businessSelections).length > 0 && createdSubscriptions.length > 0) {
+        await createBusinessSubscriptionUsageRecordsMultiple(user.id, createdSubscriptions, validPlans, businessSelections);
     }
 
-    // Si hay entityId (atracción/evento), crear registros de usage
-    if (entityId && entityType && createdSubscriptions.length > 0) {
-        await createEntitySubscriptionUsageRecords(user.id, createdSubscriptions, validPlans, entityId, entityType);
+    // Si hay entitySelections (atracción/evento por paquete), crear registros de usage
+    if (entitySelections && Object.keys(entitySelections).length > 0 && createdSubscriptions.length > 0) {
+        await createEntitySubscriptionUsageRecordsMultiple(user.id, createdSubscriptions, validPlans, entitySelections);
     }
 
     return createdSubscriptions;
@@ -402,6 +473,94 @@ async function createSubscriptionUsageRecords(
 }
 
 /**
+ * Crea registros de subscription_usage para múltiples selecciones de negocio por paquete
+ */
+async function createBusinessSubscriptionUsageRecordsMultiple(
+    userId: string,
+    subscriptions: ProfileSubscription[],
+    plans: Subscription[],
+    businessSelections: BusinessSelections
+): Promise<void> {
+    // Mapear tipo de suscripción a tipo de recurso y cuota
+    const subscriptionConfig: Partial<Record<SubscriptionType, { resourceType: string; quota: number }>> = {
+        'package_products': { resourceType: 'product', quota: 20 },
+        'gallery_business': { resourceType: 'photo_business', quota: 10 },
+        'promotions': { resourceType: 'promotion', quota: 10 },
+        // dashboard no consume recursos directos
+    };
+
+    const usageInserts: Array<{
+        profile_subscription_id_sus: string;
+        profile_id_sus: string;
+        resource_type_sus: string;
+        business_id_sus: string;
+        max_quota_sus: number;
+        used_count_sus: number;
+    }> = [];
+
+    for (let i = 0; i < subscriptions.length; i++) {
+        const subscription = subscriptions[i];
+        const plan = plans[i];
+        const planType = plan.type_sub as SubscriptionType;
+
+        // Obtener el businessId para este plan específico
+        const businessId = businessSelections[planType];
+        if (!businessId) continue;
+
+        if (planType === 'full_premium') {
+            // Full premium - crear usage para productos, fotos y promociones
+            usageInserts.push({
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                resource_type_sus: 'product',
+                business_id_sus: businessId,
+                max_quota_sus: 20, // 20 productos
+                used_count_sus: 0,
+            });
+            usageInserts.push({
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                resource_type_sus: 'photo_business',
+                business_id_sus: businessId,
+                max_quota_sus: 10, // 10 fotos de galería
+                used_count_sus: 0,
+            });
+            usageInserts.push({
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                resource_type_sus: 'promotion',
+                business_id_sus: businessId,
+                max_quota_sus: 10, // 10 promociones
+                used_count_sus: 0,
+            });
+        } else {
+            const config = subscriptionConfig[planType];
+            if (config) {
+                usageInserts.push({
+                    profile_subscription_id_sus: subscription.id_psub,
+                    profile_id_sus: userId,
+                    resource_type_sus: config.resourceType,
+                    business_id_sus: businessId,
+                    max_quota_sus: config.quota,
+                    used_count_sus: 0,
+                });
+            }
+        }
+    }
+
+    if (usageInserts.length > 0) {
+        const { error: usageError } = await supabase
+            .from('subscription_usage')
+            .insert(usageInserts as never);
+
+        if (usageError) {
+            console.error('Error creating business subscription_usage records (multiple):', usageError);
+            // No lanzamos error para no bloquear la creación de la suscripción
+        }
+    }
+}
+
+/**
  * Crea registros de subscription_usage para vincular suscripciones a una atracción o evento
  */
 async function createEntitySubscriptionUsageRecords(
@@ -457,6 +616,73 @@ async function createEntitySubscriptionUsageRecords(
 
         if (usageError) {
             console.error('Error creating entity subscription_usage records:', usageError);
+            // No lanzamos error para no bloquear la creación de la suscripción
+        }
+    }
+}
+
+/**
+ * Crea registros de subscription_usage para múltiples selecciones de entidad por paquete
+ */
+async function createEntitySubscriptionUsageRecordsMultiple(
+    userId: string,
+    subscriptions: ProfileSubscription[],
+    plans: Subscription[],
+    entitySelections: EntitySelections
+): Promise<void> {
+    const usageInserts: Array<{
+        profile_subscription_id_sus: string;
+        profile_id_sus: string;
+        resource_type_sus: string;
+        attraction_id_sus?: string;
+        event_id_sus?: string;
+        max_quota_sus: number;
+        used_count_sus: number;
+    }> = [];
+
+    for (let i = 0; i < subscriptions.length; i++) {
+        const subscription = subscriptions[i];
+        const plan = plans[i];
+        const planType = plan.type_sub as SubscriptionType;
+
+        // Obtener la selección de entidad para este plan específico
+        const entitySelection = entitySelections[planType];
+        if (!entitySelection) continue;
+
+        const { entityId, entityType } = entitySelection;
+
+        // Procesar gallery_attractions y gallery_events
+        if (planType === 'gallery_attractions' || planType === 'gallery_events') {
+            const baseRecord = {
+                profile_subscription_id_sus: subscription.id_psub,
+                profile_id_sus: userId,
+                max_quota_sus: 10, // 10 fotos de galería
+                used_count_sus: 0,
+            };
+
+            if (entityType === 'attraction' && planType === 'gallery_attractions') {
+                usageInserts.push({
+                    ...baseRecord,
+                    resource_type_sus: 'photo_attraction',
+                    attraction_id_sus: entityId,
+                });
+            } else if (entityType === 'event' && planType === 'gallery_events') {
+                usageInserts.push({
+                    ...baseRecord,
+                    resource_type_sus: 'photo_event',
+                    event_id_sus: entityId,
+                });
+            }
+        }
+    }
+
+    if (usageInserts.length > 0) {
+        const { error: usageError } = await supabase
+            .from('subscription_usage')
+            .insert(usageInserts as never);
+
+        if (usageError) {
+            console.error('Error creating entity subscription_usage records (multiple):', usageError);
             // No lanzamos error para no bloquear la creación de la suscripción
         }
     }

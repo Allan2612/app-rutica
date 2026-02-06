@@ -11,6 +11,16 @@ import {
 import type { ProfileSubscription } from '@/types/entities';
 import type { SubscriptionType } from '@/types/enums';
 
+// Tipo para las selecciones de entidades por paquete
+export type EntitySelection = {
+    entityId: string;
+    entityType: 'attraction' | 'event';
+};
+export type EntitySelections = Partial<Record<SubscriptionType, EntitySelection>>;
+
+// Tipo para las selecciones de negocios por paquete
+export type BusinessSelections = Partial<Record<SubscriptionType, string>>;
+
 interface UseSubscriptionsReturn {
     subscriptions: ProfileSubscription[];
     approvedSubscriptions: ProfileSubscription[];
@@ -22,9 +32,8 @@ interface UseSubscriptionsReturn {
         subscriptionTypes: SubscriptionType[],
         paymentReference: string,
         paymentNote?: string,
-        businessId?: string,
-        entityId?: string,
-        entityType?: 'attraction' | 'event'
+        businessSelections?: BusinessSelections,
+        entitySelections?: EntitySelections
     ) => Promise<ProfileSubscription[]>;
     cancelSubscription: (subscriptionId: string) => Promise<void>;
     refreshSubscriptions: () => Promise<void>;
@@ -85,9 +94,8 @@ export function useSubscriptions(): UseSubscriptionsReturn {
             subscriptionTypes: SubscriptionType[],
             paymentReference: string,
             paymentNote?: string,
-            businessId?: string,
-            entityId?: string,
-            entityType?: 'attraction' | 'event'
+            businessSelections?: BusinessSelections,
+            entitySelections?: EntitySelections
         ): Promise<ProfileSubscription[]> => {
             if (!user?.id) {
                 throw new Error('No hay usuario autenticado');
@@ -100,9 +108,8 @@ export function useSubscriptions(): UseSubscriptionsReturn {
                     subscriptionTypes,
                     paymentReference,
                     paymentNote,
-                    businessId,
-                    entityId,
-                    entityType
+                    businessSelections,
+                    entitySelections
                 );
 
                 // Recargar todas las suscripciones después de crear nuevas
