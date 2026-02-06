@@ -132,13 +132,7 @@ export const ManageScreen = memo(function ManageScreen() {
     if (action.key === 'admin') {
       return effectiveRole === 'admin';
     }
-    // Premium card solo visible si tiene suscripciones activas
-    if (action.key === 'premium') {
-      return (
-        action.roles.includes(effectiveRole) &&
-        subscriptionSummary?.hasActiveSubscriptions
-      );
-    }
+    // Premium card siempre visible para roles que pueden acceder
     return action.roles.includes(effectiveRole);
   });
 

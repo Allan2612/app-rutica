@@ -9,6 +9,8 @@ import { BackButton } from '@/components/ui';
 import { PremiumModal } from '@/components/user/PremiumModal/PremiumModal';
 import { SubscriptionCard } from './components/SubscriptionCard';
 import { DashboardCard } from './components/DashboardCard';
+import { FullPremiumCard } from './components/FullPremiumCard';
+import { AvailablePlansSection } from './components/AvailablePlansSection';
 import { styles } from './styles';
 
 export const PremiumHubScreen = memo(function PremiumHubScreen() {
@@ -34,11 +36,15 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
     refetch();
   }, [refetch]);
 
+  // Separar suscripciones por tipo
+  const fullPremiumSubscriptions = subscriptions.filter(
+    (s) => s.subscriptionType === 'full_premium'
+  );
   const dashboardSubscriptions = subscriptions.filter(
     (s) => s.subscriptionType === 'dashboard'
   );
   const otherSubscriptions = subscriptions.filter(
-    (s) => s.subscriptionType !== 'dashboard'
+    (s) => s.subscriptionType !== 'dashboard' && s.subscriptionType !== 'full_premium'
   );
 
   return (
@@ -69,18 +75,9 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
           </View>
         )}
 
-        {/* Empty State */}
+        {/* Available Plans (when no subscriptions) */}
         {!isLoading && subscriptions.length === 0 && (
-          <View style={styles.emptyContainer}>
-            <Crown color={colors.text.tertiary} size={64} strokeWidth={1.5} />
-            <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-              Sin suscripciones activas
-            </Text>
-            <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
-              Aún no tienes suscripciones premium aprobadas.
-              Contacta a soporte para más información.
-            </Text>
-          </View>
+          <AvailablePlansSection onBuyPress={() => handleOpenPremiumModal()} />
         )}
 
         {/* Dashboard Cards */}
@@ -94,6 +91,22 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
                 key={subscription.id}
                 subscription={subscription}
                 onPress={handleDashboardPress}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* Full Premium Cards */}
+        {!isLoading && fullPremiumSubscriptions.length > 0 && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+              Premium Completo
+            </Text>
+            {fullPremiumSubscriptions.map((subscription) => (
+              <FullPremiumCard
+                key={subscription.id}
+                subscription={subscription}
+                onDashboardPress={handleDashboardPress}
               />
             ))}
           </View>

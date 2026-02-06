@@ -46,25 +46,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing['3xl'],
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing['3xl'],
-    paddingHorizontal: spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
-  emptyDescription: {
-    fontSize: typography.sizes.sm,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
   section: {
     width: '100%',
     maxWidth: 600,
