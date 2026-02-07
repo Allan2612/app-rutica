@@ -3,6 +3,7 @@ import { View, Text, Image, Pressable } from 'react-native';
 import { Mountain, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { styles } from '../styles';
 
 interface AttractionContentProps {
@@ -96,19 +97,14 @@ export const AttractionContent = memo(function AttractionContent({
                 {/* Categorías */}
                 {categoryNames.length > 0 && (
                     <View style={styles.categoriesRow}>
-                        {categoriesToShow.map((catName, index) => {
-                            const categoryColor = getCategoryColorScheme(categoryIds[index]);
-                            return (
-                                <View
-                                    key={categoryIds[index] ?? index}
-                                    style={[styles.categoryChip, { backgroundColor: categoryColor.backgroundColor }]}
-                                >
-                                    <Text style={[styles.categoryText, { color: categoryColor.textColor }]}>
-                                        {catName}
-                                    </Text>
-                                </View>
-                            );
-                        })}
+                        {categoriesToShow.map((catName, index) => (
+                            <CategoryChip
+                                key={categoryIds[index] ?? index}
+                                categoryId={categoryIds[index]}
+                                categoryName={catName}
+                                variant="small"
+                            />
+                        ))}
                         {extraCategoriesCount > 0 && (
                             <Pressable
                                 onPress={onToggleCategories}

@@ -1,0 +1,1 @@
+export { FavoritesSummaryCards } from './FavoritesSummaryCards';

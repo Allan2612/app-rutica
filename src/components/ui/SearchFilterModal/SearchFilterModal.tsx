@@ -1,39 +1,51 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
     View,
     Text,
     Modal,
-    TextInput,
     Pressable,
-    ScrollView,
     Platform,
     KeyboardAvoidingView,
 } from 'react-native';
-import { Search, X, Check } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { styles, webStyles } from './styles';
+import { useLocationStore } from '@/store';
+import type { 
+    FilterTab, 
+    SearchFilters,
+    HierarchicalCategoryOption,
+} from '@/types/entities';
+import { styles } from './styles';
+import { TabBar } from './TabBar';
+import { TextFilterTab } from './TextFilterTab';
+import { CategoryFilterTab } from './CategoryFilterTab';
+import { LocationFilterTab } from './LocationFilterTab';
+import { FooterActions } from './FooterActions';
 
-interface Category {
-    id: string;
-    name: string;
-}
-
-export interface SearchFilters {
-    searchText: string;
-    categoryIds: string[];
-}
-
+/**
+ * Props del SearchFilterModal
+ */
 export interface SearchFilterModalProps {
     visible: boolean;
     onClose: () => void;
     onApply: (filters: SearchFilters) => void;
-    categories: Category[];
+    categories: HierarchicalCategoryOption[];
     initialSearchText?: string;
     initialCategoryIds?: string[];
     placeholder?: string;
     title?: string;
+    showLocationTab?: boolean;
 }
 
+// Re-exportar tipos para mantener compatibilidad
+export type { SearchFilters, HierarchicalCategoryOption };
+
+/**
+ * Modal de filtros de búsqueda con 3 tabs:
+ * - Texto: búsqueda por nombre/descripción
+ * - Categorías: filtro por categorías con toggle de subcategorías
+ * - Ubicación: filtro por provincia/cantón/distrito
+ */
 export function SearchFilterModal({
     visible,
     onClose,
@@ -43,39 +55,88 @@ export function SearchFilterModal({
     initialCategoryIds = [],
     placeholder = 'Buscar...',
     title = 'Buscar y Filtrar',
+    showLocationTab = true,
 }: SearchFilterModalProps) {
     const colors = useThemedColors();
+    const { location } = useLocationStore();
+    
+    // Tab activo
+    const [activeTab, setActiveTab] = useState<FilterTab>('text');
+    
+    // Estados de filtros
     const [searchText, setSearchText] = useState(initialSearchText);
     const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(initialCategoryIds);
 
-    // Reset cuando cambian los valores iniciales
+    // Reset solo cuando se ABRE el modal (visible cambia a true)
     useEffect(() => {
         if (visible) {
             setSearchText(initialSearchText);
             setSelectedCategoryIds(initialCategoryIds);
+            setActiveTab('text');
         }
-    }, [visible, initialSearchText, initialCategoryIds]);
+        // Solo cuando visible cambia - no cuando cambian los valores iniciales mientras está abierto
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [visible]);
 
-    const toggleCategory = (id: string) => {
-        setSelectedCategoryIds((prev) =>
-            prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-        );
-    };
+    // Convertir categorías planas a jerárquicas si es necesario
+    const hierarchicalCategories = useMemo((): HierarchicalCategoryOption[] => {
+        return categories.map((cat) => ({
+            id: cat.id,
+            name: cat.name,
+            parentId: cat.parentId ?? null,
+        }));
+    }, [categories]);
 
-    const handleApply = () => {
+    const handleApply = useCallback(() => {
         onApply({
             searchText: searchText.trim(),
             categoryIds: selectedCategoryIds,
+            location: location ? {
+                province: location.province,
+                canton: location.canton,
+                district: location.district,
+            } : null,
         });
         onClose();
-    };
+    }, [searchText, selectedCategoryIds, location, onApply, onClose]);
 
-    const handleClear = () => {
+    const handleClear = useCallback(() => {
         setSearchText('');
         setSelectedCategoryIds([]);
-    };
+    }, []);
 
-    const hasFilters = searchText.trim() !== '' || selectedCategoryIds.length > 0;
+    const hasFilters = useMemo(() => {
+        return (
+            searchText.trim() !== '' ||
+            selectedCategoryIds.length > 0 ||
+            Boolean(location?.province || location?.canton || location?.district)
+        );
+    }, [searchText, selectedCategoryIds, location]);
+
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'text':
+                return (
+                    <TextFilterTab
+                        value={searchText}
+                        onChange={setSearchText}
+                        placeholder={placeholder}
+                    />
+                );
+            case 'categories':
+                return (
+                    <CategoryFilterTab
+                        categories={hierarchicalCategories}
+                        selectedIds={selectedCategoryIds}
+                        onChange={setSelectedCategoryIds}
+                    />
+                );
+            case 'location':
+                return <LocationFilterTab />;
+            default:
+                return null;
+        }
+    };
 
     return (
         <Modal
@@ -99,108 +160,24 @@ export function SearchFilterModal({
                         </Pressable>
                     </View>
 
-                    {/* Search Input */}
-                    <View style={styles.searchSection}>
-                        <View style={[styles.searchInputContainer, { 
-                            backgroundColor: colors.background.secondary,
-                            borderColor: colors.border.medium,
-                        }]}>
-                            <Search size={20} color={colors.text.tertiary} />
-                            <TextInput
-                                placeholder={placeholder}
-                                placeholderTextColor={colors.text.tertiary}
-                                value={searchText}
-                                onChangeText={setSearchText}
-                                style={[
-                                    styles.searchInput, 
-                                    webStyles.searchInputWeb as object,
-                                    { color: colors.text.primary }
-                                ]}
-                                autoFocus
-                                returnKeyType="search"
-                                onSubmitEditing={handleApply}
-                            />
-                            {searchText.length > 0 && (
-                                <Pressable onPress={() => setSearchText('')}>
-                                    <X size={18} color={colors.text.tertiary} />
-                                </Pressable>
-                            )}
-                        </View>
+                    {/* Tab Bar */}
+                    <TabBar
+                        activeTab={activeTab}
+                        onTabChange={setActiveTab}
+                        showLocationTab={showLocationTab}
+                    />
+
+                    {/* Tab Content */}
+                    <View style={styles.body}>
+                        {renderTabContent()}
                     </View>
 
-                    {/* Categories */}
-                    {categories.length > 0 && (
-                        <View style={styles.categoriesSection}>
-                            <Text style={[styles.sectionTitle, { color: colors.text.secondary }]}>
-                                Filtrar por categorías
-                            </Text>
-                            <ScrollView 
-                                style={styles.categoriesScroll}
-                                showsVerticalScrollIndicator={false}
-                            >
-                                <View style={styles.categoriesGrid}>
-                                    {categories.map((cat) => {
-                                        const isSelected = selectedCategoryIds.includes(cat.id);
-                                        return (
-                                            <Pressable
-                                                key={cat.id}
-                                                onPress={() => toggleCategory(cat.id)}
-                                                style={[
-                                                    styles.categoryChip,
-                                                    {
-                                                        backgroundColor: isSelected
-                                                            ? colors.primary[500]
-                                                            : colors.background.secondary,
-                                                        borderColor: isSelected
-                                                            ? colors.primary[500]
-                                                            : colors.border.medium,
-                                                    },
-                                                ]}
-                                            >
-                                                {isSelected && (
-                                                    <Check size={14} color={colors.text.inverse} style={styles.categoryCheckIcon} />
-                                                )}
-                                                <Text
-                                                    style={[
-                                                        styles.categoryText,
-                                                        {
-                                                            color: isSelected
-                                                                ? colors.text.inverse
-                                                                : colors.text.primary,
-                                                        },
-                                                    ]}
-                                                >
-                                                    {cat.name}
-                                                </Text>
-                                            </Pressable>
-                                        );
-                                    })}
-                                </View>
-                            </ScrollView>
-                        </View>
-                    )}
-
-                    {/* Actions */}
-                    <View style={[styles.actions, { borderTopColor: colors.border.light }]}>
-                        {hasFilters && (
-                            <Pressable
-                                onPress={handleClear}
-                                style={[styles.clearButton, { borderColor: colors.border.medium }]}
-                            >
-                                <Text style={[styles.clearButtonText, { color: colors.text.secondary }]}>
-                                    Limpiar
-                                </Text>
-                            </Pressable>
-                        )}
-                        <Pressable
-                            onPress={handleApply}
-                            style={[styles.applyButton, { backgroundColor: colors.primary[500] }]}
-                        >
-                            <Text style={styles.applyButtonText}>
-                                Aplicar Filtros
-                            </Text>
-                        </Pressable>
-                    </View>
+                    {/* Footer Actions */}
+                    <FooterActions
+                        hasFilters={hasFilters}
+                        onClear={handleClear}
+                        onApply={handleApply}
+                    />
                 </View>
             </KeyboardAvoidingView>
         </Modal>

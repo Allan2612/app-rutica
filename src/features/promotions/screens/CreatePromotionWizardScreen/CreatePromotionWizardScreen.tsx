@@ -12,7 +12,7 @@ import { styles } from './styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
-import { useThemedColors, useFormExitGuard } from '@/hooks';
+import { useThemedColors, useFormExitGuard, usePromotionQuota } from '@/hooks';
 import { useCreatePromotionWizard, useCreatePromotion } from '@/features/promotions/hooks';
 import { ConfirmExitDialog } from '@/components/manage';
 import {
@@ -32,6 +32,20 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
 
   const wizard = useCreatePromotionWizard();
   const createMutation = useCreatePromotion();
+
+  // Obtener cuota de promociones para el negocio seleccionado
+  const { quotaInfo: promotionQuota } = usePromotionQuota(
+    wizard.formData.businessId || '',
+    !!wizard.formData.businessId
+  );
+
+  // Verificar si puede avanzar desde el paso de negocio
+  const canProceedFromBusinessStep = useMemo(() => {
+    if (wizard.currentStep.id !== 'business') return true;
+    if (!wizard.formData.businessId) return false;
+    // Si tiene negocio seleccionado, verificar cuota
+    return promotionQuota?.canAdd ?? true;
+  }, [wizard.currentStep.id, wizard.formData.businessId, promotionQuota]);
 
   // Detectar si hay cambios en el formulario
   const hasChanges = useMemo(() => {
@@ -100,7 +114,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
           text1: 'Promoción Enviada',
           text2: 'Tu promoción ha sido enviada para revisión.',
         });
-        
+
         setTimeout(() => {
           router.replace('/(app)/(tabs)/manage/promotions');
         }, 1500);
@@ -246,7 +260,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
               },
             ]}
           >
-            <ScrollView 
+            <ScrollView
               style={styles.stepScrollView}
               contentContainerStyle={styles.stepContent}
               showsVerticalScrollIndicator={false}
@@ -266,7 +280,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
             onNext={wizard.goToNextStep}
             onSubmit={handleSubmit}
             isSubmitting={createMutation.isPending}
-            isCurrentStepValid={wizard.isCurrentStepValid}
+            isCurrentStepValid={wizard.isCurrentStepValid && canProceedFromBusinessStep}
           />
         </View>
       </KeyboardAvoidingView>

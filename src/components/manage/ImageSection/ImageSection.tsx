@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SingleImagePicker, MultipleImagePicker } from '@/components/ui';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
@@ -20,6 +21,18 @@ interface ImageSectionProps {
     galleryLabel?: string;
     galleryHelperText?: string;
     maxGalleryImages?: number;
+    /** Mostrar banner de upsell para galería premium */
+    showGalleryPremiumUpsell?: boolean;
+    /** Callback cuando se presiona el botón de comprar premium */
+    onGalleryPremiumPress?: () => void;
+    /** Nombre del paquete premium para el upsell */
+    premiumPackageName?: string;
+    /** Mensaje personalizado para el banner de upsell */
+    upsellMessage?: string;
+    /** Alias para showGalleryPremiumUpsell */
+    showPremiumUpsell?: boolean;
+    /** Alias para onGalleryPremiumPress */
+    onPremiumPress?: () => void;
 }
 
 export const ImageSection = memo(function ImageSection({
@@ -37,8 +50,22 @@ export const ImageSection = memo(function ImageSection({
     galleryLabel = 'Galería (Opcional)',
     galleryHelperText = 'Hasta 3 imágenes adicionales del lugar o comercio',
     maxGalleryImages = 3,
+    showGalleryPremiumUpsell = false,
+    onGalleryPremiumPress,
+    premiumPackageName = 'Galería Empresa',
+    upsellMessage,
+    showPremiumUpsell,
+    onPremiumPress,
 }: ImageSectionProps) {
     const colors = useThemedColors();
+
+    // Soportar ambos nombres de props para compatibilidad
+    const shouldShowUpsell = showPremiumUpsell ?? showGalleryPremiumUpsell;
+    const handlePremiumPress = onPremiumPress ?? onGalleryPremiumPress;
+
+    // Mensaje por defecto si no se proporciona uno
+    const defaultMessage = `Ya usaste tus 3 fotos gratuitas. Con el paquete ${premiumPackageName} puedes añadir 10 fotos más a tu galería.`;
+    const displayMessage = upsellMessage || defaultMessage;
 
     return (
         <View style={styles.section}>
@@ -75,6 +102,55 @@ export const ImageSection = memo(function ImageSection({
                 label={galleryLabel}
                 helperText={galleryHelperText}
             />
+
+            {/* Banner de upsell para galería premium */}
+            {shouldShowUpsell && handlePremiumPress && (
+                <View style={{
+                    backgroundColor: colors.primary[50],
+                    borderRadius: 12,
+                    padding: 16,
+                    marginTop: 12,
+                    borderWidth: 1,
+                    borderColor: colors.primary[200],
+                }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                        <Ionicons name="images" size={24} color={colors.primary[600]} />
+                        <Text style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: colors.primary[700],
+                            marginLeft: 8,
+                        }}>
+                            ¡Amplía tu galería!
+                        </Text>
+                    </View>
+                    <Text style={{
+                        fontSize: 14,
+                        color: colors.text.secondary,
+                        marginBottom: 12,
+                        lineHeight: 20,
+                    }}>
+                        {displayMessage}
+                    </Text>
+                    <Pressable
+                        onPress={handlePremiumPress}
+                        style={({ pressed }) => ({
+                            backgroundColor: pressed ? colors.primary[600] : colors.primary[500],
+                            borderRadius: 8,
+                            paddingVertical: 10,
+                            paddingHorizontal: 16,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        })}
+                    >
+                        <Ionicons name="star" size={18} color="#fff" style={{ marginRight: 6 }} />
+                        <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
+                            Comprar {premiumPackageName}
+                        </Text>
+                    </Pressable>
+                </View>
+            )}
         </View>
     );
 });

@@ -12,13 +12,14 @@ type CategoryRow = Database['public']['Tables']['categories']['Row'];
 
 /**
  * Obtiene todas las categorías del sistema (versión transformada para UI)
- * @returns Array de CategoryOption con {id, name}
+ * @returns Array de CategoryOption con {id, name, parentId}
  */
 export async function getCategories(): Promise<CategoryOption[]> {
     const { data, error } = await supabase
         .from('categories')
-        .select('id_cat, name_cat')
-        .order('name_cat', { ascending: true });
+        .select('id_cat, name_cat, parent_id_cat')
+        .eq('is_active_cat', true)
+        .order('sort_order_cat', { ascending: true });
 
     if (error) {
         return [];
@@ -27,18 +28,20 @@ export async function getCategories(): Promise<CategoryOption[]> {
     return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
         id: row.id_cat,
         name: row.name_cat,
+        parentId: row.parent_id_cat,
     }));
 }
 
 /**
  * Obtiene todas las categorías (formato raw de BD)
- * @returns Array de Category con {id_cat, name_cat}
+ * @returns Array de Category con todos los campos
  */
 export async function getCategoriesRaw(): Promise<Category[]> {
     const { data, error } = await supabase
         .from('categories')
-        .select('id_cat, name_cat, created_at_cat')
-        .order('name_cat', { ascending: true });
+        .select('*')
+        .eq('is_active_cat', true)
+        .order('sort_order_cat', { ascending: true });
 
     if (error) {
         return [];

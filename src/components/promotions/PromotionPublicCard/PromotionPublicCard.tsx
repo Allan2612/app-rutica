@@ -10,7 +10,7 @@ import { Image } from 'expo-image';
 import { Tag, Store, Calendar, Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
-import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { getPromotionBadgeLabel, formatDate } from '@/utils';
 import { PromoBadge } from '@/components/ui';
 import type { PromotionListItem } from '@/types/entities';
@@ -117,39 +117,28 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                         <Text style={styles.businessName} numberOfLines={1}>
                             {promotion.businessName}
                         </Text>
-                        {promotion.categoryNames.length > 0 && (
-                            <>
-                                {promotion.categoryNames.slice(0, 1).map((catName, index) => {
-                                    const categoryColor = getCategoryColorScheme(`cat-${index}`);
-                                    return (
-                                        <View
-                                            key={index}
-                                            style={[
-                                                styles.categoryChip,
-                                                { backgroundColor: categoryColor.backgroundColor },
-                                            ]}
-                                        >
-                                            <Text
-                                                style={[styles.categoryText, { color: categoryColor.textColor }]}
-                                            >
-                                                {catName}
-                                            </Text>
-                                        </View>
-                                    );
-                                })}
-                                {promotion.categoryNames.length > 1 && (
-                                    <View
-                                        style={[
-                                            styles.categoryChip,
-                                            { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
-                                        ]}
-                                    >
-                                        <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
-                                            +{promotion.categoryNames.length - 1}
-                                        </Text>
-                                    </View>
-                                )}
-                            </>
+                        {promotion.categoryNames && promotion.categoryNames.length > 0 && promotion.categoryNames.slice(0, 1).map((catName, index) => {
+                            const categoryId = (promotion.scopeCategoryIds && promotion.scopeCategoryIds[index]) || '';
+                            return (
+                                <CategoryChip
+                                    key={categoryId || `cat-${index}`}
+                                    categoryId={categoryId}
+                                    categoryName={catName}
+                                    variant="small"
+                                />
+                            );
+                        })}
+                        {promotion.categoryNames && promotion.categoryNames.length > 1 && (
+                            <View
+                                style={[
+                                    styles.categoryChip,
+                                    { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+                                ]}
+                            >
+                                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
+                                    +{promotion.categoryNames.length - 1}
+                                </Text>
+                            </View>
                         )}
                     </View>
                 )}

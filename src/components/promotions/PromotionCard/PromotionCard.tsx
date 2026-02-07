@@ -11,6 +11,7 @@ import { PromotionListItem } from '@/types/entities';
 import { useThemedColors } from '@/hooks';
 import { getPromotionBadgeLabel } from '@/utils/promotionHelpers';
 import { PromoBadge } from '@/components/ui';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { styles } from './styles';
 
 interface PromotionCardProps {
@@ -90,14 +91,12 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
         {promotion.categoryNames.length > 0 && (
           <View style={styles.categories}>
             {promotion.categoryNames.slice(0, 3).map((cat, idx) => (
-              <View 
-                key={idx} 
-                style={[styles.categoryChip, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }]}
-              >
-                <Text style={[styles.categoryText, { color: colors.primary[600] }]} numberOfLines={1}>
-                  {cat}
-                </Text>
-              </View>
+              <CategoryChip
+                key={promotion.scopeCategoryIds?.[idx] || idx}
+                categoryId={promotion.scopeCategoryIds?.[idx] || ''}
+                categoryName={cat}
+                variant="small"
+              />
             ))}
           </View>
         )}

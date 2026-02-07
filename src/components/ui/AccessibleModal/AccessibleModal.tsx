@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useCallback } from 'react';
-import { Modal, ModalProps, View, Platform, findNodeHandle, NativeSyntheticEvent } from 'react-native';
+import { Modal, ModalProps, View, Platform, NativeSyntheticEvent } from 'react-native';
 
 interface AccessibleModalProps extends ModalProps {
   children: React.ReactNode;
@@ -30,21 +30,11 @@ export const AccessibleModal = memo(function AccessibleModal({
     if (visible) {
       // Guardar el elemento actualmente enfocado
       previousActiveElement.current = document.activeElement;
-      
+
       // Mover el foco al contenido del modal después de un breve delay
       // para permitir que el modal se renderice
       const timeoutId = setTimeout(() => {
-        if (modalContentRef.current) {
-          const node = findNodeHandle(modalContentRef.current);
-          if (node && typeof node === 'number') {
-            // En web, findNodeHandle devuelve el elemento DOM
-            const element = node as unknown as HTMLElement;
-            if (element && typeof element.focus === 'function') {
-              element.focus();
-            }
-          }
-        }
-        // Alternativa: buscar el primer elemento focusable dentro del modal
+        // Buscar el primer elemento focusable dentro del modal
         const focusableElements = document.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
@@ -53,7 +43,7 @@ export const AccessibleModal = memo(function AccessibleModal({
           const closestModal = el.closest('[role="dialog"], [aria-modal="true"]');
           return closestModal !== null;
         });
-        
+
         if (modalFocusables.length > 0) {
           (modalFocusables[0] as HTMLElement).focus();
         }
@@ -78,7 +68,7 @@ export const AccessibleModal = memo(function AccessibleModal({
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    
+
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);

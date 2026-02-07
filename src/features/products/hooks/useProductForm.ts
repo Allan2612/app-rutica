@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
+import { useAuthStore } from '@/store/authStore';
+import { useProductQuota } from '@/hooks/useResourceQuota';
+import { incrementUsage } from '@/services/subscriptionQuota.service';
 import { useCreateProduct } from './useBusinessProducts';
 
 interface ProductFormErrors {
@@ -11,7 +14,9 @@ interface ProductFormErrors {
 
 export function useProductForm(businessId: string) {
     const router = useRouter();
+    const { user } = useAuthStore();
     const createMutation = useCreateProduct(businessId);
+    const { quotaInfo, invalidateQuota } = useProductQuota(businessId);
 
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -50,6 +55,20 @@ export function useProductForm(businessId: string) {
             return;
         }
 
+        // Verificar cuota ANTES de crear
+        if (!quotaInfo?.canAdd) {
+            Toast.show({
+                type: 'info',
+                text1: 'Límite alcanzado',
+                text2: quotaInfo?.hasPremium
+                    ? 'Has usado toda tu cuota. Adquiere otro paquete para continuar.'
+                    : `Has alcanzado el límite de ${quotaInfo?.freeQuota} productos gratuitos. Adquiere un paquete para añadir más.`,
+                position: 'top',
+                visibilityTime: 5000,
+            });
+            return;
+        }
+
         try {
             await createMutation.mutateAsync({
                 name: name.trim(),
@@ -59,6 +78,27 @@ export function useProductForm(businessId: string) {
                 categoryIds: selectedCategoryIds,
                 images,
             });
+
+            // Incrementar el contador de uso SOLO si está usando cuota premium
+            if (user?.id && quotaInfo?.hasPremium && quotaInfo.usedCount >= quotaInfo.freeQuota) {
+                try {
+                    await incrementUsage(user.id, 'product', businessId, 'business');
+                } catch (usageError: any) {
+                    console.error('❌ Error incrementing usage:', usageError);
+                    console.error('Error details:', JSON.stringify(usageError, null, 2));
+                    // Mostrar advertencia específica
+                    Toast.show({
+                        type: 'warning',
+                        text1: 'Advertencia',
+                        text2: usageError.message || 'No se pudo actualizar el contador de uso premium.',
+                        position: 'top',
+                        visibilityTime: 5000,
+                    });
+                }
+            }
+
+            // Invalidar query de cuota para refrescar el contador
+            invalidateQuota();
 
             Toast.show({
                 type: 'success',
@@ -70,6 +110,7 @@ export function useProductForm(businessId: string) {
 
             router.back();
         } catch (error) {
+            console.error('Error creating product:', error);
             Toast.show({
                 type: 'error',
                 text1: 'Error al crear producto',
@@ -78,7 +119,7 @@ export function useProductForm(businessId: string) {
                 visibilityTime: 4000,
             });
         }
-    }, [validateForm, createMutation, name, description, price, currency, selectedCategoryIds, images, router]);
+    }, [validateForm, createMutation, name, description, price, currency, selectedCategoryIds, images, router, quotaInfo, user, businessId, invalidateQuota]);
 
     const handleCancel = useCallback(() => {
         router.back();

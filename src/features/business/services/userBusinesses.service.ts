@@ -197,7 +197,7 @@ export async function getBusinessById(
 
     if (businessError) throw businessError;
     if (!businessData) throw new Error('No se encontró el negocio');
-    
+
     // Verificar permisos: debe ser el propietario O admin
     const hasPermission = await canUserEdit(userId, (businessData as any).owner_id_bus);
     if (!hasPermission) {
@@ -300,6 +300,7 @@ export async function getBusinessById(
         name: (businessData as any).name_bus,
         description: (businessData as any).description_bus,
         categoryIds,
+        districtId,
         country: countryName,
         province: provinceName,
         canton: cantonName,

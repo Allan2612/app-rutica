@@ -132,6 +132,7 @@ export interface BusinessDetailForEdit {
   name: string;
   description: string | null;
   categoryIds: string[];
+  districtId: string | null;
   country: string;
   province: string;
   canton: string;

@@ -1,0 +1,1 @@
+export { FullPremiumCard } from './FullPremiumCard';

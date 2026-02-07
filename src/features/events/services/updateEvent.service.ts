@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { canUserEdit } from '@/utils/permissionHelpers';
+import { syncResourceUsage } from '@/services/subscriptionQuota.service';
 
 // ============================================
 // Constants
@@ -134,7 +135,7 @@ export async function getEventById(
 
     if (eventError) throw eventError;
     if (!eventData) throw new Error('No se encontró el evento');
-    
+
     // Verificar permisos: debe ser el creador O admin
     const hasPermission = await canUserEdit(userId, (eventData as any).created_by_evt);
     if (!hasPermission) {
@@ -170,7 +171,7 @@ export async function getEventById(
             `)
             .eq('id_loc', (eventData as any).location_id_evt)
             .single();
-        
+
         locationData = loc;
         districtData = (loc as any)?.districts;
         cantonData = districtData?.cantons;
@@ -328,6 +329,9 @@ export async function updateEventComplete(
     if (data.coverImage !== undefined || data.galleryImages !== undefined) {
         await handleImageUpdates(eventId, data);
     }
+
+    // 6. Sincronizar uso de recursos para la galería
+    await syncResourceUsage(userId, 'photo_event', eventId, 'event');
 }
 
 async function handleImageUpdates(eventId: string, data: UpdateEventData): Promise<void> {
@@ -339,7 +343,7 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
 
     // === MANEJO DE COVER (sort_order_eim = 0) ===
     const currentCover = (currentImages as any)?.find((img: any) => img.sort_order_eim === 0);
-    
+
     if (data.coverImage === null) {
         // Usuario eliminó el cover explícitamente
         if (currentCover) {
@@ -364,7 +368,7 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
     // === MANEJO DE GALERÍA (sort_order_eim > 0) ===
     if (data.galleryImages !== undefined) {
         const currentGallery = (currentImages as any)?.filter((img: any) => img.sort_order_eim > 0) || [];
-        
+
         // Separar las imágenes existentes (URLs de supabase) de las nuevas
         const existingGalleryUrls = data.galleryImages.filter(uri => !isNewImage(uri));
         const newGalleryUris = data.galleryImages.filter(uri => isNewImage(uri));
@@ -379,7 +383,7 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
         if (imagesToDelete.length > 0) {
             const pathsToDelete = imagesToDelete.map((img: any) => img.path_eim);
             await supabase.storage.from(BUCKET_NAME).remove(pathsToDelete);
-            
+
             const idsToDelete = imagesToDelete.map((img: any) => img.id_eim);
             await supabase.from('event_images').delete().in('id_eim', idsToDelete);
         }

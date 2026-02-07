@@ -23,6 +23,9 @@ interface BusinessFormData {
     logoUri: string | null;
     coverUri: string | null;
     galleryUris: string[];
+    facebook: string;
+    instagram: string;
+    tiktok: string;
 }
 
 interface BusinessFormErrors {
@@ -45,6 +48,16 @@ interface BusinessFormViewProps {
     onLocationSelect: (location: any) => void;
     onCancel: () => void;
     onSubmit: () => void;
+    maxGalleryImages?: number;
+    galleryHelperText?: string;
+    /** Mostrar banner de upsell para galería premium */
+    showGalleryPremiumUpsell?: boolean;
+    /** Callback cuando se presiona el botón de comprar premium */
+    onGalleryPremiumPress?: () => void;
+    /** Nombre del paquete premium para el upsell (ej: 'Galería Empresa') */
+    premiumPackageName?: string;
+    /** Mensaje personalizado para el banner de upsell */
+    upsellMessage?: string;
 }
 
 export const BusinessFormView = memo(function BusinessFormView({
@@ -61,6 +74,12 @@ export const BusinessFormView = memo(function BusinessFormView({
     onLocationSelect,
     onCancel,
     onSubmit,
+    maxGalleryImages = 3,
+    galleryHelperText,
+    showGalleryPremiumUpsell = false,
+    onGalleryPremiumPress,
+    premiumPackageName = 'Galería Empresa',
+    upsellMessage,
 }: BusinessFormViewProps) {
     return (
         <GenericFormView
@@ -95,6 +114,12 @@ export const BusinessFormView = memo(function BusinessFormView({
                 onLogoChange={(uri) => onFieldChange('logoUri', uri)}
                 onCoverChange={(uri) => onFieldChange('coverUri', uri)}
                 onGalleryChange={(uris) => onFieldChange('galleryUris', uris)}
+                maxGalleryImages={maxGalleryImages}
+                galleryHelperText={galleryHelperText}
+                showGalleryPremiumUpsell={showGalleryPremiumUpsell}
+                onGalleryPremiumPress={onGalleryPremiumPress}
+                premiumPackageName={premiumPackageName}
+                upsellMessage={upsellMessage}
             />
 
             <LocationSection

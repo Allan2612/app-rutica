@@ -5,7 +5,8 @@ import {
 } from 'react-native';
 import { AlertCircle } from 'lucide-react-native';
 import { useThemedColors, useCategories } from '@/hooks';
-import { CategorySelector, SimpleDateTimeInput } from '@/components/ui';
+import { SimpleDateTimeInput } from '@/components/ui';
+import { CategorySection } from '@/components/manage';
 import { formSectionStyles } from '@/styles/form-section-styles';
 import type { PromotionWizardFormData, PromotionWizardErrors } from '@/types/entities';
 import { styles } from './styles';
@@ -105,25 +106,13 @@ export const WizardStepDates = memo(function WizardStepDates({
         </View>
 
         {/* Categories */}
-        <View style={formSectionStyles.section}>
-          <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
-            Categorías <Text style={formSectionStyles.required}>*</Text>
-          </Text>
-          <CategorySelector
-            categories={categories}
-            selectedIds={formData.selectedCategoryIds}
-            onSelectionChange={handleCategoryChange}
-            isLoading={categoriesLoading}
-          />
-          {errors.selectedCategoryIds && (
-            <View style={styles.errorContainer}>
-              <AlertCircle size={14} color={colors.error} />
-              <Text style={[styles.errorText, { color: colors.error }]}>
-                {errors.selectedCategoryIds}
-              </Text>
-            </View>
-          )}
-        </View>
+        <CategorySection
+          categories={categories}
+          selectedIds={formData.selectedCategoryIds}
+          onSelectionChange={handleCategoryChange}
+          isLoading={categoriesLoading}
+          error={errors.selectedCategoryIds}
+        />
       </View>
     </View>
   );

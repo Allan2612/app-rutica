@@ -1,0 +1,1 @@
+export { RatingTrendChart } from './RatingTrendChart';

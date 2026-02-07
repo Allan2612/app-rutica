@@ -1,73 +1,24 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
     scrollContent: {
-        padding: spacing.lg,
-        gap: spacing.md,
+        padding: 24,
+        gap: 16,
         maxWidth: 800,
         alignSelf: 'center',
         width: '100%',
-    },
-    header: {
-        paddingBottom: spacing.lg,
-        borderBottomWidth: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-    },
-    headerContent: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    headerTitle: {
-        fontSize: typography.sizes['2xl'],
-        fontWeight: typography.fontWeights.bold,
-        marginBottom: spacing.xs,
-    },
-    headerSubtitle: {
-        fontSize: typography.sizes.sm,
-        lineHeight: 20,
-    },
-    addButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: spacing.md,
-        borderRadius: 8,
-        gap: spacing.sm,
-    },
-    addButtonText: {
-        fontSize: typography.sizes.base,
-        fontWeight: typography.fontWeights.semibold,
-    },
-    list: {
-        gap: spacing.md,
     },
     loadingContainer: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: spacing['3xl'],
+        paddingVertical: 64,
     },
-    emptyContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: spacing['3xl'],
-        paddingHorizontal: spacing.lg,
-        gap: spacing.md,
-    },
-    emptyTitle: {
-        fontSize: typography.sizes.lg,
-        fontWeight: typography.fontWeights.bold,
-        textAlign: 'center',
-    },
-    emptyDescription: {
-        fontSize: typography.sizes.sm,
-        textAlign: 'center',
-        lineHeight: 20,
+    loadingText: {
+        fontSize: 14,
+        marginTop: 16,
     },
 });

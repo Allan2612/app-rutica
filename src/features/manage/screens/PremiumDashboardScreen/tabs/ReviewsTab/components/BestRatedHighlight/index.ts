@@ -1,0 +1,1 @@
+export { BestRatedHighlight } from './BestRatedHighlight';

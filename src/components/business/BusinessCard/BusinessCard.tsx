@@ -6,8 +6,8 @@ import { useThemedColors } from '@/hooks';
 import { useAuthStore } from '@/store';
 import { useBusinessFavoriteIds } from '@/features/business/hooks/useBusinessFavorites';
 import { useToggleBusinessFavorite } from '@/features/business/hooks/useToggleBusinessFavorite';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { styles } from './styles';
-import { getCategoryColorScheme } from '@/utils/categoryColors';
 
 export interface BusinessCardProps {
   id: string;
@@ -98,22 +98,14 @@ export const BusinessCard = memo(function BusinessCard({
           )}
         </View>
         <View style={styles.metaRow}>
-          {categoryNames.length > 0 && categoryNames.slice(0, 2).map((catName, index) => {
-            const categoryColor = getCategoryColorScheme(categoryIds[index]);
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.categoryChip,
-                  { backgroundColor: categoryColor.backgroundColor },
-                ]}
-              >
-                <Text style={[styles.categoryText, { color: categoryColor.textColor }]}>
-                  {catName}
-                </Text>
-              </View>
-            );
-          })}
+          {categoryNames.length > 0 && categoryNames.slice(0, 2).map((catName, index) => (
+            <CategoryChip
+              key={categoryIds[index] || index}
+              categoryId={categoryIds[index]}
+              categoryName={catName}
+              variant="small"
+            />
+          ))}
           {categoryNames.length > 2 && (
             <View style={[styles.categoryChip, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
               <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>

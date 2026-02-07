@@ -1,0 +1,1 @@
+export { TextFilterTab } from './TextFilterTab';

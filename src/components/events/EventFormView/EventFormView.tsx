@@ -63,6 +63,15 @@ interface EventFormViewProps {
     onLocationSelect: (location: any) => void;
     onCancel: () => void;
     onSubmit: () => void;
+    // Props opcionales para cuota de galería premium
+    maxGalleryImages?: number;
+    galleryHelperText?: string;
+    showGalleryPremiumUpsell?: boolean;
+    onGalleryPremiumPress?: () => void;
+    /** Nombre del paquete premium para el upsell (ej: 'Galería Eventos') */
+    premiumPackageName?: string;
+    /** Mensaje personalizado para el banner de upsell */
+    upsellMessage?: string;
 }
 
 export const EventFormView = memo(function EventFormView({
@@ -79,6 +88,12 @@ export const EventFormView = memo(function EventFormView({
     onLocationSelect,
     onCancel,
     onSubmit,
+    maxGalleryImages = 3,
+    galleryHelperText,
+    showGalleryPremiumUpsell = false,
+    onGalleryPremiumPress,
+    premiumPackageName = 'Galería Eventos',
+    upsellMessage,
 }: EventFormViewProps) {
     return (
         <GenericFormView
@@ -159,7 +174,12 @@ export const EventFormView = memo(function EventFormView({
                 showLogo={false}
                 sectionTitle="Imágenes del Evento"
                 coverHelperText="Esta imagen se mostrará como principal del evento"
-                galleryHelperText="Agrega hasta 3 imágenes adicionales del evento"
+                galleryHelperText={galleryHelperText || `Agrega hasta ${maxGalleryImages} imágenes adicionales del evento`}
+                maxGalleryImages={maxGalleryImages}
+                showPremiumUpsell={showGalleryPremiumUpsell}
+                onPremiumPress={onGalleryPremiumPress}
+                premiumPackageName={premiumPackageName}
+                upsellMessage={upsellMessage}
             />
         </GenericFormView>
     );

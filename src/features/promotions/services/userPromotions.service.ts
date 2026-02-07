@@ -12,6 +12,7 @@ import type {
 import { ModerationStatus, PromotionScope, DiscountType, PaymentState } from '@/types/enums';
 import { getImageUrl, deletePromotionImage } from './promotions.helpers';
 import { canUserEdit } from '@/utils/permissionHelpers';
+import { syncResourceUsage } from '@/services/subscriptionQuota.service';
 
 const BUCKET_NAME = 'promotions-images';
 
@@ -264,10 +265,10 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
  * Elimina una promoción y todos sus datos relacionados
  */
 export async function deleteUserPromotion(promotionId: string, userId: string): Promise<void> {
-    // 1. Verificar permisos
+    // 1. Verificar permisos y obtener businessId
     const { data: promotion, error: fetchError } = await (supabase as any)
         .from('promotions')
-        .select('created_by_prm')
+        .select('created_by_prm, business_id_prm')
         .eq('id_prm', promotionId)
         .single();
 
@@ -275,6 +276,8 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
     if (!promotion || promotion.created_by_prm !== userId) {
         throw new Error('No tienes permisos para eliminar esta promoción');
     }
+
+    const businessId = promotion.business_id_prm;
 
     // 2. Obtener imágenes para eliminar del storage
     const { data: images } = await supabase
@@ -328,6 +331,9 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
     if (deleteError) {
         throw deleteError;
     }
+
+    // 10. Sincronizar cuota de promociones para el negocio
+    await syncResourceUsage(userId, 'promotion', businessId, 'business');
 }
 
 // ============================================
@@ -403,6 +409,6 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         isActive,
         createdAt: record.created_at_prm,
     };
-    
+
     return result;
 }

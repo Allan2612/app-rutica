@@ -3,6 +3,7 @@ import { View, Text, Image, Pressable } from 'react-native';
 import { Calendar, Star, Users, Coins } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { formatEventDate, formatPrice } from '../helpers';
 import { styles } from '../styles';
 
@@ -71,20 +72,14 @@ export const EventPostContent = memo(function EventPostContent({
             {/* Categorías */}
             {categoryNames.length > 0 && (
                 <View style={styles.categoriesRow}>
-                    {categoriesToShow.map((catName, index) => {
-                        const categoryId = categoryIds[index];
-                        const colorScheme = getCategoryColorScheme(categoryId);
-                        return (
-                            <View
-                                key={categoryId ?? index}
-                                style={[styles.categoryChip, { backgroundColor: colorScheme.backgroundColor }]}
-                            >
-                                <Text style={[styles.categoryText, { color: colorScheme.textColor }]}>
-                                    {catName}
-                                </Text>
-                            </View>
-                        );
-                    })}
+                    {categoriesToShow.map((catName, index) => (
+                        <CategoryChip
+                            key={categoryIds[index] ?? index}
+                            categoryId={categoryIds[index]}
+                            categoryName={catName}
+                            variant="small"
+                        />
+                    ))}
                     {extraCategoriesCount > 0 && (
                         <Pressable
                             onPress={() => setShowAllCategories(true)}

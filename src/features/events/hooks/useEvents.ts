@@ -91,12 +91,32 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
 }
 
 export function useEvents(filters: EventListFilters = {}) {
+    const { searchText, categoryIds, upcoming, province, canton, district } = filters;
+    
     return useQuery({
-        queryKey: ['events', 'list', filters],
+        queryKey: ['events', 'list', { searchText, categoryIds, upcoming, province, canton, district }],
         queryFn: async () => {
-            const data = await getEventsList(filters);
+            const data = await getEventsList({ searchText, categoryIds, upcoming });
             return data.map(mapEventToListItem);
         },
         staleTime: 1000 * 60 * 5, // 5 minutos
+        select: (items) => {
+            // Filtrar por ubicación en JavaScript
+            if (!district && !canton && !province) return items;
+            
+            return items.filter(item => {
+                const parts = item.locationLabel?.split(', ') || [];
+                
+                if (district) {
+                    return parts.some(part => part.toLowerCase() === district.toLowerCase());
+                } else if (canton) {
+                    return parts.some(part => part.toLowerCase() === canton.toLowerCase());
+                } else if (province) {
+                    return parts.some(part => part.toLowerCase() === province.toLowerCase());
+                }
+                
+                return true;
+            });
+        },
     });
 }
