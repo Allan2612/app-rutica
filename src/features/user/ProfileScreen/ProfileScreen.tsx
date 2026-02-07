@@ -1,58 +1,37 @@
-import { memo, useState, useCallback, useEffect } from 'react';
-import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
-import { router } from 'expo-router';
+import { memo, useState } from 'react';
+import { ScrollView } from 'react-native';
 import { useAuthStore } from '@/store';
 import { useProfile } from '@/features/user/hooks';
-import { ProfileCard, ProfileEditModal } from '@/components/user';
+import { ProfileEditModal, PremiumModal } from '@/components/user';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
 import { useThemedColors } from '@/hooks';
+import { ProfileLoading } from './ProfileLoading';
+import { ProfileContent } from './ProfileContent';
+import { ProfileToastConfig } from './ProfileToastConfig';
+import { useProfileHandlers } from './useProfileHandlers';
 import styles from './styles';
 
 export default memo(function ProfileScreen() {
   const user = useAuthStore((state) => state.user);
   const { profile, isLoading, error, updateProfile } = useProfile();
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [premiumRefreshKey, setPremiumRefreshKey] = useState(0);
   const colors = useThemedColors();
 
-  const handleOpenEdit = useCallback(() => {
-    setIsEditModalVisible(true);
-  }, []);
+  const {
+    isEditModalVisible,
+    isPremiumModalVisible,
+    handleOpenEdit,
+    handleCloseEdit,
+    handleOpenPremiumModal,
+    handleClosePremiumModal,
+    handlePremiumSuccess,
+    handlePremiumInfo,
+    handleBack,
+  } = useProfileHandlers(setPremiumRefreshKey);
 
-  const handleCloseEdit = useCallback(() => {
-    setIsEditModalVisible(false);
-  }, []);
-
-  const handleBack = useCallback(() => {
-    router.back();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <Screen>
-        <BaseHeader />
-        <View style={[styles.centerContainer, { backgroundColor: colors.background.secondary }]}>
-          <ActivityIndicator size="large" color={colors.primary[500]} />
-          <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-            Cargando perfil...
-          </Text>
-        </View>
-      </Screen>
-    );
-  }
-
-  if (error || !profile) {
-    return (
-      <Screen>
-        <BaseHeader />
-        <View style={[styles.centerContainer, { backgroundColor: colors.background.secondary }]}>
-          <Text style={styles.errorTitle}>Error</Text>
-          <Text style={[styles.errorText, { color: colors.text.secondary }]}>
-            {error || 'No se pudo cargar el perfil'}
-          </Text>
-        </View>
-      </Screen>
-    );
+  if (isLoading || error || !profile) {
+    return <ProfileLoading isLoading={isLoading} error={error} />;
   }
 
   return (
@@ -62,20 +41,14 @@ export default memo(function ProfileScreen() {
         style={[styles.scrollContainer, { backgroundColor: colors.background.secondary }]}
         contentContainerStyle={styles.contentContainer}
       >
-        <View style={styles.headerWrapper}>
-          <View style={styles.headerContent}>
-            <Text style={[styles.title, { color: colors.text.primary }]}>
-              Mi Perfil
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-              {user?.email}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.cardWrapper}>
-          <ProfileCard profile={profile} onEdit={handleOpenEdit} onBack={handleBack} />
-        </View>
+        <ProfileContent
+          profile={profile}
+          userEmail={user?.email}
+          premiumRefreshKey={premiumRefreshKey}
+          onEdit={handleOpenEdit}
+          onBack={handleBack}
+          onSubscribePress={handleOpenPremiumModal}
+        />
 
         {isEditModalVisible && (
           <ProfileEditModal
@@ -85,7 +58,17 @@ export default memo(function ProfileScreen() {
             onSave={updateProfile}
           />
         )}
+
+        <PremiumModal
+          visible={isPremiumModalVisible}
+          onClose={handleClosePremiumModal}
+          onSuccess={handlePremiumSuccess}
+          onInfo={handlePremiumInfo}
+          userRole={profile?.role_prf || null}
+        />
       </ScrollView>
+
+      <ProfileToastConfig />
     </Screen>
   );
 });

@@ -1,0 +1,1 @@
+export { FavoritesTrendChart } from './FavoritesTrendChart';

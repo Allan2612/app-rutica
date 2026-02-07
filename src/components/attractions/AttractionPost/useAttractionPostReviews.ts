@@ -14,7 +14,7 @@ export function useAttractionPostReviews(
     selectedReviewId: string | null,
     selectedReviewUserId: string | null
 ) {
-    const { data: reviews } = useAttractionReviews(attractionId);
+    const { data: reviews = [] } = useAttractionReviews(attractionId);
     const { data: userReview } = useUserAttractionReview(attractionId, userId);
 
     const createReview = useCreateAttractionReview();

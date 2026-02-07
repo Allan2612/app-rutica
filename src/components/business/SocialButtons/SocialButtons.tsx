@@ -6,11 +6,13 @@ import { colors as themeColors } from '@/styles/theme';
 import { TikTokIcon } from '../TikTokIcon';
 import { styles } from './styles';
 
+export type SocialType = 'facebook' | 'instagram' | 'tiktok' | 'whatsapp' | 'youtube' | 'twitter' | 'linkedin';
+
 interface SocialButtonsProps {
     facebook?: string;
     instagram?: string;
     tiktok?: string;
-    onSocialPress: (url: string) => void;
+    onSocialPress: (url: string, socialType?: SocialType) => void;
 }
 
 export const SocialButtons = memo(function SocialButtons({
@@ -40,7 +42,7 @@ export const SocialButtons = memo(function SocialButtons({
                                 opacity: pressed ? 0.7 : 1,
                             },
                         ]}
-                        onPress={() => onSocialPress(facebook)}
+                        onPress={() => onSocialPress(facebook, 'facebook')}
                     >
                         <Facebook size={32} color={themeColors.social.facebook} strokeWidth={1.5} />
                     </Pressable>
@@ -56,7 +58,7 @@ export const SocialButtons = memo(function SocialButtons({
                                 opacity: pressed ? 0.7 : 1,
                             },
                         ]}
-                        onPress={() => onSocialPress(instagram)}
+                        onPress={() => onSocialPress(instagram, 'instagram')}
                     >
                         <Instagram size={32} color={themeColors.social.instagram} strokeWidth={1.5} />
                     </Pressable>
@@ -71,7 +73,7 @@ export const SocialButtons = memo(function SocialButtons({
                                 opacity: pressed ? 0.7 : 1,
                             },
                         ]}
-                        onPress={() => onSocialPress(tiktok)}
+                        onPress={() => onSocialPress(tiktok, 'tiktok')}
                     >
                         <TikTokIcon size={32} color={colors.text.primary} />
                     </Pressable>

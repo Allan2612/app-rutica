@@ -1,0 +1,1 @@
+export { useManageProductsHandlers } from './useManageProductsHandlers';

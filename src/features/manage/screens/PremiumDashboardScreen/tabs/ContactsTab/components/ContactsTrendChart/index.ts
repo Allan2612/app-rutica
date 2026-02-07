@@ -1,0 +1,1 @@
+export { ContactsTrendChart } from './ContactsTrendChart';

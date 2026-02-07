@@ -1,11 +1,14 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Phone, Mail, Globe } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { SocialButtons } from '../SocialButtons';
+import { useTrackContactClick } from '@/hooks/useContactClicks';
+import { SocialButtons, SocialType } from '../SocialButtons';
 import { styles } from './styles';
+import type { ContactType } from '@/services/contactClicks.service';
 
 interface ContactSectionProps {
+    businessId?: string; // Opcional - solo se trackea si se proporciona
     phone: string | null;
     email: string | null;
     website: string | null;
@@ -15,8 +18,27 @@ interface ContactSectionProps {
     onContactPress: (url: string) => void;
 }
 
-export const ContactSection = memo(({ phone, email, website, facebook, instagram, tiktok, onContactPress }: ContactSectionProps) => {
+export const ContactSection = memo(({ businessId, phone, email, website, facebook, instagram, tiktok, onContactPress }: ContactSectionProps) => {
     const themedColors = useThemedColors();
+    const { mutate: trackClick } = useTrackContactClick();
+
+    const handleContactPress = useCallback((url: string, contactType: ContactType) => {
+        // Registrar el click solo si hay businessId
+        if (businessId) {
+            trackClick({ businessId, contactType });
+        }
+        // Ejecutar la acción original
+        onContactPress(url);
+    }, [businessId, trackClick, onContactPress]);
+
+    const handleSocialPress = useCallback((url: string, socialType?: SocialType) => {
+        // Registrar el click solo si hay businessId y socialType
+        if (businessId && socialType) {
+            trackClick({ businessId, contactType: socialType as ContactType });
+        }
+        // Ejecutar la acción original
+        onContactPress(url);
+    }, [businessId, trackClick, onContactPress]);
 
     const hasContactInfo = phone || email || website || facebook || instagram || tiktok;
 
@@ -42,7 +64,7 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
                                     borderColor: themedColors.border.medium,
                                 },
                             ]}
-                            onPress={() => onContactPress(`tel:${phone}`)}
+                            onPress={() => handleContactPress(`tel:${phone}`, 'phone')}
                         >
                             <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
                                 <Phone size={18} color={themedColors.primary[500]} />
@@ -68,7 +90,7 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
                                     borderColor: themedColors.border.medium,
                                 },
                             ]}
-                            onPress={() => onContactPress(`mailto:${email}`)}
+                            onPress={() => handleContactPress(`mailto:${email}`, 'email')}
                         >
                             <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
                                 <Mail size={18} color={themedColors.primary[500]} />
@@ -94,7 +116,7 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
                                     borderColor: themedColors.border.medium,
                                 },
                             ]}
-                            onPress={() => onContactPress(website)}
+                            onPress={() => handleContactPress(website, 'website')}
                         >
                             <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
                                 <Globe size={18} color={themedColors.primary[500]} />
@@ -118,7 +140,7 @@ export const ContactSection = memo(({ phone, email, website, facebook, instagram
                     facebook={facebook}
                     instagram={instagram}
                     tiktok={tiktok}
-                    onSocialPress={onContactPress}
+                    onSocialPress={handleSocialPress}
                 />
             )}
         </View>

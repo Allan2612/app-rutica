@@ -95,26 +95,140 @@ create table public.profiles (
   constraint profiles_pkey primary key (id_prf),
   constraint profiles_id_prf_fkey foreign key (id_prf) references auth.users(id)
 );
+-- ============================================================
+-- Migración: Tabla de suscripciones individuales
+-- ============================================================
+-- Cada registro representa una suscripción individual que necesita
+-- aprobación del admin. Un usuario puede tener múltiples suscripciones.
+-- ============================================================
 
-
-create table public.profile_premium (
-  profile_id_ppm uuid primary key,
-
-  -- Suscripción
-  subscribed_at_ppm timestamp with time zone not null default now(),
-
-  -- Pago
-  payment_reference_ppm character varying,
-  payment_note_ppm text,
-
-  created_at_ppm timestamp with time zone not null default now(),
-  updated_at_ppm timestamp with time zone not null default now(),
-
-  constraint profile_premium_profile_id_fkey
-    foreign key (profile_id_ppm)
-    references public.profiles(id_prf)
-    on delete cascade
+-- Paso 1: Crear enum para estado de suscripción
+create type public.subscription_status as enum (
+  'pending',    -- Pendiente de aprobación
+  'approved',   -- Aprobada por admin
+  'rejected',   -- Rechazada por admin
+  'cancelled'   -- Cancelada por usuario
 );
+
+-- Paso 2: Crear tabla de suscripciones individuales
+create table public.profile_subscriptions (
+  id_psub uuid primary key default gen_random_uuid(),
+  profile_id_psub uuid not null references public.profiles(id_prf) on delete cascade,
+  subscription_type_psub public.subscription_type not null,
+  payment_reference_psub text not null,
+  payment_note_psub text,
+  status_psub public.subscription_status not null default 'pending',
+  subscribed_at_psub timestamptz not null default now(),
+  approved_at_psub timestamptz,
+  approved_by_psub uuid references public.profiles(id_prf) on delete set null,
+  rejected_at_psub timestamptz,
+  rejected_by_psub uuid references public.profiles(id_prf) on delete set null,
+  rejection_reason_psub text,
+  cancelled_at_psub timestamptz,
+  created_at_psub timestamptz not null default now(),
+  updated_at_psub timestamptz not null default now()
+);
+
+-- Paso 3: Índices para mejor rendimiento
+create index idx_profile_subscriptions_profile_id on public.profile_subscriptions(profile_id_psub);
+create index idx_profile_subscriptions_status on public.profile_subscriptions(status_psub);
+create index idx_profile_subscriptions_type on public.profile_subscriptions(subscription_type_psub);
+create index idx_profile_subscriptions_profile_status on public.profile_subscriptions(profile_id_psub, status_psub);
+
+-- Paso 4: Trigger para actualizar updated_at
+create or replace function public.update_profile_subscriptions_updated_at()
+returns trigger as $$
+begin
+  new.updated_at_psub = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger trigger_update_profile_subscriptions_updated_at
+  before update on public.profile_subscriptions
+  for each row
+  execute function public.update_profile_subscriptions_updated_at();
+
+-- Paso 5: Comentarios
+comment on table public.profile_subscriptions is 
+'Registro individual de cada suscripción premium. Cada pago genera un nuevo registro que debe ser aprobado por un admin.';
+
+comment on column public.profile_subscriptions.id_psub is 'ID único de la suscripción';
+comment on column public.profile_subscriptions.profile_id_psub is 'ID del usuario que compró la suscripción';
+comment on column public.profile_subscriptions.subscription_type_psub is 'Tipo de suscripción adquirida';
+comment on column public.profile_subscriptions.payment_reference_psub is 'Número de referencia del pago (SINPE/Transferencia)';
+comment on column public.profile_subscriptions.payment_note_psub is 'Nota adicional del pago';
+comment on column public.profile_subscriptions.status_psub is 'Estado de la suscripción: pending, approved, rejected, cancelled';
+comment on column public.profile_subscriptions.subscribed_at_psub is 'Fecha en que el usuario realizó el pago';
+comment on column public.profile_subscriptions.approved_at_psub is 'Fecha en que un admin aprobó la suscripción';
+comment on column public.profile_subscriptions.approved_by_psub is 'ID del admin que aprobó';
+comment on column public.profile_subscriptions.rejected_at_psub is 'Fecha en que un admin rechazó la suscripción';
+comment on column public.profile_subscriptions.rejected_by_psub is 'ID del admin que rechazó';
+comment on column public.profile_subscriptions.rejection_reason_psub is 'Razón del rechazo';
+comment on column public.profile_subscriptions.cancelled_at_psub is 'Fecha en que el usuario canceló';
+
+-- Paso 6: Row Level Security (RLS)
+alter table public.profile_subscriptions enable row level security;
+
+-- Policy: Los usuarios pueden ver solo sus propias suscripciones
+create policy "Users can view own subscriptions"
+  on public.profile_subscriptions
+  for select
+  using (auth.uid() = profile_id_psub);
+
+-- Policy: Los usuarios pueden crear sus propias suscripciones
+create policy "Users can create own subscriptions"
+  on public.profile_subscriptions
+  for insert
+  with check (auth.uid() = profile_id_psub);
+
+-- Policy: Los usuarios pueden cancelar sus propias suscripciones pendientes
+create policy "Users can cancel own pending subscriptions"
+  on public.profile_subscriptions
+  for update
+  using (
+    auth.uid() = profile_id_psub 
+    and status_psub = 'pending'
+  )
+  with check (
+    auth.uid() = profile_id_psub 
+    and status_psub = 'cancelled'
+  );
+
+-- Policy: Los admins pueden ver todas las suscripciones
+create policy "Admins can view all subscriptions"
+  on public.profile_subscriptions
+  for select
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+      and role_prf = 'admin'
+    )
+  );
+
+-- Policy: Los admins pueden aprobar/rechazar suscripciones
+create policy "Admins can approve or reject subscriptions"
+  on public.profile_subscriptions
+  for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id_prf = auth.uid()
+      and role_prf = 'admin'
+    )
+  );
+
+-- 1) Create subscription type enum
+create type public.subscription_type_new as enum (
+  'promotions',
+  'dashboard',
+  'gallery_business',
+  'package_products',
+  'gallery_attractions',
+  'full_premium'
+);
+
 
 -- ============================================================
 -- 1) CATEGORIES
@@ -252,6 +366,102 @@ create table public.events (
   constraint events_location_id_evt_fkey foreign key (location_id_evt) references public.locations(id_loc),
   constraint events_reviewed_by_evt_fkey foreign key (reviewed_by_evt) references public.profiles(id_prf)
 );
+-- Crear tabla de catálogo de suscripciones
+CREATE TABLE public.subscription (
+  id_sub UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  type_sub public.subscription_type NOT NULL UNIQUE,
+  name_sub VARCHAR(100) NOT NULL,
+  description_sub TEXT NOT NULL,
+  price_sub NUMERIC(10,2) NOT NULL DEFAULT 0,
+  features_sub TEXT[] NOT NULL DEFAULT '{}',
+  is_recurring_sub BOOLEAN NOT NULL DEFAULT false,
+  is_active_sub BOOLEAN NOT NULL DEFAULT true,
+  display_order_sub INTEGER NOT NULL DEFAULT 0,
+  created_at_sub TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at_sub TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Índices
+CREATE INDEX idx_subscription_type ON public.subscription(type_sub);
+CREATE INDEX idx_subscription_active ON public.subscription(is_active_sub);
+
+-- Trigger para updated_at
+CREATE OR REPLACE FUNCTION public.update_subscription_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at_sub = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_subscription_updated_at
+  BEFORE UPDATE ON public.subscription
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_subscription_updated_at();
+
+-- RLS
+ALTER TABLE public.subscription ENABLE ROW LEVEL SECURITY;
+
+-- Todos pueden ver planes activos
+CREATE POLICY "Anyone can view active subscriptions"
+  ON public.subscription
+  FOR SELECT
+  USING (is_active_sub = true);
+
+-- Admins pueden ver todos
+CREATE POLICY "Admins can view all subscriptions"
+  ON public.subscription
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- Admins pueden insertar/actualizar
+CREATE POLICY "Admins can manage subscriptions"
+  ON public.subscription
+  FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- Datos iniciales (opcional)
+INSERT INTO public.subscription (type_sub, name_sub, description_sub, price_sub, features_sub, display_order_sub)
+VALUES 
+  ('promotions', 'Promociones', 'Publica promociones en tu negocio', 5000, ARRAY['Crear promociones', 'Destacar ofertas'], 1),
+  ('dashboard', 'Dashboard Premium', 'Acceso a estadísticas avanzadas', 8000, ARRAY['Estadísticas detalladas', 'Reportes mensuales'], 2),
+  ('gallery_business', 'Galería Negocio', 'Galería extendida para tu negocio', 3000, ARRAY['Hasta 20 fotos', 'Videos cortos'], 3),
+  ('package_products', 'Productos', 'Gestión de productos en tu negocio', 6000, ARRAY['Catálogo de productos', 'Precios y descripciones'], 4),
+  (
+    'gallery_attractions',
+    'Galería Atracciones',
+    'Hasta 10 fotos para tus atracciones',
+    2000.00,
+    ARRAY['Hasta 10 fotos por atracción', 'Mayor visibilidad', 'Destaca en búsquedas'],
+    false,
+    true,
+    5,
+    10
+);
+(
+    'gallery_events',
+    'Galería Eventos',
+    'Hasta 10 fotos para tus eventos',
+    2000.00,
+    ARRAY['Hasta 10 fotos por evento', 'Mayor visibilidad', 'Destaca en búsquedas'],
+    false,
+    true,
+    6,
+    10
+);
+  ('full_premium', 'Premium Completo', 'Acceso a todas las funcionalidades', 12500, ARRAY['Todas las funciones', 'Soporte prioritario'], 6);
 
 create table public.attractions (
   id_atr uuid not null default gen_random_uuid(),
@@ -274,6 +484,82 @@ create table public.attractions (
   constraint attractions_reviewed_by_atr_fkey foreign key (reviewed_by_atr) references public.profiles(id_prf)
 );
 
+--Control de ecxpiración de suscripciones mensuales (nuevo campo + función)
+-- Paso 1: Agregar 'expired' al enum subscription_status
+ALTER TYPE public.subscription_status ADD VALUE IF NOT EXISTS 'expired';
+
+-- Paso 2: Agregar campo de expiración a profile_subscriptions
+ALTER TABLE public.profile_subscriptions 
+ADD COLUMN IF NOT EXISTS expires_at_psub timestamptz;
+
+-- Paso 3: Agregar índice para búsquedas de expiración
+CREATE INDEX IF NOT EXISTS idx_profile_subscriptions_expires_at 
+ON public.profile_subscriptions(expires_at_psub) 
+WHERE expires_at_psub IS NOT NULL AND status_psub = 'approved';
+
+-- Paso 4: Comentario del nuevo campo
+COMMENT ON COLUMN public.profile_subscriptions.expires_at_psub IS 
+'Fecha de expiración para suscripciones mensuales. NULL para paquetes de pago único.';
+
+-- Paso 5: Función que expira las suscripciones mensuales vencidas
+CREATE OR REPLACE FUNCTION public.expire_monthly_subscriptions()
+RETURNS integer
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  expired_count integer;
+BEGIN
+  -- Actualizar suscripciones que han expirado
+  UPDATE public.profile_subscriptions
+  SET 
+    status_psub = 'expired',
+    updated_at_psub = now()
+  WHERE 
+    status_psub = 'approved'
+    AND expires_at_psub IS NOT NULL
+    AND expires_at_psub <= now();
+  
+  -- Obtener cantidad de filas afectadas
+  GET DIAGNOSTICS expired_count = ROW_COUNT;
+  
+  -- Log opcional (puedes ver en los logs de Supabase)
+  RAISE NOTICE 'Expired % monthly subscriptions at %', expired_count, now();
+  
+  RETURN expired_count;
+END;
+$$;
+
+-- Paso 6: Grant para que la función pueda ser llamada por service_role
+GRANT EXECUTE ON FUNCTION public.expire_monthly_subscriptions() TO service_role;
+
+-- Paso 7: Función para establecer fecha de expiración al aprobar (helper)
+-- Esta función calcula 1 mes desde la fecha de aprobación
+CREATE OR REPLACE FUNCTION public.calculate_subscription_expiry(
+  subscription_type text,
+  approval_date timestamptz DEFAULT now()
+)
+RETURNS timestamptz
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  -- Solo los tipos mensuales tienen expiración
+  IF subscription_type IN ('dashboard', 'full_premium') THEN
+    RETURN approval_date + INTERVAL '1 month';
+  ELSE
+    -- Paquetes de pago único no expiran
+    RETURN NULL;
+  END IF;
+END;
+$$;
+
+
+ SELECT cron.schedule(
+  'expire-monthly-subscriptions',  -- nombre del job
+   '0 0 * * *',                     -- cron: cada día a medianoche
+   $$SELECT public.expire_monthly_subscriptions()$$
+ );
+
 create table public.products (
   id_prd uuid not null default gen_random_uuid(),
   business_id_prd uuid,
@@ -289,6 +575,58 @@ create table public.products (
   constraint products_pkey primary key (id_prd),
   constraint products_business_id_prd_fkey foreign key (business_id_prd) references public.businesses(id_bus)
 );
+
+-- =============================================
+-- TABLA: business_contact_clicks
+-- Registra cada click en botones de contacto
+-- =============================================
+
+create table public.business_contact_clicks (
+  id_bcc uuid not null default gen_random_uuid(),
+  business_id_bcc uuid not null,
+  user_id_bcc uuid, -- puede ser null para usuarios no autenticados
+  contact_type_bcc character varying(50) not null, -- 'phone', 'email', 'website', 'whatsapp', 'facebook', 'instagram', 'tiktok', etc.
+  created_at_bcc timestamp with time zone not null default now(),
+  constraint business_contact_clicks_pkey primary key (id_bcc),
+  constraint business_contact_clicks_business_id_fkey foreign key (business_id_bcc) 
+    references public.businesses(id_bus) on delete cascade
+);
+
+-- Índices para consultas eficientes
+create index idx_business_contact_clicks_business on public.business_contact_clicks(business_id_bcc);
+create index idx_business_contact_clicks_created on public.business_contact_clicks(created_at_bcc);
+create index idx_business_contact_clicks_type on public.business_contact_clicks(contact_type_bcc);
+
+-- Habilitar RLS
+alter table public.business_contact_clicks enable row level security;
+
+-- Políticas RLS
+create policy "business_contact_clicks_insert_all"
+  on public.business_contact_clicks for insert
+  to authenticated, anon
+  with check (true);
+
+create policy "business_contact_clicks_select_owner"
+  on public.business_contact_clicks for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.businesses 
+      where id_bus = business_id_bcc 
+      and owner_id_bus = auth.uid()
+    )
+  );
+
+create policy "business_contact_clicks_select_admin"
+  on public.business_contact_clicks for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles 
+      where id_prf = auth.uid() 
+      and role_prf = 'admin'
+    )
+  );
 
 create table public.promotions (
   id_prm uuid not null default gen_random_uuid(),
@@ -396,6 +734,269 @@ create table public.promotion_combo_items (
   constraint promotion_combo_items_promotion_id_pci_fkey foreign key (promotion_id_pci) references public.promotions(id_prm) on delete cascade,
   constraint promotion_combo_items_product_id_pci_fkey foreign key (product_id_pci) references public.products(id_prd) on delete cascade
 );
+
+-- Control de consumo de suscripciones 
+-- ============================================================
+
+-- ============================================================
+-- 1) Agregar columna quota_sub a tabla subscription
+-- ============================================================
+
+ALTER TABLE public.subscription 
+ADD COLUMN IF NOT EXISTS quota_sub INTEGER NOT NULL DEFAULT 0;
+
+-- Actualizar cuotas por tipo de suscripción
+UPDATE public.subscription SET quota_sub = 20 WHERE type_sub = 'package_products';
+UPDATE public.subscription SET quota_sub = 10 WHERE type_sub = 'gallery_business';
+UPDATE public.subscription SET quota_sub = 10 WHERE type_sub = 'gallery_attractions';
+UPDATE public.subscription SET quota_sub = 10 WHERE type_sub = 'promotions';
+UPDATE public.subscription SET quota_sub = 0 WHERE type_sub = 'dashboard'; -- No consume recursos
+UPDATE public.subscription SET quota_sub = 999 WHERE type_sub = 'full_premium'; -- Prácticamente ilimitado
+
+COMMENT ON COLUMN public.subscription.quota_sub IS 'Cantidad de recursos que otorga esta suscripción (ej: 20 productos, 10 fotos)';
+
+-- ============================================================
+-- 2) Crear enum para tipos de recursos
+-- ============================================================
+
+CREATE TYPE public.resource_type AS ENUM (
+  'product',           -- Productos de negocio
+  'photo_business',    -- Fotos de galería de negocio
+  'photo_attraction',  -- Fotos de galería de atracción
+  'photo_event',       -- Fotos de galería de evento
+  'promotion'          -- Promociones
+);
+
+-- ============================================================
+-- 3) Crear tabla subscription_usage
+-- ============================================================
+-- Esta tabla trackea cuántos recursos ha consumido cada suscripción
+-- por entidad específica (negocio, atracción, evento)
+
+CREATE TABLE public.subscription_usage (
+  id_sus UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  
+  -- Relación con la suscripción comprada y aprobada
+  profile_subscription_id_sus UUID NOT NULL 
+    REFERENCES public.profile_subscriptions(id_psub) ON DELETE CASCADE,
+  
+  -- Usuario dueño (denormalizado para consultas rápidas)
+  profile_id_sus UUID NOT NULL 
+    REFERENCES public.profiles(id_prf) ON DELETE CASCADE,
+  
+  -- Tipo de recurso que se está consumiendo
+  resource_type_sus public.resource_type NOT NULL,
+  
+  -- Entidad a la que aplica el consumo
+  -- Solo uno de estos debe estar poblado según resource_type
+  business_id_sus UUID REFERENCES public.businesses(id_bus) ON DELETE CASCADE,
+  attraction_id_sus UUID REFERENCES public.attractions(id_atr) ON DELETE CASCADE,
+  event_id_sus UUID REFERENCES public.events(id_evt) ON DELETE CASCADE,
+  
+  -- Control de cuota
+  max_quota_sus INTEGER NOT NULL,      -- Cuota máxima de esta suscripción
+  used_count_sus INTEGER NOT NULL DEFAULT 0,  -- Cantidad usada actualmente
+  
+  -- Timestamps
+  created_at_sus TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at_sus TIMESTAMPTZ NOT NULL DEFAULT now(),
+  
+  -- Constraint: Solo una entrada por suscripción + tipo + entidad
+  CONSTRAINT subscription_usage_unique UNIQUE (
+    profile_subscription_id_sus, 
+    resource_type_sus, 
+    business_id_sus,
+    attraction_id_sus,
+    event_id_sus
+  ),
+  
+  -- Constraint: used_count no puede exceder max_quota
+  CONSTRAINT subscription_usage_quota_check 
+    CHECK (used_count_sus >= 0 AND used_count_sus <= max_quota_sus),
+    
+  -- Constraint: Debe tener exactamente una entidad según el tipo
+  CONSTRAINT subscription_usage_entity_check CHECK (
+    (resource_type_sus IN ('product', 'photo_business', 'promotion') AND business_id_sus IS NOT NULL AND attraction_id_sus IS NULL AND event_id_sus IS NULL) OR
+    (resource_type_sus = 'photo_attraction' AND attraction_id_sus IS NOT NULL AND business_id_sus IS NULL AND event_id_sus IS NULL) OR
+    (resource_type_sus = 'photo_event' AND event_id_sus IS NOT NULL AND business_id_sus IS NULL AND attraction_id_sus IS NULL)
+  )
+);
+
+-- ============================================================
+-- 4) Índices para mejor rendimiento
+-- ============================================================
+
+CREATE INDEX idx_subscription_usage_profile_sub 
+  ON public.subscription_usage(profile_subscription_id_sus);
+  
+CREATE INDEX idx_subscription_usage_profile 
+  ON public.subscription_usage(profile_id_sus);
+  
+CREATE INDEX idx_subscription_usage_business 
+  ON public.subscription_usage(business_id_sus) 
+  WHERE business_id_sus IS NOT NULL;
+  
+CREATE INDEX idx_subscription_usage_attraction 
+  ON public.subscription_usage(attraction_id_sus) 
+  WHERE attraction_id_sus IS NOT NULL;
+  
+CREATE INDEX idx_subscription_usage_event 
+  ON public.subscription_usage(event_id_sus) 
+  WHERE event_id_sus IS NOT NULL;
+
+CREATE INDEX idx_subscription_usage_type_business 
+  ON public.subscription_usage(resource_type_sus, business_id_sus) 
+  WHERE business_id_sus IS NOT NULL;
+
+-- ============================================================
+-- 5) Trigger para updated_at
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.update_subscription_usage_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at_sus = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_subscription_usage_updated_at
+  BEFORE UPDATE ON public.subscription_usage
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_subscription_usage_updated_at();
+
+-- ============================================================
+-- 6) Row Level Security (RLS)
+-- ============================================================
+
+ALTER TABLE public.subscription_usage ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Los usuarios pueden ver su propio consumo
+CREATE POLICY "Users can view own usage"
+  ON public.subscription_usage
+  FOR SELECT
+  USING (auth.uid() = profile_id_sus);
+
+-- Policy: Los usuarios pueden insertar su propio consumo
+CREATE POLICY "Users can insert own usage"
+  ON public.subscription_usage
+  FOR INSERT
+  WITH CHECK (auth.uid() = profile_id_sus);
+
+-- Policy: Los usuarios pueden actualizar su propio consumo
+CREATE POLICY "Users can update own usage"
+  ON public.subscription_usage
+  FOR UPDATE
+  USING (auth.uid() = profile_id_sus)
+  WITH CHECK (auth.uid() = profile_id_sus);
+
+-- Policy: Los admins pueden ver todo
+CREATE POLICY "Admins can view all usage"
+  ON public.subscription_usage
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- Policy: Los admins pueden gestionar todo
+CREATE POLICY "Admins can manage all usage"
+  ON public.subscription_usage
+  FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id_prf = auth.uid()
+      AND role_prf = 'admin'
+    )
+  );
+
+-- ============================================================
+-- 7) Comentarios de documentación
+-- ============================================================
+
+COMMENT ON TABLE public.subscription_usage IS 
+'Trackea el consumo de recursos de cada suscripción aprobada por entidad (negocio/atracción/evento)';
+
+COMMENT ON COLUMN public.subscription_usage.profile_subscription_id_sus IS 
+'FK a la suscripción aprobada que otorga la cuota';
+
+COMMENT ON COLUMN public.subscription_usage.profile_id_sus IS 
+'Usuario dueño de la suscripción (denormalizado para consultas rápidas)';
+
+COMMENT ON COLUMN public.subscription_usage.resource_type_sus IS 
+'Tipo de recurso: product, photo_business, photo_attraction, photo_event, promotion';
+
+COMMENT ON COLUMN public.subscription_usage.business_id_sus IS 
+'Negocio al que aplica (para productos, fotos de negocio, promociones)';
+
+COMMENT ON COLUMN public.subscription_usage.attraction_id_sus IS 
+'Atracción a la que aplica (para fotos de atracción)';
+
+COMMENT ON COLUMN public.subscription_usage.event_id_sus IS 
+'Evento al que aplica (para fotos de evento)';
+
+COMMENT ON COLUMN public.subscription_usage.max_quota_sus IS 
+'Cuota máxima que otorga esta suscripción';
+
+COMMENT ON COLUMN public.subscription_usage.used_count_sus IS 
+'Cantidad de recursos actualmente en uso (aumenta al crear, disminuye al eliminar)';
+
+-- ============================================================
+-- 8) Función helper para obtener cuota disponible
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.get_available_quota(
+  p_profile_id UUID,
+  p_resource_type public.resource_type,
+  p_entity_id UUID
+)
+RETURNS TABLE (
+  total_quota INTEGER,
+  total_used INTEGER,
+  available INTEGER
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_subscription_type public.subscription_type;
+BEGIN
+  -- Determinar qué tipo de suscripción corresponde al recurso
+  CASE p_resource_type
+    WHEN 'product' THEN v_subscription_type := 'package_products';
+    WHEN 'photo_business' THEN v_subscription_type := 'gallery_business';
+    WHEN 'photo_attraction' THEN v_subscription_type := 'gallery_attractions';
+    WHEN 'photo_event' THEN v_subscription_type := 'gallery_attractions';
+    WHEN 'promotion' THEN v_subscription_type := 'promotions';
+  END CASE;
+
+  -- Calcular cuota total y usada
+  RETURN QUERY
+  SELECT 
+    COALESCE(SUM(su.max_quota_sus), 0)::INTEGER as total_quota,
+    COALESCE(SUM(su.used_count_sus), 0)::INTEGER as total_used,
+    (COALESCE(SUM(su.max_quota_sus), 0) - COALESCE(SUM(su.used_count_sus), 0))::INTEGER as available
+  FROM public.subscription_usage su
+  JOIN public.profile_subscriptions ps ON ps.id_psub = su.profile_subscription_id_sus
+  JOIN public.subscription s ON s.type_sub = v_subscription_type
+  WHERE su.profile_id_sus = p_profile_id
+    AND su.resource_type_sus = p_resource_type
+    AND ps.status_psub = 'approved'
+    AND (
+      (p_resource_type IN ('product', 'photo_business', 'promotion') AND su.business_id_sus = p_entity_id) OR
+      (p_resource_type = 'photo_attraction' AND su.attraction_id_sus = p_entity_id) OR
+      (p_resource_type = 'photo_event' AND su.event_id_sus = p_entity_id)
+    );
+END;
+$$;
+
+COMMENT ON FUNCTION public.get_available_quota IS 
+'Retorna la cuota total, usada y disponible para un tipo de recurso y entidad específica';
+
 
 -- ============================================================
 -- 5) REVIEWS
@@ -1240,7 +1841,6 @@ $$;
 -- ============================================================
 
 alter table public.profiles enable row level security;
-alter table public.profile_premium enable row level security;
 alter table public.categories enable row level security;
 alter table public.countries enable row level security;
 alter table public.provinces enable row level security;
@@ -1324,35 +1924,6 @@ create policy "profiles_update_admin"
   using (public.is_admin())
   with check (public.is_admin());
 
--- DELETE: Nadie puede eliminar perfiles (soft delete via is_active_prf)
-
--- ============================================================
--- 12.3) PROFILE_PREMIUM
--- ============================================================
-
--- SELECT: Usuario ve su propia suscripción
-create policy "profile_premium_select_own"
-  on public.profile_premium for select
-  using (profile_id_ppm = auth.uid());
-
--- SELECT: Admin ve todas las suscripciones
-create policy "profile_premium_select_admin"
-  on public.profile_premium for select
-  using (public.is_admin());
-
--- INSERT/UPDATE/DELETE: Solo admin gestiona premium
-create policy "profile_premium_insert_admin"
-  on public.profile_premium for insert
-  with check (public.is_admin());
-
-create policy "profile_premium_update_admin"
-  on public.profile_premium for update
-  using (public.is_admin())
-  with check (public.is_admin());
-
-create policy "profile_premium_delete_admin"
-  on public.profile_premium for delete
-  using (public.is_admin());
 
 -- ============================================================
 -- 12.4) CATEGORIES (lookup table - read only para usuarios)

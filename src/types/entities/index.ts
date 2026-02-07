@@ -7,6 +7,12 @@ export type {
   ProfileWithPremium,
   ProfileInsert,
   ProfileUpdate,
+  ProfilePremiumInsert,
+  Subscription,
+  ProfileSubscription,
+  ProfileSubscriptionInsert,
+  ProfileWithSubscriptions,
+  SubscriptionPlanInfo,
 } from './profile';
 
 export {
@@ -15,6 +21,9 @@ export {
   canSell,
   isAdmin,
   isPremium,
+  SUBSCRIPTION_PLANS,
+  getSubscriptionPlanInfo,
+  getSubscriptionTypeName,
 } from './profile';
 
 // ============================================
@@ -271,3 +280,22 @@ export {
   isContactInteraction,
   getInteractionLabel,
 } from './interaction';
+
+// ============================================
+// Subscription Usage
+// ============================================
+export type {
+  SubscriptionUsage,
+  SubscriptionUsageInsert,
+  SubscriptionUsageUpdate,
+  QuotaInfo,
+  ResourceLimits,
+} from './subscription';
+
+export {
+  DEFAULT_RESOURCE_LIMITS,
+  RESOURCE_TO_SUBSCRIPTION,
+  getAvailableQuota,
+  canAddResource,
+  getQuotaMessage,
+} from './subscription';

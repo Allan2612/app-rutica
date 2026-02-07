@@ -3,6 +3,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { findOrCreateLocationHierarchy, validateLocationData, type LocationHierarchy } from '@/services/locations.service';
 import { canUserEdit } from '@/utils/permissionHelpers';
+import { syncResourceUsage } from '@/services/subscriptionQuota.service';
 
 // ============================================
 // Constants
@@ -159,7 +160,7 @@ export async function getAttractionById(
 
     if (attractionError) throw attractionError;
     if (!attractionData) throw new Error('No se encontró la atracción');
-    
+
     // Verificar permisos: debe ser el colaborador O admin
     const hasPermission = await canUserEdit(userId, attractionData.submitted_by_atr);
     if (!hasPermission) {
@@ -223,7 +224,7 @@ export async function updateAttractionComplete(
     if (!attraction) {
         throw new Error('No se encontró la atracción');
     }
-    
+
     // Verificar permisos: debe ser el colaborador O admin
     const hasPermission = await canUserEdit(userId, (attraction as any).submitted_by_atr);
     if (!hasPermission) {
@@ -286,6 +287,9 @@ export async function updateAttractionComplete(
 
     // 6. Manejar imágenes
     await handleImageUpdates(attractionId, data);
+
+    // 7. Sincronizar uso de recursos para la galería
+    await syncResourceUsage(userId, 'photo_attraction', attractionId, 'attraction');
 }
 
 // ============================================

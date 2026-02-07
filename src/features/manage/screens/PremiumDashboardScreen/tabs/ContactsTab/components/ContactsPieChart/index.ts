@@ -1,0 +1,1 @@
+export { ContactsPieChart } from './ContactsPieChart';
