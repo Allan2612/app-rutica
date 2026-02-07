@@ -1,6 +1,7 @@
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, useMemo } from 'react';
 import { View, ActivityIndicator, Pressable } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { TabSelector, TabOption, SearchFilterModal, SearchFilters } from '@/components/ui';
 import { AttractionsList } from '@/components/attractions';
 import { EventsList } from '@/components/events';
@@ -17,9 +18,17 @@ const ATTRACTION_TABS: TabOption[] = [
 ];
 
 export const AttractionsScreen = memo(function AttractionsScreen() {
-  const [activeTab, setActiveTab] = useState('attractions');
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const [activeTab, setActiveTab] = useState(tab === 'events' ? 'events' : 'attractions');
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const { location } = useLocationStore();
+
+  // Actualizar tab cuando cambia el parámetro
+  useEffect(() => {
+    if (tab === 'events' || tab === 'attractions') {
+      setActiveTab(tab);
+    }
+  }, [tab]);
   
   // Filtros para atracciones
   const [attractionFilters, setAttractionFilters] = useState<SearchFilters>({
@@ -36,16 +45,19 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   });
 
   // Sincronizar filtros con ubicación del store al cambiar
-  useEffect(() => {
-    const locationFilter = location ? {
+  const locationFilter = useMemo(() => {
+    if (!location) return null;
+    return {
       province: location.province,
       canton: location.canton,
       district: location.district,
-    } : null;
-    
+    };
+  }, [location?.province, location?.canton, location?.district]);
+  
+  useEffect(() => {
     setAttractionFilters(prev => ({ ...prev, location: locationFilter }));
     setEventFilters(prev => ({ ...prev, location: locationFilter }));
-  }, [location?.province, location?.canton, location?.district]);
+  }, [locationFilter]);
   
   const colors = useThemedColors();
 

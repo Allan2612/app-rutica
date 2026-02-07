@@ -25,6 +25,14 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
     promotion,
     onPress,
 }: PromotionPublicCardProps) {
+    console.log('[PromotionPublicCard] Rendering promotion:', {
+        id: promotion.id,
+        title: promotion.title,
+        categoryNamesLength: promotion.categoryNames?.length,
+        scopeCategoryIdsLength: promotion.scopeCategoryIds?.length,
+        businessName: promotion.businessName
+    });
+    
     const colors = useThemedColors();
 
     // Obtener label del badge
@@ -117,29 +125,29 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                         <Text style={styles.businessName} numberOfLines={1}>
                             {promotion.businessName}
                         </Text>
-                        {promotion.categoryNames.length > 0 && (
-                            <>
-                                {promotion.categoryNames.slice(0, 1).map((catName, index) => (
-                                    <CategoryChip
-                                        key={promotion.scopeCategoryIds?.[index] || index}
-                                        categoryId={promotion.scopeCategoryIds?.[index] || ''}
-                                        categoryName={catName}
-                                        variant="small"
-                                    />
-                                ))}
-                                {promotion.categoryNames.length > 1 && (
-                                    <View
-                                        style={[
-                                            styles.categoryChip,
-                                            { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
-                                        ]}
-                                    >
-                                        <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
-                                            +{promotion.categoryNames.length - 1}
-                                        </Text>
-                                    </View>
-                                )}
-                            </>
+                        {promotion.categoryNames && promotion.categoryNames.length > 0 && promotion.categoryNames.slice(0, 1).map((catName, index) => {
+                            const categoryId = (promotion.scopeCategoryIds && promotion.scopeCategoryIds[index]) || '';
+                            console.log('[PromotionPublicCard] Rendering CategoryChip:', { catName, categoryId, index });
+                            return (
+                                <CategoryChip
+                                    key={categoryId || `cat-${index}`}
+                                    categoryId={categoryId}
+                                    categoryName={catName}
+                                    variant="small"
+                                />
+                            );
+                        })}
+                        {promotion.categoryNames && promotion.categoryNames.length > 1 && (
+                            <View
+                                style={[
+                                    styles.categoryChip,
+                                    { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+                                ]}
+                            >
+                                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
+                                    +{promotion.categoryNames.length - 1}
+                                </Text>
+                            </View>
                         )}
                     </View>
                 )}

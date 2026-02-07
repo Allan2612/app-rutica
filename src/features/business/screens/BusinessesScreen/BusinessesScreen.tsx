@@ -1,7 +1,7 @@
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, useMemo } from 'react';
 import { ActivityIndicator, Text, View, useWindowDimensions, Pressable } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { TabSelector, TabOption, SearchFilterModal, SearchFilters } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses } from '@/features/business/hooks/useBusinesses';
@@ -18,9 +18,17 @@ const BUSINESS_TABS: TabOption[] = [
 ];
 
 export const BusinessesScreen = memo(function BusinessesScreen() {
-  const [activeTab, setActiveTab] = useState('commerces');
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const [activeTab, setActiveTab] = useState(tab === 'promotions' ? 'promotions' : 'commerces');
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const { location } = useLocationStore();
+
+  // Actualizar tab cuando cambia el parámetro
+  useEffect(() => {
+    if (tab === 'promotions' || tab === 'commerces') {
+      setActiveTab(tab);
+    }
+  }, [tab]);
   
   // Filtros para comercios
   const [commerceFilters, setCommerceFilters] = useState<SearchFilters>({
@@ -37,16 +45,19 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   });
 
   // Sincronizar filtros con ubicación del store al cambiar
-  useEffect(() => {
-    const locationFilter = location ? {
+  const locationFilter = useMemo(() => {
+    if (!location) return null;
+    return {
       province: location.province,
       canton: location.canton,
       district: location.district,
-    } : null;
-    
+    };
+  }, [location?.province, location?.canton, location?.district]);
+  
+  useEffect(() => {
     setCommerceFilters(prev => ({ ...prev, location: locationFilter }));
     setPromotionFilters(prev => ({ ...prev, location: locationFilter }));
-  }, [location?.province, location?.canton, location?.district]);
+  }, [locationFilter]);
   
   const { width } = useWindowDimensions();
   const colors = useThemedColors();
