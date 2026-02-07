@@ -27,13 +27,6 @@ export const HomeScreen = memo(function HomeScreen() {
         refetch 
     } = useHomeData();
 
-    console.log('[HomeScreen] Render state:', {
-        hasPromotions: !!promotions.data,
-        promotionsCount: promotions.data?.length,
-        hasStats: !!stats.data,
-        isLoading,
-        isError
-    });
 
     const handleRefresh = useCallback(() => {
         refetch();
@@ -69,11 +62,6 @@ export const HomeScreen = memo(function HomeScreen() {
     }
 
     const statsData = stats.data ?? { businessCount: 0, eventCount: 0, attractionCount: 0, promotionCount: 0 };
-
-    console.log('[HomeScreen] Rendering main content with:', {
-        statsData,
-        promotionsData: promotions.data?.map(p => ({ id: p.id, title: p.title, businessId: p.businessId }))
-    });
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>

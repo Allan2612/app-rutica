@@ -22,10 +22,8 @@ export function useFeaturedPromotions(limit: number = 6) {
     return useQuery({
         queryKey: [...HOME_KEYS.promotions, limit],
         queryFn: async () => {
-            console.log('[useHomeData] Fetching featured promotions...');
             try {
                 const result = await getFeaturedPromotions(limit);
-                console.log('[useHomeData] Featured promotions fetched:', result.length);
                 return result;
             } catch (error) {
                 console.error('[useHomeData] Error fetching promotions:', error);
@@ -45,10 +43,8 @@ export function useHomeStats() {
     return useQuery({
         queryKey: HOME_KEYS.stats,
         queryFn: async () => {
-            console.log('[useHomeData] Fetching home stats...');
             try {
                 const result = await getHomeStats();
-                console.log('[useHomeData] Home stats fetched:', result);
                 return result;
             } catch (error) {
                 console.error('[useHomeData] Error fetching stats:', error);

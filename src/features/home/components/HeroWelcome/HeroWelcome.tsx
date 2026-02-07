@@ -25,8 +25,6 @@ export const HeroWelcome = memo(function HeroWelcome({
     eventCount,
     attractionCount,
 }: HeroWelcomeProps) {
-    console.log('[HeroWelcome] Rendering with counts:', { businessCount, eventCount, attractionCount });
-    
     const colors = useThemedColors();
     const { user } = useAuthStore();
     const { location } = useLocationStore();

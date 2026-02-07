@@ -83,7 +83,6 @@ export function useProductForm(businessId: string) {
             if (user?.id && quotaInfo?.hasPremium && quotaInfo.usedCount >= quotaInfo.freeQuota) {
                 try {
                     await incrementUsage(user.id, 'product', businessId, 'business');
-                    console.log('✅ Usage incremented successfully');
                 } catch (usageError: any) {
                     console.error('❌ Error incrementing usage:', usageError);
                     console.error('Error details:', JSON.stringify(usageError, null, 2));

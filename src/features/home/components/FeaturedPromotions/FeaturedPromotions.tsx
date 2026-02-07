@@ -22,12 +22,6 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
     promotions,
     isLoading = false,
 }: FeaturedPromotionsProps) {
-    console.log('[FeaturedPromotions] Rendering with:', { 
-        promotionsCount: promotions.length, 
-        isLoading,
-        promotions: promotions.map(p => ({ id: p.id, title: p.title, categoryNames: p.categoryNames, scopeCategoryIds: p.scopeCategoryIds }))
-    });
-    
     const colors = useThemedColors();
     const { width } = useWindowDimensions();
 
@@ -45,7 +39,6 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
     }, []);
 
     const renderPromotionItem = useCallback((promotion: PromotionListItem) => {
-        console.log('[FeaturedPromotions] renderItem called for:', promotion.id);
         try {
             return (
                 <PromotionPublicCard

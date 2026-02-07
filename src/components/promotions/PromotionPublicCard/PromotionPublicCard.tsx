@@ -25,14 +25,6 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
     promotion,
     onPress,
 }: PromotionPublicCardProps) {
-    console.log('[PromotionPublicCard] Rendering promotion:', {
-        id: promotion.id,
-        title: promotion.title,
-        categoryNamesLength: promotion.categoryNames?.length,
-        scopeCategoryIdsLength: promotion.scopeCategoryIds?.length,
-        businessName: promotion.businessName
-    });
-    
     const colors = useThemedColors();
 
     // Obtener label del badge
@@ -127,7 +119,6 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                         </Text>
                         {promotion.categoryNames && promotion.categoryNames.length > 0 && promotion.categoryNames.slice(0, 1).map((catName, index) => {
                             const categoryId = (promotion.scopeCategoryIds && promotion.scopeCategoryIds[index]) || '';
-                            console.log('[PromotionPublicCard] Rendering CategoryChip:', { catName, categoryId, index });
                             return (
                                 <CategoryChip
                                     key={categoryId || `cat-${index}`}

@@ -21,7 +21,6 @@ interface ActionItem {
 }
 
 export const QuickActions = memo(function QuickActions() {
-    console.log('[QuickActions] Rendering...');
     const colors = useThemedColors();
     const { width } = useWindowDimensions();
 
