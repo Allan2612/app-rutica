@@ -117,28 +117,26 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                         <Text style={styles.businessName} numberOfLines={1}>
                             {promotion.businessName}
                         </Text>
-                        {promotion.categoryNames && promotion.categoryNames.length > 0 && promotion.categoryNames.slice(0, 1).map((catName, index) => {
-                            const categoryId = (promotion.scopeCategoryIds && promotion.scopeCategoryIds[index]) || '';
-                            return (
+                        {promotion.categoryNames && promotion.categoryNames.length > 0 && (
+                            <>
                                 <CategoryChip
-                                    key={categoryId || `cat-${index}`}
-                                    categoryId={categoryId}
-                                    categoryName={catName}
+                                    categoryId={(promotion.scopeCategoryIds && promotion.scopeCategoryIds[0]) || ''}
+                                    categoryName={promotion.categoryNames[0]}
                                     variant="small"
                                 />
-                            );
-                        })}
-                        {promotion.categoryNames && promotion.categoryNames.length > 1 && (
-                            <View
-                                style={[
-                                    styles.categoryChip,
-                                    { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
-                                ]}
-                            >
-                                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
-                                    +{promotion.categoryNames.length - 1}
-                                </Text>
-                            </View>
+                                {promotion.categoryNames.length > 1 && (
+                                    <View
+                                        style={[
+                                            styles.categoryChip,
+                                            { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+                                        ]}
+                                    >
+                                        <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
+                                            +{promotion.categoryNames.length - 1}
+                                        </Text>
+                                    </View>
+                                )}
+                            </>
                         )}
                     </View>
                 )}

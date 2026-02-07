@@ -12,15 +12,21 @@ import { useHomeData } from '../../hooks/useHomeData';
 import { 
     HeroWelcome, 
     QuickActions, 
-    FeaturedPromotions, 
+    FeaturedPromotions,
+    FeaturedBusinesses,
+    FeaturedEvents,
+    FeaturedAttractions,
     CallToAction 
-} from '../../components';
+} from '../../../../components/home';
 import { styles } from './styles';
 
 export const HomeScreen = memo(function HomeScreen() {
     const colors = useThemedColors();
     const { 
-        promotions, 
+        promotions,
+        businesses,
+        events,
+        attractions,
         stats, 
         isLoading, 
         isError, 
@@ -32,7 +38,7 @@ export const HomeScreen = memo(function HomeScreen() {
         refetch();
     }, [refetch]);
 
-    const isRefreshing = promotions.isFetching || stats.isFetching;
+    const isRefreshing = promotions.isFetching || businesses.isFetching || events.isFetching || attractions.isFetching || stats.isFetching;
 
     // Initial loading state
     if (isLoading && !promotions.data && !stats.data) {
@@ -82,6 +88,7 @@ export const HomeScreen = memo(function HomeScreen() {
                     businessCount={statsData.businessCount}
                     eventCount={statsData.eventCount}
                     attractionCount={statsData.attractionCount}
+                    promotionCount={statsData.promotionCount}
                 />
 
                 {/* Quick Navigation Actions */}
@@ -91,6 +98,24 @@ export const HomeScreen = memo(function HomeScreen() {
                 <FeaturedPromotions
                     promotions={promotions.data ?? []}
                     isLoading={promotions.isLoading}
+                />
+
+                {/* Featured Businesses Section */}
+                <FeaturedBusinesses
+                    businesses={businesses.data ?? []}
+                    isLoading={businesses.isLoading}
+                />
+
+                {/* Featured Attractions Section */}
+                <FeaturedAttractions
+                    attractions={attractions.data ?? []}
+                    isLoading={attractions.isLoading}
+                />
+
+                {/* Featured Events Section */}
+                <FeaturedEvents
+                    events={events.data ?? []}
+                    isLoading={events.isLoading}
                 />
 
                 {/* Call to Action for Non-Sellers */}

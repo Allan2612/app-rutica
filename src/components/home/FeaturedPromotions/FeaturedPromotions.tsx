@@ -4,12 +4,11 @@
  */
 
 import { memo, useCallback } from 'react';
-import { View, Text, Pressable, useWindowDimensions, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { Tag, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { PromotionPublicCard } from '@/components/promotions';
-import { GenericCarousel } from '@/components/ui';
 import type { PromotionListItem } from '@/types/entities';
 import { styles } from './styles';
 
@@ -23,9 +22,9 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
     isLoading = false,
 }: FeaturedPromotionsProps) {
     const colors = useThemedColors();
-    const { width } = useWindowDimensions();
 
-    const isMobile = width < 768;
+    // Mostrar solo las primeras 5 promociones
+    const displayedPromotions = promotions.slice(0, 5);
 
     const handlePromotionPress = useCallback((promotion: PromotionListItem) => {
         // Navegar al detalle del negocio que tiene la promoción
@@ -38,25 +37,6 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
         router.push('/(app)/(tabs)/businesses?tab=promotions');
     }, []);
 
-    const renderPromotionItem = useCallback((promotion: PromotionListItem) => {
-        try {
-            return (
-                <PromotionPublicCard
-                    promotion={promotion}
-                    onPress={handlePromotionPress}
-                />
-            );
-        } catch (error) {
-            console.error('[FeaturedPromotions] Error rendering card:', error);
-            return null;
-        }
-    }, [handlePromotionPress]);
-
-    // Don't render if no promotions and not loading
-    if (!isLoading && promotions.length === 0) {
-        return null;
-    }
-
     return (
         <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
             {/* Section Header */}
@@ -65,7 +45,7 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
                     <View style={[styles.iconBadge, { backgroundColor: colors.promo.badge + '20' }]}>
                         <Tag size={18} color={colors.promo.badge} strokeWidth={2} />
                     </View>
-                    <View>
+                    <View style={{ flex: 1 }}>
                         <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
                             Ofertas Destacadas
                         </Text>
@@ -95,17 +75,28 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={colors.primary[500]} />
                 </View>
-            ) : (
-                <View style={styles.carouselContainer}>
-                    <GenericCarousel
-                        items={promotions}
-                        renderItem={renderPromotionItem}
-                        showNavigation={!isMobile && promotions.length > 1}
-                        showIndicators={promotions.length > 1}
-                        autoScroll={promotions.length > 1}
-                        autoScrollInterval={5000}
-                    />
+            ) : displayedPromotions.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                    <Tag size={48} color={colors.text.tertiary} strokeWidth={1.5} />
+                    <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
+                        No hay promociones disponibles
+                    </Text>
                 </View>
+            ) : (
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                >
+                    {displayedPromotions.map((promotion) => (
+                        <View key={promotion.id} style={styles.cardWrapper}>
+                            <PromotionPublicCard
+                                promotion={promotion}
+                                onPress={handlePromotionPress}
+                            />
+                        </View>
+                    ))}
+                </ScrollView>
             )}
         </View>
     );
