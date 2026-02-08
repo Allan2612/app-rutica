@@ -113,7 +113,7 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                 path_pim
             ),
             promotion_category_map (
-                categories (
+                categories!inner (
                     id_cat,
                     name_cat
                 )
@@ -130,22 +130,12 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                 paid_quantity_pci
             )
         `)
-        // Solo promociones aprobadas, pagadas y activas
+        // Solo promociones aprobadas y activas
         .eq('moderation_status_prm', 'approved')
-        .eq('payment_state_prm', 'paid')
         .eq('is_active_prm', true)
         // Solo promociones vigentes
         .lte('start_at_prm', now)
         .gte('end_at_prm', now);
-
-    // Filtrar por ubicación del negocio (nivel más granular tiene prioridad)
-    if (district) {
-        query = query.eq('businesses.locations.districts.name_dst', district);
-    } else if (canton) {
-        query = query.eq('businesses.locations.districts.cantons.name_ctn', canton);
-    } else if (province) {
-        query = query.eq('businesses.locations.districts.cantons.provinces.name_prv', province);
-    }
 
     // Filtrar por texto
     if (searchText && searchText.trim().length > 0) {
@@ -164,6 +154,27 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
     }
 
     let promotions = (data as unknown as PublicPromotionRecord[] || []).map(mapRecordToListItem);
+
+    // Filtrar por ubicación del negocio en JavaScript (más confiable que filtros anidados en Supabase)
+    if (district || canton || province) {
+        promotions = promotions.filter(promo => {
+            const promoRecord = (data as unknown as PublicPromotionRecord[])
+                .find(r => r.id_prm === promo.id);
+            
+            const districtName = promoRecord?.businesses?.locations?.districts?.name_dst;
+            const cantonName = promoRecord?.businesses?.locations?.districts?.cantons?.name_ctn;
+            const provinceName = promoRecord?.businesses?.locations?.districts?.cantons?.provinces?.name_prv;
+
+            if (district) {
+                return districtName?.toLowerCase() === district.toLowerCase();
+            } else if (canton) {
+                return cantonName?.toLowerCase() === canton.toLowerCase();
+            } else if (province) {
+                return provinceName?.toLowerCase() === province.toLowerCase();
+            }
+            return false;
+        });
+    }
 
     // Filtrar por categorías en JavaScript (post-query)
     if (categoryIds && categoryIds.length > 0) {
@@ -212,7 +223,7 @@ export async function getBusinessActivePromotions(businessId: string): Promise<P
                 path_pim
             ),
             promotion_category_map (
-                categories (
+                categories!inner (
                     id_cat,
                     name_cat
                 )
@@ -231,7 +242,6 @@ export async function getBusinessActivePromotions(businessId: string): Promise<P
         `)
         .eq('business_id_prm', businessId)
         .eq('moderation_status_prm', 'approved')
-        .eq('payment_state_prm', 'paid')
         .eq('is_active_prm', true)
         .lte('start_at_prm', now)
         .gte('end_at_prm', now)
@@ -277,10 +287,17 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         }
     }
 
-    // Obtener nombres de categorías
-    const categoryNames = record.promotion_category_map
-        ?.map(pcm => pcm.categories?.name_cat)
-        .filter((name): name is string => !!name) ?? [];
+    // Obtener nombres de categorías con sus IDs
+    const categories = record.promotion_category_map
+        ?.map(pcm => pcm.categories)
+        .filter((cat): cat is { id_cat: string; name_cat: string } => !!cat && !!cat.id_cat && !!cat.name_cat)
+        .map(cat => ({
+            id: cat.id_cat,
+            name: cat.name_cat
+        })) ?? [];
+
+    const categoryNames = categories.map(c => c.name);
+    const categoryIds = categories.map(c => c.id);
 
     // Obtener IDs de productos (para scope: 'product')
     const productIds = record.promotion_products
@@ -317,11 +334,11 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         startAt: record.start_at_prm,
         endAt: record.end_at_prm,
         moderationStatus: 'approved',
-        paymentState: 'paid',
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
         coverUrl: imageUrl,
         categoryNames,
+        categoryIds,
         productIds,
         scopeCategoryIds,
         comboItems,

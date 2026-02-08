@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, Store } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useBusinessDetail } from '@/features/business/hooks/useBusinessDetail';
 import {
     BusinessHeader,
@@ -21,8 +21,11 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
     const colors = useThemedColors();
     const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
 
-    const { data: business, isLoading, error } = useBusinessDetail(id);
+    const { data: business, isLoading, error, refetch } = useBusinessDetail(id);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
     const handleOpenLink = (url: string) => {
         if (url) {

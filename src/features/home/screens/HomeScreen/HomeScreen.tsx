@@ -7,32 +7,41 @@
 import { memo, useCallback } from 'react';
 import { View, ScrollView, RefreshControl, ActivityIndicator, Text, Pressable } from 'react-native';
 import { AlertTriangle } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useHomeData } from '../../hooks/useHomeData';
-import { 
-    HeroWelcome, 
-    QuickActions, 
-    FeaturedPromotions, 
-    CallToAction 
-} from '../../components';
+import {
+    HeroWelcome,
+    QuickActions,
+    FeaturedPromotions,
+    FeaturedBusinesses,
+    FeaturedEvents,
+    FeaturedAttractions,
+    CallToAction
+} from '../../../../components/home';
 import { styles } from './styles';
 
 export const HomeScreen = memo(function HomeScreen() {
     const colors = useThemedColors();
-    const { 
-        promotions, 
-        stats, 
-        isLoading, 
-        isError, 
-        refetch 
+    const {
+        promotions,
+        businesses,
+        events,
+        attractions,
+        stats,
+        isLoading,
+        isError,
+        refetch
     } = useHomeData();
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
 
     const handleRefresh = useCallback(() => {
         refetch();
     }, [refetch]);
 
-    const isRefreshing = promotions.isFetching || stats.isFetching;
+    const isRefreshing = promotions.isFetching || businesses.isFetching || events.isFetching || attractions.isFetching || stats.isFetching;
 
     // Initial loading state
     if (isLoading && !promotions.data && !stats.data) {
@@ -82,6 +91,7 @@ export const HomeScreen = memo(function HomeScreen() {
                     businessCount={statsData.businessCount}
                     eventCount={statsData.eventCount}
                     attractionCount={statsData.attractionCount}
+                    promotionCount={statsData.promotionCount}
                 />
 
                 {/* Quick Navigation Actions */}
@@ -91,6 +101,24 @@ export const HomeScreen = memo(function HomeScreen() {
                 <FeaturedPromotions
                     promotions={promotions.data ?? []}
                     isLoading={promotions.isLoading}
+                />
+
+                {/* Featured Businesses Section */}
+                <FeaturedBusinesses
+                    businesses={businesses.data ?? []}
+                    isLoading={businesses.isLoading}
+                />
+
+                {/* Featured Attractions Section */}
+                <FeaturedAttractions
+                    attractions={attractions.data ?? []}
+                    isLoading={attractions.isLoading}
+                />
+
+                {/* Featured Events Section */}
+                <FeaturedEvents
+                    events={events.data ?? []}
+                    isLoading={events.isLoading}
                 />
 
                 {/* Call to Action for Non-Sellers */}

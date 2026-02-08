@@ -29,9 +29,9 @@ const createInitialFormData = (): PromotionWizardFormData => ({
 
   // Step 4 - Image
   coverUri: null,
-
-  // Step 5 - Payment
-  paymentReference: '',
+  
+  // Status
+  isActive: true,
 });
 
 const createInitialErrors = (): PromotionWizardErrors => ({
@@ -48,7 +48,6 @@ const createInitialErrors = (): PromotionWizardErrors => ({
   endDate: undefined,
   selectedCategoryIds: undefined,
   coverUri: undefined,
-  paymentReference: undefined,
 });
 
 // ---------- Validation Functions ----------
@@ -150,16 +149,6 @@ const validateImageStep = (formData: PromotionWizardFormData): PromotionWizardEr
   return errors;
 };
 
-const validatePaymentStep = (formData: PromotionWizardFormData): PromotionWizardErrors => {
-  const errors: PromotionWizardErrors = {};
-
-  if (!formData.paymentReference || formData.paymentReference.trim().length < 4) {
-    errors.paymentReference = 'Debe ingresar el número de referencia SINPE';
-  }
-
-  return errors;
-};
-
 const validateStep = (
   stepId: WizardStepId,
   formData: PromotionWizardFormData
@@ -175,8 +164,6 @@ const validateStep = (
       return validateDatesStep(formData);
     case 'image':
       return validateImageStep(formData);
-    case 'payment':
-      return validatePaymentStep(formData);
     default:
       return {};
   }
@@ -372,7 +359,7 @@ export function useCreatePromotionWizard() {
   const updateComboItem = useCallback((productId: string, quantity: number, paidQuantity?: number) => {
     setFormData((prev) => {
       const existingIndex = prev.comboItems.findIndex(item => item.productId === productId);
-      
+
       if (quantity <= 0) {
         // Remove item if quantity is 0 or less
         return {
@@ -380,14 +367,14 @@ export function useCreatePromotionWizard() {
           comboItems: prev.comboItems.filter(item => item.productId !== productId),
         };
       }
-      
+
       if (existingIndex >= 0) {
         // Update existing item
         const newComboItems = [...prev.comboItems];
         newComboItems[existingIndex] = { productId, quantity, paidQuantity };
         return { ...prev, comboItems: newComboItems };
       }
-      
+
       // Add new item
       return {
         ...prev,
@@ -401,7 +388,7 @@ export function useCreatePromotionWizard() {
   const toggleComboItem = useCallback((productId: string) => {
     setFormData((prev) => {
       const existingItem = prev.comboItems.find(item => item.productId === productId);
-      
+
       if (existingItem) {
         // Remove item
         return {
@@ -409,7 +396,7 @@ export function useCreatePromotionWizard() {
           comboItems: prev.comboItems.filter(item => item.productId !== productId),
         };
       }
-      
+
       // Add new item with quantity 1
       return {
         ...prev,

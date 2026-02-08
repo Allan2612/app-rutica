@@ -6,7 +6,7 @@ import {
 import { AlertCircle } from 'lucide-react-native';
 import { useThemedColors, useCategories } from '@/hooks';
 import { SimpleDateTimeInput } from '@/components/ui';
-import { CategorySection } from '@/components/manage';
+import { CategorySection, ActiveToggleSection } from '@/components/manage';
 import { formSectionStyles } from '@/styles/form-section-styles';
 import type { PromotionWizardFormData, PromotionWizardErrors } from '@/types/entities';
 import { styles } from './styles';
@@ -104,6 +104,12 @@ export const WizardStepDates = memo(function WizardStepDates({
             </View>
           )}
         </View>
+
+        {/* Estado Activo */}
+        <ActiveToggleSection
+          isActive={formData.isActive ?? true}
+          onToggle={(value) => onFieldChange('isActive', value)}
+        />
 
         {/* Categories */}
         <CategorySection

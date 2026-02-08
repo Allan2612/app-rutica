@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useMemo } from 'react';
+import { memo, useState, useEffect, useMemo, useCallback } from 'react';
 import { View, ActivityIndicator, Pressable } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
@@ -29,14 +29,14 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
       setActiveTab(tab);
     }
   }, [tab]);
-  
+
   // Filtros para atracciones
   const [attractionFilters, setAttractionFilters] = useState<SearchFilters>({
     searchText: '',
     categoryIds: [],
     location: null,
   });
-  
+
   // Filtros para eventos
   const [eventFilters, setEventFilters] = useState<SearchFilters>({
     searchText: '',
@@ -53,21 +53,20 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
       district: location.district,
     };
   }, [location?.province, location?.canton, location?.district]);
-  
+
   useEffect(() => {
     setAttractionFilters(prev => ({ ...prev, location: locationFilter }));
     setEventFilters(prev => ({ ...prev, location: locationFilter }));
   }, [locationFilter]);
-  
+
   const colors = useThemedColors();
 
   const { data: categories = [] } = useCategories();
-  
+
   const {
     data: attractions = [],
     isLoading: isAttractionsLoading,
     refetch: refetchAttractions,
-    isRefetching: isAttractionsRefetching,
   } = useAttractions({
     searchText: attractionFilters.searchText,
     categoryIds: attractionFilters.categoryIds,
@@ -81,7 +80,6 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
     data: events = [],
     isLoading: isEventsLoading,
     refetch: refetchEvents,
-    isRefetching: isEventsRefetching,
   } = useEvents({
     searchText: eventFilters.searchText,
     categoryIds: eventFilters.categoryIds,
@@ -91,9 +89,25 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
     upcoming: true,
   });
 
+  // Estado para controlar el pull-to-refresh manualmente
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+
+  const handleManualRefresh = useCallback(async () => {
+    setIsManualRefreshing(true);
+    try {
+      if (activeTab === 'attractions') {
+        await refetchAttractions();
+      } else {
+        await refetchEvents();
+      }
+    } finally {
+      setIsManualRefreshing(false);
+    }
+  }, [activeTab, refetchAttractions, refetchEvents]);
+
   const currentFilters = activeTab === 'attractions' ? attractionFilters : eventFilters;
-  const hasActiveFilters = 
-    currentFilters.searchText !== '' || 
+  const hasActiveFilters =
+    currentFilters.searchText !== '' ||
     currentFilters.categoryIds.length > 0 ||
     Boolean(currentFilters.location?.province || currentFilters.location?.canton || currentFilters.location?.district);
 
@@ -110,9 +124,9 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
       onPress={() => setIsSearchModalVisible(true)}
       style={[
         styles.searchButton,
-        { 
-          backgroundColor: hasActiveFilters 
-            ? colors.primary[500] 
+        {
+          backgroundColor: hasActiveFilters
+            ? colors.primary[500]
             : colors.background.secondary,
         },
       ]}
@@ -128,9 +142,9 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       {/* Tabs con botón de búsqueda a la derecha */}
-      <TabSelector 
-        tabs={ATTRACTION_TABS} 
-        activeTab={activeTab} 
+      <TabSelector
+        tabs={ATTRACTION_TABS}
+        activeTab={activeTab}
         onTabChange={setActiveTab}
         rightElement={SearchButton}
       />
@@ -138,23 +152,23 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
       {/* Contenido */}
       <View style={[styles.content, { backgroundColor: colors.background.secondary }]}>
         {activeTab === 'attractions' ? (
-          isAttractionsLoading ? (
+          isAttractionsLoading && attractions.length === 0 ? (
             <View style={styles.loader}>
               <ActivityIndicator size="small" color={colors.primary[600]} />
             </View>
           ) : (
-            <AttractionsList 
+            <AttractionsList
               data={attractions}
-              isRefreshing={isAttractionsRefetching}
-              onRefresh={() => refetchAttractions()}
+              isRefreshing={isManualRefreshing}
+              onRefresh={handleManualRefresh}
             />
           )
         ) : (
           <EventsList
             events={events}
-            isLoading={isEventsLoading}
-            isRefreshing={isEventsRefetching}
-            onRefresh={() => refetchEvents()}
+            isLoading={isEventsLoading && events.length === 0}
+            isRefreshing={isManualRefreshing}
+            onRefresh={handleManualRefresh}
             emptyMessage="No hay eventos próximos disponibles"
           />
         )}

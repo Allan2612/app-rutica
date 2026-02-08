@@ -9,7 +9,7 @@ import type {
     PromotionListItem,
     PromotionDetailForEdit,
 } from '@/types/entities';
-import { ModerationStatus, PromotionScope, DiscountType, PaymentState } from '@/types/enums';
+import { ModerationStatus, PromotionScope, DiscountType } from '@/types/enums';
 import { getImageUrl, deletePromotionImage } from './promotions.helpers';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
@@ -31,7 +31,7 @@ interface PromotionRecord {
     start_at_prm: string;
     end_at_prm: string;
     moderation_status_prm: string;
-    payment_state_prm: string;
+    moderation_note_prm: string | null;
     created_at_prm: string;
     businesses: {
         id_bus: string;
@@ -80,7 +80,7 @@ export async function getUserPromotions(userId: string): Promise<PromotionListIt
             start_at_prm,
             end_at_prm,
             moderation_status_prm,
-            payment_state_prm,
+            moderation_note_prm,
             created_at_prm,
             businesses:business_id_prm (
                 id_bus,
@@ -90,7 +90,7 @@ export async function getUserPromotions(userId: string): Promise<PromotionListIt
                 path_pim
             ),
             promotion_category_map (
-                categories (
+                categories!inner (
                     id_cat,
                     name_cat
                 )
@@ -132,7 +132,7 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
             start_at_prm,
             end_at_prm,
             moderation_status_prm,
-            payment_state_prm,
+            moderation_note_prm,
             created_at_prm,
             businesses:business_id_prm (
                 id_bus,
@@ -142,7 +142,7 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
                 path_pim
             ),
             promotion_category_map (
-                categories (
+                categories!inner (
                     id_cat,
                     name_cat
                 )
@@ -184,7 +184,6 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             discount_value_prm,
             start_at_prm,
             end_at_prm,
-            payment_reference_prm,
             promotion_images (
                 path_pim
             ),
@@ -251,7 +250,6 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             quantity: pci.quantity_pci,
             paidQuantity: pci.paid_quantity_pci ?? undefined,
         })),
-        paymentReference: (data as any).payment_reference_prm || '',
         coverUrl,
         galleryUrls,
     };
@@ -354,10 +352,17 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         ? getImageUrl(BUCKET_NAME, coverImage.path_pim)
         : null;
 
-    // Extraer nombres de categorías
-    const categoryNames = record.promotion_category_map
-        ?.map((pcm) => pcm.categories?.name_cat)
-        .filter((name): name is string => !!name) ?? [];
+    // Extraer nombres de categorías con sus IDs
+    const categories = record.promotion_category_map
+        ?.map((pcm) => pcm.categories)
+        .filter((cat): cat is { id_cat: string; name_cat: string } => !!cat && !!cat.id_cat && !!cat.name_cat)
+        .map(cat => ({
+            id: cat.id_cat,
+            name: cat.name_cat
+        })) ?? [];
+
+    const categoryNames = categories.map(c => c.name);
+    const categoryIds = categories.map(c => c.id);
 
     // Extraer IDs de productos (para scope: 'product')
     const productIds = record.promotion_products
@@ -397,12 +402,13 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         startAt: record.start_at_prm,
         endAt: record.end_at_prm,
         moderationStatus: record.moderation_status_prm as ModerationStatus,
-        paymentState: record.payment_state_prm as PaymentState,
+        moderationNote: record.moderation_note_prm,
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
         coverUrl,
         imageUrl: coverUrl, // Alias para compatibilidad con UserPromotionCard
         categoryNames,
+        categoryIds,
         productIds,
         scopeCategoryIds,
         comboItems,

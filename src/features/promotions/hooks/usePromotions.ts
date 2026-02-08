@@ -28,30 +28,9 @@ export function usePromotions({ enabled = true, ...filters }: UsePromotionsOptio
 
     return useQuery({
         queryKey: PROMOTIONS_PUBLIC_KEYS.list({ searchText, categoryIds, province, canton, district }),
-        queryFn: () => getPublicPromotions({ searchText, categoryIds }),
+        queryFn: () => getPublicPromotions({ searchText, categoryIds, province, canton, district }),
         enabled,
         staleTime: 1000 * 60 * 5, // 5 minutos
-        select: (promotions) => {
-            // Filtrar por ubicación en JavaScript
-            if (!district && !canton && !province) return promotions;
-            
-            return promotions.filter(promo => {
-                const locationLabel = promo.businessLocation;
-                if (!locationLabel) return false;
-                
-                const parts = locationLabel.split(', ');
-                
-                if (district) {
-                    return parts.some(part => part.toLowerCase() === district.toLowerCase());
-                } else if (canton) {
-                    return parts.some(part => part.toLowerCase() === canton.toLowerCase());
-                } else if (province) {
-                    return parts.some(part => part.toLowerCase() === province.toLowerCase());
-                }
-                
-                return true;
-            });
-        },
     });
 }
 

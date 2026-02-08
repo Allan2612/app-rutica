@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         maxHeight: '90%',
-        minHeight: '60%',
+        minHeight: '75%',
         ...(isWeb && {
             maxWidth: 600,
             alignSelf: 'center',

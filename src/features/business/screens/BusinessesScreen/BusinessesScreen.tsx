@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useMemo } from 'react';
+import { memo, useState, useEffect, useMemo, useCallback } from 'react';
 import { ActivityIndicator, Text, View, useWindowDimensions, Pressable } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -29,14 +29,14 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       setActiveTab(tab);
     }
   }, [tab]);
-  
+
   // Filtros para comercios
   const [commerceFilters, setCommerceFilters] = useState<SearchFilters>({
     searchText: '',
     categoryIds: [],
     location: null,
   });
-  
+
   // Filtros para promociones
   const [promotionFilters, setPromotionFilters] = useState<SearchFilters>({
     searchText: '',
@@ -53,12 +53,12 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       district: location.district,
     };
   }, [location?.province, location?.canton, location?.district]);
-  
+
   useEffect(() => {
     setCommerceFilters(prev => ({ ...prev, location: locationFilter }));
     setPromotionFilters(prev => ({ ...prev, location: locationFilter }));
   }, [locationFilter]);
-  
+
   const { width } = useWindowDimensions();
   const colors = useThemedColors();
   const styles = useBusinessesStyles();
@@ -74,7 +74,6 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     data: businesses = [],
     isLoading: isBusinessesLoading,
     refetch: refetchBusinesses,
-    isRefetching: isBusinessesRefetching,
   } = useBusinesses({
     searchText: commerceFilters.searchText,
     categoryIds: commerceFilters.categoryIds,
@@ -88,7 +87,6 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     data: promotions = [],
     isLoading: isPromotionsLoading,
     refetch: refetchPromotions,
-    isRefetching: isPromotionsRefetching,
   } = usePromotions({
     searchText: promotionFilters.searchText,
     categoryIds: promotionFilters.categoryIds,
@@ -98,9 +96,25 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     enabled: activeTab === 'promotions',
   });
 
+  // Estado para controlar el pull-to-refresh manualmente
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+
+  const handleManualRefresh = useCallback(async () => {
+    setIsManualRefreshing(true);
+    try {
+      if (activeTab === 'commerces') {
+        await refetchBusinesses();
+      } else {
+        await refetchPromotions();
+      }
+    } finally {
+      setIsManualRefreshing(false);
+    }
+  }, [activeTab, refetchBusinesses, refetchPromotions]);
+
   const currentFilters = activeTab === 'commerces' ? commerceFilters : promotionFilters;
-  const hasActiveFilters = 
-    currentFilters.searchText !== '' || 
+  const hasActiveFilters =
+    currentFilters.searchText !== '' ||
     currentFilters.categoryIds.length > 0 ||
     Boolean(currentFilters.location?.province || currentFilters.location?.canton || currentFilters.location?.district);
 
@@ -123,9 +137,9 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       onPress={() => setIsSearchModalVisible(true)}
       style={[
         styles.searchButton,
-        { 
-          backgroundColor: hasActiveFilters 
-            ? colors.primary[500] 
+        {
+          backgroundColor: hasActiveFilters
+            ? colors.primary[500]
             : colors.background.secondary,
         },
       ]}
@@ -141,9 +155,9 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       {/* Tabs con botón de búsqueda a la derecha */}
-      <TabSelector 
-        tabs={BUSINESS_TABS} 
-        activeTab={activeTab} 
+      <TabSelector
+        tabs={BUSINESS_TABS}
+        activeTab={activeTab}
         onTabChange={setActiveTab}
         rightElement={SearchButton}
       />
@@ -151,7 +165,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       {/* Contenido */}
       <View style={[styles.content, { backgroundColor: colors.background.secondary }]}>
         {activeTab === 'commerces' ? (
-          isBusinessesLoading ? (
+          isBusinessesLoading && businesses.length === 0 ? (
             <View style={styles.loader}>
               <ActivityIndicator size="small" color={colors.primary[600]} />
             </View>
@@ -160,11 +174,11 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
               data={businesses}
               numColumns={numColumns}
               listKey={businessesListKey}
-              isRefreshing={isBusinessesRefetching}
-              onRefresh={() => refetchBusinesses()}
+              isRefreshing={isManualRefreshing}
+              onRefresh={handleManualRefresh}
             />
           )
-        ) : isPromotionsLoading ? (
+        ) : isPromotionsLoading && promotions.length === 0 ? (
           <View style={styles.loader}>
             <ActivityIndicator size="small" color={colors.primary[600]} />
           </View>
@@ -173,8 +187,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
             data={promotions}
             numColumns={numColumns}
             listKey={promotionsListKey}
-            isRefreshing={isPromotionsRefetching}
-            onRefresh={() => refetchPromotions()}
+            isRefreshing={isManualRefreshing}
+            onRefresh={handleManualRefresh}
             onPromotionPress={handlePromotionPress}
           />
         )}

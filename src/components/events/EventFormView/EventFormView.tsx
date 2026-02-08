@@ -10,6 +10,7 @@ import {
     LocationSection,
     ContactSection,
     SocialLinksSection,
+    ActiveToggleSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
 import type { CategoryOption } from '@/types/entities';
@@ -38,6 +39,7 @@ interface EventFormData {
     tiktok: string;
     coverUri: string | null;
     galleryUris: string[];
+    isActive: boolean;
 }
 
 interface EventFormErrors {
@@ -155,6 +157,12 @@ export const EventFormView = memo(function EventFormView({
                 onPhoneChange={(text) => onFieldChange('phone', text)}
                 onEmailChange={(text) => onFieldChange('email', text)}
                 onWebsiteChange={(text) => onFieldChange('website', text)}
+            />
+
+            <ActiveToggleSection
+                isActive={formData.isActive}
+                onToggle={(value) => onFieldChange('isActive', value)}
+                helperText="Cuando está inactivo, el evento no aparecerá en búsquedas ni será visible para otros usuarios"
             />
 
             <SocialLinksSection

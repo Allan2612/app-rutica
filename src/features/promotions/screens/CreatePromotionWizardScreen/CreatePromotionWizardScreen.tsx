@@ -23,7 +23,6 @@ import {
   WizardStepDiscount,
   WizardStepDates,
   WizardStepImage,
-  WizardStepPayment,
 } from '@/components/promotions';
 import type { PromotionFormData } from '@/types/entities';
 
@@ -90,7 +89,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
       scopeCategoryIds: wizard.formData.scopeCategoryIds,
       comboItems: wizard.formData.comboItems,
       coverUri: wizard.formData.coverUri,
-      paymentReference: wizard.formData.paymentReference,
+      isActive: wizard.formData.isActive,
     };
   }, [wizard.formData]);
 
@@ -172,14 +171,6 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
       case 'image':
         return (
           <WizardStepImage
-            formData={wizard.formData}
-            errors={wizard.errors}
-            onFieldChange={wizard.updateField}
-          />
-        );
-      case 'payment':
-        return (
-          <WizardStepPayment
             formData={wizard.formData}
             errors={wizard.errors}
             onFieldChange={wizard.updateField}

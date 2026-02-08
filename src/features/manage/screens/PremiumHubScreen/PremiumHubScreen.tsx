@@ -2,10 +2,11 @@ import { memo, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserSubscriptionDetails } from '@/hooks/useUserSubscriptions';
 import { useAuthStore } from '@/store';
 import { PremiumModal } from '@/components/user/PremiumModal/PremiumModal';
+import type { SubscriptionType } from '@/types/enums';
 import {
   HeaderSection,
   DashboardCard,
@@ -21,17 +22,23 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
   const { data: subscriptions = [], isLoading, refetch } = useUserSubscriptionDetails();
   const userRole = useAuthStore((state) => state.role);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionType | undefined>(undefined);
+
+  // Refrescar suscripciones cuando la pantalla recibe foco
+  useRefreshOnFocus(refetch);
 
   const handleDashboardPress = useCallback(() => {
     router.push('/(app)/(tabs)/manage/premium/dashboard' as any);
   }, [router]);
 
-  const handleOpenPremiumModal = useCallback(() => {
+  const handleOpenPremiumModal = useCallback((planType?: SubscriptionType) => {
+    setSelectedPlan(planType);
     setShowPremiumModal(true);
   }, []);
 
   const handleClosePremiumModal = useCallback(() => {
     setShowPremiumModal(false);
+    setSelectedPlan(undefined);
   }, []);
 
   const handlePremiumSuccess = useCallback(() => {
@@ -63,7 +70,7 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
 
         {/* Available Plans (when no subscriptions) */}
         {!isLoading && subscriptions.length === 0 && (
-          <AvailablePlansSection onBuyPress={() => handleOpenPremiumModal()} />
+          <AvailablePlansSection onBuyPress={handleOpenPremiumModal} />
         )}
 
         {/* Dashboard Cards */}
@@ -105,7 +112,7 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
         {!isLoading && (
           <Pressable
             style={[styles.acquireButton, { backgroundColor: colors.primary[500] }]}
-            onPress={handleOpenPremiumModal}
+            onPress={() => handleOpenPremiumModal()}
           >
             <Plus color="#FFFFFF" size={20} strokeWidth={2} />
             <Text style={styles.acquireButtonText}>Adquirir Paquete</Text>
@@ -119,6 +126,7 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
         onClose={handleClosePremiumModal}
         onSubscribed={handlePremiumSuccess}
         userRole={userRole}
+        initialPlan={selectedPlan}
       />
     </View>
   );

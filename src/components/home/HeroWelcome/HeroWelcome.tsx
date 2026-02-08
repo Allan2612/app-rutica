@@ -18,12 +18,14 @@ interface HeroWelcomeProps {
     businessCount: number;
     eventCount: number;
     attractionCount: number;
+    promotionCount: number;
 }
 
 export const HeroWelcome = memo(function HeroWelcome({
     businessCount,
     eventCount,
     attractionCount,
+    promotionCount,
 }: HeroWelcomeProps) {
     const colors = useThemedColors();
     const { user } = useAuthStore();
@@ -32,14 +34,6 @@ export const HeroWelcome = memo(function HeroWelcome({
     const [fontsLoaded, fontError] = useFonts({ Caveat_700Bold });
 
     const isMobile = width < 768;
-
-    // Get time-based greeting
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return 'Buenos dias';
-        if (hour < 18) return 'Buenas tardes';
-        return 'Buenas noches';
-    };
 
     const getLocationText = () => {
         if (!location) return 'Costa Rica';
@@ -70,7 +64,7 @@ export const HeroWelcome = memo(function HeroWelcome({
                 {/* Logo and Brand */}
                 <View style={styles.brandRow}>
                     <Image
-                        source={require('../../../../../assets/logo.png')}
+                        source={require('../../../../assets/logo.png')}
                         style={styles.logo}
                         contentFit="contain"
                         transition={200}
@@ -92,9 +86,6 @@ export const HeroWelcome = memo(function HeroWelcome({
 
                 {/* Greeting */}
                 <View style={styles.greetingContainer}>
-                    <Text style={[styles.greeting, { color: colors.text.secondary }]}>
-                        {getGreeting()}
-                    </Text>
                     <Text style={[
                         styles.welcomeMessage,
                         { color: colors.text.primary },
@@ -146,6 +137,15 @@ export const HeroWelcome = memo(function HeroWelcome({
                         </Text>
                         <Text style={[styles.statLabel, { color: colors.text.secondary }]}>
                             Atracciones
+                        </Text>
+                    </View>
+                    <View style={[styles.statDivider, { backgroundColor: colors.border.medium }]} />
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statNumber, { color: colors.primary[500] }]}>
+                            {promotionCount}
+                        </Text>
+                        <Text style={[styles.statLabel, { color: colors.text.secondary }]}>
+                            Promociones
                         </Text>
                     </View>
                 </View>

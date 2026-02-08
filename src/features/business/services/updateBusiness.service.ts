@@ -37,6 +37,7 @@ export interface UpdateBusinessData {
     logoUri?: string | null;
     coverUri?: string | null;
     galleryUris?: string[];
+    isActive?: boolean;
 }
 
 function getImageUrl(path: string): string {
@@ -428,16 +429,23 @@ export async function updateBusinessComplete(
         if (data.tiktok) socialLinks.tiktok = data.tiktok;
 
         // 5. Actualizar negocio
+        const updateFields: any = {
+            name_bus: data.name,
+            description_bus: data.description ?? null,
+            contact_phone_bus: data.phone ?? null,
+            contact_email_bus: data.email ?? null,
+            website_bus: data.website ?? null,
+            social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+            moderation_status_bus: 'pending',
+        };
+        
+        if (data.isActive !== undefined) {
+            updateFields.is_active_bus = data.isActive;
+        }
+        
         const { error: businessError } = await (supabase as any)
             .from('businesses')
-            .update({
-                name_bus: data.name,
-                description_bus: data.description ?? null,
-                contact_phone_bus: data.phone ?? null,
-                contact_email_bus: data.email ?? null,
-                website_bus: data.website ?? null,
-                social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-            })
+            .update(updateFields)
             .eq('id_bus', businessId);
 
         if (businessError) throw businessError;

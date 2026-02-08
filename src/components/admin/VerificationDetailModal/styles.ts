@@ -102,16 +102,6 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  paymentReference: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  paymentState: {
-    fontSize: 13,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
   noteText: {
     fontSize: 14,
     lineHeight: 20,

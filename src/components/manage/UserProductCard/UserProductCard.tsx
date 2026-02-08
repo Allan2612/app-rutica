@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { CategoryChips } from '@/components/ui';
 import {

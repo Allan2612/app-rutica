@@ -47,6 +47,9 @@ export interface CreateEventData {
     // Images
     coverUri?: string | null;
     galleryUris: string[]; // Hasta 3
+    
+    // Status
+    isActive?: boolean;
 }
 
 async function uploadImage(
@@ -175,7 +178,7 @@ export async function createEventComplete(
                 ticket_url_evt: data.ticketUrl ?? null,
                 social_links_evt: Object.keys(socialLinks).length > 0 ? socialLinks : null,
                 moderation_status_evt: 'pending',
-                is_active_evt: true,
+                is_active_evt: data.isActive ?? true,
             });
 
         if (eventError) throw eventError;

@@ -5,7 +5,7 @@ import { memo, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking, Platform, Modal, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, Mountain, X } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useAttractionDetail } from '@/features/attractions/hooks';
 import { GenericCarousel } from '@/components/ui';
 import { BusinessGallery } from '@/components/business';
@@ -15,8 +15,11 @@ import { styles } from '@/features/attractions/screens/AttractionDetailScreen/st
 export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
     const colors = useThemedColors();
     const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
-    const { data: attraction, isLoading, error } = useAttractionDetail(id);
+    const { data: attraction, isLoading, error, refetch } = useAttractionDetail(id);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
     const handleClose = () => {
         // Si viene del mapa, regresar al mapa

@@ -12,6 +12,7 @@ interface ProfileContentProps {
     onEdit: () => void;
     onBack: () => void;
     onSubscribePress: () => void;
+    onRoleUpdate?: () => void;
 }
 
 export const ProfileContent = memo(function ProfileContent({
@@ -21,6 +22,7 @@ export const ProfileContent = memo(function ProfileContent({
     onEdit,
     onBack,
     onSubscribePress,
+    onRoleUpdate,
 }: ProfileContentProps) {
     const colors = useThemedColors();
 
@@ -38,7 +40,12 @@ export const ProfileContent = memo(function ProfileContent({
             </View>
 
             <View style={styles.cardWrapper}>
-                <ProfileCard profile={profile} onEdit={onEdit} onBack={onBack} />
+                <ProfileCard 
+                    profile={profile} 
+                    onEdit={onEdit} 
+                    onBack={onBack} 
+                    onRoleUpdate={onRoleUpdate}
+                />
             </View>
 
             <View style={styles.cardWrapper}>

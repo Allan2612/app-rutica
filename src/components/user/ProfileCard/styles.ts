@@ -84,6 +84,21 @@ export const styles = StyleSheet.create({
     color: colors.text.inverse,
     textAlign: 'center',
   },
+  sellerUpgradeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: spacing.sm,
+    marginTop: spacing.lg,
+  },
+  sellerUpgradeButtonText: {
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text.inverse,
+  },
 });
 
 export default styles;

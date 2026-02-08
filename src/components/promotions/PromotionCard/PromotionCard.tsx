@@ -90,14 +90,17 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
 
         {promotion.categoryNames.length > 0 && (
           <View style={styles.categories}>
-            {promotion.categoryNames.slice(0, 3).map((cat, idx) => (
-              <CategoryChip
-                key={promotion.scopeCategoryIds?.[idx] || idx}
-                categoryId={promotion.scopeCategoryIds?.[idx] || ''}
-                categoryName={cat}
-                variant="small"
-              />
-            ))}
+            {promotion.categoryNames.slice(0, 3).map((cat, idx) => {
+              const categoryId = promotion.categoryIds?.[idx] || '';
+              return (
+                <CategoryChip
+                  key={categoryId || idx}
+                  categoryId={categoryId}
+                  categoryName={cat}
+                  variant="small"
+                />
+              );
+            })}
           </View>
         )}
 

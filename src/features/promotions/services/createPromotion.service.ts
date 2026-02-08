@@ -32,9 +32,8 @@ export async function createPromotionComplete(
                 discount_value_prm: data.discountValue ?? 0,
                 start_at_prm: data.startAt,
                 end_at_prm: data.endAt,
-                payment_reference_prm: data.paymentReference ?? null,
                 moderation_status_prm: 'pending',
-                payment_state_prm: 'pending',
+                is_active_prm: data.isActive ?? true,
             } as any);
 
         if (promotionError) throw promotionError;

@@ -12,6 +12,6 @@ export function useUserAttractions() {
             return await getUserAttractions(user.id);
         },
         enabled: !!user,
-        staleTime: 1000 * 60 * 5,
+        // staleTime: 0 (usa configuración global para siempre refetch en foco)
     });
 }

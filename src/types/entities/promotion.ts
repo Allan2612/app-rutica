@@ -1,4 +1,4 @@
-import { PromotionScope, DiscountType, ModerationStatus, PaymentState } from '@/types/enums';
+import { PromotionScope, DiscountType, ModerationStatus } from '@/types/enums';
 import { Business } from './business';
 import { Product } from './product';
 import { Profile } from './profile';
@@ -26,10 +26,6 @@ export interface Promotion {
   reviewed_by_prm: string | null;
   reviewed_at_prm: string | null;
   moderation_note_prm: string | null;
-  payment_state_prm: PaymentState | null;
-  payment_reference_prm: string | null;
-  payment_note_admin_prm: string | null;
-  payment_note_seller_prm: string | null;
   is_active_prm: boolean;
   created_at_prm: string;
   updated_at_prm: string;
@@ -105,9 +101,7 @@ export interface PromotionInsert {
   discount_value_prm?: number; // default 0
   start_at_prm: string;
   end_at_prm: string;
-  payment_reference_prm?: string | null;
   // moderation_status_prm se setea a 'pending'
-  // payment_state_prm se setea a 'pending'
 }
 
 export interface PromotionUpdate {
@@ -118,8 +112,7 @@ export interface PromotionUpdate {
   discount_value_prm?: number;
   start_at_prm?: string;
   end_at_prm?: string;
-  payment_reference_prm?: string | null;
-  // Campos de moderación y pago solo editables por admin
+  // Campos de moderación solo editables por admin
 }
 
 export interface PromotionImageInsert {
@@ -161,12 +154,13 @@ export interface PromotionListItem {
   startAt: string | null;
   endAt: string | null;
   moderationStatus: ModerationStatus;
-  paymentState: PaymentState;
+  moderationNote: string | null;
   businessId: string;
   businessName: string | null;
   coverUrl: string | null;
   imageUrl?: string | null; // Alias para compatibilidad con UserPromotionCard
   categoryNames: string[];
+  categoryIds: string[]; // IDs de las categorías (correlacionados con categoryNames)
   productIds: string[];
   scopeCategoryIds: string[];
   comboItems: ComboItemData[];
@@ -191,7 +185,6 @@ export interface PromotionDetailForEdit {
   productIds: string[];
   scopeCategoryIds: string[];
   comboItems: ComboItemData[];
-  paymentReference: string | null;
   coverUrl: string | null;
   galleryUrls: string[];
 }
@@ -214,7 +207,7 @@ export interface PromotionFormData {
   comboItems: ComboItemData[];
   coverUri?: string | null;
   galleryUris?: string[];
-  paymentReference?: string | null;
+  isActive?: boolean;
 }
 
 // ============================================
@@ -252,9 +245,9 @@ export interface PromotionWizardFormData {
 
   // Step 4: Image
   coverUri: string | null;
-
-  // Step 5: Payment
-  paymentReference: string;
+  
+  // Status
+  isActive: boolean;
 }
 
 export interface PromotionWizardErrors {
@@ -271,7 +264,6 @@ export interface PromotionWizardErrors {
   endDate?: string;
   selectedCategoryIds?: string;
   coverUri?: string;
-  paymentReference?: string;
 }
 
 export const WIZARD_STEPS = [
@@ -280,10 +272,9 @@ export const WIZARD_STEPS = [
   { id: 'discount' as const, title: 'Configura el Descuento', description: 'Define el tipo y valor del descuento' },
   { id: 'dates' as const, title: 'Vigencia y Categorías', description: 'Establece cuándo estará activa' },
   { id: 'image' as const, title: 'Imagen', description: 'Sube una imagen atractiva' },
-  { id: 'payment' as const, title: 'Pago', description: 'Ingresa la referencia SINPE' },
 ] as const;
 
-export type WizardStepId = 'business' | 'info' | 'discount' | 'dates' | 'image' | 'payment';
+export type WizardStepId = 'business' | 'info' | 'discount' | 'dates' | 'image';
 
 // ============================================
 // Helpers
@@ -308,12 +299,11 @@ export function getPromotionGalleryUrls(images: PromotionImage[] | undefined, ba
 }
 
 /**
- * Verifica si una promoción está aprobada y pagada
+ * Verifica si una promoción está aprobada y activa
  */
 export function isPromotionActive(promotion: Promotion): boolean {
   return (
     promotion.moderation_status_prm === 'approved' &&
-    promotion.payment_state_prm === 'paid' &&
     promotion.is_active_prm
   );
 }

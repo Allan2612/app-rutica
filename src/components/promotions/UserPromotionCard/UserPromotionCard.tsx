@@ -1,12 +1,6 @@
-/**
- * UserPromotionCard Component
- * Tarjeta para mostrar promociones del usuario (gestión)
- * Usa el mismo diseño visual que BusinessCard con overlay y badges
- */
-
 import { memo } from 'react';
 import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
-import { Edit2, Trash2, Tag, Calendar, Clock } from 'lucide-react-native';
+import { Edit2, Trash2, Tag, Calendar, Clock, Eye, EyeOff } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge, PromoBadge } from '@/components/ui';
@@ -26,7 +20,8 @@ export interface UserPromotionCardProps {
   businessName?: string;
   imageUrl?: string | null;
   moderationStatus: 'pending' | 'approved' | 'rejected';
-  paymentState?: 'pending' | 'verified' | 'rejected';
+  moderationNote?: string | null;
+  isActive: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   isDeleting?: boolean;
@@ -43,7 +38,8 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   businessName,
   imageUrl,
   moderationStatus,
-  paymentState = 'pending',
+  moderationNote,
+  isActive,
   onEdit,
   onDelete,
   isDeleting = false,
@@ -56,11 +52,11 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   const isExpired = endDate < now;
 
   // Obtener label del badge
-  const badgeLabel = getPromotionBadgeLabel({ 
-    scope, 
-    discountType, 
-    discountValue, 
-    comboItems 
+  const badgeLabel = getPromotionBadgeLabel({
+    scope,
+    discountType,
+    discountValue,
+    comboItems
   } as any);
 
   return (
@@ -89,15 +85,14 @@ export const UserPromotionCard = memo(function UserPromotionCard({
         <PromoBadge label={badgeLabel} size="medium" />
       </View>
 
-      {/* Status & Payment Badges - Top Right */}
+      {/* Status Badge and Eye Icon - Top Right */}
       <View style={styles.topRightBadges}>
-        <StatusBadge status={moderationStatus} />
-        {paymentState === 'pending' && (
-          <View style={[styles.paymentBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
-            <Clock size={12} color={colors.warning} />
-            <Text style={[styles.paymentText, { color: colors.warning }]}>Pago pendiente</Text>
-          </View>
+        {isActive ? (
+          <Eye size={22} color="rgba(255,255,255,0.95)" strokeWidth={2.5} />
+        ) : (
+          <EyeOff size={22} color="rgba(255,255,255,0.6)" strokeWidth={2.5} />
         )}
+        <StatusBadge status={moderationStatus} />
       </View>
 
       {/* Gradient Overlay */}
@@ -109,64 +104,78 @@ export const UserPromotionCard = memo(function UserPromotionCard({
       />
 
       {/* Content - Bottom */}
-      <View style={styles.content}>
-        {/* Info Column - Left */}
-        <View style={styles.infoColumn}>
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-          {businessName && (
-            <Text style={styles.businessName} numberOfLines={1}>
-              {businessName}
+      <View style={styles.contentWrapper}>
+        <View style={styles.content}>
+          {/* Info Column - Left */}
+          <View style={styles.infoColumn}>
+            <Text style={styles.title} numberOfLines={1}>
+              {title}
             </Text>
-          )}
-          <View style={styles.dateRow}>
-            <Calendar size={14} color="rgba(255,255,255,0.9)" strokeWidth={1.75} />
-            <Text style={styles.dateText}>
-              {formatDate(startAt)} - {formatDate(endAt)}
-            </Text>
-            {isExpired && (
-              <View style={[styles.expiredBadge, { backgroundColor: 'rgba(239, 68, 68, 0.9)' }]}>
-                <Text style={styles.expiredText}>Expirada</Text>
-              </View>
+            {businessName && (
+              <Text style={styles.businessName} numberOfLines={1}>
+                {businessName}
+              </Text>
             )}
+            <View style={styles.dateRow}>
+              <Calendar size={14} color="rgba(255,255,255,0.9)" strokeWidth={1.75} />
+              <Text style={styles.dateText}>
+                {formatDate(startAt)} - {formatDate(endAt)}
+              </Text>
+              {isExpired && (
+                <View style={[styles.expiredBadge, { backgroundColor: 'rgba(239, 68, 68, 0.9)' }]}>
+                  <Text style={styles.expiredText}>Expirada</Text>
+                </View>
+              )}
+            </View>
           </View>
+
+          {/* Action Buttons - Right */}
+          {(onEdit || onDelete) && (
+            <View style={styles.actions}>
+              {onEdit && (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.actionButton,
+                    styles.editButton,
+                    { opacity: pressed ? 0.8 : 1 },
+                  ]}
+                  onPress={onEdit}
+                  disabled={isDeleting}
+                >
+                  <Edit2 color="#000000" size={18} strokeWidth={2.5} />
+                </Pressable>
+              )}
+
+              {onDelete && (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.actionButton,
+                    styles.deleteButton,
+                    { opacity: pressed ? 0.8 : 1 },
+                  ]}
+                  onPress={onDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Trash2 color="#FFFFFF" size={18} strokeWidth={2.5} />
+                  )}
+                </Pressable>
+              )}
+            </View>
+          )}
         </View>
 
-        {/* Action Buttons - Right */}
-        {(onEdit || onDelete) && (
-          <View style={styles.actions}>
-            {onEdit && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  styles.editButton,
-                  { opacity: pressed ? 0.8 : 1 },
-                ]}
-                onPress={onEdit}
-                disabled={isDeleting}
-              >
-                <Edit2 color="#000000" size={18} strokeWidth={2.5} />
-              </Pressable>
-            )}
-
-            {onDelete && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  styles.deleteButton,
-                  { opacity: pressed ? 0.8 : 1 },
-                ]}
-                onPress={onDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <Trash2 color="#FFFFFF" size={18} strokeWidth={2.5} />
-                )}
-              </Pressable>
-            )}
+        {/* Nota de moderación */}
+        {moderationNote && moderationStatus === 'rejected' && (
+          <View style={[styles.moderationNoteContainer, { backgroundColor: colors.error + '15', borderColor: colors.error + '40' }]}>
+            <Text style={[styles.moderationNoteLabel, { color: colors.error }]}>
+              Razón de rechazo:
+            </Text>
+            <Text style={[styles.moderationNoteText, { color: '#FFFFFF' }]}>
+              {moderationNote}
+            </Text>
           </View>
         )}
       </View>

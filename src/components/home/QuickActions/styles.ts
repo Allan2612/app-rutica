@@ -29,9 +29,9 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
     },
     actionCardMobile: {
-        width: '48.5%',
-        paddingHorizontal: spacing.sm + 4,
-        paddingVertical: spacing.sm + 4,
+        width: '100%',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.md,
     },
     iconContainer: {
         width: 48,
@@ -45,8 +45,8 @@ export const styles = StyleSheet.create({
         marginLeft: spacing.sm + 4,
     },
     actionTitle: {
-        fontSize: typography.sizes.sm,
-        fontWeight: '600',
+        fontSize: typography.sizes.lg,
+        fontWeight: '700',
     },
     actionSubtitle: {
         fontSize: typography.sizes.xs,

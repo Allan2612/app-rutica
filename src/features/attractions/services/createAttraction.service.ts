@@ -38,6 +38,7 @@ export interface CreateAttractionData {
     longitude: number;
     coverUri: string | null;
     galleryUris: string[];
+    isActive?: boolean;
 }
 
 // ============================================
@@ -154,7 +155,7 @@ export async function createAttractionComplete(
             description_atr: data.description,
             location_id_atr: (location as any).id_loc,
             moderation_status_atr: 'pending',
-            is_active_atr: true,
+            is_active_atr: data.isActive ?? true,
         } as never);
 
         if (attractionError) throw attractionError;

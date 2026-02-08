@@ -386,11 +386,11 @@ async function getCurrentResourceCount(
 ): Promise<number> {
     switch (resourceType) {
         case 'product': {
+            // Contar TODOS los productos (activos e inactivos) para el control de cuota
             const { count, error } = await supabase
                 .from('products')
                 .select('*', { count: 'exact', head: true })
-                .eq('business_id_prd', entityId)
-                .eq('is_active_prd', true);
+                .eq('business_id_prd', entityId);
 
             if (error) throw error;
             return count ?? 0;

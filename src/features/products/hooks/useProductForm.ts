@@ -24,6 +24,7 @@ export function useProductForm(businessId: string) {
     const [currency, setCurrency] = useState('CRC');
     const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
     const [images, setImages] = useState<string[]>([]);
+    const [isActive, setIsActive] = useState(true);
     const [errors, setErrors] = useState<ProductFormErrors>({});
 
     const validateForm = useCallback(() => {
@@ -77,6 +78,7 @@ export function useProductForm(businessId: string) {
                 currency,
                 categoryIds: selectedCategoryIds,
                 images,
+                isActive,
             });
 
             // Incrementar el contador de uso SOLO si está usando cuota premium
@@ -119,7 +121,7 @@ export function useProductForm(businessId: string) {
                 visibilityTime: 4000,
             });
         }
-    }, [validateForm, createMutation, name, description, price, currency, selectedCategoryIds, images, router, quotaInfo, user, businessId, invalidateQuota]);
+    }, [validateForm, createMutation, name, description, price, currency, selectedCategoryIds, images, isActive, router, quotaInfo, user, businessId, invalidateQuota]);
 
     const handleCancel = useCallback(() => {
         router.back();
@@ -133,6 +135,7 @@ export function useProductForm(businessId: string) {
             currency,
             selectedCategoryIds,
             images,
+            isActive,
             errors,
         },
         formActions: {
@@ -142,6 +145,7 @@ export function useProductForm(businessId: string) {
             setCurrency,
             setSelectedCategoryIds,
             setImages,
+            setIsActive,
         },
         handlers: {
             handleSubmit,

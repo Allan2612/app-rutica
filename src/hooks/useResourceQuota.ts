@@ -50,7 +50,7 @@ export function useResourceQuota({
             return getResourceQuota(userId, resourceType, entityId, entityType);
         },
         enabled: enabled && !!userId && !!entityId,
-        staleTime: 1000 * 60 * 5, // 5 minutos
+        // staleTime: 0 (usa configuración global para siempre refetch en foco)
         gcTime: 1000 * 60 * 10,   // 10 minutos
     });
 

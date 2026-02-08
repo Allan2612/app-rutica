@@ -44,6 +44,7 @@ export interface UpdateAttractionData {
     longitude: number;
     coverImage?: string | null;
     galleryImages?: string[];
+    isActive?: boolean;
 }
 
 // ============================================
@@ -262,13 +263,20 @@ export async function updateAttractionComplete(
     }
 
     // 4. Actualizar atracción
+    const updateFields: any = {
+        name_atr: data.name,
+        description_atr: data.description,
+        moderation_status_atr: 'pending',
+        updated_at_atr: new Date().toISOString(),
+    };
+    
+    if (data.isActive !== undefined) {
+        updateFields.is_active_atr = data.isActive;
+    }
+    
     const { error: updateError } = await supabase
         .from('attractions')
-        .update({
-            name_atr: data.name,
-            description_atr: data.description,
-            updated_at_atr: new Date().toISOString(),
-        } as never)
+        .update(updateFields as never)
         .eq('id_atr', attractionId);
 
     if (updateError) throw updateError;

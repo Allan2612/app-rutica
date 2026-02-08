@@ -12,6 +12,6 @@ export function useUserEvents() {
             return await getUserEvents(user.id);
         },
         enabled: !!user,
-        staleTime: 1000 * 60 * 5, // 5 minutos
+        // staleTime: 0 (usa configuración global para siempre refetch en foco)
     });
 }

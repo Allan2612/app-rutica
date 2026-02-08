@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import { Platform, StatusBar, View, Text } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { queryClient } from '@/lib/react-query/client';
+import { queryClient, setupReactQueryFocusManager } from '@/lib/react-query/client';
 import { useDeepLinkHandler } from '@/hooks/useDeepLinkHandler';
 import { useAuthStore } from '@/store';
 import { useLocationDataStore } from '@/store/locationDataStore';
@@ -13,6 +13,9 @@ import { setupReanimatedConfig } from '@/lib/reanimated';
 
 // Configurar Reanimated una sola vez al inicio
 setupReanimatedConfig();
+
+// Configurar React Query focus manager para React Native
+setupReactQueryFocusManager();
 export default function RootLayout() {
   useDeepLinkHandler();
 

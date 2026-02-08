@@ -4,6 +4,7 @@ import {
     CategorySection,
     ImageSection,
     LocationSection,
+    ActiveToggleSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
 import type { CategoryOption } from '@/types/entities';
@@ -19,6 +20,7 @@ interface AttractionFormData {
     coordinates: { latitude: number; longitude: number } | null;
     coverUri: string | null;
     galleryUris: string[];
+    isActive: boolean;
 }
 
 interface AttractionFormErrors {
@@ -107,6 +109,12 @@ export const AttractionFormView = memo(function AttractionFormView({
                 initialLatitude={formData.coordinates?.latitude}
                 initialLongitude={formData.coordinates?.longitude}
                 error={errors.location}
+            />
+
+            <ActiveToggleSection
+                isActive={formData.isActive}
+                onToggle={(value) => onFieldChange('isActive', value)}
+                helperText="Cuando está inactiva, la atracción no aparecerá en búsquedas ni será visible para otros usuarios"
             />
 
             <ImageSection

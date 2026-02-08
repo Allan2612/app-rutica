@@ -38,7 +38,7 @@ async function fetchBusinessVerifications(
   // Obtener el usuario actual
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;
-  
+
   // Verificar si el usuario es admin
   let isAdmin = false;
   if (userId) {
@@ -47,10 +47,10 @@ async function fetchBusinessVerifications(
       .select('role_prf, is_active_prf')
       .eq('id_prf', userId)
       .single<{ role_prf: string; is_active_prf: boolean }>();
-    
+
     isAdmin = profileData?.role_prf === 'admin' && profileData?.is_active_prf === true;
   }
-  
+
   let query = supabase
     .from('businesses')
     .select(`
@@ -101,7 +101,7 @@ async function fetchBusinessVerifications(
   if (!isAdmin && userId) {
     query = query.eq('owner_id_bus', userId);
   }
-  
+
   // Aumentar el límite para admins ya que filtraremos en código
   query = query.limit(isAdmin ? limit * 10 : limit);
 
@@ -130,7 +130,7 @@ async function fetchBusinessVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0)
     );
-    
+
     // Priorizar cover > logo > primera imagen
     const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'cover');
     const logoImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'logo');
@@ -258,7 +258,7 @@ async function fetchEventVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_eim || 0) - (b.sort_order_eim || 0)
     );
-    
+
     const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_eim) === 'cover');
     const primaryImage = coverImage || sortedImages[0];
 
@@ -380,7 +380,7 @@ async function fetchAttractionVerifications(
     const sortedImages = [...images].sort(
       (a: any, b: any) => (a.sort_order_aim || 0) - (b.sort_order_aim || 0)
     );
-    
+
     const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_aim) === 'cover');
     const primaryImage = coverImage || sortedImages[0];
 
@@ -446,10 +446,6 @@ async function fetchPromotionVerifications(
       discount_type_prm,
       discount_value_prm,
       scope_prm,
-      payment_reference_prm,
-      payment_state_prm,
-      payment_note_admin_prm,
-      payment_note_seller_prm,
       businesses!promotions_business_id_prm_fkey (
         name_bus,
         locations!businesses_location_id_bus_fkey (
@@ -517,7 +513,7 @@ async function fetchPromotionVerifications(
     const primaryImage = flyerImage || images[0];
 
     const businessLocation = item.businesses?.locations;
-    
+
     const categories = (item.promotion_scope_categories || [])
       .map((psc: any) => psc.categories?.name_cat)
       .filter(Boolean);
@@ -572,10 +568,6 @@ async function fetchPromotionVerifications(
         scope: item.scope_prm,
         startAt: item.start_at_prm,
         endAt: item.end_at_prm,
-        paymentReference: item.payment_reference_prm,
-        paymentState: item.payment_state_prm,
-        paymentNoteAdmin: item.payment_note_admin_prm,
-        paymentNoteSeller: item.payment_note_seller_prm,
         moderationNote: item.moderation_note_prm,
         categories,
         promotionProducts,
@@ -667,7 +659,7 @@ export async function getVerificationStats(): Promise<VerificationStats> {
  * Update moderation status and/or is_active for an entity
  */
 export async function updateModerationStatus(data: UpdateModerationData): Promise<void> {
-  const { id, type, status, note, isActive, paymentState, paymentNote } = data;
+  const { id, type, status, note, isActive } = data;
 
   // Get current user for reviewed_by field
   const { data: { user } } = await supabase.auth.getUser();
@@ -764,11 +756,6 @@ export async function updateModerationStatus(data: UpdateModerationData): Promis
         updatePayload.is_active_prm = isActive;
       }
 
-      if (paymentState !== undefined) {
-        updatePayload.payment_state_prm = paymentState;
-        updatePayload.payment_note_admin_prm = paymentNote || null;
-      }
-
       const { error } = await supabase
         .from('promotions')
         .update(updatePayload as never)
@@ -798,7 +785,7 @@ export async function getVerificationDetail(
   type: VerificationEntityType
 ): Promise<VerificationRequest | null> {
   let requests: VerificationRequest[] = [];
-  
+
   switch (type) {
     case 'business':
       requests = await fetchBusinessVerifications('all', '', 100);
@@ -813,7 +800,7 @@ export async function getVerificationDetail(
       requests = await fetchPromotionVerifications('all', '', 100);
       break;
   }
-  
+
   return requests.find((r) => r.id === id) || null;
 }
 

@@ -17,6 +17,7 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
       name_bus,
       description_bus,
       moderation_status_bus,
+      moderation_note_bus,
       is_active_bus,
       created_at_bus,
       locations!location_id_bus (
@@ -92,6 +93,7 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
             avgRating: null,
             reviewsCount: null,
             moderationStatus: item.moderation_status_bus as 'pending' | 'approved' | 'rejected',
+            moderationNote: item.moderation_note_bus,
             isActive: item.is_active_bus,
             createdAt: item.created_at_bus,
         };

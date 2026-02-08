@@ -8,6 +8,7 @@ import {
     BasicInfoSection,
     CategorySection,
     ImageSection,
+    ActiveToggleSection,
 } from '@/components/manage';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
@@ -99,6 +100,12 @@ export const EditProductScreen = memo(function EditProductScreen() {
                 selectedIds={formState.selectedCategoryIds}
                 onSelectionChange={formActions.setSelectedCategoryIds}
                 isLoading={loadingCategories}
+            />
+
+            <ActiveToggleSection
+                isActive={formState.isActive}
+                onToggle={formActions.setIsActive}
+                helperText="Cuando está inactivo, el producto no aparecerá en búsquedas ni será visible para otros usuarios"
             />
 
             <ImageSection

@@ -1,7 +1,7 @@
 import { memo, useMemo, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useThemedColors, useBusinessGalleryQuota } from '@/hooks';
+import { useThemedColors, useBusinessGalleryQuota, useRefreshOnFocus } from '@/hooks';
 import { useBusinessForm } from '@/features/business/hooks/useBusinessForm';
 import { useProfile } from '@/features/user/hooks';
 import { BusinessFormView } from '@/components/business';
@@ -34,7 +34,10 @@ export const EditBusinessScreen = memo(function EditBusinessScreen() {
     const { profile } = useProfile();
 
     // Obtener cuota de galería para este negocio
-    const { quotaInfo: galleryQuota, invalidateQuota } = useBusinessGalleryQuota(id ?? '', !!id);
+    const { quotaInfo: galleryQuota, invalidateQuota, refetch: refetchQuota } = useBusinessGalleryQuota(id ?? '', !!id);
+
+    // Refrescar cuota de galería cuando la pantalla recibe foco
+    useRefreshOnFocus(refetchQuota);
 
     // Calcular límite máximo de imágenes de galería
     // El hook ya devuelve totalQuota que es freeLimit + premiumQuota

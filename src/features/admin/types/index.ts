@@ -2,7 +2,7 @@
 // Admin Module - Shared Types
 // ============================================
 
-import type { ModerationStatus, PaymentState, ImageType, PromotionScope } from '@/types/enums';
+import type { ModerationStatus, ImageType, PromotionScope } from '@/types/enums';
 
 // ============================================
 // Entity Types
@@ -96,10 +96,6 @@ export interface PromotionMetadata {
   scope: PromotionScope | null;
   startAt: string | null;
   endAt: string | null;
-  paymentReference: string | null;
-  paymentState: PaymentState | null;
-  paymentNoteAdmin: string | null;
-  paymentNoteSeller: string | null;
   moderationNote: string | null;
   categories: string[];
   promotionProducts: PromotionProduct[];
@@ -188,8 +184,6 @@ export interface UpdateModerationData {
   status?: ModerationStatus;
   note?: string;
   isActive?: boolean;
-  paymentState?: PaymentState;
-  paymentNote?: string;
 }
 
 // ============================================
@@ -213,12 +207,6 @@ export const TYPE_LABELS_FULL: Record<VerificationEntityType, string> = {
 export const STATUS_LABELS: Record<ModerationStatus, string> = {
   pending: 'Pendiente',
   approved: 'Aprobado',
-  rejected: 'Rechazado',
-};
-
-export const PAYMENT_STATE_LABELS: Record<PaymentState, string> = {
-  pending: 'Pendiente',
-  paid: 'Pagado',
   rejected: 'Rechazado',
 };
 

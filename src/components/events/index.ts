@@ -1,6 +1,7 @@
 export * from './EventDateSection';
 export * from './EventPricingSection';
 export * from './UserEventCard';
+export * from './EventCard';
 export * from './EventPost';
 export * from './EventsList';
 export * from './EventHeader';

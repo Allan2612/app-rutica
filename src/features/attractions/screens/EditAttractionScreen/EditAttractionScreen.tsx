@@ -2,7 +2,7 @@ import { memo, useMemo, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors, useAttractionGalleryQuota } from '@/hooks';
+import { useThemedColors, useAttractionGalleryQuota, useRefreshOnFocus } from '@/hooks';
 import { useAttractionForm } from '@/features/attractions/hooks/useAttractionForm';
 import { AttractionFormView } from '@/components/attractions/AttractionFormView/AttractionFormView';
 import { PremiumModal } from '@/components/user';
@@ -31,7 +31,10 @@ export const EditAttractionScreen = memo(function EditAttractionScreen() {
     } = useAttractionForm(id);
 
     // Obtener cuota de galería para esta atracción
-    const { quotaInfo: galleryQuota, invalidateQuota } = useAttractionGalleryQuota(id ?? '', !!id);
+    const { quotaInfo: galleryQuota, invalidateQuota, refetch: refetchQuota } = useAttractionGalleryQuota(id ?? '', !!id);
+
+    // Refrescar cuota de galería cuando la pantalla recibe foco
+    useRefreshOnFocus(refetchQuota);
 
     // Calcular límite máximo de imágenes de galería
     const maxGalleryImages = galleryQuota?.totalQuota ?? 3;

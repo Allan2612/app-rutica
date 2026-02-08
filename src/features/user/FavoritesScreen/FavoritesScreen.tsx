@@ -4,7 +4,7 @@ import { Heart, ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useFavoriteBusinesses } from '@/features/business/hooks/useFavoriteBusinesses';
 import { BusinessCard } from '@/components/business/BusinessCard';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useAuthStore } from '@/store';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
@@ -24,6 +24,9 @@ function FavoritesScreen() {
         refetch,
         isRefetching,
     } = useFavoriteBusinesses();
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
     // Calcular número de columnas según el ancho
     const numColumns = width > 768 ? 3 : width > 600 ? 2 : 1;

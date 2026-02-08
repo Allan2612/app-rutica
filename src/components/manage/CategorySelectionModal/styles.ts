@@ -1,9 +1,26 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
+const isWeb = Platform.OS === 'web';
+
 export const styles = StyleSheet.create({
-    container: {
+    overlay: {
         flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-end',
+    },
+    container: {
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        maxHeight: '90%',
+        minHeight: '75%',
+        ...(isWeb && {
+            maxWidth: 600,
+            alignSelf: 'center',
+            width: '100%',
+            borderRadius: 24,
+            marginBottom: 40,
+        }),
     },
     header: {
         flexDirection: 'row',

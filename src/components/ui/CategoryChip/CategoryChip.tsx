@@ -77,7 +77,7 @@ export const CategoryChip = memo(function CategoryChip({
     const ChipContent = (
         <View
             style={[
-                ...containerStyle,
+                containerStyle,
                 {
                     backgroundColor: finalBackgroundColor,
                     borderColor: finalBorderColor,
@@ -87,7 +87,7 @@ export const CategoryChip = memo(function CategoryChip({
         >
             <Text
                 style={[
-                    ...textStyleFinal,
+                    textStyleFinal,
                     { color: finalTextColor },
                     textStyle,
                 ]}

@@ -6,15 +6,22 @@
 import { supabase } from '@/lib/supabase/client';
 import type { PromotionListItem } from '@/types/entities';
 import type { BusinessListItem } from '@/features/business/hooks/useBusinesses';
+import type { EventListItem } from '@/features/events/hooks/useEvents';
+import type { AttractionListItem } from '@/features/attractions/hooks/useAttractions';
 
 const BUCKET_BUSINESS = 'business-images';
 const BUCKET_PROMOTIONS = 'promotions-images';
+const BUCKET_EVENTS = 'events-images';
+const BUCKET_ATTRACTIONS = 'attractions-images';
 
+// Helper para generar URLs de imágenes desde Supabase Storage
 function getImageUrl(bucket: string, path: string): string {
+    if (!path) return '';
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     return data.publicUrl;
 }
 
+// Helper para extraer el tipo de imagen del path (cover, gallery, etc.)
 function getImageTypeFromPath(path: string): string {
     if (!path) return '';
     const filename = path.split('/').pop() || '';
@@ -111,7 +118,7 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                     path_pim
                 ),
                 promotion_category_map (
-                    categories (
+                    categories!inner (
                         id_cat,
                         name_cat
                     )
@@ -121,7 +128,6 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                 )
             `)
             .eq('moderation_status_prm', 'approved')
-            .eq('payment_state_prm', 'paid')
             .eq('is_active_prm', true)
             .lte('start_at_prm', now)
             .gte('end_at_prm', now)
@@ -164,9 +170,9 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                 startAt: item.start_at_prm,
                 endAt: item.end_at_prm,
                 moderationStatus: 'approved',
-                paymentState: 'paid',
                 coverUrl,
                 categoryNames: categories.map((c: { name_cat: string }) => c.name_cat),
+                categoryIds: categories.map((c: { id_cat: string }) => c.id_cat),
                 scopeCategoryIds: item.promotion_scope_categories?.map((psc: { category_id_psc: string }) => psc.category_id_psc) ?? [],
                 productIds: [],
                 comboItems: [],
@@ -399,7 +405,6 @@ export async function getHomeStats(): Promise<HomeStats> {
                 .from('promotions')
                 .select('id_prm', { count: 'exact', head: true })
                 .eq('moderation_status_prm', 'approved')
-                .eq('payment_state_prm', 'paid')
                 .eq('is_active_prm', true)
                 .lte('start_at_prm', now)
                 .gte('end_at_prm', now),
@@ -421,3 +426,394 @@ export async function getHomeStats(): Promise<HomeStats> {
         };
     }
 }
+
+// ============================================
+// Featured Businesses
+// ============================================
+
+/**
+ * Get featured businesses for the Home screen
+ * Ordered by rating, with active promotions prioritized
+ */
+export async function getFeaturedBusinesses(limit: number = 5): Promise<BusinessListItem[]> {
+    try {
+        const now = new Date().toISOString();
+
+        const { data, error } = await (supabase as any)
+            .from('businesses')
+            .select(`
+                id_bus,
+                name_bus,
+                description_bus,
+                moderation_status_bus,
+                is_active_bus,
+                avg_rating_bus,
+                reviews_count_bus,
+                business_category_map (
+                    categories (
+                        id_cat,
+                        name_cat
+                    )
+                ),
+                locations!location_id_bus (
+                    districts!district_id_loc (
+                        name_dst,
+                        cantons!canton_id_dst (
+                            name_ctn,
+                            provinces!province_id_ctn (
+                                name_prv
+                            )
+                        )
+                    )
+                ),
+                business_images ( path_bim, sort_order_bim ),
+                promotions!business_id_prm (
+                    id_prm
+                )
+            `)
+            .eq('moderation_status_bus', 'approved')
+            .eq('is_active_bus', true)
+            .order('avg_rating_bus', { ascending: false, nullsFirst: false })
+            .order('reviews_count_bus', { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error('Error fetching featured businesses:', error);
+            return [];
+        }
+
+        return (data ?? []).map((item: BusinessRecord) => mapBusinessRecord(item, now));
+    } catch (err) {
+        console.error('Exception in getFeaturedBusinesses:', err);
+        return [];
+    }
+}
+
+// ============================================
+// Featured Events
+// ============================================
+
+interface EventRecord {
+    id_evt: string;
+    name_evt: string;
+    description_evt: string | null;
+    start_at_evt: string;
+    end_at_evt: string;
+    is_free_evt: boolean;
+    price_evt: number | null;
+    currency_evt: string | null;
+    capacity_evt: number | null;
+    contact_phone_evt: string | null;
+    contact_email_evt: string | null;
+    website_evt: string | null;
+    social_links_evt: Record<string, string> | null;
+    moderation_status_evt: string;
+    is_active_evt: boolean;
+    created_at_evt: string;
+    avg_rating_evt: number | null;
+    reviews_count_evt: number | null;
+    event_category_map?: {
+        categories: {
+            id_cat: string;
+            name_cat: string;
+        } | null;
+    }[] | null;
+    locations?: {
+        latitude_loc: number | null;
+        longitude_loc: number | null;
+        districts?: {
+            name_dst: string;
+            cantons?: {
+                name_ctn: string;
+                provinces?: {
+                    name_prv: string;
+                } | null;
+            } | null;
+        } | null;
+    } | null;
+    event_images?: {
+        path_eim: string;
+        sort_order_eim: number;
+    }[] | null;
+    profiles?: {
+        first_name_prf: string | null;
+        last_name1_prf: string | null;
+    } | null;
+}
+
+/**
+ * Get featured events for the Home screen
+ * Shows upcoming events ordered by start date
+ */
+export async function getFeaturedEvents(limit: number = 5): Promise<EventListItem[]> {
+    try {
+        const now = new Date().toISOString();
+
+        const { data, error } = await (supabase as any)
+            .from('events')
+            .select(`
+                id_evt,
+                name_evt,
+                description_evt,
+                start_at_evt,
+                end_at_evt,
+                is_free_evt,
+                price_evt,
+                currency_evt,
+                capacity_evt,
+                contact_phone_evt,
+                contact_email_evt,
+                website_evt,
+                social_links_evt,
+                moderation_status_evt,
+                is_active_evt,
+                created_at_evt,
+                avg_rating_evt,
+                reviews_count_evt,
+                event_category_map (
+                    categories (
+                        id_cat,
+                        name_cat
+                    )
+                ),
+                locations!events_location_id_evt_fkey (
+                    latitude_loc,
+                    longitude_loc,
+                    districts!locations_district_id_fkey (
+                        name_dst,
+                        cantons!districts_canton_id_fkey (
+                            name_ctn,
+                            provinces!cantons_province_id_fkey (
+                                name_prv
+                            )
+                        )
+                    )
+                ),
+                event_images ( path_eim, sort_order_eim ),
+                profiles!events_created_by_evt_fkey (
+                    first_name_prf,
+                    last_name1_prf
+                )
+            `)
+            .eq('moderation_status_evt', 'approved')
+            .eq('is_active_evt', true)
+            .gte('end_at_evt', now)
+            .order('avg_rating_evt', { ascending: false, nullsFirst: false })
+            .order('reviews_count_evt', { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error('Error fetching featured events:', error);
+            return [];
+        }
+
+        return (data ?? []).map((item: EventRecord): EventListItem => {
+            // Ordenar imágenes por sort_order
+            const sortedImages = [...(item.event_images ?? [])].sort(
+                (a, b) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0)
+            );
+
+            // Mapear todas las imágenes a URLs (consistente con useEvents)
+            const imageUrls = sortedImages
+                .filter(img => img?.path_eim)
+                .map(img => getImageUrl(BUCKET_EVENTS, img.path_eim));
+
+            const categories = item.event_category_map
+                ?.map(ecm => ecm.categories)
+                .filter((cat): cat is NonNullable<typeof cat> => cat !== null) ?? [];
+
+            const categoryNames = categories.map(cat => cat.name_cat);
+            const categoryIds = categories.map(cat => cat.id_cat);
+
+            const locationData = item.locations;
+            const districtData = locationData?.districts;
+            const cantonData = districtData?.cantons;
+            const provinceData = cantonData?.provinces;
+            const locationParts = [districtData?.name_dst, cantonData?.name_ctn, provinceData?.name_prv].filter(Boolean);
+
+            const authorName = item.profiles
+                ? `${item.profiles.first_name_prf || ''} ${item.profiles.last_name1_prf || ''}`.trim() || null
+                : null;
+
+            return {
+                id: item.id_evt,
+                name: item.name_evt,
+                description: item.description_evt,
+                startAt: item.start_at_evt,
+                endAt: item.end_at_evt,
+                isFree: item.is_free_evt,
+                price: item.price_evt,
+                currency: item.currency_evt,
+                capacity: item.capacity_evt,
+                categoryNames,
+                categoryIds,
+                locationLabel: locationParts.length ? locationParts.join(', ') : null,
+                latitude: locationData?.latitude_loc ?? null,
+                longitude: locationData?.longitude_loc ?? null,
+                imageUrls,
+                authorName,
+                isApproved: item.moderation_status_evt === 'approved',
+                createdAt: item.created_at_evt,
+                contactPhone: item.contact_phone_evt,
+                contactEmail: item.contact_email_evt,
+                website: item.website_evt,
+                socialLinks: item.social_links_evt,
+                rating: item.avg_rating_evt ?? 0,
+                reviewCount: item.reviews_count_evt ?? 0,
+            };
+        });
+    } catch (err) {
+        console.error('Exception in getFeaturedEvents:', err);
+        return [];
+    }
+}
+
+// ============================================
+// Featured Attractions
+// ============================================
+
+interface AttractionRecord {
+    id_atr: string;
+    name_atr: string;
+    description_atr: string | null;
+    moderation_status_atr: string;
+    is_active_atr: boolean;
+    created_at_atr: string;
+    avg_rating_atr: number | null;
+    reviews_count_atr: number | null;
+    attraction_category_map?: {
+        categories: {
+            id_cat: string;
+            name_cat: string;
+        } | null;
+    }[] | null;
+    locations?: {
+        latitude_loc: number | null;
+        longitude_loc: number | null;
+        districts?: {
+            name_dst: string;
+            cantons?: {
+                name_ctn: string;
+                provinces?: {
+                    name_prv: string;
+                    countries?: {
+                        name_cry: string;
+                    } | null;
+                } | null;
+            } | null;
+        } | null;
+    } | null;
+    attraction_images?: {
+        path_aim: string;
+        sort_order_aim: number;
+    }[] | null;
+    profiles?: {
+        first_name_prf: string | null;
+        last_name1_prf: string | null;
+    } | null;
+}
+
+/**
+ * Get featured attractions for the Home screen
+ * Ordered by rating
+ */
+export async function getFeaturedAttractions(limit: number = 5): Promise<AttractionListItem[]> {
+    try {
+        const { data, error } = await (supabase as any)
+            .from('attractions')
+            .select(`
+                id_atr,
+                name_atr,
+                description_atr,
+                moderation_status_atr,
+                is_active_atr,
+                created_at_atr,
+                avg_rating_atr,
+                reviews_count_atr,
+                attraction_category_map (
+                    categories (
+                        id_cat,
+                        name_cat
+                    )
+                ),
+                locations!attractions_location_id_atr_fkey (
+                    latitude_loc,
+                    longitude_loc,
+                    districts!locations_district_id_fkey (
+                        name_dst,
+                        cantons!districts_canton_id_fkey (
+                            name_ctn,
+                            provinces!cantons_province_id_fkey (
+                                name_prv
+                            )
+                        )
+                    )
+                ),
+                attraction_images ( path_aim, sort_order_aim ),
+                profiles!attractions_submitted_by_atr_fkey (
+                    first_name_prf,
+                    last_name1_prf
+                )
+            `)
+            .eq('moderation_status_atr', 'approved')
+            .eq('is_active_atr', true)
+            .order('avg_rating_atr', { ascending: false, nullsFirst: false })
+            .order('reviews_count_atr', { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error('Error fetching featured attractions:', error);
+            return [];
+        }
+
+        return (data ?? []).map((item: AttractionRecord): AttractionListItem => {
+            // Ordenar imágenes por sort_order
+            const sortedImages = [...(item.attraction_images ?? [])].sort(
+                (a, b) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0)
+            );
+
+            // Mapear todas las imágenes a URLs (consistente con useAttractions)
+            const imageUrls = sortedImages
+                .filter(img => img?.path_aim)
+                .map(img => getImageUrl(BUCKET_ATTRACTIONS, img.path_aim));
+
+            const categories = item.attraction_category_map
+                ?.map(acm => acm.categories)
+                .filter((cat): cat is NonNullable<typeof cat> => cat !== null) ?? [];
+
+            const categoryNames = categories.map(cat => cat.name_cat);
+            const categoryIds = categories.map(cat => cat.id_cat);
+
+            const locationData = item.locations;
+            const districtData = locationData?.districts;
+            const cantonData = districtData?.cantons;
+            const provinceData = cantonData?.provinces;
+            const locationParts = [districtData?.name_dst, cantonData?.name_ctn, provinceData?.name_prv].filter(Boolean);
+
+            const authorName = item.profiles
+                ? `${item.profiles.first_name_prf || ''} ${item.profiles.last_name1_prf || ''}`.trim() || null
+                : null;
+
+            return {
+                id: item.id_atr,
+                name: item.name_atr,
+                description: item.description_atr,
+                categoryNames,
+                categoryIds,
+                locationLabel: locationParts.length ? locationParts.join(', ') : null,
+                latitude: locationData?.latitude_loc ?? null,
+                longitude: locationData?.longitude_loc ?? null,
+                imageUrls,
+                authorName,
+                rating: item.avg_rating_atr ?? 0,
+                reviewCount: item.reviews_count_atr ?? 0,
+                isApproved: item.moderation_status_atr === 'approved',
+                createdAt: item.created_at_atr,
+            };
+        });
+    } catch (err) {
+        console.error('Exception in getFeaturedAttractions:', err);
+        return [];
+    }
+}
+

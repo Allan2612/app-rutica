@@ -16,7 +16,7 @@ interface BusinessProductsProps {
 
 export const BusinessProducts = memo(function BusinessProducts({ businessId, onImagePress }: BusinessProductsProps) {
     const colors = useThemedColors();
-    const { data: products = [], isLoading } = useBusinessProducts(businessId);
+    const { data: products = [], isLoading } = useBusinessProducts(businessId, true); // Solo productos activos en muro público
     const { data: promotions = [] } = useBusinessActivePromotions(businessId);
 
     // Identificar combos mixtos (múltiples productos diferentes)

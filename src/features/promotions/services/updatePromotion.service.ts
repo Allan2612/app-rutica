@@ -40,6 +40,7 @@ export async function updatePromotionComplete(
     // 2. Actualizar datos base de la promoción
     const updatePayload: Record<string, unknown> = {
         updated_at_prm: new Date().toISOString(),
+        moderation_status_prm: 'pending',
     };
 
     if (data.scope !== undefined) updatePayload.scope_prm = data.scope;
@@ -49,7 +50,7 @@ export async function updatePromotionComplete(
     if (data.discountValue !== undefined) updatePayload.discount_value_prm = data.discountValue;
     if (data.startAt !== undefined) updatePayload.start_at_prm = data.startAt;
     if (data.endAt !== undefined) updatePayload.end_at_prm = data.endAt;
-    if (data.paymentReference !== undefined) updatePayload.payment_reference_prm = data.paymentReference;
+    if (data.isActive !== undefined) updatePayload.is_active_prm = data.isActive;
 
     const { error: updateError } = await (supabase as any)
         .from('promotions')
@@ -167,7 +168,7 @@ export async function updatePromotionComplete(
             .from('promotion_images')
             .select('id_pim, path_pim')
             .eq('promotion_id_pim', promotionId);
-        
+
         const currentCover = (allImages as any)?.find((img: any) => {
             const prefix = img.path_pim.split('/').pop()?.split('-')[0];
             return prefix === 'flyer';
@@ -194,7 +195,7 @@ export async function updatePromotionComplete(
 
             // Subir nueva imagen
             const coverPath = await uploadPromotionImage(promotionId, data.coverUri, 'flyer');
-            
+
             await (supabase as any)
                 .from('promotion_images')
                 .insert({
@@ -233,7 +234,7 @@ export async function updatePromotionComplete(
         for (const uri of newUris) {
             if (isNewImage(uri)) {
                 const galleryPath = await uploadPromotionImage(promotionId, uri, 'flyer');
-                
+
                 await (supabase as any)
                     .from('promotion_images')
                     .insert({

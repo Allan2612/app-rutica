@@ -4,11 +4,11 @@ import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { CalendarDays, Crown, Landmark, Shield, Store, Tag } from 'lucide-react-native';
 import type { UserRole } from '@/types/enums';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserSubscriptionSummary } from '@/hooks/useUserSubscriptions';
 import { useAuthStore } from '@/store';
 import { Screen } from '@/components/layout';
-import { GuestCTA, ManageCard } from '@/components/manage';
+import { GuestCTA, ManageCard, SellerAccessPlaceholder } from '@/components/manage';
 import { spacing } from '@/styles/theme';
 import { styles } from './styles';
 
@@ -42,7 +42,10 @@ export const ManageScreen = memo(function ManageScreen() {
   const role = useAuthStore((state) => state.role);
 
   // Obtener resumen de suscripciones del usuario
-  const { data: subscriptionSummary } = useUserSubscriptionSummary();
+  const { data: subscriptionSummary, refetch: refetchSubscription } = useUserSubscriptionSummary();
+
+  // Refrescar suscripciones cuando la pantalla recibe foco
+  useRefreshOnFocus(refetchSubscription);
 
   const normalizedRole = useMemo(() => normalizeRole(role), [role]);
   const effectiveRole: UserRole = normalizedRole ?? 'buyer';
@@ -132,9 +135,11 @@ export const ManageScreen = memo(function ManageScreen() {
     if (action.key === 'admin') {
       return effectiveRole === 'admin';
     }
-    // Premium card siempre visible para roles que pueden acceder
-    return action.roles.includes(effectiveRole);
+    // Mostrar todas las cards, incluso para buyers
+    return true;
   });
+
+  const isBuyer = effectiveRole === 'buyer' || effectiveRole === 'user';
 
   return (
     <Screen>
@@ -158,10 +163,29 @@ export const ManageScreen = memo(function ManageScreen() {
             {visibleActions.map((action, index) => {
               const isLastInRow = (index + 1) % columns === 0;
               const marginRight = columns === 1 || isLastInRow ? 0 : gap;
+              
+              // Verificar si el buyer tiene acceso a esta acción
+              const hasAccess = action.roles.includes(effectiveRole);
+              
               // Color del icono según variante
               let iconColor: string = colors.primary[600];
               if (action.variant === 'admin' || action.variant === 'premium') {
                 iconColor = colors.text.primary;
+              }
+
+              // Si es buyer y no tiene acceso, mostrar placeholder
+              if (isBuyer && !hasAccess && action.key !== 'admin') {
+                return (
+                  <View
+                    key={action.key}
+                    style={{ width: cardWidth, marginRight, marginBottom: gap }}
+                  >
+                    <SellerAccessPlaceholder
+                      title={action.title}
+                      description="Funcionalidad exclusiva para vendedores"
+                    />
+                  </View>
+                );
               }
 
               return (

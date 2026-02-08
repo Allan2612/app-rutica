@@ -1,6 +1,6 @@
 import { memo, useState, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, Modal, ActivityIndicator, ScrollView, Switch } from 'react-native';
-import { Check, X, AlertTriangle, CreditCard, Eye, EyeOff, MessageSquare } from 'lucide-react-native';
+import { Check, X, AlertTriangle, Eye, EyeOff, MessageSquare } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import type { ModerationStatus } from '@/types/enums';
 // @ts-ignore - Styles file exists
@@ -11,14 +11,10 @@ export interface PromotionModerationDialogProps {
   promotionName: string;
   currentModerationStatus?: ModerationStatus;
   currentModerationNote?: string | null;
-  currentPaymentState?: 'pending' | 'paid' | 'rejected';
-  currentPaymentNote?: string | null;
   currentIsActive?: boolean;
   onConfirm: (data: {
     moderationStatus?: ModerationStatus;
     moderationNote?: string;
-    paymentState?: 'pending' | 'paid' | 'rejected';
-    paymentNote?: string;
     isActive?: boolean;
   }) => void;
   onCancel: () => void;
@@ -30,8 +26,6 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
   promotionName,
   currentModerationStatus = 'pending',
   currentModerationNote,
-  currentPaymentState = 'pending',
-  currentPaymentNote,
   currentIsActive = true,
   onConfirm,
   onCancel,
@@ -40,51 +34,38 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
   const colors = useThemedColors();
   const [moderationStatus, setModerationStatus] = useState<ModerationStatus | null>(null);
   const [moderationNote, setModerationNote] = useState('');
-  const [paymentState, setPaymentState] = useState<'pending' | 'paid' | 'rejected' | null>(null);
-  const [paymentNote, setPaymentNote] = useState('');
   const [isActive, setIsActive] = useState<boolean | null>(null);
 
   const handleConfirm = useCallback(() => {
     const data: any = {};
-    
+
     if (moderationStatus) {
       data.moderationStatus = moderationStatus;
       if (moderationNote.trim()) {
         data.moderationNote = moderationNote;
       }
     }
-    
-    if (paymentState) {
-      data.paymentState = paymentState;
-      if (paymentNote.trim()) {
-        data.paymentNote = paymentNote;
-      }
-    }
 
     if (isActive !== null) {
       data.isActive = isActive;
     }
-    
+
     onConfirm(data);
-    
+
     // Reset state
     setModerationStatus(null);
     setModerationNote('');
-    setPaymentState(null);
-    setPaymentNote('');
     setIsActive(null);
-  }, [moderationStatus, moderationNote, paymentState, paymentNote, isActive, onConfirm]);
+  }, [moderationStatus, moderationNote, isActive, onConfirm]);
 
   const handleCancel = useCallback(() => {
     setModerationStatus(null);
     setModerationNote('');
-    setPaymentState(null);
-    setPaymentNote('');
     setIsActive(null);
     onCancel();
   }, [onCancel]);
 
-  const canConfirm = moderationStatus !== null || paymentState !== null || isActive !== null;
+  const canConfirm = moderationStatus !== null || isActive !== null;
 
   // Visibility toggle state
   const activeChanged = isActive !== null && isActive !== currentIsActive;
@@ -190,8 +171,8 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
                       backgroundColor: moderationStatus === 'approved'
                         ? colors.success
                         : pressed
-                        ? colors.background.tertiary
-                        : colors.background.secondary,
+                          ? colors.background.tertiary
+                          : colors.background.secondary,
                       borderColor: moderationStatus === 'approved' ? colors.success : colors.border.light,
                     },
                   ]}
@@ -221,8 +202,8 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
                       backgroundColor: moderationStatus === 'rejected'
                         ? colors.error
                         : pressed
-                        ? colors.background.tertiary
-                        : colors.background.secondary,
+                          ? colors.background.tertiary
+                          : colors.background.secondary,
                       borderColor: moderationStatus === 'rejected' ? colors.error : colors.border.light,
                     },
                   ]}
@@ -264,139 +245,6 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
                 />
               )}
             </View>
-
-            {/* Payment Status Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <CreditCard size={18} color={colors.primary[500]} />
-                <Text style={[styles.sectionTitle, { color: colors.text.primary, marginBottom: 0 }]}>
-                  Estado de Pago
-                </Text>
-              </View>
-              <Text style={[styles.currentStatus, { color: colors.text.secondary }]}>
-                Actual:{' '}
-                <Text style={{ fontWeight: '600', textTransform: 'capitalize' }}>
-                  {currentPaymentState === 'pending' ? 'Pendiente' : currentPaymentState === 'paid' ? 'Pagado' : 'Rechazado'}
-                </Text>
-              </Text>
-
-              {/* Show existing payment note */}
-              {currentPaymentNote && (
-                <View style={{ padding: 12, borderRadius: 8, backgroundColor: colors.background.tertiary, marginBottom: 12 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                    <MessageSquare size={14} color={colors.primary[500]} />
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.secondary }}>
-                      Nota de pago anterior:
-                    </Text>
-                  </View>
-                  <Text style={{ fontSize: 13, lineHeight: 18, fontStyle: 'italic', color: colors.text.primary }}>
-                    {currentPaymentNote}
-                  </Text>
-                </View>
-              )}
-
-              <View style={styles.buttonGroup}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.statusButton,
-                    paymentState === 'paid' && styles.statusButtonActive,
-                    {
-                      backgroundColor: paymentState === 'paid'
-                        ? colors.success
-                        : pressed
-                        ? colors.background.tertiary
-                        : colors.background.secondary,
-                      borderColor: paymentState === 'paid' ? colors.success : colors.border.light,
-                    },
-                  ]}
-                  onPress={() => setPaymentState(paymentState === 'paid' ? null : 'paid')}
-                >
-                  <Check size={18} color={paymentState === 'paid' ? '#fff' : colors.success} />
-                  <Text
-                    style={[
-                      styles.statusButtonText,
-                      { color: paymentState === 'paid' ? '#fff' : colors.text.primary },
-                    ]}
-                  >
-                    Pagado
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.statusButton,
-                    paymentState === 'rejected' && styles.statusButtonActive,
-                    {
-                      backgroundColor: paymentState === 'rejected'
-                        ? colors.error
-                        : pressed
-                        ? colors.background.tertiary
-                        : colors.background.secondary,
-                      borderColor: paymentState === 'rejected' ? colors.error : colors.border.light,
-                    },
-                  ]}
-                  onPress={() => setPaymentState(paymentState === 'rejected' ? null : 'rejected')}
-                >
-                  <X size={18} color={paymentState === 'rejected' ? '#fff' : colors.error} />
-                  <Text
-                    style={[
-                      styles.statusButtonText,
-                      { color: paymentState === 'rejected' ? '#fff' : colors.text.primary },
-                    ]}
-                  >
-                    Rechazar
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.statusButton,
-                    paymentState === 'pending' && styles.statusButtonActive,
-                    {
-                      backgroundColor: paymentState === 'pending'
-                        ? colors.warning
-                        : pressed
-                        ? colors.background.tertiary
-                        : colors.background.secondary,
-                      borderColor: paymentState === 'pending' ? colors.warning : colors.border.light,
-                    },
-                  ]}
-                  onPress={() => setPaymentState(paymentState === 'pending' ? null : 'pending')}
-                >
-                  <AlertTriangle
-                    size={18}
-                    color={paymentState === 'pending' ? '#fff' : colors.warning}
-                  />
-                  <Text
-                    style={[
-                      styles.statusButtonText,
-                      { color: paymentState === 'pending' ? '#fff' : colors.text.primary },
-                    ]}
-                  >
-                    Pendiente
-                  </Text>
-                </Pressable>
-              </View>
-
-              {paymentState && (
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.background.secondary,
-                      borderColor: colors.border.light,
-                      color: colors.text.primary,
-                    },
-                  ]}
-                  placeholder="Nota del pago (opcional)"
-                  placeholderTextColor={colors.text.secondary}
-                  value={paymentNote}
-                  onChangeText={setPaymentNote}
-                  multiline
-                  numberOfLines={3}
-                />
-              )}
-            </View>
           </ScrollView>
 
           {/* Actions */}
@@ -425,8 +273,8 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
                   backgroundColor: !canConfirm
                     ? colors.text.tertiary
                     : pressed
-                    ? colors.primary[600]
-                    : colors.primary[500],
+                      ? colors.primary[600]
+                      : colors.primary[500],
                   opacity: !canConfirm ? 0.5 : 1,
                 },
               ]}

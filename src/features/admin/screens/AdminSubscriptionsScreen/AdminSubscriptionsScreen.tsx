@@ -1,7 +1,7 @@
 import { memo, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import {
     useAdminSubscriptions,
@@ -37,7 +37,11 @@ export const AdminSubscriptionsScreen = memo(function AdminSubscriptionsScreen()
     }), [selectedStatus, searchQuery]);
 
     const { data: subscriptions = [], isLoading, refetch, isRefetching } = useAdminSubscriptions(filters);
-    const { data: stats } = useAdminSubscriptionStats();
+    const { data: stats, refetch: refetchStats } = useAdminSubscriptionStats();
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
+    useRefreshOnFocus(refetchStats);
     const approveMutation = useApproveSubscription();
     const rejectMutation = useRejectSubscription();
 

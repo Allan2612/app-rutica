@@ -13,6 +13,8 @@ export const styles = StyleSheet.create({
         marginBottom: spacing.md,
     },
     titleRow: {
+        flex: 1,
+        flexShrink: 1,
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.sm + 4,
@@ -41,12 +43,29 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
         fontWeight: '600',
     },
-    carouselContainer: {
-        marginTop: spacing.sm,
-    },
     loadingContainer: {
         height: 280,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    emptyContainer: {
+        height: 280,
+        paddingVertical: spacing.xl,
+        paddingHorizontal: spacing.lg,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        fontSize: typography.sizes.sm,
+        textAlign: 'center',
+        marginTop: spacing.sm,
+    },
+    scrollContent: {
+        paddingHorizontal: spacing.lg,
+    },
+    cardWrapper: {
+        width: 280,
+        height: 280,
+        marginRight: spacing.md,
     },
 });

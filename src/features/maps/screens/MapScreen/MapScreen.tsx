@@ -4,7 +4,7 @@ import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { router } from 'expo-router';
 import { useMapLocation, useMapMarkers } from '@/features/maps/hooks';
 import { generateExploreMapHTML, MapFilterChips } from '@/components/maps';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import type { MarkerType } from '@/features/maps/types';
 import { MapLoading, MapError, MapOverlay } from './MapStates';
 import { styles } from './styles';
@@ -20,10 +20,13 @@ export const MapScreen = memo(function MapScreen() {
   const webViewRef = useRef<WebView>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const { markers, isLoading: markersLoading } = useMapMarkers({
+  const { markers, isLoading: markersLoading, refetch } = useMapMarkers({
     limitPerType: 500,
     enabled: !!coordinates,
   });
+
+  // Refrescar marcadores cuando la pantalla recibe foco
+  useRefreshOnFocus(refetch);
 
   const initialMarkersRef = useRef<typeof markers>([]);
 

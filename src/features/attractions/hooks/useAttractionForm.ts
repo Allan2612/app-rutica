@@ -29,6 +29,7 @@ interface FormData {
     facebook: string;
     instagram: string;
     tiktok: string;
+    isActive: boolean;
 }
 
 const initialFormData: FormData = {
@@ -49,6 +50,7 @@ const initialFormData: FormData = {
     facebook: '',
     instagram: '',
     tiktok: '',
+    isActive: true,
 };
 
 export function useAttractionForm(attractionId?: string) {
@@ -92,6 +94,7 @@ export function useAttractionForm(attractionId?: string) {
                 facebook: '',
                 instagram: '',
                 tiktok: '',
+                isActive: attraction.isActive ?? true,
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
@@ -182,6 +185,7 @@ export function useAttractionForm(attractionId?: string) {
                 address: formData.address,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,
+                isActive: formData.isActive,
             };
 
             if (attractionId) {
@@ -199,6 +203,7 @@ export function useAttractionForm(attractionId?: string) {
                     longitude: formData.coordinates!.longitude,
                     coverImage: formData.coverUri,
                     galleryImages: formData.galleryUris,
+                    isActive: formData.isActive,
                 };
                 await updateMutation.mutateAsync({ attractionId, data: updateData });
             } else {
