@@ -1,4 +1,4 @@
-import { memo, useState, useCallback, useMemo, useEffect } from 'react';
+import { memo, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { View, Text, Switch, ScrollView, Pressable, Platform } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import type { HierarchicalCategoryOption } from '@/types/entities';
@@ -21,6 +21,7 @@ export const CategoryFilterTab = memo(function CategoryFilterTab({
     const colors = useThemedColors();
     const [searchText, setSearchText] = useState('');
     const [includeSubcategories, setIncludeSubcategories] = useState(false);
+    const scrollViewRef = useRef<ScrollView>(null);
     
     // Estado: [gen1_id, gen2_id, gen3_id...]
     const [activePath, setActivePath] = useState<string[]>([]);
@@ -80,6 +81,11 @@ export const CategoryFilterTab = memo(function CategoryFilterTab({
             newPath.push(categoryId);
             return newPath;
         });
+        
+        // Hacer scroll hacia abajo después de un pequeño delay para que se renderice la nueva sección
+        setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
     }, []);
 
     // Toggle selección (click simple para agregar/quitar del filtro)
@@ -115,10 +121,12 @@ export const CategoryFilterTab = memo(function CategoryFilterTab({
                         });
                     };
                     findChildren(id);
-                    const newIds = [...new Set([...selectedIds, ...Array.from(toAdd)])];
+                    // Añadir nuevas categorías al inicio del arreglo
+                    const newIds = [...new Set([...Array.from(toAdd), ...selectedIds])];
                     onChange(newIds);
                 } else {
-                    onChange([...selectedIds, id]);
+                    // Añadir al inicio en lugar del final
+                    onChange([id, ...selectedIds]);
                 }
             }
         },
@@ -244,7 +252,10 @@ export const CategoryFilterTab = memo(function CategoryFilterTab({
                     </View>
 
                     {/* 4. Filas de categorías (se apilan verticalmente) */}
-                    <ScrollView style={styles.generationsContainer}>
+                    <ScrollView 
+                        ref={scrollViewRef}
+                        style={styles.generationsContainer}
+                    >
                         {/* Primera generación */}
                         <CategoryRow
                             title="Categorías principales"

@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { Modal, View, Text, Pressable, SafeAreaView } from 'react-native';
+import { Modal, View, Text, Pressable } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { CategoryFilterTab } from '@/components/ui/SearchFilterModal/CategoryFilterTab/CategoryFilterTab';
@@ -49,49 +49,51 @@ export const CategorySelectionModal = memo(function CategorySelectionModal({
         <Modal
             visible={visible}
             animationType="slide"
-            presentationStyle="pageSheet"
+            transparent
             onRequestClose={handleCancel}
         >
-            <SafeAreaView style={[styles.container, { backgroundColor: colors.background.primary }]}>
-                {/* Header */}
-                <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-                    <View style={styles.headerLeft}>
+            <View style={styles.overlay}>
+                <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
+                    {/* Header */}
+                    <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
+                        <View style={styles.headerLeft}>
+                            <Pressable
+                                onPress={handleCancel}
+                                style={({ pressed }) => [
+                                    styles.closeButton,
+                                    { opacity: pressed ? 0.6 : 1 },
+                                ]}
+                            >
+                                <X size={24} color={colors.text.primary} />
+                            </Pressable>
+                            <Text style={[styles.title, { color: colors.text.primary }]}>
+                                {title}
+                            </Text>
+                        </View>
                         <Pressable
-                            onPress={handleCancel}
+                            onPress={handleConfirm}
                             style={({ pressed }) => [
-                                styles.closeButton,
-                                { opacity: pressed ? 0.6 : 1 },
+                                styles.confirmButton,
+                                {
+                                    backgroundColor: colors.primary[500],
+                                    opacity: pressed ? 0.8 : 1,
+                                },
                             ]}
                         >
-                            <X size={24} color={colors.text.primary} />
+                            <Text style={styles.confirmButtonText}>Confirmar</Text>
                         </Pressable>
-                        <Text style={[styles.title, { color: colors.text.primary }]}>
-                            {title}
-                        </Text>
                     </View>
-                    <Pressable
-                        onPress={handleConfirm}
-                        style={({ pressed }) => [
-                            styles.confirmButton,
-                            {
-                                backgroundColor: colors.primary[500],
-                                opacity: pressed ? 0.8 : 1,
-                            },
-                        ]}
-                    >
-                        <Text style={styles.confirmButtonText}>Confirmar</Text>
-                    </Pressable>
-                </View>
 
-                {/* Category Filter Tab */}
-                <View style={styles.content}>
-                    <CategoryFilterTab
-                        categories={categories}
-                        selectedIds={tempSelectedIds}
-                        onChange={setTempSelectedIds}
-                    />
+                    {/* Category Filter Tab */}
+                    <View style={styles.content}>
+                        <CategoryFilterTab
+                            categories={categories}
+                            selectedIds={tempSelectedIds}
+                            onChange={setTempSelectedIds}
+                        />
+                    </View>
                 </View>
-            </SafeAreaView>
+            </View>
         </Modal>
     );
 });
