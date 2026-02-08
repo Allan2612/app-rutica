@@ -1,5 +1,6 @@
 export * from './ManageCard';
 export * from './GuestCTA';
+export * from './SellerAccessPlaceholder';
 export * from './GenericFormView';
 export * from './BasicInfoSection';
 export * from './CategorySection';

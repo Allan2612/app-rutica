@@ -35,3 +35,21 @@ export async function updateUserProfile(
   if (error) throw error;
   return data as Profile;
 }
+
+/**
+ * Convierte un usuario buyer a seller
+ */
+export async function upgradeToSeller(userId: string): Promise<Profile> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      role_prf: 'seller',
+      updated_at_prf: new Date().toISOString(),
+    } as never)
+    .eq('id_prf', userId)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+  return data as Profile;
+}

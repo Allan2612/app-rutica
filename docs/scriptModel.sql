@@ -246,7 +246,18 @@ create table public.categories (
   constraint categories_parent_id_fkey foreign key (parent_id_cat) 
     references public.categories(id_cat) on delete set null
 );
-
+-- Política UPDATE para profiles
+create policy "profiles_update_own"
+  on public.profiles for update
+  using (id_prf = auth.uid())
+  with check (
+    id_prf = auth.uid()
+    and is_active_prf = (select is_active_prf from public.profiles where id_prf = auth.uid())
+    and public.is_valid_role_update(
+      (select role_prf from public.profiles where id_prf = auth.uid()),
+      role_prf
+    )
+  );
 -- Índices para categorías
 create index idx_categories_parent_id on public.categories(parent_id_cat);
 create index idx_categories_is_active on public.categories(is_active_cat);

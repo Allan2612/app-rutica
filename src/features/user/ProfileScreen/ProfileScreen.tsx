@@ -51,6 +51,7 @@ export default memo(function ProfileScreen() {
           onEdit={handleOpenEdit}
           onBack={handleBack}
           onSubscribePress={handleOpenPremiumModal}
+          onRoleUpdate={refreshProfile}
         />
 
         {isEditModalVisible && (
