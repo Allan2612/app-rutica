@@ -130,9 +130,8 @@ export async function getPublicPromotions(filters: PublicPromotionFilters = {}):
                 paid_quantity_pci
             )
         `)
-        // Solo promociones aprobadas, pagadas y activas
+        // Solo promociones aprobadas y activas
         .eq('moderation_status_prm', 'approved')
-        .eq('payment_state_prm', 'paid')
         .eq('is_active_prm', true)
         // Solo promociones vigentes
         .lte('start_at_prm', now)
@@ -231,7 +230,6 @@ export async function getBusinessActivePromotions(businessId: string): Promise<P
         `)
         .eq('business_id_prm', businessId)
         .eq('moderation_status_prm', 'approved')
-        .eq('payment_state_prm', 'paid')
         .eq('is_active_prm', true)
         .lte('start_at_prm', now)
         .gte('end_at_prm', now)
@@ -317,7 +315,6 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         startAt: record.start_at_prm,
         endAt: record.end_at_prm,
         moderationStatus: 'approved',
-        paymentState: 'paid',
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
         coverUrl: imageUrl,

@@ -11,16 +11,16 @@ export function getPromotionBadgeLabel(promotion: PromotionListItem): string {
     if (promotion.scope === 'combo' && promotion.comboItems && promotion.comboItems.length > 0) {
         return generateComboLabel(promotion.comboItems);
     }
-    
+
     // Si es descuento, formatear según el tipo
     if (promotion.discountType === 'percentage') {
         return `-${promotion.discountValue}%`;
     }
-    
+
     if (promotion.discountType === 'fixed') {
         return `-₡${promotion.discountValue.toLocaleString()}`;
     }
-    
+
     return 'Promo';
 }
 
@@ -122,7 +122,7 @@ export function getComboQuantityForProduct(
     productId: string
 ): number {
     if (!promotion || promotion.scope !== 'combo') return 0;
-    
+
     const comboItem = promotion.comboItems?.find(item => item.productId === productId);
     return comboItem?.quantity ?? 0;
 }
@@ -149,7 +149,7 @@ export function calculateComboPrice(
     }
 
     const discountedTotal = calculateDiscountedPrice(originalTotal, promotion);
-    
+
     if (discountedTotal === null) {
         return { originalTotal, discountedTotal: originalTotal, savings: 0 };
     }
@@ -180,8 +180,8 @@ export function getAllActivePromotions(
 
     // Buscar TODAS las promociones activas que apliquen al producto
     for (const promo of promotions) {
-        // FILTRAR: Solo mostrar promos aprobadas, pagadas y vigentes
-        if (promo.moderationStatus !== 'approved' || promo.paymentState !== 'paid') {
+        // FILTRAR: Solo mostrar promos aprobadas y vigentes
+        if (promo.moderationStatus !== 'approved') {
             continue;
         }
 
@@ -237,12 +237,12 @@ export function generateComboLabel(
         const item = comboItems[0];
         const takes = item.quantity;
         const pays = item.paidQuantity ?? item.quantity;
-        
+
         // Siempre mostrar formato NxM si hay descuento de cantidad (ej: 3x2, 2x1)
         if (pays < takes) {
             return `${takes}x${pays}`;
         }
-        
+
         // Si no hay descuento en cantidad pero hay cantidad > 1, mostrar cantidad
         if (takes > 1) {
             return `x${takes}`;
@@ -255,18 +255,18 @@ export function generateComboLabel(
         const firstItem = comboItems[0];
         const firstTakes = firstItem.quantity;
         const firstPays = firstItem.paidQuantity ?? firstItem.quantity;
-        
+
         // Si todos tienen el mismo ratio de descuento
         const sameRatio = comboItems.every(item => {
             const takes = item.quantity;
             const pays = item.paidQuantity ?? item.quantity;
             return takes === firstTakes && pays === firstPays;
         });
-        
+
         if (sameRatio && firstPays < firstTakes) {
             return `${firstTakes}x${firstPays}`;
         }
-        
+
         return 'Combo';
     }
 

@@ -288,7 +288,6 @@ export const ManagePromotionsScreen = memo(function ManagePromotionsScreen() {
                 businessName={promotion.businessName}
                 imageUrl={promotion.imageUrl}
                 moderationStatus={promotion.moderationStatus}
-                paymentState={promotion.paymentState}
                 onEdit={() => handleEditPromotion(promotion.id)}
                 onDelete={() => handleDeletePromotion(promotion.id, promotion.title)}
                 isDeleting={deletingId === promotion.id}

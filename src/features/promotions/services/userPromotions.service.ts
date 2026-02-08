@@ -9,7 +9,7 @@ import type {
     PromotionListItem,
     PromotionDetailForEdit,
 } from '@/types/entities';
-import { ModerationStatus, PromotionScope, DiscountType, PaymentState } from '@/types/enums';
+import { ModerationStatus, PromotionScope, DiscountType } from '@/types/enums';
 import { getImageUrl, deletePromotionImage } from './promotions.helpers';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
@@ -31,7 +31,6 @@ interface PromotionRecord {
     start_at_prm: string;
     end_at_prm: string;
     moderation_status_prm: string;
-    payment_state_prm: string;
     created_at_prm: string;
     businesses: {
         id_bus: string;
@@ -80,7 +79,6 @@ export async function getUserPromotions(userId: string): Promise<PromotionListIt
             start_at_prm,
             end_at_prm,
             moderation_status_prm,
-            payment_state_prm,
             created_at_prm,
             businesses:business_id_prm (
                 id_bus,
@@ -132,7 +130,6 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
             start_at_prm,
             end_at_prm,
             moderation_status_prm,
-            payment_state_prm,
             created_at_prm,
             businesses:business_id_prm (
                 id_bus,
@@ -184,7 +181,6 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             discount_value_prm,
             start_at_prm,
             end_at_prm,
-            payment_reference_prm,
             promotion_images (
                 path_pim
             ),
@@ -251,7 +247,6 @@ export async function getPromotionById(promotionId: string, userId: string): Pro
             quantity: pci.quantity_pci,
             paidQuantity: pci.paid_quantity_pci ?? undefined,
         })),
-        paymentReference: (data as any).payment_reference_prm || '',
         coverUrl,
         galleryUrls,
     };
@@ -397,7 +392,6 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         startAt: record.start_at_prm,
         endAt: record.end_at_prm,
         moderationStatus: record.moderation_status_prm as ModerationStatus,
-        paymentState: record.payment_state_prm as PaymentState,
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
         coverUrl,

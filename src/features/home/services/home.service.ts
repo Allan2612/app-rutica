@@ -121,7 +121,6 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                 )
             `)
             .eq('moderation_status_prm', 'approved')
-            .eq('payment_state_prm', 'paid')
             .eq('is_active_prm', true)
             .lte('start_at_prm', now)
             .gte('end_at_prm', now)
@@ -164,7 +163,6 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                 startAt: item.start_at_prm,
                 endAt: item.end_at_prm,
                 moderationStatus: 'approved',
-                paymentState: 'paid',
                 coverUrl,
                 categoryNames: categories.map((c: { name_cat: string }) => c.name_cat),
                 scopeCategoryIds: item.promotion_scope_categories?.map((psc: { category_id_psc: string }) => psc.category_id_psc) ?? [],
@@ -399,7 +397,6 @@ export async function getHomeStats(): Promise<HomeStats> {
                 .from('promotions')
                 .select('id_prm', { count: 'exact', head: true })
                 .eq('moderation_status_prm', 'approved')
-                .eq('payment_state_prm', 'paid')
                 .eq('is_active_prm', true)
                 .lte('start_at_prm', now)
                 .gte('end_at_prm', now),

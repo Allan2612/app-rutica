@@ -13,7 +13,6 @@ export * from './WizardStepInfo';
 export * from './WizardStepDiscount';
 export * from './WizardStepDates';
 export * from './WizardStepImage';
-export * from './WizardStepPayment';
 
 // Wizard UI Components
 export * from './WizardProgressBar';

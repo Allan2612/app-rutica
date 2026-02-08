@@ -106,8 +106,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
       moderationStatus?: ModerationStatus;
       moderationNote?: string;
       isActive?: boolean;
-      paymentState?: 'pending' | 'paid' | 'rejected';
-      paymentNote?: string;
     }) => {
       if (!statusDialog.request) return;
 
@@ -120,8 +118,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           status: data.moderationStatus,
           note: data.moderationNote,
           isActive: data.isActive,
-          paymentState: data.paymentState,
-          paymentNote: data.paymentNote,
         });
 
         // Build dynamic toast message
@@ -133,15 +129,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
         }
         if (data.isActive !== undefined) {
           actions.push(data.isActive ? 'activado' : 'desactivado');
-        }
-        if (data.paymentState) {
-          const paymentStateText =
-            data.paymentState === 'paid'
-              ? 'marcado como pagado'
-              : data.paymentState === 'rejected'
-              ? 'pago rechazado'
-              : 'pago marcado pendiente';
-          actions.push(paymentStateText);
         }
 
         Toast.show({
@@ -327,16 +314,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           promotionName={statusDialog.request?.name || ''}
           currentModerationStatus={statusDialog.request?.moderationStatus}
           currentModerationNote={statusDialog.request?.moderationNote}
-          currentPaymentState={
-            statusDialog.request?.type === 'promotion'
-              ? (statusDialog.request.metadata?.paymentState as 'pending' | 'paid' | 'rejected' | undefined)
-              : undefined
-          }
-          currentPaymentNote={
-            statusDialog.request?.type === 'promotion'
-              ? statusDialog.request.metadata?.paymentNoteAdmin
-              : undefined
-          }
           currentIsActive={statusDialog.request?.isActive}
           onConfirm={handleConfirmModeration}
           onCancel={handleCancelDialog}

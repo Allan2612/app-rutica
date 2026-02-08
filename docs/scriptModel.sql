@@ -642,12 +642,6 @@ create table public.promotions (
   reviewed_by_prm uuid,
   reviewed_at_prm timestamp with time zone,
   moderation_note_prm text,
-  payment_state_prm public.payment_state,
-
-  -- Pago (V3: 2 notas)
-  payment_reference_prm character varying,
-  payment_note_admin_prm text,
-  payment_note_seller_prm text,
 
   -- Activo/Inactivo (V3)
   is_active_prm boolean default true,

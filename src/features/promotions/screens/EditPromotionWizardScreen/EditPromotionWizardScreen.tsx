@@ -28,7 +28,6 @@ import {
   WizardStepDiscount,
   WizardStepDates,
   WizardStepImage,
-  WizardStepPayment,
 } from '@/components/promotions';
 import type { PromotionFormData } from '@/types/entities';
 
@@ -63,14 +62,13 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       wizard.updateField('scopeCategoryIds', promotionData.scopeCategoryIds);
       wizard.updateField('comboItems', promotionData.comboItems);
       wizard.updateField('coverUri', promotionData.coverUrl);
-      wizard.updateField('paymentReference', promotionData.paymentReference || '');
     }
   }, [promotionData]);
 
   // Detectar si hay cambios en el formulario
   const hasChanges = useMemo(() => {
     if (!promotionData) return false;
-    
+
     return (
       wizard.formData.title !== promotionData.title ||
       wizard.formData.description !== promotionData.description ||
@@ -109,7 +107,6 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       scopeCategoryIds: wizard.formData.scopeCategoryIds,
       comboItems: wizard.formData.comboItems,
       coverUri: wizard.formData.coverUri,
-      paymentReference: wizard.formData.paymentReference,
     };
   }, [wizard.formData]);
 
@@ -194,14 +191,6 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       case 'image':
         return (
           <WizardStepImage
-            formData={wizard.formData}
-            errors={wizard.errors}
-            onFieldChange={wizard.updateField}
-          />
-        );
-      case 'payment':
-        return (
-          <WizardStepPayment
             formData={wizard.formData}
             errors={wizard.errors}
             onFieldChange={wizard.updateField}
@@ -319,7 +308,7 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
               },
             ]}
           >
-            <ScrollView 
+            <ScrollView
               style={styles.stepScrollView}
               contentContainerStyle={styles.stepContent}
               showsVerticalScrollIndicator={false}
