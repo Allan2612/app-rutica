@@ -42,6 +42,9 @@ export interface CreateBusinessData {
     logoUri?: string | null;
     coverUri?: string | null;
     galleryUris: string[]; // Hasta 3
+    
+    // Status
+    isActive?: boolean;
 }
 
 /**
@@ -175,6 +178,7 @@ export async function createBusinessComplete(
                 contact_email_bus: data.email ?? null,
                 website_bus: data.website ?? null,
                 social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+                is_active_bus: data.isActive ?? true,
             });
 
         if (businessError) throw businessError;

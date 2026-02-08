@@ -29,6 +29,9 @@ const createInitialFormData = (): PromotionWizardFormData => ({
 
   // Step 4 - Image
   coverUri: null,
+  
+  // Status
+  isActive: true,
 });
 
 const createInitialErrors = (): PromotionWizardErrors => ({

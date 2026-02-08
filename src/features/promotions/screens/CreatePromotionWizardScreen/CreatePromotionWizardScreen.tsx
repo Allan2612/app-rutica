@@ -89,6 +89,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
       scopeCategoryIds: wizard.formData.scopeCategoryIds,
       comboItems: wizard.formData.comboItems,
       coverUri: wizard.formData.coverUri,
+      isActive: wizard.formData.isActive,
     };
   }, [wizard.formData]);
 

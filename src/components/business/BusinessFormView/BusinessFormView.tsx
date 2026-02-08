@@ -6,6 +6,7 @@ import {
     LocationSection,
     ContactSection,
     SocialLinksSection,
+    ActiveToggleSection,
 } from '@/components/manage';
 import { GenericFormView } from '@/components/manage/GenericFormView/GenericFormView';
 
@@ -26,6 +27,7 @@ interface BusinessFormData {
     facebook: string;
     instagram: string;
     tiktok: string;
+    isActive: boolean;
 }
 
 interface BusinessFormErrors {
@@ -136,6 +138,12 @@ export const BusinessFormView = memo(function BusinessFormView({
                 onPhoneChange={(text) => onFieldChange('phone', text)}
                 onEmailChange={(text) => onFieldChange('email', text)}
                 onWebsiteChange={(text) => onFieldChange('website', text)}
+            />
+
+            <ActiveToggleSection
+                isActive={formData.isActive}
+                onToggle={(value) => onFieldChange('isActive', value)}
+                helperText="Controla si tu negocio es visible para los usuarios"
             />
 
             <SocialLinksSection

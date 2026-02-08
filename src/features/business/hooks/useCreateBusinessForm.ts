@@ -24,6 +24,7 @@ interface FormData {
     logoUri: string | null;
     coverUri: string | null;
     galleryUris: string[];
+    isActive: boolean;
 }
 
 interface FormErrors {
@@ -51,6 +52,7 @@ const initialFormData: FormData = {
     logoUri: null,
     coverUri: null,
     galleryUris: [],
+    isActive: true,
 };
 
 export function useCreateBusinessForm() {
@@ -157,6 +159,7 @@ export function useCreateBusinessForm() {
                 logoUri: formData.logoUri,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
+                isActive: formData.isActive,
             };
 
             await createMutation.mutateAsync(data);

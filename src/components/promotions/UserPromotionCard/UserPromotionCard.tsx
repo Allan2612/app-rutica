@@ -1,12 +1,6 @@
-/**
- * UserPromotionCard Component
- * Tarjeta para mostrar promociones del usuario (gestión)
- * Usa el mismo diseño visual que BusinessCard con overlay y badges
- */
-
 import { memo } from 'react';
 import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
-import { Edit2, Trash2, Tag, Calendar, Clock } from 'lucide-react-native';
+import { Edit2, Trash2, Tag, Calendar, Clock, Eye, EyeOff } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge, PromoBadge } from '@/components/ui';
@@ -26,6 +20,7 @@ export interface UserPromotionCardProps {
   businessName?: string;
   imageUrl?: string | null;
   moderationStatus: 'pending' | 'approved' | 'rejected';
+  isActive: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   isDeleting?: boolean;
@@ -42,6 +37,7 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   businessName,
   imageUrl,
   moderationStatus,
+  isActive,
   onEdit,
   onDelete,
   isDeleting = false,
@@ -87,8 +83,13 @@ export const UserPromotionCard = memo(function UserPromotionCard({
         <PromoBadge label={badgeLabel} size="medium" />
       </View>
 
-      {/* Status Badge - Top Right */}
+      {/* Status Badge and Eye Icon - Top Right */}
       <View style={styles.topRightBadges}>
+        {isActive ? (
+          <Eye size={22} color="rgba(255,255,255,0.95)" strokeWidth={2.5} />
+        ) : (
+          <EyeOff size={22} color="rgba(255,255,255,0.6)" strokeWidth={2.5} />
+        )}
         <StatusBadge status={moderationStatus} />
       </View>
 

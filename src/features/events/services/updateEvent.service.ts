@@ -84,6 +84,7 @@ export interface UpdateEventData {
     tiktok: string | null;
     coverImage?: string | null;
     galleryImages?: string[];
+    isActive?: boolean;
 }
 
 function getImageUrl(bucket: string, path: string): string {
@@ -291,23 +292,29 @@ export async function updateEventComplete(
     if (data.tiktok) socialLinks.tiktok = data.tiktok;
 
     // 3. Actualizar evento
+    const updateFields: any = {
+        name_evt: data.name,
+        description_evt: data.description ?? null,
+        start_at_evt: data.startDate.toISOString(),
+        end_at_evt: data.endDate.toISOString(),
+        is_free_evt: data.isFree,
+        price_evt: data.isFree ? null : (data.price ?? null),
+        currency_evt: data.isFree ? null : (data.currency ?? 'CRC'),
+        capacity_evt: data.capacity ?? null,
+        contact_phone_evt: data.phone ?? null,
+        contact_email_evt: data.email ?? null,
+        website_evt: data.website ?? null,
+        ticket_url_evt: data.ticketUrl ?? null,
+        social_links_evt: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+    };
+    
+    if (data.isActive !== undefined) {
+        updateFields.is_active_evt = data.isActive;
+    }
+    
     await (supabase as any)
         .from('events')
-        .update({
-            name_evt: data.name,
-            description_evt: data.description ?? null,
-            start_at_evt: data.startDate.toISOString(),
-            end_at_evt: data.endDate.toISOString(),
-            is_free_evt: data.isFree,
-            price_evt: data.isFree ? null : (data.price ?? null),
-            currency_evt: data.isFree ? null : (data.currency ?? 'CRC'),
-            capacity_evt: data.capacity ?? null,
-            contact_phone_evt: data.phone ?? null,
-            contact_email_evt: data.email ?? null,
-            website_evt: data.website ?? null,
-            ticket_url_evt: data.ticketUrl ?? null,
-            social_links_evt: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-        })
+        .update(updateFields)
         .eq('id_evt', eventId);
 
     // 4. Actualizar categorías

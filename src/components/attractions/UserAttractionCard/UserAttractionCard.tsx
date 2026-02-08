@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
-import { Edit2, MapPin, Landmark, Trash2 } from 'lucide-react-native';
+import { Edit2, MapPin, Landmark, Trash2, Eye, EyeOff } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
 import { CategoryChip } from '@/components/ui/CategoryChip';
@@ -89,8 +89,13 @@ export const UserAttractionCard = memo(function UserAttractionCard({
                             )}
                         </View>
 
-                        {/* Status Badge */}
+                        {/* Status and Active Indicators */}
                         <View style={styles.statusBadgeWrapper}>
+                            {isActive ? (
+                                <Eye size={20} color={colors.success} strokeWidth={2} />
+                            ) : (
+                                <EyeOff size={20} color={colors.text.tertiary} strokeWidth={2} />
+                            )}
                             <StatusBadge status={moderationStatus} />
                         </View>
                     </View>

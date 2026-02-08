@@ -12,3 +12,4 @@ export * from './FormActions';
 export * from './ConfirmDeleteDialog';
 export * from './ConfirmExitDialog';
 export * from './UserProductCard';
+export * from './ActiveToggleSection';

@@ -33,6 +33,7 @@ export async function createPromotionComplete(
                 start_at_prm: data.startAt,
                 end_at_prm: data.endAt,
                 moderation_status_prm: 'pending',
+                is_active_prm: data.isActive ?? true,
             } as any);
 
         if (promotionError) throw promotionError;

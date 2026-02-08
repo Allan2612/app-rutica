@@ -35,6 +35,7 @@ export function useBusinessForm(businessId: string) {
         district: '',
         address: '',
         coordinates: null as { latitude: number; longitude: number } | null,
+        isActive: true,
     });
 
     const [originalData, setOriginalData] = useState(formData);
@@ -68,6 +69,7 @@ export function useBusinessForm(businessId: string) {
                 coordinates: (business.latitude && business.longitude)
                     ? { latitude: business.latitude, longitude: business.longitude }
                     : null,
+                isActive: business.isActive ?? true,
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
@@ -132,6 +134,7 @@ export function useBusinessForm(businessId: string) {
                 logoUri: formData.logoUri,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
+                isActive: formData.isActive,
             };
 
             await updateMutation.mutateAsync({ businessId, data });

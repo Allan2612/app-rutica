@@ -36,6 +36,7 @@ interface FormData {
     facebook: string;
     instagram: string;
     tiktok: string;
+    isActive: boolean;
 }
 
 const initialFormData: FormData = {
@@ -60,6 +61,7 @@ const initialFormData: FormData = {
     facebook: '',
     instagram: '',
     tiktok: '',
+    isActive: true,
 };
 
 export function useEventForm(eventId?: string) {
@@ -107,6 +109,7 @@ export function useEventForm(eventId?: string) {
                 facebook: event.facebook || '',
                 instagram: event.instagram || '',
                 tiktok: event.tiktok || '',
+                isActive: event.isActive ?? true,
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
@@ -214,6 +217,7 @@ export function useEventForm(eventId?: string) {
                 facebook: formData.facebook || undefined,
                 instagram: formData.instagram || undefined,
                 tiktok: formData.tiktok || undefined,
+                isActive: formData.isActive,
             };
 
             if (eventId) {
@@ -241,6 +245,7 @@ export function useEventForm(eventId?: string) {
                     tiktok: formData.tiktok || null,
                     coverImage: formData.coverUri,
                     galleryImages: formData.galleryUris,
+                    isActive: formData.isActive,
                 };
                 await updateMutation.mutateAsync({ eventId, data: updateData });
             } else {

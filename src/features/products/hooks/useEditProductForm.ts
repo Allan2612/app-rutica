@@ -20,6 +20,7 @@ export function useEditProductForm(businessId: string, productId: string) {
     const [currency, setCurrency] = useState('CRC');
     const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
     const [images, setImages] = useState<string[]>([]);
+    const [isActive, setIsActive] = useState(true);
     const [errors, setErrors] = useState<ProductFormErrors>({});
 
     // Cargar datos del producto cuando se obtienen
@@ -31,6 +32,7 @@ export function useEditProductForm(businessId: string, productId: string) {
             setCurrency(product.currency || 'CRC');
             setSelectedCategoryIds(product.categoryIds || []);
             setImages(product.images || []);
+            setIsActive(product.isActive ?? true);
         }
     }, [product]);
 
@@ -71,6 +73,7 @@ export function useEditProductForm(businessId: string, productId: string) {
                 currency,
                 categoryIds: selectedCategoryIds,
                 images,
+                isActive,
             });
 
             Toast.show({
@@ -91,7 +94,7 @@ export function useEditProductForm(businessId: string, productId: string) {
                 visibilityTime: 4000,
             });
         }
-    }, [validateForm, updateMutation, name, description, price, currency, selectedCategoryIds, images, router]);
+    }, [validateForm, updateMutation, name, description, price, currency, selectedCategoryIds, images, isActive, router]);
 
     const handleCancel = useCallback(() => {
         router.back();
@@ -105,6 +108,7 @@ export function useEditProductForm(businessId: string, productId: string) {
             currency,
             selectedCategoryIds,
             images,
+            isActive,
             errors,
         },
         formActions: {
@@ -114,6 +118,7 @@ export function useEditProductForm(businessId: string, productId: string) {
             setCurrency,
             setSelectedCategoryIds,
             setImages,
+            setIsActive,
         },
         handlers: {
             handleSubmit,

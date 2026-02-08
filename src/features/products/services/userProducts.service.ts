@@ -6,14 +6,24 @@ const BUCKET_NAME = 'product-images';
 
 /**
  * Obtiene los productos de un negocio específico
+ * @param businessId - ID del negocio
+ * @param onlyActive - Si es true, solo retorna productos activos. Por defecto false (todos los productos)
  */
-export async function getBusinessProducts(businessId: string): Promise<ProductListItem[]> {
+export async function getBusinessProducts(businessId: string, onlyActive: boolean = false): Promise<ProductListItem[]> {
     try {
-        // Obtener productos
-        const { data: products, error: productsError } = await supabase
+        // Construir query base
+        let query = supabase
             .from('products')
             .select('*')
-            .eq('business_id_prd', businessId)
+            .eq('business_id_prd', businessId);
+        
+        // Filtrar por activos solo si se especifica
+        if (onlyActive) {
+            query = query.eq('is_active_prd', true);
+        }
+        
+        // Obtener productos
+        const { data: products, error: productsError } = await query
             .order('created_at_prd', { ascending: false });
 
         if (productsError) {
@@ -183,6 +193,7 @@ export async function updateProduct(
         currency: string;
         categoryIds: string[];
         images: string[];
+        isActive?: boolean;
     }
 ): Promise<void> {
     try {
@@ -202,14 +213,20 @@ export async function updateProduct(
         }
 
         // 1. Actualizar datos del producto
+        const updateFields: any = {
+            name_prd: data.name,
+            description_prd: data.description || null,
+            price_prd: data.price,
+            currency_prd: data.currency,
+        };
+        
+        if (data.isActive !== undefined) {
+            updateFields.is_active_prd = data.isActive;
+        }
+        
         const { error: updateError } = await (supabase as any)
             .from('products')
-            .update({
-                name_prd: data.name,
-                description_prd: data.description || null,
-                price_prd: data.price,
-                currency_prd: data.currency,
-            })
+            .update(updateFields)
             .eq('id_prd', productId);
 
         if (updateError) {
@@ -392,6 +409,7 @@ export async function createProductComplete(
         currency: string;
         categoryIds: string[];
         images: string[];
+        isActive?: boolean;
     }
 ): Promise<string> {
     try {
@@ -405,7 +423,7 @@ export async function createProductComplete(
             description_prd: data.description || null,
             price_prd: data.price,
             currency_prd: data.currency,
-            is_active_prd: true,
+            is_active_prd: data.isActive ?? true,
         };
 
         const { error: productError } = await (supabase as any).from('products').insert(productData);

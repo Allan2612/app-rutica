@@ -5,11 +5,13 @@ import { getBusinessProducts, getProduct, deleteProduct, createProductComplete, 
 
 /**
  * Hook para obtener los productos de un negocio
+ * @param businessId - ID del negocio
+ * @param onlyActive - Si es true, solo retorna productos activos. Por defecto false (todos los productos)
  */
-export function useBusinessProducts(businessId: string) {
+export function useBusinessProducts(businessId: string, onlyActive: boolean = false) {
     return useQuery({
-        queryKey: ['business-products', businessId],
-        queryFn: () => getBusinessProducts(businessId),
+        queryKey: ['business-products', businessId, onlyActive],
+        queryFn: () => getBusinessProducts(businessId, onlyActive),
         enabled: !!businessId,
     });
 }
@@ -66,6 +68,7 @@ export function useCreateProduct(businessId: string) {
             currency: string;
             categoryIds: string[];
             images: string[];
+            isActive?: boolean;
         }) => createProductComplete(businessId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-products', businessId] });
@@ -87,6 +90,7 @@ export function useUpdateProduct(businessId: string, productId: string) {
             currency: string;
             categoryIds: string[];
             images: string[];
+            isActive?: boolean;
         }) => updateProduct(productId, businessId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-products', businessId] });

@@ -206,6 +206,7 @@ export interface PromotionFormData {
   comboItems: ComboItemData[];
   coverUri?: string | null;
   galleryUris?: string[];
+  isActive?: boolean;
 }
 
 // ============================================
@@ -243,6 +244,9 @@ export interface PromotionWizardFormData {
 
   // Step 4: Image
   coverUri: string | null;
+  
+  // Status
+  isActive: boolean;
 }
 
 export interface PromotionWizardErrors {

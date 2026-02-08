@@ -62,6 +62,9 @@ export const styles = StyleSheet.create({
         fontWeight: typography.fontWeights.medium,
     },
     statusBadgeWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
         marginTop: 2,
     },
     infoRow: {

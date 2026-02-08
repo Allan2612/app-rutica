@@ -7,6 +7,7 @@ import {
     BasicInfoSection,
     CategorySection,
     ImageSection,
+    ActiveToggleSection,
 } from '@/components/manage';
 
 export const AddProductScreen = memo(function AddProductScreen() {
@@ -59,6 +60,12 @@ export const AddProductScreen = memo(function AddProductScreen() {
                 selectedIds={formState.selectedCategoryIds}
                 onSelectionChange={formActions.setSelectedCategoryIds}
                 isLoading={loadingCategories}
+            />
+
+            <ActiveToggleSection
+                isActive={formState.isActive}
+                onToggle={formActions.setIsActive}
+                helperText="Cuando está inactivo, el producto no aparecerá en búsquedas ni será visible para otros usuarios"
             />
 
             <ImageSection

@@ -49,6 +49,7 @@ export async function updatePromotionComplete(
     if (data.discountValue !== undefined) updatePayload.discount_value_prm = data.discountValue;
     if (data.startAt !== undefined) updatePayload.start_at_prm = data.startAt;
     if (data.endAt !== undefined) updatePayload.end_at_prm = data.endAt;
+    if (data.isActive !== undefined) updatePayload.is_active_prm = data.isActive;
 
     const { error: updateError } = await (supabase as any)
         .from('promotions')
