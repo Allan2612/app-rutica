@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Templates - Rutica</title>
+</head>
+
+<body>
+
+    <!-- ========================================== -->
+    <!-- EMAIL 1: APROBACION/RECHAZO DE SUSCRIPCION -->
+    <!-- Edge Function: email-subscription-status -->
+    <!-- ========================================== -->
+
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pago Verificado / Actualizacion de Suscripcion</title>
+    </head>
+
+    <body
+        style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td align="center" style="padding: 40px 20px;">
+                    <table role="presentation"
+                        style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <!-- Header -->
+                        <tr>
+                            <td style="padding: 40px 40px 20px; text-align: center;">
+                                <h1 style="margin: 0; font-size: 24px; color: #4CAF50; font-weight: 600;">
+                                    Pago Verificado
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 20px 40px;">
+                                <p style="margin: 0 0 15px; font-size: 16px; color: #333; line-height: 1.6;">
+                                    Hola <strong>{{userName}}</strong>,
+                                </p>
+                                <p style="margin: 0 0 15px; font-size: 16px; color: #333; line-height: 1.6;">
+                                    Tu pago para el paquete <strong>{{packageName}}</strong> ha sido verificado
+                                    exitosamente.
+                                </p>
+                                <p style="margin: 0 0 15px; font-size: 16px; color: #666; line-height: 1.6;">
+                                    Ya puedes disfrutar de todos los beneficios de tu paquete premium.
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Details -->
+                        <tr>
+                            <td style="padding: 0 40px;">
+                                <table role="presentation"
+                                    style="width: 100%; border-collapse: collapse; background-color: #f8f9fa; border-radius: 8px;">
+                                    <tr>
+                                        <td style="padding: 20px;">
+                                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                                <tr>
+                                                    <td style="padding: 8px 0; color: #666; font-size: 14px;">Paquete:
+                                                    </td>
+                                                    <td
+                                                        style="padding: 8px 0; color: #333; font-size: 14px; text-align: right; font-weight: 600;">
+                                                        {{packageName}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 8px 0; color: #666; font-size: 14px;">Estado:
+                                                    </td>
+                                                    <td style="padding: 8px 0; text-align: right;">
+                                                        <span
+                                                            style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background-color: #e8f5e9; color: #4CAF50;">
+                                                            Aprobado
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 8px 0; color: #666; font-size: 14px;">Fecha:
+                                                    </td>
+                                                    <td
+                                                        style="padding: 8px 0; color: #333; font-size: 14px; text-align: right;">
+                                                        {{date}}</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- CTA Button -->
+                        <tr>
+                            <td style="padding: 30px 40px; text-align: center;">
+                                <a href="https://rutica.app"
+                                    style="display: inline-block; background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin-top: 20px; font-weight: bold;">Ir
+                                    a la App</a>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td style="padding: 20px 40px 40px; text-align: center; border-top: 1px solid #eee;">
+                                <p style="margin: 0 0 10px; font-size: 14px; color: #999;">
+                                    Si tienes alguna pregunta, no dudes en contactarnos.
+                                </p>
+                                <p style="margin: 0; font-size: 12px; color: #bbb;">
+                                    Rutica - Tu guia turistica de Costa Rica
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+
+    </html>
+
+
+    <!-- ========================================== -->
+    <!-- EMAIL 2: CONFIRMACION DE PAGO RECIBIDO -->
+    <!-- Edge Function: email-paid -->
+    <!-- ========================================== -->
+
+    <!DOCTYPE html>
+    <html lang="es">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Pago recibido</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f5f7fa;
+                padding: 24px;
+            }
+
+            .card {
+                max-width: 520px;
+                margin: auto;
+                background: #ffffff;
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            }
+
+            h1 {
+                color: #16a34a;
+                font-size: 22px;
+            }
+
+            p {
+                color: #334155;
+                line-height: 1.5;
+            }
+
+            .divider {
+                height: 1px;
+                background: #e5e7eb;
+                margin: 20px 0;
+            }
+
+            .detail {
+                font-size: 14px;
+                color: #475569;
+            }
+
+            .footer {
+                font-size: 12px;
+                color: #94a3b8;
+                margin-top: 24px;
+                text-align: center;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="card">
+            <h1>Pago Recibido</h1>
+            <p>Hola <strong>{{userName}}</strong>,</p>
+            <p>Hemos recibido correctamente tu pago por el paquete <strong>{{packageName}}</strong>.</p>
+            <div class="divider"></div>
+            <p class="detail"><strong>Monto:</strong> {{amount}}</p>
+            <p class="detail"><strong>Referencia:</strong> {{paymentReference}}</p>
+            <p class="detail"><strong>Fecha:</strong> {{date}}</p>
+            <div class="divider"></div>
+            <p>Podras disfrutar de los beneficios una vez aprobado el pago.</p>
+            <p>Gracias por confiar en nosotros.</p>
+            <div class="footer">2026 Rutica - Todos los derechos reservados</div>
+        </div>
+    </body>
+
+    </html>
+
+</body>
+
+</html>

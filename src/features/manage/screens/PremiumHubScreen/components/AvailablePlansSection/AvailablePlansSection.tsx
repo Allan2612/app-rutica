@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Tag, BarChart3, Images, Package, Camera, Calendar, Sparkles, Check } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { SUBSCRIPTION_PLANS } from '@/types/entities';
+import type { SubscriptionType } from '@/types/enums';
 import { styles } from './styles';
 
 const PLAN_ICONS: Record<string, typeof Tag> = {
@@ -26,7 +27,7 @@ const PLAN_COLORS: Record<string, { icon: string; bg: string }> = {
 };
 
 interface AvailablePlansSectionProps {
-    onBuyPress: (planType: string) => void;
+    onBuyPress: (planType: SubscriptionType) => void;
 }
 
 export const AvailablePlansSection = memo(function AvailablePlansSection({

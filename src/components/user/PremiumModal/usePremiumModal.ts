@@ -69,6 +69,16 @@ export function usePremiumModal({
         if (initialPlan && preSelectedBusinessId) {
             return 'payment';
         }
+        // Si hay plan inicial sin pre-selecciones, determinar el paso apropiado
+        if (initialPlan) {
+            if (BUSINESS_REQUIRED_PLANS.includes(initialPlan)) {
+                return 'business';
+            }
+            if (ENTITY_REQUIRED_PLANS.includes(initialPlan)) {
+                return 'entity';
+            }
+            return 'payment';
+        }
         return 'plans';
     });
     const [selectedPlans, setSelectedPlans] = useState<SubscriptionType[]>(() =>
@@ -113,7 +123,14 @@ export function usePremiumModal({
                     setEntitySelections({});
                 }
             } else if (initialPlan) {
-                setStep('plans');
+                // Si hay plan inicial sin pre-selecciones, determinar el paso apropiado
+                if (BUSINESS_REQUIRED_PLANS.includes(initialPlan)) {
+                    setStep('business');
+                } else if (ENTITY_REQUIRED_PLANS.includes(initialPlan)) {
+                    setStep('entity');
+                } else {
+                    setStep('payment');
+                }
                 setSelectedPlans([initialPlan]);
                 setBusinessSelections({});
                 setEntitySelections({});
@@ -271,6 +288,9 @@ export function usePremiumModal({
                 setStep('entity');
             } else if (requiresBusinessSelection) {
                 setStep('business');
+            } else if (initialPlan) {
+                // Si entró con un plan pre-seleccionado y no hay más pasos, cerrar
+                onClose();
             } else {
                 setStep('plans');
             }
@@ -279,17 +299,25 @@ export function usePremiumModal({
             // Desde entity, volver a business si hay paquetes que lo requieren
             if (requiresBusinessSelection) {
                 setStep('business');
+            } else if (initialPlan) {
+                // Si entró con un plan pre-seleccionado, cerrar en lugar de volver a 'plans'
+                onClose();
             } else {
                 setStep('plans');
             }
             setError(null);
         } else if (step === 'business') {
-            setStep('plans');
+            if (initialPlan) {
+                // Si entró con un plan pre-seleccionado, cerrar en lugar de volver a 'plans'
+                onClose();
+            } else {
+                setStep('plans');
+            }
             setError(null);
         } else {
             onClose();
         }
-    }, [step, requiresBusinessSelection, requiresEntitySelection, onClose]);
+    }, [step, requiresBusinessSelection, requiresEntitySelection, initialPlan, onClose]);
 
     const handleSubmit = useCallback(async () => {
         if (selectedPlans.length === 0) return;
