@@ -39,6 +39,7 @@ export interface EventListRecord {
     profiles?: {
         first_name_prf: string;
         last_name1_prf: string;
+        profile_photo_path_prf: string | null;
     } | null;
     event_category_map?: {
         categories: {
@@ -107,7 +108,8 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
             reviews_count_evt,
             profiles!events_created_by_evt_fkey (
                 first_name_prf,
-                last_name1_prf
+                last_name1_prf,
+                profile_photo_path_prf
             ),
             event_category_map (
                 categories (

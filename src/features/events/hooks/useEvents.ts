@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase/client';
 import {
     EventListFilters,
     EventListRecord,
@@ -23,6 +24,7 @@ export interface EventListItem {
     longitude: number | null;
     imageUrls: string[];
     authorName: string | null;
+    authorAvatarUrl: string | null;
     isApproved: boolean;
     createdAt: string;
     contactPhone: string | null;
@@ -52,14 +54,19 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
 
     // Ubicación con estructura jerárquica normalizada
     const locationParts = [
-        item.locations?.districts?.name_dst,
+        item.locations?.districts?.cantons?.provinces?.name_prv,
         item.locations?.districts?.cantons?.name_ctn,
-        item.locations?.districts?.cantons?.provinces?.name_prv
+        item.locations?.districts?.name_dst
     ].filter(Boolean);
 
     // Nombre del autor
     const authorName = item.profiles
         ? `${item.profiles.first_name_prf} ${item.profiles.last_name1_prf}`
+        : null;
+
+    // Avatar del autor
+    const authorAvatarUrl = item.profiles?.profile_photo_path_prf
+        ? supabase.storage.from('profiles-images').getPublicUrl(item.profiles.profile_photo_path_prf).data.publicUrl
         : null;
 
     return {
@@ -79,6 +86,7 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
         longitude: item.locations?.longitude_loc ?? null,
         imageUrls,
         authorName,
+        authorAvatarUrl,
         isApproved: item.moderation_status_evt === 'approved',
         createdAt: item.created_at_evt,
         contactPhone: item.contact_phone_evt ?? null,

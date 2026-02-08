@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase/client';
 import {
     AttractionListFilters,
     AttractionListRecord,
@@ -17,6 +18,7 @@ export interface AttractionListItem {
     longitude: number | null;
     imageUrls: string[];
     authorName: string | null;
+    authorAvatarUrl: string | null;
     rating: number;
     reviewCount: number;
     isApproved: boolean;
@@ -46,10 +48,8 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
     const districtData = locationData?.districts;
     const cantonData = districtData?.cantons;
     const provinceData = cantonData?.provinces;
-    const countryData = provinceData?.countries;
 
     const locationParts = [
-        countryData?.name_cnt,
         provinceData?.name_prv,
         cantonData?.name_ctn,
         districtData?.name_dst
@@ -58,6 +58,11 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
     // Nombre del autor
     const authorName = item.profiles
         ? `${item.profiles.first_name_prf} ${item.profiles.last_name1_prf}`
+        : null;
+
+    // Avatar del autor
+    const authorAvatarUrl = item.profiles?.profile_photo_path_prf
+        ? supabase.storage.from('profiles-images').getPublicUrl(item.profiles.profile_photo_path_prf).data.publicUrl
         : null;
 
     return {
@@ -71,6 +76,7 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
         longitude: item.locations?.longitude_loc ?? null,
         imageUrls,
         authorName,
+        authorAvatarUrl,
         rating: item.avg_rating_atr ?? 0,
         reviewCount: item.reviews_count_atr ?? 0,
         isApproved: item.moderation_status_atr === 'approved',

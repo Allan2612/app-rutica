@@ -4,6 +4,7 @@ import { Heart, MapPin, Star, Tag } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
 import { useAuthStore } from '@/store';
+import { getShortLocationLabel } from '@/utils/splitItemsByLocation';
 import { useBusinessFavoriteIds } from '@/features/business/hooks/useBusinessFavorites';
 import { useToggleBusinessFavorite } from '@/features/business/hooks/useToggleBusinessFavorite';
 import { CategoryChip } from '@/components/ui/CategoryChip';
@@ -119,7 +120,7 @@ export const BusinessCard = memo(function BusinessCard({
           <View style={styles.locationRow}>
             <MapPin size={16} color="#fff" strokeWidth={1.75} />
             <Text style={styles.locationText} numberOfLines={1}>
-              {locationLabel}
+              {getShortLocationLabel(locationLabel) ?? locationLabel}
             </Text>
             {/* Botón de favoritos */}
             {isAuthenticated && (

@@ -37,6 +37,7 @@ export const AttractionsList = memo(function AttractionsList({
             longitude={item.longitude}
             imageUrls={item.imageUrls}
             authorName={item.authorName ?? undefined}
+            authorAvatarUrl={item.authorAvatarUrl}
             rating={item.rating}
             reviewCount={item.reviewCount}
             isApproved={item.isApproved}

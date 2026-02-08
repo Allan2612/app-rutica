@@ -407,6 +407,7 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         businessName: record.businesses?.name_bus ?? null,
         coverUrl,
         imageUrl: coverUrl, // Alias para compatibilidad con UserPromotionCard
+        locationLabel: null, // No se necesita en la vista de gestión del usuario
         categoryNames,
         categoryIds,
         productIds,

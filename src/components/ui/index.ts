@@ -21,5 +21,7 @@ export * from './UnifiedDateTimeModal';
 export * from './SimpleDateTimeInput';
 export * from './CalendarPicker';
 export * from './TimePicker';
+export * from './LocationSectionHeader';
+export * from './NoLocalResultsPlaceholder';
 
 

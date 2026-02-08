@@ -28,6 +28,7 @@ export interface AttractionListRecord {
     profiles?: {
         first_name_prf: string;
         last_name1_prf: string;
+        profile_photo_path_prf: string | null;
     } | null;
     attraction_category_map?:
     | {
@@ -100,7 +101,8 @@ export async function getAttractionsList(
       submitted_by_atr,
       profiles!attractions_submitted_by_atr_fkey (
         first_name_prf,
-        last_name1_prf
+        last_name1_prf,
+        profile_photo_path_prf
       ),
       attraction_category_map!inner (
         categories!inner (

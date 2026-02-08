@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { Mountain, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getCategoryColorScheme } from '@/utils/categoryColors';
@@ -15,6 +16,7 @@ interface AttractionContentProps {
     showAllCategories: boolean;
     onToggleCategories: () => void;
     authorName?: string | null;
+    authorAvatarUrl?: string | null;
     createdAt?: string;
     rating?: number;
     reviewCount?: number;
@@ -33,6 +35,7 @@ export const AttractionContent = memo(function AttractionContent({
     showAllCategories,
     onToggleCategories,
     authorName,
+    authorAvatarUrl,
     createdAt,
     rating = 0,
     reviewCount = 0,
@@ -48,15 +51,24 @@ export const AttractionContent = memo(function AttractionContent({
         <>
             {/* Header con autor */}
             <View style={styles.header}>
-                <View style={[styles.avatar, { backgroundColor: colors.primary[100] }]}>
-                    {authorName ? (
-                        <Text style={[styles.avatarText, { color: colors.primary[700] }]}>
-                            {getInitials(authorName)}
-                        </Text>
-                    ) : (
-                        <Mountain size={20} color={colors.primary[600]} />
-                    )}
-                </View>
+                {authorAvatarUrl ? (
+                    <ExpoImage
+                        source={{ uri: authorAvatarUrl }}
+                        style={styles.avatar}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                ) : (
+                    <View style={[styles.avatar, { backgroundColor: colors.primary[100] }]}>
+                        {authorName ? (
+                            <Text style={[styles.avatarText, { color: colors.primary[700] }]}>
+                                {getInitials(authorName)}
+                            </Text>
+                        ) : (
+                            <Mountain size={20} color={colors.primary[600]} />
+                        )}
+                    </View>
+                )}
                 <View style={styles.headerInfo}>
                     <Text style={[styles.authorName, { color: colors.text.primary }]}>
                         {authorName ?? 'Rutica'}

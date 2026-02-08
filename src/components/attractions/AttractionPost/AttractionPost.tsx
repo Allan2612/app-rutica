@@ -28,6 +28,7 @@ export interface AttractionPostProps {
     longitude?: number | null;
     imageUrls?: string[];
     authorName?: string | null;
+    authorAvatarUrl?: string | null;
     rating?: number;
     reviewCount?: number;
     isApproved?: boolean;
@@ -46,6 +47,7 @@ export function AttractionPost({
     longitude,
     imageUrls = [],
     authorName,
+    authorAvatarUrl,
     rating = 0,
     reviewCount = 0,
     isApproved = false,
@@ -111,6 +113,7 @@ export function AttractionPost({
                 showAllCategories={showAllCategories}
                 onToggleCategories={() => setShowAllCategories(true)}
                 authorName={authorName}
+                authorAvatarUrl={authorAvatarUrl}
                 createdAt={createdAt}
                 rating={rating}
                 reviewCount={reviewCount}

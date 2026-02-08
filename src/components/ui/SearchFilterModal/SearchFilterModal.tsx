@@ -58,7 +58,7 @@ export function SearchFilterModal({
     showLocationTab = true,
 }: SearchFilterModalProps) {
     const colors = useThemedColors();
-    const { location } = useLocationStore();
+    const { location, clearLocation } = useLocationStore();
     
     // Tab activo
     const [activeTab, setActiveTab] = useState<FilterTab>('text');
@@ -103,7 +103,8 @@ export function SearchFilterModal({
     const handleClear = useCallback(() => {
         setSearchText('');
         setSelectedCategoryIds([]);
-    }, []);
+        clearLocation();
+    }, [clearLocation]);
 
     const hasFilters = useMemo(() => {
         return (

@@ -15,6 +15,7 @@ export interface EventPostProps {
     longitude?: number | null;
     imageUrls?: string[];
     authorName?: string | null;
+    authorAvatarUrl?: string | null;
     isApproved?: boolean;
     createdAt?: string;
     contactPhone?: string | null;

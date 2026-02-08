@@ -35,6 +35,7 @@ export function EventPost({
     longitude,
     imageUrls = [],
     authorName,
+    authorAvatarUrl,
     isApproved = false,
     createdAt,
     contactPhone,
@@ -102,7 +103,8 @@ export function EventPost({
             disabled={!onPress}
         >
             <EventPostHeader 
-                authorName={authorName} 
+                authorName={authorName}
+                authorAvatarUrl={authorAvatarUrl}
                 createdAt={createdAt}
                 rating={rating}
                 reviewCount={reviewCount}

@@ -64,6 +64,7 @@ export const EventsList = memo(function EventsList({
                     longitude={item.longitude}
                     imageUrls={item.imageUrls}
                     authorName={item.authorName}
+                    authorAvatarUrl={item.authorAvatarUrl}
                     isApproved={item.isApproved}
                     createdAt={item.createdAt}
                     contactPhone={item.contactPhone}

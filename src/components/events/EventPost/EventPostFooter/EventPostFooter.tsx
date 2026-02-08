@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { getShortLocationLabel } from '@/utils/splitItemsByLocation';
 import { styles } from '../styles';
 
 interface EventPostFooterProps {
@@ -26,7 +27,7 @@ export const EventPostFooter = memo(function EventPostFooter({
         >
             <View style={styles.footerItem}>
                 <MapPin size={16} color={colors.primary[500]} />
-                <Text style={[styles.footerText, { color: colors.primary[500] }]}>{locationLabel}</Text>
+                <Text style={[styles.footerText, { color: colors.primary[500] }]}>{getShortLocationLabel(locationLabel) ?? locationLabel}</Text>
             </View>
         </Pressable>
     );

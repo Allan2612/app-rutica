@@ -9,6 +9,7 @@ import type { User } from '@supabase/supabase-js';
 interface AuthState {
   user: User | null;
   role: UserRole | null;
+  profileName: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   _initialized: boolean;
@@ -55,6 +56,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   // Estado inicial
   user: null,
   role: null,
+  profileName: null,
   isLoading: true,
   isAuthenticated: false,
   _initialized: false,
@@ -109,6 +111,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         set({
           user: null,
           role: null,
+          profileName: null,
           isAuthenticated: false,
           isLoading: false,
           _isLoadingData: false,
@@ -120,6 +123,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         set({
           user: null,
           role: null,
+          profileName: null,
           isAuthenticated: false,
           isLoading: false,
           _isLoadingData: false,
@@ -134,6 +138,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         set({
           user: null,
           role: null,
+          profileName: null,
           isAuthenticated: false,
           isLoading: false,
           _isLoadingData: false,
@@ -144,9 +149,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       // 3. Obtener perfil con rol
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role_prf')
+        .select('role_prf, first_name_prf, last_name1_prf')
         .eq('id_prf', authUser.id)
-        .single<{ role_prf: UserRole }>();
+        .single<{ role_prf: UserRole; first_name_prf: string | null; last_name1_prf: string | null }>();
 
       if (profileError) {
         // Si el perfil no existe, desloguear
@@ -160,15 +165,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         set({
           user: authUser,
           role: null,
+          profileName: null,
           isAuthenticated: true,
           isLoading: false,
           _isLoadingData: false,
         });
       } else {
         // Carga exitosa
+        const nameParts = [profile?.first_name_prf, profile?.last_name1_prf].filter(Boolean);
+        const profileName = nameParts.length > 0 ? nameParts.join(' ') : null;
+
         set({
           user: authUser,
           role: profile?.role_prf ?? null,
+          profileName,
           isAuthenticated: true,
           isLoading: false,
           _isLoadingData: false,
@@ -192,6 +202,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         user: null,
         role: null,
+        profileName: null,
         isAuthenticated: false,
         isLoading: false,
         _isLoadingData: false,
@@ -208,6 +219,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         user: null,
         role: null,
+        profileName: null,
         isAuthenticated: false,
         isLoading: false,
         _isLoadingData: false,
@@ -217,6 +229,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         user: null,
         role: null,
+        profileName: null,
         isAuthenticated: false,
         isLoading: false,
         _isLoadingData: false,
@@ -254,6 +267,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           set({
             user: null,
             role: null,
+            profileName: null,
             isAuthenticated: false,
             isLoading: false,
             _isLoadingData: false,
@@ -264,6 +278,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           set({
             user: null,
             role: null,
+            profileName: null,
             isAuthenticated: false,
             isLoading: false,
             _isLoadingData: false,

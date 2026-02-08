@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { getShortLocationLabel } from '@/utils/splitItemsByLocation';
 import { styles } from '../styles';
 
 interface AttractionFooterProps {
@@ -27,7 +28,7 @@ export const AttractionFooter = memo(function AttractionFooter({
                 >
                     <MapPin size={14} color={colors.primary[500]} />
                     <Text style={[styles.footerText, { color: colors.primary[500] }]}>
-                        {locationLabel}
+                        {getShortLocationLabel(locationLabel) ?? locationLabel}
                     </Text>
                 </Pressable>
             )}

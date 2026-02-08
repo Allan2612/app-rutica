@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { PartyPopper, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { getInitials, getTimeAgo } from '../helpers';
@@ -7,6 +8,7 @@ import { styles } from '../styles';
 
 interface EventPostHeaderProps {
     authorName?: string | null;
+    authorAvatarUrl?: string | null;
     createdAt?: string;
     rating?: number;
     reviewCount?: number;
@@ -14,6 +16,7 @@ interface EventPostHeaderProps {
 
 export const EventPostHeader = memo(function EventPostHeader({
     authorName,
+    authorAvatarUrl,
     createdAt,
     rating = 0,
     reviewCount = 0,
@@ -22,15 +25,24 @@ export const EventPostHeader = memo(function EventPostHeader({
 
     return (
         <View style={styles.header}>
-            <View style={[styles.avatar, { backgroundColor: colors.primary[100] }]}>
-                {authorName ? (
-                    <Text style={[styles.avatarText, { color: colors.primary[700] }]}>
-                        {getInitials(authorName)}
-                    </Text>
-                ) : (
-                    <PartyPopper size={20} color={colors.primary[600]} />
-                )}
-            </View>
+            {authorAvatarUrl ? (
+                <ExpoImage
+                    source={{ uri: authorAvatarUrl }}
+                    style={styles.avatar}
+                    contentFit="cover"
+                    transition={200}
+                />
+            ) : (
+                <View style={[styles.avatar, { backgroundColor: colors.primary[100] }]}>
+                    {authorName ? (
+                        <Text style={[styles.avatarText, { color: colors.primary[700] }]}>
+                            {getInitials(authorName)}
+                        </Text>
+                    ) : (
+                        <PartyPopper size={20} color={colors.primary[600]} />
+                    )}
+                </View>
+            )}
             <View style={styles.headerInfo}>
                 <Text style={[styles.authorName, { color: colors.text.primary }]}>
                     {authorName ?? 'Rutica'}

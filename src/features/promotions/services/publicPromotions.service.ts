@@ -25,6 +25,9 @@ type PromotionComboItemRow = Database['public']['Tables']['promotion_combo_items
 export interface PublicPromotionFilters {
     searchText?: string;
     categoryIds?: string[];
+    province?: string;
+    canton?: string;
+    district?: string;
 }
 
 interface PublicPromotionRecord {
@@ -44,6 +47,17 @@ interface PublicPromotionRecord {
         business_images?: {
             path_bim: string;
         }[] | null;
+        locations?: {
+            districts?: {
+                name_dst: string;
+                cantons?: {
+                    name_ctn: string;
+                    provinces?: {
+                        name_prv: string;
+                    } | null;
+                } | null;
+            } | null;
+        } | null;
     } | null;
     promotion_images: {
         path_pim: string;
@@ -324,6 +338,13 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
     const endAt = new Date(record.end_at_prm);
     const isActive = startAt <= now && endAt >= now;
 
+    // Construir locationLabel desde la ubicación del negocio
+    const districtName = record.businesses?.locations?.districts?.name_dst;
+    const cantonName = record.businesses?.locations?.districts?.cantons?.name_ctn;
+    const provinceName = record.businesses?.locations?.districts?.cantons?.provinces?.name_prv;
+    const locationParts = [provinceName, cantonName, districtName].filter(Boolean);
+    const locationLabel = locationParts.length ? locationParts.join(', ') : null;
+
     return {
         id: record.id_prm,
         title: record.title_prm,
@@ -334,9 +355,11 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
         startAt: record.start_at_prm,
         endAt: record.end_at_prm,
         moderationStatus: 'approved',
+        moderationNote: null,
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
         coverUrl: imageUrl,
+        locationLabel,
         categoryNames,
         categoryIds,
         productIds,

@@ -159,6 +159,7 @@ export interface PromotionListItem {
   businessName: string | null;
   coverUrl: string | null;
   imageUrl?: string | null; // Alias para compatibilidad con UserPromotionCard
+  locationLabel: string | null; // Ubicación del negocio asociado
   categoryNames: string[];
   categoryIds: string[]; // IDs de las categorías (correlacionados con categoryNames)
   productIds: string[];

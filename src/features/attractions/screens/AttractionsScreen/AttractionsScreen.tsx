@@ -1,15 +1,19 @@
 import { memo, useState, useEffect, useMemo, useCallback } from 'react';
-import { View, ActivityIndicator, Pressable } from 'react-native';
-import { Search, SlidersHorizontal } from 'lucide-react-native';
+import { View, ScrollView, RefreshControl, ActivityIndicator, Pressable, Text, Platform } from 'react-native';
+import { Search, SlidersHorizontal, MapPin as MapPinIcon } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { TabSelector, TabOption, SearchFilterModal, SearchFilters } from '@/components/ui';
+import { TabSelector, TabOption, SearchFilterModal, SearchFilters, LocationSectionHeader, NoLocalResultsPlaceholder } from '@/components/ui';
+import { AttractionPost } from '@/components/attractions/AttractionPost';
 import { AttractionsList } from '@/components/attractions';
+import { EventPost } from '@/components/events/EventPost';
 import { EventsList } from '@/components/events';
 import { useThemedColors } from '@/hooks';
 import { useLocationStore } from '@/store';
 import { useCategories } from '@/hooks/useCategories';
-import { useAttractions } from '@/features/attractions/hooks/useAttractions';
-import { useEvents } from '@/features/events/hooks/useEvents';
+import { useAttractions, AttractionListItem } from '@/features/attractions/hooks/useAttractions';
+import { useEvents, EventListItem } from '@/features/events/hooks/useEvents';
+import { splitItemsByLocation } from '@/utils/splitItemsByLocation';
+import { spacing } from '@/styles/theme';
 import { styles } from './styles';
 
 const ATTRACTION_TABS: TabOption[] = [
@@ -63,6 +67,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
 
   const { data: categories = [] } = useCategories();
 
+  // Fetch ALL atracciones (sin filtro de ubicación)
   const {
     data: attractions = [],
     isLoading: isAttractionsLoading,
@@ -70,12 +75,11 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   } = useAttractions({
     searchText: attractionFilters.searchText,
     categoryIds: attractionFilters.categoryIds,
-    province: attractionFilters.location?.province || undefined,
-    canton: attractionFilters.location?.canton || undefined,
-    district: attractionFilters.location?.district || undefined,
+    // No pasar ubicación — se divide client-side
     enabled: activeTab === 'attractions',
   });
 
+  // Fetch ALL eventos (sin filtro de ubicación)
   const {
     data: events = [],
     isLoading: isEventsLoading,
@@ -83,11 +87,20 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   } = useEvents({
     searchText: eventFilters.searchText,
     categoryIds: eventFilters.categoryIds,
-    province: eventFilters.location?.province || undefined,
-    canton: eventFilters.location?.canton || undefined,
-    district: eventFilters.location?.district || undefined,
+    // No pasar ubicación — se divide client-side
     upcoming: true,
   });
+
+  // Dividir por ubicación
+  const attractionSplit = useMemo(
+    () => splitItemsByLocation(attractions, locationFilter),
+    [attractions, locationFilter]
+  );
+
+  const eventSplit = useMemo(
+    () => splitItemsByLocation(events, locationFilter),
+    [events, locationFilter]
+  );
 
   // Estado para controlar el pull-to-refresh manualmente
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
@@ -139,6 +152,236 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
     </Pressable>
   );
 
+  // Contenedor para posts (centrado en web)
+  const postContainerStyle = {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    ...(Platform.OS === 'web' && { maxWidth: 600, alignSelf: 'center' as const, width: '100%' as const }),
+  };
+
+  // Renderizar items de atracciones
+  const renderAttractionItems = (items: AttractionListItem[]) => (
+    <View style={postContainerStyle}>
+      {items.map((item) => (
+        <AttractionPost
+          key={item.id}
+          attractionId={item.id}
+          name={item.name}
+          description={item.description}
+          categoryNames={item.categoryNames}
+          categoryIds={item.categoryIds}
+          locationLabel={item.locationLabel}
+          latitude={item.latitude}
+          longitude={item.longitude}
+          imageUrls={item.imageUrls}
+          authorName={item.authorName ?? undefined}
+          authorAvatarUrl={item.authorAvatarUrl}
+          rating={item.rating}
+          reviewCount={item.reviewCount}
+          isApproved={item.isApproved}
+          createdAt={item.createdAt}
+        />
+      ))}
+    </View>
+  );
+
+  // Renderizar items de eventos
+  const renderEventItems = (items: EventListItem[]) => (
+    <View style={postContainerStyle}>
+      {items.map((item) => (
+        <EventPost
+          key={item.id}
+          eventId={item.id}
+          name={item.name}
+          description={item.description}
+          startAt={item.startAt}
+          endAt={item.endAt}
+          isFree={item.isFree}
+          price={item.price}
+          currency={item.currency}
+          capacity={item.capacity}
+          categoryNames={item.categoryNames}
+          categoryIds={item.categoryIds}
+          locationLabel={item.locationLabel}
+          latitude={item.latitude}
+          longitude={item.longitude}
+          imageUrls={item.imageUrls}
+          authorName={item.authorName}
+          authorAvatarUrl={item.authorAvatarUrl}
+          isApproved={item.isApproved}
+          createdAt={item.createdAt}
+          contactPhone={item.contactPhone}
+          contactEmail={item.contactEmail}
+          website={item.website}
+          socialLinks={item.socialLinks}
+          rating={item.rating}
+          reviewCount={item.reviewCount}
+        />
+      ))}
+    </View>
+  );
+
+  // Vista vacía
+  const renderEmpty = (message: string) => (
+    <View style={styles.placeholder}>
+      <MapPinIcon size={48} color={colors.text.tertiary} strokeWidth={1.5} />
+      <Text style={[styles.placeholderTitle, { color: colors.text.primary }]}>{message}</Text>
+      <Text style={[styles.placeholderSubtitle, { color: colors.text.secondary }]}>
+        Intenta ajustar los filtros de búsqueda
+      </Text>
+    </View>
+  );
+
+  // Renderizar contenido de atracciones con secciones
+  const renderAttractionsContent = () => {
+    if (isAttractionsLoading && attractions.length === 0) {
+      return (
+        <View style={styles.loader}>
+          <ActivityIndicator size="small" color={colors.primary[600]} />
+        </View>
+      );
+    }
+
+    // Sin ubicación activa → lista normal
+    if (!attractionSplit.hasLocation) {
+      return (
+        <AttractionsList
+          data={attractions}
+          isRefreshing={isManualRefreshing}
+          onRefresh={handleManualRefresh}
+        />
+      );
+    }
+
+    // Con ubicación activa → 2 secciones
+    return (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isManualRefreshing}
+            onRefresh={handleManualRefresh}
+            colors={[colors.primary[500]]}
+            tintColor={colors.primary[500]}
+          />
+        }
+        contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
+      >
+        {attractions.length === 0 ? (
+          renderEmpty('No hay atracciones disponibles')
+        ) : (
+          <>
+            {attractionSplit.local.length > 0 && (
+              <>
+                <LocationSectionHeader
+                  type="local"
+                  locationName={attractionSplit.locationName}
+                  count={attractionSplit.local.length}
+                  entityLabel="atracciones"
+                />
+                {renderAttractionItems(attractionSplit.local)}
+              </>
+            )}
+
+            {attractionSplit.local.length === 0 && attractionSplit.others.length > 0 && (
+              <NoLocalResultsPlaceholder
+                locationName={attractionSplit.locationName}
+                entityLabel="atracciones"
+              />
+            )}
+
+            {attractionSplit.others.length > 0 && (
+              <>
+                <LocationSectionHeader
+                  type="others"
+                  count={attractionSplit.others.length}
+                  entityLabel="atracciones"
+                />
+                {renderAttractionItems(attractionSplit.others)}
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
+    );
+  };
+
+  // Renderizar contenido de eventos con secciones
+  const renderEventsContent = () => {
+    if (isEventsLoading && events.length === 0) {
+      return (
+        <View style={styles.loader}>
+          <ActivityIndicator size="small" color={colors.primary[600]} />
+        </View>
+      );
+    }
+
+    // Sin ubicación activa → lista normal
+    if (!eventSplit.hasLocation) {
+      return (
+        <EventsList
+          events={events}
+          isLoading={false}
+          isRefreshing={isManualRefreshing}
+          onRefresh={handleManualRefresh}
+          emptyMessage="No hay eventos próximos disponibles"
+        />
+      );
+    }
+
+    // Con ubicación activa → 2 secciones
+    return (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isManualRefreshing}
+            onRefresh={handleManualRefresh}
+            colors={[colors.primary[500]]}
+            tintColor={colors.primary[500]}
+          />
+        }
+        contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
+      >
+        {events.length === 0 ? (
+          renderEmpty('No hay eventos próximos disponibles')
+        ) : (
+          <>
+            {eventSplit.local.length > 0 && (
+              <>
+                <LocationSectionHeader
+                  type="local"
+                  locationName={eventSplit.locationName}
+                  count={eventSplit.local.length}
+                  entityLabel="eventos"
+                />
+                {renderEventItems(eventSplit.local)}
+              </>
+            )}
+
+            {eventSplit.local.length === 0 && eventSplit.others.length > 0 && (
+              <NoLocalResultsPlaceholder
+                locationName={eventSplit.locationName}
+                entityLabel="eventos"
+              />
+            )}
+
+            {eventSplit.others.length > 0 && (
+              <>
+                <LocationSectionHeader
+                  type="others"
+                  count={eventSplit.others.length}
+                  entityLabel="eventos"
+                />
+                {renderEventItems(eventSplit.others)}
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
+    );
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       {/* Tabs con botón de búsqueda a la derecha */}
@@ -151,27 +394,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
 
       {/* Contenido */}
       <View style={[styles.content, { backgroundColor: colors.background.secondary }]}>
-        {activeTab === 'attractions' ? (
-          isAttractionsLoading && attractions.length === 0 ? (
-            <View style={styles.loader}>
-              <ActivityIndicator size="small" color={colors.primary[600]} />
-            </View>
-          ) : (
-            <AttractionsList
-              data={attractions}
-              isRefreshing={isManualRefreshing}
-              onRefresh={handleManualRefresh}
-            />
-          )
-        ) : (
-          <EventsList
-            events={events}
-            isLoading={isEventsLoading && events.length === 0}
-            isRefreshing={isManualRefreshing}
-            onRefresh={handleManualRefresh}
-            emptyMessage="No hay eventos próximos disponibles"
-          />
-        )}
+        {activeTab === 'attractions' ? renderAttractionsContent() : renderEventsContent()}
       </View>
 
       {/* Modal de búsqueda y filtros */}

@@ -1,0 +1,1 @@
+export { NoLocalResultsPlaceholder } from './NoLocalResultsPlaceholder';

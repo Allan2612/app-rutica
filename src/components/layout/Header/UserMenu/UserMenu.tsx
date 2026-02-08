@@ -21,6 +21,7 @@ export const UserMenu = memo(function UserMenu({
   isAuthenticated,
 }: UserMenuProps) {
   const signOut = useAuthStore((state) => state.signOut);
+  const profileName = useAuthStore((state) => state.profileName);
   const colors = useThemedColors();
   const profilePhotoUrl = useProfilePhoto(user?.id);
 
@@ -88,7 +89,7 @@ export const UserMenu = memo(function UserMenu({
                 )}
                 <View style={styles.menuUserInfo}>
                   <Text style={[styles.menuUserName, { color: colors.text.primary }]} numberOfLines={1}>
-                    {user?.email?.split('@')[0] || 'Usuario'}
+                    {profileName || 'Usuario'}
                   </Text>
                   <Text style={[styles.menuUserEmail, { color: colors.text.secondary }]} numberOfLines={1}>
                     {user?.email || ''}

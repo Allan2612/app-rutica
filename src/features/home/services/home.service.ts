@@ -158,6 +158,13 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                 ?.map((pcm: { categories: { id_cat: string; name_cat: string } | null }) => pcm.categories)
                 .filter((cat: { id_cat: string; name_cat: string } | null): cat is { id_cat: string; name_cat: string } => cat !== null) ?? [];
 
+            // Construir locationLabel desde la ubicación del negocio
+            const districtName = item.businesses?.locations?.districts?.name_dst;
+            const cantonName = item.businesses?.locations?.districts?.cantons?.name_ctn;
+            const provinceName = item.businesses?.locations?.districts?.cantons?.provinces?.name_prv;
+            const locationParts = [provinceName, cantonName, districtName].filter(Boolean);
+            const locationLabel = locationParts.length ? locationParts.join(', ') : null;
+
             return {
                 id: item.id_prm,
                 businessId: item.business_id_prm,
@@ -170,7 +177,9 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                 startAt: item.start_at_prm,
                 endAt: item.end_at_prm,
                 moderationStatus: 'approved',
+                moderationNote: null,
                 coverUrl,
+                locationLabel,
                 categoryNames: categories.map((c: { name_cat: string }) => c.name_cat),
                 categoryIds: categories.map((c: { id_cat: string }) => c.id_cat),
                 scopeCategoryIds: item.promotion_scope_categories?.map((psc: { category_id_psc: string }) => psc.category_id_psc) ?? [],
@@ -348,7 +357,7 @@ function mapBusinessRecord(item: BusinessRecord, now: string): BusinessListItem 
     const districtData = locationData?.districts;
     const cantonData = districtData?.cantons;
     const provinceData = cantonData?.provinces;
-    const locationParts = [districtData?.name_dst, cantonData?.name_ctn, provinceData?.name_prv].filter(Boolean);
+    const locationParts = [provinceData?.name_prv, cantonData?.name_ctn, districtData?.name_dst].filter(Boolean);
 
     // Check active promotions
     const hasActivePromotions = (item.promotions?.length ?? 0) > 0;
@@ -538,6 +547,7 @@ interface EventRecord {
     profiles?: {
         first_name_prf: string | null;
         last_name1_prf: string | null;
+        profile_photo_path_prf: string | null;
     } | null;
 }
 
@@ -592,7 +602,8 @@ export async function getFeaturedEvents(limit: number = 5): Promise<EventListIte
                 event_images ( path_eim, sort_order_eim ),
                 profiles!events_created_by_evt_fkey (
                     first_name_prf,
-                    last_name1_prf
+                    last_name1_prf,
+                    profile_photo_path_prf
                 )
             `)
             .eq('moderation_status_evt', 'approved')
@@ -629,10 +640,14 @@ export async function getFeaturedEvents(limit: number = 5): Promise<EventListIte
             const districtData = locationData?.districts;
             const cantonData = districtData?.cantons;
             const provinceData = cantonData?.provinces;
-            const locationParts = [districtData?.name_dst, cantonData?.name_ctn, provinceData?.name_prv].filter(Boolean);
+            const locationParts = [provinceData?.name_prv, cantonData?.name_ctn, districtData?.name_dst].filter(Boolean);
 
             const authorName = item.profiles
                 ? `${item.profiles.first_name_prf || ''} ${item.profiles.last_name1_prf || ''}`.trim() || null
+                : null;
+
+            const authorAvatarUrl = item.profiles?.profile_photo_path_prf
+                ? supabase.storage.from('profiles-images').getPublicUrl(item.profiles.profile_photo_path_prf).data.publicUrl
                 : null;
 
             return {
@@ -652,6 +667,7 @@ export async function getFeaturedEvents(limit: number = 5): Promise<EventListIte
                 longitude: locationData?.longitude_loc ?? null,
                 imageUrls,
                 authorName,
+                authorAvatarUrl,
                 isApproved: item.moderation_status_evt === 'approved',
                 createdAt: item.created_at_evt,
                 contactPhone: item.contact_phone_evt,
@@ -710,6 +726,7 @@ interface AttractionRecord {
     profiles?: {
         first_name_prf: string | null;
         last_name1_prf: string | null;
+        profile_photo_path_prf: string | null;
     } | null;
 }
 
@@ -752,7 +769,8 @@ export async function getFeaturedAttractions(limit: number = 5): Promise<Attract
                 attraction_images ( path_aim, sort_order_aim ),
                 profiles!attractions_submitted_by_atr_fkey (
                     first_name_prf,
-                    last_name1_prf
+                    last_name1_prf,
+                    profile_photo_path_prf
                 )
             `)
             .eq('moderation_status_atr', 'approved')
@@ -788,10 +806,14 @@ export async function getFeaturedAttractions(limit: number = 5): Promise<Attract
             const districtData = locationData?.districts;
             const cantonData = districtData?.cantons;
             const provinceData = cantonData?.provinces;
-            const locationParts = [districtData?.name_dst, cantonData?.name_ctn, provinceData?.name_prv].filter(Boolean);
+            const locationParts = [provinceData?.name_prv, cantonData?.name_ctn, districtData?.name_dst].filter(Boolean);
 
             const authorName = item.profiles
                 ? `${item.profiles.first_name_prf || ''} ${item.profiles.last_name1_prf || ''}`.trim() || null
+                : null;
+
+            const authorAvatarUrl = item.profiles?.profile_photo_path_prf
+                ? supabase.storage.from('profiles-images').getPublicUrl(item.profiles.profile_photo_path_prf).data.publicUrl
                 : null;
 
             return {
@@ -805,6 +827,7 @@ export async function getFeaturedAttractions(limit: number = 5): Promise<Attract
                 longitude: locationData?.longitude_loc ?? null,
                 imageUrls,
                 authorName,
+                authorAvatarUrl,
                 rating: item.avg_rating_atr ?? 0,
                 reviewCount: item.reviews_count_atr ?? 0,
                 isApproved: item.moderation_status_atr === 'approved',
