@@ -1,6 +1,6 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { BarChart3, ChevronRight, ChevronDown, TrendingUp } from 'lucide-react-native';
+import { BarChart3, ChevronRight } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import type { UserSubscriptionDetail } from '@/services/userSubscriptions.service';
 import { SUBSCRIPTION_CONFIG } from '../../constants';
@@ -16,7 +16,6 @@ export const DashboardCard = memo(function DashboardCard({
     onPress,
 }: DashboardCardProps) {
     const colors = useThemedColors();
-    const [expanded, setExpanded] = useState(false);
     const config = SUBSCRIPTION_CONFIG.dashboard;
 
     const formattedPrice = new Intl.NumberFormat('es-CR', {
@@ -34,11 +33,11 @@ export const DashboardCard = memo(function DashboardCard({
         : null;
 
     return (
-        <View style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}>
-            <Pressable
-                style={styles.header}
-                onPress={() => setExpanded(!expanded)}
-            >
+        <Pressable
+            style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}
+            onPress={onPress}
+        >
+            <View style={styles.header}>
                 <View style={[styles.iconContainer, { backgroundColor: config.iconBg }]}>
                     <BarChart3 color={config.iconColor} size={24} strokeWidth={2} />
                 </View>
@@ -60,41 +59,8 @@ export const DashboardCard = memo(function DashboardCard({
                         )}
                     </View>
                 </View>
-                {expanded ? (
-                    <ChevronDown color={colors.text.tertiary} size={20} />
-                ) : (
-                    <ChevronRight color={colors.text.tertiary} size={20} />
-                )}
-            </Pressable>
-
-            {expanded && (
-                <View style={[styles.expandedContent, { borderTopColor: colors.border.light }]}>
-                    <Text style={[styles.description, { color: colors.text.secondary }]}>
-                        {subscription.subscriptionDescription}
-                    </Text>
-
-                    {subscription.features.length > 0 && (
-                        <View style={styles.featuresList}>
-                            {subscription.features.map((feature, index) => (
-                                <View key={index} style={styles.featureItem}>
-                                    <View style={[styles.featureBullet, { backgroundColor: config.iconColor }]} />
-                                    <Text style={[styles.featureText, { color: colors.text.secondary }]}>
-                                        {feature}
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-                    )}
-
-                    <Pressable
-                        style={[styles.dashboardButton, { backgroundColor: config.iconColor }]}
-                        onPress={onPress}
-                    >
-                        <TrendingUp color="#FFFFFF" size={18} />
-                        <Text style={styles.dashboardButtonText}>Ver Dashboard</Text>
-                    </Pressable>
-                </View>
-            )}
-        </View>
+                <ChevronRight color={colors.text.tertiary} size={20} />
+            </View>
+        </Pressable>
     );
 });

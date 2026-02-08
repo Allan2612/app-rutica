@@ -7,7 +7,7 @@ import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react
 import { CheckCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import {
   VerificationRequestCard,
@@ -68,9 +68,13 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
   );
 
   const { data: requests = [], isLoading, refetch, isRefetching } = useVerificationRequests(filters);
-  const { data: stats } = useVerificationStats();
+  const { data: stats, refetch: refetchStats } = useVerificationStats();
   const updateMutation = useUpdateModeration();
   const toggleActiveMutation = useToggleActive();
+
+  // Refrescar datos cuando la pantalla recibe foco
+  useRefreshOnFocus(refetch);
+  useRefreshOnFocus(refetchStats);
 
   // Memoized handlers to prevent unnecessary re-renders
   const handleManageStatus = useCallback((request: VerificationRequest) => {
@@ -106,8 +110,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
       moderationStatus?: ModerationStatus;
       moderationNote?: string;
       isActive?: boolean;
-      paymentState?: 'pending' | 'paid' | 'rejected';
-      paymentNote?: string;
     }) => {
       if (!statusDialog.request) return;
 
@@ -120,8 +122,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           status: data.moderationStatus,
           note: data.moderationNote,
           isActive: data.isActive,
-          paymentState: data.paymentState,
-          paymentNote: data.paymentNote,
         });
 
         // Build dynamic toast message
@@ -133,15 +133,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
         }
         if (data.isActive !== undefined) {
           actions.push(data.isActive ? 'activado' : 'desactivado');
-        }
-        if (data.paymentState) {
-          const paymentStateText =
-            data.paymentState === 'paid'
-              ? 'marcado como pagado'
-              : data.paymentState === 'rejected'
-              ? 'pago rechazado'
-              : 'pago marcado pendiente';
-          actions.push(paymentStateText);
         }
 
         Toast.show({
@@ -327,16 +318,6 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           promotionName={statusDialog.request?.name || ''}
           currentModerationStatus={statusDialog.request?.moderationStatus}
           currentModerationNote={statusDialog.request?.moderationNote}
-          currentPaymentState={
-            statusDialog.request?.type === 'promotion'
-              ? (statusDialog.request.metadata?.paymentState as 'pending' | 'paid' | 'rejected' | undefined)
-              : undefined
-          }
-          currentPaymentNote={
-            statusDialog.request?.type === 'promotion'
-              ? statusDialog.request.metadata?.paymentNoteAdmin
-              : undefined
-          }
           currentIsActive={statusDialog.request?.isActive}
           onConfirm={handleConfirmModeration}
           onCancel={handleCancelDialog}

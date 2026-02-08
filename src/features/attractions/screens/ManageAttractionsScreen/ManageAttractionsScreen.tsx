@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-nati
 import { Plus, Landmark } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserAttractions, useDeleteAttraction } from '@/features/attractions/hooks';
 import { UserAttractionCard } from '@/components/attractions';
 import { ConfirmDeleteDialog } from '@/components/manage';
@@ -22,10 +22,13 @@ function getImageUrl(path: string): string {
 export const ManageAttractionsScreen = memo(function ManageAttractionsScreen() {
     const colors = useThemedColors();
     const router = useRouter();
-    const { data: attractions = [], isLoading } = useUserAttractions();
+    const { data: attractions = [], isLoading, refetch } = useUserAttractions();
     const deleteMutation = useDeleteAttraction();
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ id: string; name: string } | null>(null);
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
     const handleAddAttraction = useCallback(() => {
         router.push('/(app)/(tabs)/manage/attractions/add');

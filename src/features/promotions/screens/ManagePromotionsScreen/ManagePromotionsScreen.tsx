@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-nati
 import { Plus, Tag, AlertCircle, Crown } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserPromotions, useDeletePromotion } from '@/features/promotions/hooks';
 import { useUserBusinesses } from '@/features/business/hooks';
 import { useProfile } from '@/features/user/hooks';
@@ -17,8 +17,8 @@ import { styles } from './styles';
 export const ManagePromotionsScreen = memo(function ManagePromotionsScreen() {
   const colors = useThemedColors();
   const router = useRouter();
-  const { data: promotions = [], isLoading, error } = useUserPromotions();
-  const { data: businesses = [], isLoading: isLoadingBusinesses } = useUserBusinesses();
+  const { data: promotions = [], isLoading, error, refetch } = useUserPromotions();
+  const { data: businesses = [], isLoading: isLoadingBusinesses, refetch: refetchBusinesses } = useUserBusinesses();
   const { profile } = useProfile();
   const deleteMutation = useDeletePromotion();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -26,6 +26,10 @@ export const ManagePromotionsScreen = memo(function ManagePromotionsScreen() {
     null
   );
   const [isPremiumModalVisible, setIsPremiumModalVisible] = useState(false);
+
+  // Refrescar datos cuando la pantalla recibe foco
+  useRefreshOnFocus(refetch);
+  useRefreshOnFocus(refetchBusinesses);
 
   // Límite gratuito de promociones por negocio
   const FREE_LIMIT = DEFAULT_RESOURCE_LIMITS.promotion.freeLimit;
@@ -288,7 +292,6 @@ export const ManagePromotionsScreen = memo(function ManagePromotionsScreen() {
                 businessName={promotion.businessName}
                 imageUrl={promotion.imageUrl}
                 moderationStatus={promotion.moderationStatus}
-                paymentState={promotion.paymentState}
                 onEdit={() => handleEditPromotion(promotion.id)}
                 onDelete={() => handleDeletePromotion(promotion.id, promotion.title)}
                 isDeleting={deletingId === promotion.id}

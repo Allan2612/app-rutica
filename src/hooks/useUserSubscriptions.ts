@@ -32,7 +32,7 @@ export function useUserActiveSubscriptions() {
     queryKey: userSubscriptionKeys.active(userId ?? ''),
     queryFn: () => getUserActiveSubscriptions(userId!),
     enabled: !!userId,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    // staleTime: 0 (usa configuración global para siempre refetch en foco)
   });
 }
 
@@ -46,7 +46,7 @@ export function useUserSubscriptionSummary() {
     queryKey: userSubscriptionKeys.summary(userId ?? ''),
     queryFn: () => getUserSubscriptionSummary(userId!),
     enabled: !!userId,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    // staleTime: 0 (usa configuración global para siempre refetch en foco)
   });
 }
 
@@ -75,6 +75,6 @@ export function useUserSubscriptionDetails() {
     queryKey: userSubscriptionKeys.details(userId ?? ''),
     queryFn: () => getUserSubscriptionDetails(userId!),
     enabled: !!userId,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    // staleTime: 0 (usa configuración global para siempre refetch en foco)
   });
 }

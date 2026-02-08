@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usePremiumDashboardStats } from '@/hooks/usePremiumDashboard';
 import { useContactClicksStats, useUserBusinessOptions } from '@/hooks/useContactClicks';
 import { useReviewDashboardStats } from '@/hooks/useReviewStats';
@@ -19,12 +19,22 @@ export function usePremiumDashboardData() {
   const [visibleContactTypes, setVisibleContactTypes] = useState<Set<ContactType>>(new Set());
 
   // Queries
-  const { data: stats, isLoading } = usePremiumDashboardStats(selectedFavoritesBusinessId, favoritesPeriod);
-  const { data: businessOptions, isLoading: isLoadingBusinessOptions } = useUserBusinessOptions();
-  const { data: contactStats, isLoading: isLoadingContacts } = useContactClicksStats(contactPeriod, selectedBusinessId);
-  const { data: reviewStats, isLoading: isLoadingReviews } = useReviewDashboardStats(selectedReviewBusinessId, reviewPeriod);
+  const { data: stats, isLoading, refetch: refetchStats } = usePremiumDashboardStats(selectedFavoritesBusinessId, favoritesPeriod);
+  const { data: businessOptions, isLoading: isLoadingBusinessOptions, refetch: refetchBusinessOptions } = useUserBusinessOptions();
+  const { data: contactStats, isLoading: isLoadingContacts, refetch: refetchContacts } = useContactClicksStats(contactPeriod, selectedBusinessId);
+  const { data: reviewStats, isLoading: isLoadingReviews, refetch: refetchReviews } = useReviewDashboardStats(selectedReviewBusinessId, reviewPeriod);
 
   const isLoadingAll = isLoading || isLoadingContacts || isLoadingReviews;
+
+  // Función para refrescar todos los datos
+  const refetchAll = useCallback(async () => {
+    await Promise.all([
+      refetchStats(),
+      refetchBusinessOptions(),
+      refetchContacts(),
+      refetchReviews(),
+    ]);
+  }, [refetchStats, refetchBusinessOptions, refetchContacts, refetchReviews]);
 
   // Inicializar todos los tipos de contacto como visibles
   useEffect(() => {
@@ -85,5 +95,8 @@ export function usePremiumDashboardData() {
     // Estados derivados
     isLoadingAll,
     isPositiveGrowth,
+
+    // Refetch
+    refetchAll,
   };
 }

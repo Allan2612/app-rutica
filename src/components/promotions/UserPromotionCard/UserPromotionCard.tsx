@@ -26,7 +26,6 @@ export interface UserPromotionCardProps {
   businessName?: string;
   imageUrl?: string | null;
   moderationStatus: 'pending' | 'approved' | 'rejected';
-  paymentState?: 'pending' | 'verified' | 'rejected';
   onEdit?: () => void;
   onDelete?: () => void;
   isDeleting?: boolean;
@@ -43,7 +42,6 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   businessName,
   imageUrl,
   moderationStatus,
-  paymentState = 'pending',
   onEdit,
   onDelete,
   isDeleting = false,
@@ -56,11 +54,11 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   const isExpired = endDate < now;
 
   // Obtener label del badge
-  const badgeLabel = getPromotionBadgeLabel({ 
-    scope, 
-    discountType, 
-    discountValue, 
-    comboItems 
+  const badgeLabel = getPromotionBadgeLabel({
+    scope,
+    discountType,
+    discountValue,
+    comboItems
   } as any);
 
   return (
@@ -89,15 +87,9 @@ export const UserPromotionCard = memo(function UserPromotionCard({
         <PromoBadge label={badgeLabel} size="medium" />
       </View>
 
-      {/* Status & Payment Badges - Top Right */}
+      {/* Status Badge - Top Right */}
       <View style={styles.topRightBadges}>
         <StatusBadge status={moderationStatus} />
-        {paymentState === 'pending' && (
-          <View style={[styles.paymentBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
-            <Clock size={12} color={colors.warning} />
-            <Text style={[styles.paymentText, { color: colors.warning }]}>Pago pendiente</Text>
-          </View>
-        )}
       </View>
 
       {/* Gradient Overlay */}

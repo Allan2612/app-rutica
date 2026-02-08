@@ -95,46 +95,6 @@ export const detailViewStyles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  // Promotion specific - Payment Card
-  paymentCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  paymentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  paymentTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  paymentReference: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  paymentStateBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  paymentStateText: {
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  paymentNote: {
-    fontSize: 13,
-    fontStyle: 'italic',
-  },
-
   // Promotion specific - Discount
   discountRow: {
     flexDirection: 'row',

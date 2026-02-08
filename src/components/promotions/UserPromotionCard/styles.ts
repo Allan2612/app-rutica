@@ -39,20 +39,6 @@ export const styles = StyleSheet.create({
         gap: spacing.xs,
         zIndex: 10,
     },
-    paymentBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs - 2,
-        paddingHorizontal: spacing.sm + 2,
-        paddingVertical: spacing.xs + 2,
-        borderRadius: 14,
-        borderWidth: 1,
-        elevation: 3,
-    },
-    paymentText: {
-        fontSize: 10,
-        fontWeight: typography.fontWeights.semibold,
-    },
     gradientOverlay: {
         position: 'absolute',
         bottom: 0,

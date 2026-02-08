@@ -85,7 +85,7 @@ interface ProductQueryResult {
   name_prd: string | null;
   business_id_prd: string;
   avg_rating_prd: number | null;
-  review_count_prd: number | null;
+  reviews_count_prd: number | null;
   businesses: {
     name_bus: string | null;
   } | null;
@@ -225,15 +225,15 @@ export async function getUserReviewDashboardStats(
       name_prd,
       business_id_prd,
       avg_rating_prd,
-      review_count_prd,
+      reviews_count_prd,
       businesses!products_business_id_prd_fkey (
         name_bus
       )
     `)
     .in('business_id_prd', businessIds)
     .eq('is_active_prd', true)
-    .gt('review_count_prd', 0)
-    .order('review_count_prd', { ascending: false })
+    .gt('reviews_count_prd', 0)
+    .order('reviews_count_prd', { ascending: false })
     .limit(10);
 
   if (productsError) {
@@ -315,7 +315,7 @@ export async function getUserReviewDashboardStats(
     businessId: product.business_id_prd,
     businessName: product.businesses?.name_bus ?? 'Sin nombre',
     averageRating: Math.round((product.avg_rating_prd ?? 0) * 10) / 10,
-    totalReviews: product.review_count_prd ?? 0,
+    totalReviews: product.reviews_count_prd ?? 0,
   }));
 
   // 7. Reseñas recientes combinadas

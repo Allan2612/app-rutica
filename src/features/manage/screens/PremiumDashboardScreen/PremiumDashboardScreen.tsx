@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, ScrollView, ActivityIndicator, Text, Platform } from 'react-native';
 import { Store } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { DashboardHeader } from './components';
 import { FavoritesTab, ContactsTab, ReviewsTab } from './tabs';
 import { usePremiumDashboardData } from './hooks/usePremiumDashboardData';
@@ -50,7 +50,13 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
     // Estados derivados
     isLoadingAll,
     isPositiveGrowth,
+
+    // Refetch
+    refetchAll,
   } = usePremiumDashboardData();
+
+  // Refrescar datos cuando la pantalla recibe foco
+  useRefreshOnFocus(refetchAll);
 
   const handleToggleContactType = (type: ContactType) => {
     const newVisible = new Set(visibleContactTypes);

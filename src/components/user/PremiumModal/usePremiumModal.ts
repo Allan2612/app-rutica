@@ -2,6 +2,9 @@ import { useState, useCallback, useEffect } from 'react';
 import Toast from 'react-native-toast-message';
 import { useSubscriptions } from '@/features/user/hooks/useSubscriptions';
 import { checkBusinessFullPremiumStatus } from '@/features/user/services/subscription.service';
+import { getProfileById } from '@/features/auth/services/profile.service';
+import { sendPaymentReceivedEmail } from '@/services/emailNotification.service';
+import { useAuthStore } from '@/store';
 import { SUBSCRIPTION_PLANS } from '@/types/entities';
 import type { SubscriptionType } from '@/types/enums';
 
@@ -56,6 +59,7 @@ export function usePremiumModal({
     preSelectedEntityType,
 }: UsePremiumModalParams) {
     const { subscribe, isLoading, approvedSubscriptions, pendingSubscriptions } = useSubscriptions();
+    const user = useAuthStore((state) => state.user);
 
     const [step, setStep] = useState<Step>(() => {
         // Si hay plan inicial con entidad o negocio pre-seleccionado, ir directo al pago
@@ -63,6 +67,16 @@ export function usePremiumModal({
             return 'payment';
         }
         if (initialPlan && preSelectedBusinessId) {
+            return 'payment';
+        }
+        // Si hay plan inicial sin pre-selecciones, determinar el paso apropiado
+        if (initialPlan) {
+            if (BUSINESS_REQUIRED_PLANS.includes(initialPlan)) {
+                return 'business';
+            }
+            if (ENTITY_REQUIRED_PLANS.includes(initialPlan)) {
+                return 'entity';
+            }
             return 'payment';
         }
         return 'plans';
@@ -109,7 +123,14 @@ export function usePremiumModal({
                     setEntitySelections({});
                 }
             } else if (initialPlan) {
-                setStep('plans');
+                // Si hay plan inicial sin pre-selecciones, determinar el paso apropiado
+                if (BUSINESS_REQUIRED_PLANS.includes(initialPlan)) {
+                    setStep('business');
+                } else if (ENTITY_REQUIRED_PLANS.includes(initialPlan)) {
+                    setStep('entity');
+                } else {
+                    setStep('payment');
+                }
                 setSelectedPlans([initialPlan]);
                 setBusinessSelections({});
                 setEntitySelections({});
@@ -267,6 +288,9 @@ export function usePremiumModal({
                 setStep('entity');
             } else if (requiresBusinessSelection) {
                 setStep('business');
+            } else if (initialPlan) {
+                // Si entró con un plan pre-seleccionado y no hay más pasos, cerrar
+                onClose();
             } else {
                 setStep('plans');
             }
@@ -275,17 +299,25 @@ export function usePremiumModal({
             // Desde entity, volver a business si hay paquetes que lo requieren
             if (requiresBusinessSelection) {
                 setStep('business');
+            } else if (initialPlan) {
+                // Si entró con un plan pre-seleccionado, cerrar en lugar de volver a 'plans'
+                onClose();
             } else {
                 setStep('plans');
             }
             setError(null);
         } else if (step === 'business') {
-            setStep('plans');
+            if (initialPlan) {
+                // Si entró con un plan pre-seleccionado, cerrar en lugar de volver a 'plans'
+                onClose();
+            } else {
+                setStep('plans');
+            }
             setError(null);
         } else {
             onClose();
         }
-    }, [step, requiresBusinessSelection, requiresEntitySelection, onClose]);
+    }, [step, requiresBusinessSelection, requiresEntitySelection, initialPlan, onClose]);
 
     const handleSubmit = useCallback(async () => {
         if (selectedPlans.length === 0) return;
@@ -324,12 +356,37 @@ export function usePremiumModal({
                 entitySelections
             );
 
-            const planNames = SUBSCRIPTION_PLANS
-                .filter(plan => selectedPlans.includes(plan.type))
-                .map(plan => plan.name)
-                .join(', ');
-
+            const selectedPlanDetails = SUBSCRIPTION_PLANS.filter(plan => selectedPlans.includes(plan.type));
+            const planNames = selectedPlanDetails.map(plan => plan.name).join(', ');
             const planCount = selectedPlans.length;
+
+            // Calcular monto total
+            const totalAmount = selectedPlanDetails.reduce((sum, plan) => sum + plan.priceValue, 0);
+            const formattedAmount = new Intl.NumberFormat('es-CR', {
+                style: 'currency',
+                currency: 'CRC',
+                minimumFractionDigits: 0,
+            }).format(totalAmount);
+
+            // Enviar correo de confirmación de pago (en background, no bloquea)
+            if (user?.email && user?.id) {
+                // Obtener nombre completo del perfil
+                getProfileById(user.id).then(profile => {
+                    const firstName = profile?.first_name_prf || '';
+                    const lastName = profile?.last_name1_prf || '';
+                    const fullName = [firstName, lastName].filter(Boolean).join(' ') || user.email?.split('@')[0] || '';
+
+                    sendPaymentReceivedEmail({
+                        userEmail: user.email!,
+                        userName: fullName,
+                        packageName: planNames,
+                        amount: formattedAmount,
+                        paymentReference: paymentReference.trim(),
+                    });
+                }).catch(err => {
+                    console.error('[PremiumModal] Error getting profile for email:', err);
+                });
+            }
 
             setStep('plans');
             setSelectedPlans([]);
@@ -341,15 +398,24 @@ export function usePremiumModal({
 
             onClose();
 
+            // Esperar a que el modal se cierre completamente antes de mostrar el toast
             setTimeout(() => {
+                Toast.show({
+                    type: 'success',
+                    text1: 'Pago recibido',
+                    text2: 'Podrás disfrutar de tu paquete una vez aprobado el pago.',
+                    position: 'top',
+                    visibilityTime: 6000,
+                    topOffset: 100,
+                });
                 onSuccess?.(planNames, planCount);
                 onSubscribed?.();
-            }, 100);
+            }, 800);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Error al procesar la suscripción';
             setError(message);
         }
-    }, [selectedPlans, businessSelections, businessRequiredPlans, entitySelections, entityRequiredPlans, requiresBusinessSelection, requiresEntitySelection, paymentReference, paymentNote, subscribe, onClose, onSuccess, onSubscribed]);
+    }, [selectedPlans, businessSelections, businessRequiredPlans, entitySelections, entityRequiredPlans, requiresBusinessSelection, requiresEntitySelection, paymentReference, paymentNote, subscribe, onClose, onSuccess, onSubscribed, user]);
 
     const handleClose = useCallback(() => {
         setStep('plans');

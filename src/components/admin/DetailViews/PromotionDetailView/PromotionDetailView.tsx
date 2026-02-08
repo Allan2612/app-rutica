@@ -11,7 +11,6 @@ import {
   Tag as TagIcon,
   Store,
   Clock,
-  CreditCard,
   TrendingDown,
   Package,
   ShoppingBag,
@@ -27,7 +26,7 @@ import {
   ActiveToggle,
 } from '../../common';
 import { formatDateAdmin } from '@/features/admin/services/helpers';
-import { SCOPE_LABELS, PAYMENT_STATE_LABELS } from '@/features/admin/types';
+import { SCOPE_LABELS } from '@/features/admin/types';
 import { styles } from './styles';
 import type { PromotionVerificationRequest } from '@/features/admin/types';
 
@@ -121,39 +120,6 @@ export const PromotionDetailView = memo(function PromotionDetailView({
         value={metadata.businessName || 'No especificado'}
       />
 
-      {/* Payment Reference - Important for Admin */}
-      {metadata.paymentReference && (
-        <View style={[styles.paymentCard, { backgroundColor: colors.background.secondary }]}>
-          <View style={styles.paymentHeader}>
-            <CreditCard size={18} color={colors.primary[500]} />
-            <Text style={[styles.paymentTitle, { color: colors.text.primary }]}>
-              Información de Pago
-            </Text>
-          </View>
-          <Text style={[styles.paymentReference, { color: colors.text.primary }]}>
-            Ref: {metadata.paymentReference}
-          </Text>
-          <View style={[
-            styles.paymentStateBadge,
-            {
-              backgroundColor: metadata.paymentState === 'paid'
-                ? colors.success
-                : metadata.paymentState === 'rejected'
-                  ? colors.error
-                  : colors.warning
-            }
-          ]}>
-            <Text style={styles.paymentStateText}>
-              {metadata.paymentState ? PAYMENT_STATE_LABELS[metadata.paymentState] : 'Pendiente'}
-            </Text>
-          </View>
-          {metadata.paymentNoteAdmin && (
-            <Text style={[styles.paymentNote, { color: colors.text.secondary }]}>
-              Nota: {metadata.paymentNoteAdmin}
-            </Text>
-          )}
-        </View>
-      )}
       {/* Validity Period */}
       <InfoCard
         icon={<Clock size={18} color={colors.warning} />}
@@ -161,7 +127,7 @@ export const PromotionDetailView = memo(function PromotionDetailView({
       >
         <DateRangeDisplay startAt={metadata.startAt} endAt={metadata.endAt} />
       </InfoCard>
-       {/* Scope */}
+      {/* Scope */}
       <InfoCard
         icon={<TagIcon size={18} color={colors.primary[500]} />}
         title="Alcance de la Promoción"
@@ -184,9 +150,9 @@ export const PromotionDetailView = memo(function PromotionDetailView({
         </InfoCard>
       )}
 
-      
 
-     
+
+
 
       {/* Categories (if scope is categories) */}
       {metadata.scope === 'categories' && metadata.categories.length > 0 && (

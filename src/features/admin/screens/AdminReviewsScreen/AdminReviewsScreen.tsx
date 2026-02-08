@@ -1,7 +1,7 @@
 import { useState, memo } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Alert, RefreshControl } from 'react-native';
 import { MessageSquare } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import { ReviewFilters, AdminReviewCard, ReviewStatsCards, EditReviewDialog } from '@/components/admin';
 import { useAdminReviews, useReviewsStats, useDeleteReviewAsAdmin, useUpdateReviewAsAdmin } from '@/features/admin/hooks/useAdminReviews';
@@ -14,9 +14,13 @@ export const AdminReviewsScreen = memo(function AdminReviewsScreen() {
     const [editingReview, setEditingReview] = useState<AdminReviewDisplay | null>(null);
 
     const { data: reviews, isLoading, error, refetch, isFetching } = useAdminReviews(filters);
-    const { data: stats } = useReviewsStats();
+    const { data: stats, refetch: refetchStats } = useReviewsStats();
     const deleteReview = useDeleteReviewAsAdmin();
     const updateReview = useUpdateReviewAsAdmin();
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
+    useRefreshOnFocus(refetchStats);
 
     const handleDeleteReview = async (reviewId: string, type: ReviewType, contentId: string) => {
         try {
@@ -61,7 +65,7 @@ export const AdminReviewsScreen = memo(function AdminReviewsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
-            <ScrollView 
+            <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
@@ -74,86 +78,86 @@ export const AdminReviewsScreen = memo(function AdminReviewsScreen() {
                 }
             >
                 <View style={styles.contentWrapper}>
-                {/* Header */}
-                <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-                    <View style={styles.headerRow}>
-                        <BackButton href="/(app)/(tabs)/manage/admin" />
-                        <View style={styles.headerContent}>
-                            <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
-                                Gestión de Reseñas
-                            </Text>
-                            <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
-                                Administra todas las reseñas de la plataforma
-                            </Text>
+                    {/* Header */}
+                    <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
+                        <View style={styles.headerRow}>
+                            <BackButton href="/(app)/(tabs)/manage/admin" />
+                            <View style={styles.headerContent}>
+                                <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
+                                    Gestión de Reseñas
+                                </Text>
+                                <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
+                                    Administra todas las reseñas de la plataforma
+                                </Text>
+                            </View>
                         </View>
                     </View>
-                </View>
-                {/* Stats Cards */}
-                {stats && (
-                    <View style={styles.statsContainer}>
-                        <ReviewStatsCards
-                            totalReviews={stats.totalReviews}
-                            averageRating={stats.averageRating}
-                            byType={stats.byType}
-                        />
-                    </View>
-                )}
-
-                {/* Filters */}
-                <View style={styles.filtersContainer}>
-                    <ReviewFilters filters={filters} onFiltersChange={setFilters} />
-                </View>
-
-                {/* Reviews List */}
-                <View style={styles.listContainer}>
-                    {isLoading ? (
-                        <View style={styles.loadingContainer}>
-                            <ActivityIndicator size="large" color={colors.primary[500]} />
-                            <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-                                Cargando reseñas...
-                            </Text>
-                        </View>
-                    ) : error ? (
-                        <View style={styles.errorContainer}>
-                            <Text style={[styles.errorText, { color: colors.error }]}>
-                                Error al cargar las reseñas
-                            </Text>
-                            <Pressable
-                                style={({ pressed }) => [
-                                    styles.retryButton,
-                                    {
-                                        backgroundColor: colors.primary[500],
-                                        opacity: pressed ? 0.8 : 1,
-                                    },
-                                ]}
-                                onPress={() => refetch()}
-                            >
-                                <Text style={[styles.retryButtonText, { color: colors.text.inverse }]}>Reintentar</Text>
-                            </Pressable>
-                        </View>
-                    ) : reviews && reviews.length === 0 ? (
-                        <View style={styles.emptyContainer}>
-                            <MessageSquare color={colors.text.tertiary} size={48} strokeWidth={1.5} />
-                            <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-                                No hay reseñas
-                            </Text>
-                            <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
-                                No se encontraron reseñas con los filtros seleccionados
-                            </Text>
-                        </View>
-                    ) : (
-                        <View style={styles.reviewsList}>
-                            {reviews?.map((review) => (
-                                <AdminReviewCard
-                                    key={`${review.type}-${review.id}`}
-                                    review={review}
-                                    onDelete={handleDeleteReview}
-                                    onEdit={handleEditReview}
-                                />
-                            ))}
+                    {/* Stats Cards */}
+                    {stats && (
+                        <View style={styles.statsContainer}>
+                            <ReviewStatsCards
+                                totalReviews={stats.totalReviews}
+                                averageRating={stats.averageRating}
+                                byType={stats.byType}
+                            />
                         </View>
                     )}
-                </View>
+
+                    {/* Filters */}
+                    <View style={styles.filtersContainer}>
+                        <ReviewFilters filters={filters} onFiltersChange={setFilters} />
+                    </View>
+
+                    {/* Reviews List */}
+                    <View style={styles.listContainer}>
+                        {isLoading ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator size="large" color={colors.primary[500]} />
+                                <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
+                                    Cargando reseñas...
+                                </Text>
+                            </View>
+                        ) : error ? (
+                            <View style={styles.errorContainer}>
+                                <Text style={[styles.errorText, { color: colors.error }]}>
+                                    Error al cargar las reseñas
+                                </Text>
+                                <Pressable
+                                    style={({ pressed }) => [
+                                        styles.retryButton,
+                                        {
+                                            backgroundColor: colors.primary[500],
+                                            opacity: pressed ? 0.8 : 1,
+                                        },
+                                    ]}
+                                    onPress={() => refetch()}
+                                >
+                                    <Text style={[styles.retryButtonText, { color: colors.text.inverse }]}>Reintentar</Text>
+                                </Pressable>
+                            </View>
+                        ) : reviews && reviews.length === 0 ? (
+                            <View style={styles.emptyContainer}>
+                                <MessageSquare color={colors.text.tertiary} size={48} strokeWidth={1.5} />
+                                <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
+                                    No hay reseñas
+                                </Text>
+                                <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
+                                    No se encontraron reseñas con los filtros seleccionados
+                                </Text>
+                            </View>
+                        ) : (
+                            <View style={styles.reviewsList}>
+                                {reviews?.map((review) => (
+                                    <AdminReviewCard
+                                        key={`${review.type}-${review.id}`}
+                                        review={review}
+                                        onDelete={handleDeleteReview}
+                                        onEdit={handleEditReview}
+                                    />
+                                ))}
+                            </View>
+                        )}
+                    </View>
                 </View>
             </ScrollView>
 

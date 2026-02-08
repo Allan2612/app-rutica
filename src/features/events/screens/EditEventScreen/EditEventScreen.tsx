@@ -2,7 +2,7 @@ import { memo, useState, useCallback, useMemo } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Toast from 'react-native-toast-message';
-import { useThemedColors, useEventGalleryQuota } from "@/hooks";
+import { useThemedColors, useEventGalleryQuota, useRefreshOnFocus } from "@/hooks";
 import { useEventForm } from '@/features/events/hooks/useEventForm';
 import { EventFormView } from '@/components/events/EventFormView/EventFormView';
 import { PremiumModal } from '@/components/user/PremiumModal/PremiumModal';
@@ -31,7 +31,10 @@ export const EditEventScreen = memo(function EditEventScreen() {
   } = useEventForm(id);
 
   // Cuota de galería del evento
-  const { quotaInfo, invalidateQuota } = useEventGalleryQuota(id ?? '', !!id);
+  const { quotaInfo, invalidateQuota, refetch: refetchQuota } = useEventGalleryQuota(id ?? '', !!id);
+
+  // Refrescar cuota de galería cuando la pantalla recibe foco
+  useRefreshOnFocus(refetchQuota);
 
   // Calcular límite máximo de imágenes de galería
   const maxGalleryImages = quotaInfo?.totalQuota ?? 3;

@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking, Platform, Modal, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, PartyPopper, X } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useEventDetail } from '@/features/events/hooks';
 import { GenericCarousel } from '@/components/ui';
 import { BusinessGallery, ContactSection } from '@/components/business';
@@ -12,8 +12,11 @@ import { styles } from './styles';
 export const EventDetailScreen = memo(function EventDetailScreen() {
     const colors = useThemedColors();
     const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
-    const { data: event, isLoading, error } = useEventDetail(id);
+    const { data: event, isLoading, error, refetch } = useEventDetail(id);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
     const handleClose = () => {
         // Si viene del mapa, regresar al mapa

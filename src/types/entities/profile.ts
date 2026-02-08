@@ -287,8 +287,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
       'Hasta 20 productos con 2 fotos cada uno',
       'Soporte prioritario',
     ],
-    price: '₡12,500/mes',
-    priceValue: 12500,
+    price: '₡10,000/mes',
+    priceValue: 10000,
     isMonthly: true,
   },
 ];
