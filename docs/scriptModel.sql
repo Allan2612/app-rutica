@@ -226,6 +226,7 @@ create type public.subscription_type_new as enum (
   'gallery_business',
   'package_products',
   'gallery_attractions',
+  'gallery_events',
   'full_premium'
 );
 
@@ -433,35 +434,15 @@ CREATE POLICY "Admins can manage subscriptions"
   );
 
 -- Datos iniciales (opcional)
-INSERT INTO public.subscription (type_sub, name_sub, description_sub, price_sub, features_sub, display_order_sub)
+INSERT INTO public.subscription (type_sub, name_sub, description_sub, price_sub, features_sub, is_recurring_sub, is_active_sub, display_order_sub)
 VALUES 
-  ('promotions', 'Promociones', 'Publica promociones en tu negocio', 5000, ARRAY['Crear promociones', 'Destacar ofertas'], 1),
-  ('dashboard', 'Dashboard Premium', 'Acceso a estadísticas avanzadas', 8000, ARRAY['Estadísticas detalladas', 'Reportes mensuales'], 2),
-  ('gallery_business', 'Galería Negocio', 'Galería extendida para tu negocio', 3000, ARRAY['Hasta 20 fotos', 'Videos cortos'], 3),
-  ('package_products', 'Productos', 'Gestión de productos en tu negocio', 6000, ARRAY['Catálogo de productos', 'Precios y descripciones'], 4),
-  (
-    'gallery_attractions',
-    'Galería Atracciones',
-    'Hasta 10 fotos para tus atracciones',
-    2000.00,
-    ARRAY['Hasta 10 fotos por atracción', 'Mayor visibilidad', 'Destaca en búsquedas'],
-    false,
-    true,
-    5,
-    10
-);
-(
-    'gallery_events',
-    'Galería Eventos',
-    'Hasta 10 fotos para tus eventos',
-    2000.00,
-    ARRAY['Hasta 10 fotos por evento', 'Mayor visibilidad', 'Destaca en búsquedas'],
-    false,
-    true,
-    6,
-    10
-);
-  ('full_premium', 'Premium Completo', 'Acceso a todas las funcionalidades', 12500, ARRAY['Todas las funciones', 'Soporte prioritario'], 6);
+  ('promotions', 'Promociones', 'Hasta 10 promociones activas', 2500, ARRAY['Hasta 10 promociones simultáneas', 'Destacar en sección de promociones', 'Mayor visibilidad para tus ofertas'], false, true, 1),
+  ('dashboard', 'Dashboard de Negocio', 'Estadísticas completas de tu negocio', 3500, ARRAY['Dashboard con métricas en tiempo real', 'Estadísticas de favoritos', 'Clicks en contacto y redes sociales', 'Interacciones con productos'], true, true, 2),
+  ('gallery_business', 'Galería Empresa', 'Hasta 10 fotos para tu negocio', 1500, ARRAY['Hasta 10 fotos en galería', 'Fotos en alta resolución', 'Galería destacada'], false, true, 3),
+  ('package_products', 'Paquete Productos', 'Publica hasta 20 productos por negocio', 5000, ARRAY['Hasta 20 productos por negocio', '2 fotos por producto', 'Catálogo completo'], false, true, 4),
+  ('gallery_attractions', 'Galería Atracciones', 'Hasta 10 fotos para tus atracciones', 2000, ARRAY['Hasta 10 fotos por atracción', 'Mayor visibilidad', 'Destaca en búsquedas'], false, true, 5),
+  ('gallery_events', 'Galería Eventos', 'Hasta 10 fotos para tus eventos', 2000, ARRAY['Hasta 10 fotos por evento', 'Mayor visibilidad', 'Destaca en búsquedas'], false, true, 6),
+  ('full_premium', 'Premium Completo', 'Todas las herramientas para hacer crecer tu negocio', 10000, ARRAY['Dashboard con estadísticas completas', 'Hasta 10 promociones simultáneas', 'Galería extendida para empresas (10 fotos)', 'Hasta 20 productos con 2 fotos cada uno', 'Soporte prioritario'], true, true, 7);
 
 create table public.attractions (
   id_atr uuid not null default gen_random_uuid(),
