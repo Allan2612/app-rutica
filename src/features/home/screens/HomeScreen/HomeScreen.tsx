@@ -7,25 +7,28 @@
 import { memo, useCallback } from 'react';
 import { View, ScrollView, RefreshControl, ActivityIndicator, Text, Pressable } from 'react-native';
 import { AlertTriangle } from 'lucide-react-native';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useHomeData } from '../../hooks/useHomeData';
-import { 
-    HeroWelcome, 
-    QuickActions, 
-    FeaturedPromotions, 
-    CallToAction 
+import {
+    HeroWelcome,
+    QuickActions,
+    FeaturedPromotions,
+    CallToAction
 } from '../../components';
 import { styles } from './styles';
 
 export const HomeScreen = memo(function HomeScreen() {
     const colors = useThemedColors();
-    const { 
-        promotions, 
-        stats, 
-        isLoading, 
-        isError, 
-        refetch 
+    const {
+        promotions,
+        stats,
+        isLoading,
+        isError,
+        refetch
     } = useHomeData();
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
 
     const handleRefresh = useCallback(() => {

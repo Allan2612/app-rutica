@@ -5,7 +5,7 @@ import { useProfile } from '@/features/user/hooks';
 import { ProfileEditModal, PremiumModal } from '@/components/user';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { ProfileLoading } from './ProfileLoading';
 import { ProfileContent } from './ProfileContent';
 import { ProfileToastConfig } from './ProfileToastConfig';
@@ -14,9 +14,12 @@ import styles from './styles';
 
 export default memo(function ProfileScreen() {
   const user = useAuthStore((state) => state.user);
-  const { profile, isLoading, error, updateProfile } = useProfile();
+  const { profile, isLoading, error, updateProfile, refreshProfile } = useProfile();
   const [premiumRefreshKey, setPremiumRefreshKey] = useState(0);
   const colors = useThemedColors();
+
+  // Refrescar perfil cuando la pantalla recibe foco
+  useRefreshOnFocus(refreshProfile);
 
   const {
     isEditModalVisible,

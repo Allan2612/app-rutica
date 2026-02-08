@@ -7,7 +7,7 @@ import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react
 import { CheckCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import {
   VerificationRequestCard,
@@ -68,9 +68,13 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
   );
 
   const { data: requests = [], isLoading, refetch, isRefetching } = useVerificationRequests(filters);
-  const { data: stats } = useVerificationStats();
+  const { data: stats, refetch: refetchStats } = useVerificationStats();
   const updateMutation = useUpdateModeration();
   const toggleActiveMutation = useToggleActive();
+
+  // Refrescar datos cuando la pantalla recibe foco
+  useRefreshOnFocus(refetch);
+  useRefreshOnFocus(refetchStats);
 
   // Memoized handlers to prevent unnecessary re-renders
   const handleManageStatus = useCallback((request: VerificationRequest) => {

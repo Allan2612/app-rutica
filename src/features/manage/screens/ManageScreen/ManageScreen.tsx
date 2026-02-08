@@ -4,7 +4,7 @@ import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { CalendarDays, Crown, Landmark, Shield, Store, Tag } from 'lucide-react-native';
 import type { UserRole } from '@/types/enums';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserSubscriptionSummary } from '@/hooks/useUserSubscriptions';
 import { useAuthStore } from '@/store';
 import { Screen } from '@/components/layout';
@@ -42,7 +42,10 @@ export const ManageScreen = memo(function ManageScreen() {
   const role = useAuthStore((state) => state.role);
 
   // Obtener resumen de suscripciones del usuario
-  const { data: subscriptionSummary } = useUserSubscriptionSummary();
+  const { data: subscriptionSummary, refetch: refetchSubscription } = useUserSubscriptionSummary();
+
+  // Refrescar suscripciones cuando la pantalla recibe foco
+  useRefreshOnFocus(refetchSubscription);
 
   const normalizedRole = useMemo(() => normalizeRole(role), [role]);
   const effectiveRole: UserRole = normalizedRole ?? 'buyer';

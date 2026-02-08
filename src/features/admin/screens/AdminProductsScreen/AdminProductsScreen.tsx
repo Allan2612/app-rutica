@@ -2,7 +2,7 @@ import { useState, memo } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
 import { Package } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import { ProductFilters, AdminProductCard, ProductStatsCards } from '@/components/admin';
 import type { ProductsFilters } from '@/types/entities/product';
@@ -18,8 +18,12 @@ export const AdminProductsScreen = memo(function AdminProductsScreen() {
     const [filters, setFilters] = useState<ProductsFilters>({});
 
     const { data: products, isLoading, error, refetch, isFetching } = useAdminProducts(filters);
-    const { data: stats } = useProductsStats();
+    const { data: stats, refetch: refetchStats } = useProductsStats();
     const deleteProduct = useDeleteProductAsAdmin();
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
+    useRefreshOnFocus(refetchStats);
 
     const handleDeleteProduct = async (productId: string) => {
         try {

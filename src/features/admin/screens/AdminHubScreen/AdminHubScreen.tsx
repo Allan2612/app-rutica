@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { ClipboardCheck, ChevronRight, MessageSquare, Package, Crown } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import { useVerificationStats } from '../../hooks/useAdminVerification';
 import { useAdminSubscriptionStats } from '../../hooks/useAdminSubscriptions';
@@ -23,8 +23,12 @@ type AdminAction = {
 export const AdminHubScreen = memo(function AdminHubScreen() {
   const colors = useThemedColors();
   const router = useRouter();
-  const { data: verificationStats } = useVerificationStats();
-  const { data: subscriptionStats } = useAdminSubscriptionStats();
+  const { data: verificationStats, refetch: refetchVerification } = useVerificationStats();
+  const { data: subscriptionStats, refetch: refetchSubscription } = useAdminSubscriptionStats();
+
+  // Refrescar estadísticas cuando la pantalla recibe foco
+  useRefreshOnFocus(refetchVerification);
+  useRefreshOnFocus(refetchSubscription);
 
   const actions: AdminAction[] = [
     {

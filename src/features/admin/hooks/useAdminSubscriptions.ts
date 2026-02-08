@@ -10,6 +10,7 @@ import {
     deleteSubscriptionPlan,
     activateSubscriptionPlan,
 } from '../services/adminSubscriptions.service';
+import { userSubscriptionKeys } from '@/hooks/useUserSubscriptions';
 import type { SubscriptionFilters } from '../services/adminSubscriptions.service';
 import type { Subscription } from '@/types/entities';
 
@@ -60,7 +61,12 @@ export function useApproveSubscription() {
     return useMutation({
         mutationFn: (subscriptionId: string) => approveSubscription(subscriptionId),
         onSuccess: () => {
+            // Invalidar queries de admin
             queryClient.invalidateQueries({ queryKey: adminSubscriptionKeys.all });
+            // Invalidar queries de usuario para que vea su suscripción activa
+            queryClient.invalidateQueries({ queryKey: userSubscriptionKeys.all });
+            // Invalidar queries de cuotas de recursos (galerías, productos, etc.)
+            queryClient.invalidateQueries({ queryKey: ['resourceQuota'] });
         },
     });
 }
@@ -75,7 +81,12 @@ export function useRejectSubscription() {
         mutationFn: ({ subscriptionId, reason }: { subscriptionId: string; reason?: string }) =>
             rejectSubscription(subscriptionId, reason),
         onSuccess: () => {
+            // Invalidar queries de admin
             queryClient.invalidateQueries({ queryKey: adminSubscriptionKeys.all });
+            // Invalidar queries de usuario
+            queryClient.invalidateQueries({ queryKey: userSubscriptionKeys.all });
+            // Invalidar queries de cuotas de recursos
+            queryClient.invalidateQueries({ queryKey: ['resourceQuota'] });
         },
     });
 }

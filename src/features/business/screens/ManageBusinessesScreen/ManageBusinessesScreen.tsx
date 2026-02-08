@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-nati
 import { Plus, Store } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserBusinesses, useDeleteBusiness } from '@/features/business/hooks/useUserBusinesses';
 import { UserBusinessCard } from '@/components/business/UserBusinessCard';
 import { ConfirmDeleteDialog } from '@/components/manage';
@@ -17,6 +17,9 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
     const deleteMutation = useDeleteBusiness();
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ id: string; name: string } | null>(null);
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
     const handleAddBusiness = useCallback(() => {
         router.push('/(app)/(tabs)/manage/businesses/add');

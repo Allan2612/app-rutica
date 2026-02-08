@@ -2,7 +2,7 @@ import { memo, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserSubscriptionDetails } from '@/hooks/useUserSubscriptions';
 import { useAuthStore } from '@/store';
 import { PremiumModal } from '@/components/user/PremiumModal/PremiumModal';
@@ -21,6 +21,9 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
   const { data: subscriptions = [], isLoading, refetch } = useUserSubscriptionDetails();
   const userRole = useAuthStore((state) => state.role);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+  // Refrescar suscripciones cuando la pantalla recibe foco
+  useRefreshOnFocus(refetch);
 
   const handleDashboardPress = useCallback(() => {
     router.push('/(app)/(tabs)/manage/premium/dashboard' as any);

@@ -3,10 +3,11 @@
  * Fetches all data needed for the Home screen
  */
 
+import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-    getFeaturedPromotions, 
-    getHomeStats 
+import {
+    getFeaturedPromotions,
+    getHomeStats
 } from '../services/home.service';
 
 export const HOME_KEYS = {
@@ -64,14 +65,16 @@ export function useHomeData() {
     const promotions = useFeaturedPromotions();
     const stats = useHomeStats();
 
+    const refetch = useCallback(() => {
+        promotions.refetch();
+        stats.refetch();
+    }, [promotions.refetch, stats.refetch]);
+
     return {
         promotions,
         stats,
         isLoading: promotions.isLoading || stats.isLoading,
         isError: promotions.isError || stats.isError,
-        refetch: () => {
-            promotions.refetch();
-            stats.refetch();
-        },
+        refetch,
     };
 }

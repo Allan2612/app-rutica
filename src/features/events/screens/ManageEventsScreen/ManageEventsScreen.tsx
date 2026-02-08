@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-nati
 import { Plus, CalendarDays } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors } from '@/hooks';
+import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useUserEvents, useDeleteEvent } from '@/features/events/hooks';
 import { getImageUrl } from '@/features/events/services/getUserEvents.service';
 import { UserEventCard } from '@/components/events';
@@ -14,10 +14,13 @@ import { styles } from './styles';
 export const ManageEventsScreen = memo(function ManageEventsScreen() {
     const colors = useThemedColors();
     const router = useRouter();
-    const { data: events = [], isLoading } = useUserEvents();
+    const { data: events = [], isLoading, refetch } = useUserEvents();
     const deleteMutation = useDeleteEvent();
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ id: string; name: string } | null>(null);
+
+    // Refrescar datos cuando la pantalla recibe foco
+    useRefreshOnFocus(refetch);
 
     const handleAddEvent = useCallback(() => {
         router.push('/(app)/(tabs)/manage/events/add');
