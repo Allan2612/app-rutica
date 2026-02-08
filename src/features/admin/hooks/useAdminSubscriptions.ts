@@ -11,6 +11,7 @@ import {
     activateSubscriptionPlan,
 } from '../services/adminSubscriptions.service';
 import { userSubscriptionKeys } from '@/hooks/useUserSubscriptions';
+import { sendSubscriptionStatusEmail } from '@/services/emailNotification.service';
 import type { SubscriptionFilters } from '../services/adminSubscriptions.service';
 import type { Subscription } from '@/types/entities';
 
@@ -60,13 +61,25 @@ export function useApproveSubscription() {
 
     return useMutation({
         mutationFn: (subscriptionId: string) => approveSubscription(subscriptionId),
-        onSuccess: () => {
+        onSuccess: (result) => {
             // Invalidar queries de admin
             queryClient.invalidateQueries({ queryKey: adminSubscriptionKeys.all });
             // Invalidar queries de usuario para que vea su suscripción activa
             queryClient.invalidateQueries({ queryKey: userSubscriptionKeys.all });
             // Invalidar queries de cuotas de recursos (galerías, productos, etc.)
             queryClient.invalidateQueries({ queryKey: ['resourceQuota'] });
+
+            // Enviar email de notificación al usuario
+            if (result.profileId) {
+                sendSubscriptionStatusEmail({
+                    profileId: result.profileId,
+                    userName: result.userName,
+                    packageName: result.packageName,
+                    status: 'approved',
+                }).catch((err) => {
+                    console.warn('No se pudo enviar email de aprobación:', err);
+                });
+            }
         },
     });
 }
@@ -80,13 +93,26 @@ export function useRejectSubscription() {
     return useMutation({
         mutationFn: ({ subscriptionId, reason }: { subscriptionId: string; reason?: string }) =>
             rejectSubscription(subscriptionId, reason),
-        onSuccess: () => {
+        onSuccess: (result) => {
             // Invalidar queries de admin
             queryClient.invalidateQueries({ queryKey: adminSubscriptionKeys.all });
             // Invalidar queries de usuario
             queryClient.invalidateQueries({ queryKey: userSubscriptionKeys.all });
             // Invalidar queries de cuotas de recursos
             queryClient.invalidateQueries({ queryKey: ['resourceQuota'] });
+
+            // Enviar email de notificación al usuario
+            if (result.profileId) {
+                sendSubscriptionStatusEmail({
+                    profileId: result.profileId,
+                    userName: result.userName,
+                    packageName: result.packageName,
+                    status: 'rejected',
+                    rejectionReason: result.rejectionReason,
+                }).catch((err) => {
+                    console.warn('No se pudo enviar email de rechazo:', err);
+                });
+            }
         },
     });
 }

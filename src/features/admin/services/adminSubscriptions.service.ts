@@ -118,24 +118,36 @@ export async function getSubscriptionStats(): Promise<SubscriptionStats> {
     return stats;
 }
 
+export interface SubscriptionApprovalResult {
+    subscription: ProfileSubscription;
+    profileId: string;
+    userName: string;
+    packageName: string;
+}
+
 /**
  * Aprueba una suscripción
  * Para suscripciones mensuales (dashboard, full_premium), calcula fecha de expiración
  */
-export async function approveSubscription(subscriptionId: string): Promise<ProfileSubscription> {
+export async function approveSubscription(subscriptionId: string): Promise<SubscriptionApprovalResult> {
     const {
         data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) throw new Error('No authenticated user');
 
-    // Primero obtener la suscripción para saber el tipo
+    // Primero obtener la suscripción con datos del usuario y plan
     const { data: subscription, error: fetchError } = await supabase
         .from('profile_subscriptions')
         .select(`
             *,
             subscription:subscription_id_psub (
-                type_sub
+                type_sub,
+                name_sub
+            ),
+            profile:profile_id_psub (
+                first_name_prf,
+                last_name1_prf
             )
         `)
         .eq('id_psub', subscriptionId)
@@ -144,8 +156,16 @@ export async function approveSubscription(subscriptionId: string): Promise<Profi
     if (fetchError) throw fetchError;
     if (!subscription) throw new Error('Suscripción no encontrada');
 
-    const subscriptionType = (subscription as any).subscription?.type_sub;
+    const subscriptionData = subscription as any;
+    const subscriptionType = subscriptionData.subscription?.type_sub;
+    const packageName = subscriptionData.subscription?.name_sub || 'Paquete Premium';
     const approvalDate = new Date();
+    const profileId = subscriptionData.profile_id_psub;
+
+    // Nombre del usuario
+    const firstName = subscriptionData.profile?.first_name_prf || '';
+    const lastName = subscriptionData.profile?.last_name1_prf || '';
+    const userName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     // Calcular fecha de expiración para suscripciones mensuales
     let expiresAt: string | null = null;
@@ -169,7 +189,21 @@ export async function approveSubscription(subscriptionId: string): Promise<Profi
         .single();
 
     if (error) throw error;
-    return data as ProfileSubscription;
+
+    return {
+        subscription: data as ProfileSubscription,
+        profileId,
+        userName,
+        packageName,
+    };
+}
+
+export interface SubscriptionRejectionResult {
+    subscription: ProfileSubscription;
+    profileId: string;
+    userName: string;
+    packageName: string;
+    rejectionReason?: string;
 }
 
 /**
@@ -178,12 +212,40 @@ export async function approveSubscription(subscriptionId: string): Promise<Profi
 export async function rejectSubscription(
     subscriptionId: string,
     rejectionReason?: string
-): Promise<ProfileSubscription> {
+): Promise<SubscriptionRejectionResult> {
     const {
         data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) throw new Error('No authenticated user');
+
+    // Obtener la suscripción con datos del usuario y plan
+    const { data: subscription, error: fetchError } = await supabase
+        .from('profile_subscriptions')
+        .select(`
+            *,
+            subscription:subscription_id_psub (
+                name_sub
+            ),
+            profile:profile_id_psub (
+                first_name_prf,
+                last_name1_prf
+            )
+        `)
+        .eq('id_psub', subscriptionId)
+        .single();
+
+    if (fetchError) throw fetchError;
+    if (!subscription) throw new Error('Suscripción no encontrada');
+
+    const subscriptionData = subscription as any;
+    const packageName = subscriptionData.subscription?.name_sub || 'Paquete Premium';
+    const profileId = subscriptionData.profile_id_psub;
+
+    // Nombre del usuario
+    const firstName = subscriptionData.profile?.first_name_prf || '';
+    const lastName = subscriptionData.profile?.last_name1_prf || '';
+    const userName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
 
     const { data, error } = await supabase
         .from('profile_subscriptions')
@@ -199,7 +261,14 @@ export async function rejectSubscription(
         .single();
 
     if (error) throw error;
-    return data as ProfileSubscription;
+
+    return {
+        subscription: data as ProfileSubscription,
+        profileId,
+        userName,
+        packageName,
+        rejectionReason,
+    };
 }
 
 // ============================================
