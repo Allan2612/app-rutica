@@ -118,6 +118,7 @@ export interface UserBusinessListItem {
   logoUrl: string | null;
   coverUrl: string | null;
   moderationStatus: ModerationStatus;
+  moderationNote: string | null;
   isActive: boolean;
   avgRating: number;
   reviewsCount: number;

@@ -47,18 +47,20 @@ export const styles = StyleSheet.create({
         top: 0,
         zIndex: 4,
     },
-    content: {
-        paddingHorizontal: spacing.md,
-        paddingBottom: spacing.md + 4,
-        paddingTop: spacing.lg,
-        zIndex: 15,
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-between',
+    contentWrapper: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
+        zIndex: 15,
+    },
+    content: {
+        paddingHorizontal: spacing.md,
+        paddingBottom: spacing.md + 4,
+        paddingTop: spacing.lg,
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
     },
     infoColumn: {
         flex: 1,
@@ -114,5 +116,21 @@ export const styles = StyleSheet.create({
     },
     deleteButton: {
         backgroundColor: 'rgba(239, 68, 68, 0.95)',
+    },
+    moderationNoteContainer: {
+        marginHorizontal: spacing.md,
+        marginBottom: spacing.md,
+        padding: spacing.sm,
+        borderWidth: 1,
+        borderRadius: 8,
+    },
+    moderationNoteLabel: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.semibold,
+        marginBottom: spacing.xs,
+    },
+    moderationNoteText: {
+        fontSize: typography.sizes.sm,
+        lineHeight: 18,
     },
 });

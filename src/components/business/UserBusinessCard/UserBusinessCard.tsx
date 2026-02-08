@@ -15,6 +15,7 @@ export interface UserBusinessCardProps {
     imageUrl?: string | null;
     logoUrl?: string | null;
     moderationStatus: 'pending' | 'approved' | 'rejected';
+    moderationNote?: string | null;
     isActive: boolean;
     onProducts?: () => void;
     onEdit?: () => void;
@@ -31,6 +32,7 @@ export const UserBusinessCard = memo(function UserBusinessCard({
     imageUrl,
     logoUrl,
     moderationStatus,
+    moderationNote,
     isActive,
     onEdit,
     onDelete,
@@ -117,6 +119,18 @@ export const UserBusinessCard = memo(function UserBusinessCard({
                             <MapPin color={colors.text.tertiary} size={12} strokeWidth={2} />
                             <Text style={[styles.locationText, { color: colors.text.tertiary }]}>
                                 {locationLabel}
+                            </Text>
+                        </View>
+                    )}
+
+                    {/* Nota de Moderación */}
+                    {moderationNote && moderationStatus === 'rejected' && (
+                        <View style={[styles.moderationNoteContainer, { backgroundColor: colors.error + '15', borderColor: colors.error + '40' }]}>
+                            <Text style={[styles.moderationNoteLabel, { color: colors.error }]}>
+                                Razón de rechazo:
+                            </Text>
+                            <Text style={[styles.moderationNoteText, { color: colors.text.primary }]}>
+                                {moderationNote}
                             </Text>
                         </View>
                     )}

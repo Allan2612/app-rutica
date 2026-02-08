@@ -109,4 +109,19 @@ export const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.medium,
     },
+    moderationNoteContainer: {
+        padding: spacing.sm,
+        borderWidth: 1,
+        borderRadius: 8,
+        marginTop: spacing.xs,
+    },
+    moderationNoteLabel: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.fontWeights.semibold,
+        marginBottom: spacing.xs,
+    },
+    moderationNoteText: {
+        fontSize: typography.sizes.sm,
+        lineHeight: 18,
+    },
 });

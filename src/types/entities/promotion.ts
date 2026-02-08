@@ -154,6 +154,7 @@ export interface PromotionListItem {
   startAt: string | null;
   endAt: string | null;
   moderationStatus: ModerationStatus;
+  moderationNote: string | null;
   businessId: string;
   businessName: string | null;
   coverUrl: string | null;

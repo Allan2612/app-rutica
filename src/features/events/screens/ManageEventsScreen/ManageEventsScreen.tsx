@@ -172,6 +172,7 @@ export const ManageEventsScreen = memo(function ManageEventsScreen() {
                                     currency={event.currency_evt}
                                     capacity={event.capacity_evt}
                                     moderationStatus={event.moderation_status_evt as 'pending' | 'approved' | 'rejected'}
+                                    moderationNote={event.moderation_note_evt}
                                     isActive={event.is_active_evt}
                                     onEdit={() => handleEditEvent(event.id_evt)}
                                     onDelete={() => handleDeleteEvent(event.id_evt, event.name_evt)}

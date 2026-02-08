@@ -20,6 +20,7 @@ export interface UserPromotionCardProps {
   businessName?: string;
   imageUrl?: string | null;
   moderationStatus: 'pending' | 'approved' | 'rejected';
+  moderationNote?: string | null;
   isActive: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -37,6 +38,7 @@ export const UserPromotionCard = memo(function UserPromotionCard({
   businessName,
   imageUrl,
   moderationStatus,
+  moderationNote,
   isActive,
   onEdit,
   onDelete,
@@ -102,64 +104,78 @@ export const UserPromotionCard = memo(function UserPromotionCard({
       />
 
       {/* Content - Bottom */}
-      <View style={styles.content}>
-        {/* Info Column - Left */}
-        <View style={styles.infoColumn}>
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-          {businessName && (
-            <Text style={styles.businessName} numberOfLines={1}>
-              {businessName}
+      <View style={styles.contentWrapper}>
+        <View style={styles.content}>
+          {/* Info Column - Left */}
+          <View style={styles.infoColumn}>
+            <Text style={styles.title} numberOfLines={1}>
+              {title}
             </Text>
-          )}
-          <View style={styles.dateRow}>
-            <Calendar size={14} color="rgba(255,255,255,0.9)" strokeWidth={1.75} />
-            <Text style={styles.dateText}>
-              {formatDate(startAt)} - {formatDate(endAt)}
-            </Text>
-            {isExpired && (
-              <View style={[styles.expiredBadge, { backgroundColor: 'rgba(239, 68, 68, 0.9)' }]}>
-                <Text style={styles.expiredText}>Expirada</Text>
-              </View>
+            {businessName && (
+              <Text style={styles.businessName} numberOfLines={1}>
+                {businessName}
+              </Text>
             )}
+            <View style={styles.dateRow}>
+              <Calendar size={14} color="rgba(255,255,255,0.9)" strokeWidth={1.75} />
+              <Text style={styles.dateText}>
+                {formatDate(startAt)} - {formatDate(endAt)}
+              </Text>
+              {isExpired && (
+                <View style={[styles.expiredBadge, { backgroundColor: 'rgba(239, 68, 68, 0.9)' }]}>
+                  <Text style={styles.expiredText}>Expirada</Text>
+                </View>
+              )}
+            </View>
           </View>
+
+          {/* Action Buttons - Right */}
+          {(onEdit || onDelete) && (
+            <View style={styles.actions}>
+              {onEdit && (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.actionButton,
+                    styles.editButton,
+                    { opacity: pressed ? 0.8 : 1 },
+                  ]}
+                  onPress={onEdit}
+                  disabled={isDeleting}
+                >
+                  <Edit2 color="#000000" size={18} strokeWidth={2.5} />
+                </Pressable>
+              )}
+
+              {onDelete && (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.actionButton,
+                    styles.deleteButton,
+                    { opacity: pressed ? 0.8 : 1 },
+                  ]}
+                  onPress={onDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Trash2 color="#FFFFFF" size={18} strokeWidth={2.5} />
+                  )}
+                </Pressable>
+              )}
+            </View>
+          )}
         </View>
 
-        {/* Action Buttons - Right */}
-        {(onEdit || onDelete) && (
-          <View style={styles.actions}>
-            {onEdit && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  styles.editButton,
-                  { opacity: pressed ? 0.8 : 1 },
-                ]}
-                onPress={onEdit}
-                disabled={isDeleting}
-              >
-                <Edit2 color="#000000" size={18} strokeWidth={2.5} />
-              </Pressable>
-            )}
-
-            {onDelete && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  styles.deleteButton,
-                  { opacity: pressed ? 0.8 : 1 },
-                ]}
-                onPress={onDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <Trash2 color="#FFFFFF" size={18} strokeWidth={2.5} />
-                )}
-              </Pressable>
-            )}
+        {/* Nota de moderación */}
+        {moderationNote && moderationStatus === 'rejected' && (
+          <View style={[styles.moderationNoteContainer, { backgroundColor: colors.error + '15', borderColor: colors.error + '40' }]}>
+            <Text style={[styles.moderationNoteLabel, { color: colors.error }]}>
+              Razón de rechazo:
+            </Text>
+            <Text style={[styles.moderationNoteText, { color: '#FFFFFF' }]}>
+              {moderationNote}
+            </Text>
           </View>
         )}
       </View>

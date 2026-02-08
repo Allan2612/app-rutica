@@ -306,6 +306,7 @@ export async function updateEventComplete(
         website_evt: data.website ?? null,
         ticket_url_evt: data.ticketUrl ?? null,
         social_links_evt: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+        moderation_status_evt: 'pending',
     };
     
     if (data.isActive !== undefined) {

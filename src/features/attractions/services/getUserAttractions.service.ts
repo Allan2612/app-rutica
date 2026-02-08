@@ -15,6 +15,7 @@ export interface UserAttraction {
     name_atr: string;
     description_atr: string | null;
     moderation_status_atr: string;
+    moderation_note_atr: string | null;
     is_active_atr: boolean;
     created_at_atr: string;
     attraction_images?: Array<{
@@ -67,6 +68,7 @@ export async function getUserAttractions(userId: string): Promise<UserAttraction
         name_atr,
         description_atr,
         moderation_status_atr,
+        moderation_note_atr,
         is_active_atr,
         created_at_atr,
         attraction_images (

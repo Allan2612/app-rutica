@@ -436,6 +436,7 @@ export async function updateBusinessComplete(
             contact_email_bus: data.email ?? null,
             website_bus: data.website ?? null,
             social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+            moderation_status_bus: 'pending',
         };
         
         if (data.isActive !== undefined) {

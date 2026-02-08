@@ -14,6 +14,7 @@ export interface UserAttractionCardProps {
     locationLabel?: string | null;
     imageUrl?: string | null;
     moderationStatus: 'pending' | 'approved' | 'rejected';
+    moderationNote?: string | null;
     isActive: boolean;
     onEdit?: () => void;
     onDelete?: () => void;
@@ -28,6 +29,7 @@ export const UserAttractionCard = memo(function UserAttractionCard({
     locationLabel,
     imageUrl,
     moderationStatus,
+    moderationNote,
     isActive,
     onEdit,
     onDelete,
@@ -114,6 +116,14 @@ export const UserAttractionCard = memo(function UserAttractionCard({
                             <Text style={[styles.infoText, { color: colors.text.secondary }]} numberOfLines={1}>
                                 {locationLabel}
                             </Text>
+                        </View>
+                    )}
+                    
+                    {/* Nota de moderación */}
+                    {moderationNote && moderationStatus === 'rejected' && (
+                        <View style={[styles.moderationNoteContainer, { backgroundColor: colors.error + '15', borderColor: colors.error + '40' }]}>
+                            <Text style={[styles.moderationNoteLabel, { color: colors.error }]}>Razón de rechazo:</Text>
+                            <Text style={[styles.moderationNoteText, { color: colors.text.primary }]}>{moderationNote}</Text>
                         </View>
                     )}
                 </View>

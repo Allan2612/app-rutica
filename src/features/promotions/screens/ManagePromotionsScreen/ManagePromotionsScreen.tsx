@@ -292,6 +292,7 @@ export const ManagePromotionsScreen = memo(function ManagePromotionsScreen() {
                 businessName={promotion.businessName}
                 imageUrl={promotion.imageUrl}
                 moderationStatus={promotion.moderationStatus}
+                moderationNote={promotion.moderationNote}
                 isActive={promotion.isActive ?? true}
                 onEdit={() => handleEditPromotion(promotion.id)}
                 onDelete={() => handleDeletePromotion(promotion.id, promotion.title)}

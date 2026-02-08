@@ -21,6 +21,7 @@ export interface UserEventCardProps {
     currency?: string | null;
     capacity?: number | null;
     moderationStatus: 'pending' | 'approved' | 'rejected';
+    moderationNote?: string | null;
     isActive: boolean;
     onEdit?: () => void;
     onDelete?: () => void;
@@ -41,6 +42,7 @@ export const UserEventCard = memo(function UserEventCard({
     currency,
     capacity,
     moderationStatus,
+    moderationNote,
     isActive,
     onEdit,
     onDelete,
@@ -156,6 +158,14 @@ export const UserEventCard = memo(function UserEventCard({
                         <Text style={[styles.capacity, { color: colors.text.tertiary }]}>
                             Capacidad: {capacity.toLocaleString('es-CR')} personas
                         </Text>
+                    )}
+                    
+                    {/* Nota de moderación */}
+                    {moderationNote && moderationStatus === 'rejected' && (
+                        <View style={[styles.moderationNoteContainer, { backgroundColor: colors.error + '15', borderColor: colors.error + '40' }]}>
+                            <Text style={[styles.moderationNoteLabel, { color: colors.error }]}>Razón de rechazo:</Text>
+                            <Text style={[styles.moderationNoteText, { color: colors.text.primary }]}>{moderationNote}</Text>
+                        </View>
                     )}
                 </View>
             </View>

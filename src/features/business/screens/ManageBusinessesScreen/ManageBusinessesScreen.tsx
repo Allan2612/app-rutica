@@ -152,6 +152,7 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
                                 imageUrl={business.imageUrl}
                                 logoUrl={business.logoUrl}
                                 moderationStatus={business.moderationStatus}
+                                moderationNote={business.moderationNote}
                                 isActive={business.isActive}
                                 onProducts={() => handleProducts(business.id, business.name)}
                                 onEdit={() => handleEditBusiness(business.id)}

@@ -21,6 +21,7 @@ export interface UserEvent {
     currency_evt: string | null;
     capacity_evt: number | null;
     moderation_status_evt: string;
+    moderation_note_evt: string | null;
     is_active_evt: boolean;
     created_at_evt: string;
     event_images?: Array<{
@@ -79,6 +80,7 @@ export async function getUserEvents(userId: string): Promise<UserEvent[]> {
                 currency_evt,
                 capacity_evt,
                 moderation_status_evt,
+                moderation_note_evt,
                 is_active_evt,
                 created_at_evt,
                 event_images (

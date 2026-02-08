@@ -181,6 +181,7 @@ export const ManageAttractionsScreen = memo(function ManageAttractionsScreen() {
                                         | 'approved'
                                         | 'rejected'
                                     }
+                                    moderationNote={attraction.moderation_note_atr}
                                     isActive={attraction.is_active_atr}
                                     onEdit={() => handleEditAttraction(attraction.id_atr)}
                                     onDelete={() =>

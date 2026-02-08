@@ -40,6 +40,7 @@ export async function updatePromotionComplete(
     // 2. Actualizar datos base de la promoción
     const updatePayload: Record<string, unknown> = {
         updated_at_prm: new Date().toISOString(),
+        moderation_status_prm: 'pending',
     };
 
     if (data.scope !== undefined) updatePayload.scope_prm = data.scope;

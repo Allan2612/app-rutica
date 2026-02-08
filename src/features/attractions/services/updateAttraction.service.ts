@@ -266,6 +266,7 @@ export async function updateAttractionComplete(
     const updateFields: any = {
         name_atr: data.name,
         description_atr: data.description,
+        moderation_status_atr: 'pending',
         updated_at_atr: new Date().toISOString(),
     };
     

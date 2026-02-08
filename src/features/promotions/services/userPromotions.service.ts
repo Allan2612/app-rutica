@@ -31,6 +31,7 @@ interface PromotionRecord {
     start_at_prm: string;
     end_at_prm: string;
     moderation_status_prm: string;
+    moderation_note_prm: string | null;
     created_at_prm: string;
     businesses: {
         id_bus: string;
@@ -79,6 +80,7 @@ export async function getUserPromotions(userId: string): Promise<PromotionListIt
             start_at_prm,
             end_at_prm,
             moderation_status_prm,
+            moderation_note_prm,
             created_at_prm,
             businesses:business_id_prm (
                 id_bus,
@@ -130,6 +132,7 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
             start_at_prm,
             end_at_prm,
             moderation_status_prm,
+            moderation_note_prm,
             created_at_prm,
             businesses:business_id_prm (
                 id_bus,
@@ -399,6 +402,7 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         startAt: record.start_at_prm,
         endAt: record.end_at_prm,
         moderationStatus: record.moderation_status_prm as ModerationStatus,
+        moderationNote: record.moderation_note_prm,
         businessId: record.business_id_prm,
         businessName: record.businesses?.name_bus ?? null,
         coverUrl,
