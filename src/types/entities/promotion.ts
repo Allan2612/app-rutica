@@ -159,6 +159,7 @@ export interface PromotionListItem {
   coverUrl: string | null;
   imageUrl?: string | null; // Alias para compatibilidad con UserPromotionCard
   categoryNames: string[];
+  categoryIds: string[]; // IDs de las categorías (correlacionados con categoryNames)
   productIds: string[];
   scopeCategoryIds: string[];
   comboItems: ComboItemData[];

@@ -118,7 +118,7 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                     path_pim
                 ),
                 promotion_category_map (
-                    categories (
+                    categories!inner (
                         id_cat,
                         name_cat
                     )
@@ -172,6 +172,7 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
                 moderationStatus: 'approved',
                 coverUrl,
                 categoryNames: categories.map((c: { name_cat: string }) => c.name_cat),
+                categoryIds: categories.map((c: { id_cat: string }) => c.id_cat),
                 scopeCategoryIds: item.promotion_scope_categories?.map((psc: { category_id_psc: string }) => psc.category_id_psc) ?? [],
                 productIds: [],
                 comboItems: [],

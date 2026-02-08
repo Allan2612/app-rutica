@@ -120,7 +120,7 @@ export const PromotionPublicCard = memo(function PromotionPublicCard({
                         {promotion.categoryNames && promotion.categoryNames.length > 0 && (
                             <>
                                 <CategoryChip
-                                    categoryId={(promotion.scopeCategoryIds && promotion.scopeCategoryIds[0]) || ''}
+                                    categoryId={(promotion.categoryIds && promotion.categoryIds[0]) || ''}
                                     categoryName={promotion.categoryNames[0]}
                                     variant="small"
                                 />

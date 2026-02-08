@@ -88,7 +88,7 @@ export async function getUserPromotions(userId: string): Promise<PromotionListIt
                 path_pim
             ),
             promotion_category_map (
-                categories (
+                categories!inner (
                     id_cat,
                     name_cat
                 )
@@ -139,7 +139,7 @@ export async function getPromotionsByBusiness(businessId: string): Promise<Promo
                 path_pim
             ),
             promotion_category_map (
-                categories (
+                categories!inner (
                     id_cat,
                     name_cat
                 )
@@ -349,10 +349,17 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         ? getImageUrl(BUCKET_NAME, coverImage.path_pim)
         : null;
 
-    // Extraer nombres de categorías
-    const categoryNames = record.promotion_category_map
-        ?.map((pcm) => pcm.categories?.name_cat)
-        .filter((name): name is string => !!name) ?? [];
+    // Extraer nombres de categorías con sus IDs
+    const categories = record.promotion_category_map
+        ?.map((pcm) => pcm.categories)
+        .filter((cat): cat is { id_cat: string; name_cat: string } => !!cat && !!cat.id_cat && !!cat.name_cat)
+        .map(cat => ({
+            id: cat.id_cat,
+            name: cat.name_cat
+        })) ?? [];
+
+    const categoryNames = categories.map(c => c.name);
+    const categoryIds = categories.map(c => c.id);
 
     // Extraer IDs de productos (para scope: 'product')
     const productIds = record.promotion_products
@@ -397,6 +404,7 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
         coverUrl,
         imageUrl: coverUrl, // Alias para compatibilidad con UserPromotionCard
         categoryNames,
+        categoryIds,
         productIds,
         scopeCategoryIds,
         comboItems,
