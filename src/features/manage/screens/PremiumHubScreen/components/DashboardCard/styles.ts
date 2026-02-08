@@ -44,45 +44,4 @@ export const styles = StyleSheet.create({
     date: {
         fontSize: 12,
     },
-    expandedContent: {
-        paddingTop: 16,
-        marginTop: 16,
-        borderTopWidth: 1,
-        gap: 16,
-    },
-    description: {
-        fontSize: 14,
-        lineHeight: 20,
-    },
-    featuresList: {
-        gap: 8,
-    },
-    featureItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    featureBullet: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-    },
-    featureText: {
-        fontSize: 14,
-        flex: 1,
-    },
-    dashboardButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        gap: 8,
-    },
-    dashboardButtonText: {
-        color: '#FFFFFF',
-        fontSize: 15,
-        fontWeight: '600',
-    },
 });
