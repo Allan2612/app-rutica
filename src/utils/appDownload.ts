@@ -3,16 +3,13 @@
  *
  * Para actualizar el APK:
  * 1. Generar nuevo build: eas build --platform android --profile preview
- * 2. Descargar el APK desde EAS
- * 3. Subir a Supabase Storage → bucket "app-downloads" como "rutica-latest.apk"
- * 4. La descarga se hace automáticamente desde la URL pública del bucket
+ * 2. Obtener la URL: eas build:list --platform android --limit 1 --json --non-interactive
+ * 3. Copiar el valor de artifacts.buildUrl y pegarlo en ANDROID_APK_URL
  */
 
-const SUPABASE_STORAGE_URL =
-  'https://irmibyxlwkbsuauqnbiw.supabase.co/storage/v1/object/public/app-downloads';
-
-// URL del APK para Android (bucket público de Supabase)
-export const ANDROID_APK_URL = `${SUPABASE_STORAGE_URL}/rutica-latest.apk`;
+// URL del APK para Android (URL pública de EAS Artifacts)
+export const ANDROID_APK_URL =
+  'https://expo.dev/artifacts/eas/nETnpkWxVFEdXMvVu5yV6.apk';
 
 // URL de la App Store para iOS (actualizar cuando esté publicada)
 export const IOS_APP_STORE_URL = '';
@@ -75,27 +72,14 @@ export function hasDownloadAvailable(): boolean {
 
 /**
  * Inicia la descarga directa del archivo.
- * En web: crea un <a download> para forzar la descarga del APK.
- * En iOS: redirige al App Store (no hay descarga directa).
+ * En web: abre la URL del APK (el navegador detecta el .apk y lo descarga).
+ * En iOS: redirige al App Store.
  */
 export function triggerDownload(): void {
   const download = getDownloadUrl();
   if (!download) return;
 
-  // iOS siempre redirige a la tienda
-  if (download.platform === 'ios') {
+  if (typeof window !== 'undefined') {
     window.open(download.url, '_blank');
-    return;
-  }
-
-  // Android y Desktop: descarga directa del APK
-  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    const link = document.createElement('a');
-    link.href = download.url;
-    link.download = 'rutica.apk';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
 }
