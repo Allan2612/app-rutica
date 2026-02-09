@@ -4,12 +4,13 @@
  * Uses Caveat font like Rutica branding
  */
 
-import { memo } from 'react';
-import { View, Text, useWindowDimensions, Platform } from 'react-native';
+import { memo, useCallback } from 'react';
+import { View, Text, Pressable, useWindowDimensions, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { MapPin } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
+import { router } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { useAuthStore, useLocationStore } from '@/store';
 import { styles } from './styles';
@@ -34,6 +35,10 @@ export const HeroWelcome = memo(function HeroWelcome({
   const [fontsLoaded, fontError] = useFonts({ Caveat_700Bold });
 
   const isMobile = width < 768;
+
+  const handleStatPress = useCallback((route: string) => {
+    router.push(route as any);
+  }, []);
 
   const getLocationText = () => {
     if (!location) return 'Costa Rica';
@@ -119,29 +124,29 @@ export const HeroWelcome = memo(function HeroWelcome({
 
         {/* Quick Stats */}
         <View style={[styles.statsContainer, isMobile && styles.statsContainerMobile]}>
-          <View style={styles.statItem}>
+          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/businesses')}>
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>{businessCount}</Text>
             <Text style={[styles.statLabel, { color: colors.text.secondary }]}>Negocios</Text>
-          </View>
+          </Pressable>
           <View style={[styles.statDivider, { backgroundColor: colors.border.medium }]} />
-          <View style={styles.statItem}>
+          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/attractions?tab=events')}>
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>{eventCount}</Text>
             <Text style={[styles.statLabel, { color: colors.text.secondary }]}>Eventos</Text>
-          </View>
+          </Pressable>
           <View style={[styles.statDivider, { backgroundColor: colors.border.medium }]} />
-          <View style={styles.statItem}>
+          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/attractions')}>
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>
               {attractionCount}
             </Text>
             <Text style={[styles.statLabel, { color: colors.text.secondary }]}>Atracciones</Text>
-          </View>
+          </Pressable>
           <View style={[styles.statDivider, { backgroundColor: colors.border.medium }]} />
-          <View style={styles.statItem}>
+          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/businesses?tab=promotions')}>
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>
               {promotionCount}
             </Text>
             <Text style={[styles.statLabel, { color: colors.text.secondary }]}>Promociones</Text>
-          </View>
+          </Pressable>
         </View>
       </View>
     </View>
