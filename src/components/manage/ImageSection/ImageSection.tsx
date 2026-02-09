@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Images, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SingleImagePicker, MultipleImagePicker } from '@/components/ui';
 import { useThemedColors } from '@/hooks';
@@ -124,8 +124,7 @@ export const ImageSection = memo(function ImageSection({
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <Ionicons
-              name="images"
+            <Images
               size={24}
               color={colors.isDark ? colors.text.primary : colors.text.inverse}
             />
@@ -170,7 +169,7 @@ export const ImageSection = memo(function ImageSection({
               borderColor: colors.isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.4)',
             })}
           >
-            <Ionicons name="star" size={18} color="#fff" style={{ marginRight: 6 }} />
+            <Star size={18} color="#fff" style={{ marginRight: 6 }} />
             <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
               Comprar {premiumPackageName}
             </Text>

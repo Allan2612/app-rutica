@@ -1,7 +1,7 @@
 import { memo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Ionicons } from '@expo/vector-icons';
+import { Calendar, Clock } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 import { IOSDateTimePickerModal } from './IOSDateTimePickerModal';
@@ -85,7 +85,11 @@ export const NativeDateTimeInput = memo(function NativeDateTimeInput({
         onPress={() => setShowPicker(true)}
       >
         <View style={styles.dateButtonContent}>
-          <Ionicons name={icon} size={20} color={colors.text.primary} />
+          {icon === 'calendar-outline' ? (
+            <Calendar size={20} color={colors.text.primary} />
+          ) : (
+            <Clock size={20} color={colors.text.primary} />
+          )}
           <Text style={[styles.dateText, { color: colors.text.primary }]}>
             {formatForDisplay(date)}
           </Text>

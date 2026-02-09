@@ -1,6 +1,6 @@
 import { memo, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Calendar, Clock } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
@@ -94,7 +94,11 @@ export const WebDateTimeInput = memo(function WebDateTimeInput({
       activeOpacity={0.7}
     >
       <View style={styles.dateButtonContent}>
-        <Ionicons name={icon} size={20} color={colors.text.primary} />
+        {icon === 'calendar-outline' ? (
+          <Calendar size={20} color={colors.text.primary} />
+        ) : (
+          <Clock size={20} color={colors.text.primary} />
+        )}
         <Text style={[styles.dateText, { color: colors.text.primary }]}>
           {formatForDisplay(date)}
         </Text>
