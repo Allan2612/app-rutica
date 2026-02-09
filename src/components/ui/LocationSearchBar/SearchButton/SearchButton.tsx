@@ -22,7 +22,7 @@ export const SearchButton = memo(function SearchButton({
   onLocationPress,
 }: SearchButtonProps) {
   const colors = useThemedColors();
-  
+
   const getButtonText = () => {
     if (selectedDistrict && selectedCanton && selectedProvince) {
       return `${selectedDistrict}, ${selectedCanton}, ${selectedProvince}`;
@@ -38,11 +38,14 @@ export const SearchButton = memo(function SearchButton({
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={[styles.searchButton, {
-          backgroundColor: colors.background.secondary,
-          borderColor: colors.border.medium,
-        }]} 
+      <TouchableOpacity
+        style={[
+          styles.searchButton,
+          {
+            backgroundColor: colors.background.secondary,
+            borderColor: colors.border.medium,
+          },
+        ]}
         onPress={onPress}
         activeOpacity={0.7}
       >
@@ -53,22 +56,19 @@ export const SearchButton = memo(function SearchButton({
         <ChevronDown size={18} color={colors.text.secondary} />
       </TouchableOpacity>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[
           styles.locationButton,
           {
             backgroundColor: loadingLocation ? colors.background.tertiary : colors.primary[500],
             borderColor: loadingLocation ? colors.border.medium : colors.primary[500],
-          }
+          },
         ]}
         onPress={onLocationPress}
         disabled={loadingLocation}
         activeOpacity={0.7}
       >
-        <Locate 
-          size={18} 
-          color={loadingLocation ? colors.text.tertiary : colors.text.inverse} 
-        />
+        <Locate size={18} color={loadingLocation ? colors.text.tertiary : colors.text.inverse} />
       </TouchableOpacity>
     </View>
   );

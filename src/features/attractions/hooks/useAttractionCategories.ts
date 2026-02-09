@@ -5,5 +5,5 @@
 import { useCategories } from '@/hooks/useCategories';
 
 export function useAttractionCategories() {
-    return useCategories();
+  return useCategories();
 }

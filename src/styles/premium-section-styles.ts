@@ -18,7 +18,10 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 export const CHART_WIDTH = Math.min(SCREEN_WIDTH - 64, 500);
 
 // Mapeo de iconos para tipos de contacto
-export const CONTACT_ICONS: Record<ContactType, React.ComponentType<{ color: string; size: number; strokeWidth?: number }>> = {
+export const CONTACT_ICONS: Record<
+  ContactType,
+  React.ComponentType<{ color: string; size: number; strokeWidth?: number }>
+> = {
   phone: Phone,
   email: Mail,
   website: Globe,

@@ -11,56 +11,58 @@ import { generateDraggableMarkerScript, generateStaticMarkerScript } from './mar
  * Genera el HTML para el mapa interactivo Leaflet
  */
 export function generateMapHTML(
-    latitude: number,
-    longitude: number,
-    options: MapOptions = {}
+  latitude: number,
+  longitude: number,
+  options: MapOptions = {},
 ): string {
-    const {
-        draggable = true,
-        showCoordinates = true,
-        zoom = 15,
-        theme = 'light',
-        restrictToCostaRica = true,
-        popupText,
-    } = options;
+  const {
+    draggable = true,
+    showCoordinates = true,
+    zoom = 15,
+    theme = 'light',
+    restrictToCostaRica = true,
+    popupText,
+  } = options;
 
-    const colors = getMapThemeColors(theme);
-    const tileUrls = getMapTileUrls(theme);
-    const isDark = theme === 'dark';
+  const colors = getMapThemeColors(theme);
+  const tileUrls = getMapTileUrls(theme);
+  const isDark = theme === 'dark';
 
-    // Generar estilos CSS
-    const baseStyles = generateBaseStyles(colors);
-    const darkStyles = isDark ? generateDarkModeStyles(colors) : '';
-    const coordStyles = showCoordinates ? generateCoordinatesStyles(colors) : '';
+  // Generar estilos CSS
+  const baseStyles = generateBaseStyles(colors);
+  const darkStyles = isDark ? generateDarkModeStyles(colors) : '';
+  const coordStyles = showCoordinates ? generateCoordinatesStyles(colors) : '';
 
-    // Opciones para scripts
-    const scriptOpts = {
-        latitude,
-        longitude,
-        zoom,
-        draggable,
-        showCoordinates,
-        restrictToCostaRica,
-        popupText,
-        tileUrls,
-    };
+  // Opciones para scripts
+  const scriptOpts = {
+    latitude,
+    longitude,
+    zoom,
+    draggable,
+    showCoordinates,
+    restrictToCostaRica,
+    popupText,
+    tileUrls,
+  };
 
-    // Generar scripts
-    const initScript = generateMapInitScript(scriptOpts);
-    const layersScript = generateLayersScript(tileUrls);
-    const fallbackScript = generateFallbackScript(tileUrls.fallback);
-    const markerScript = draggable
-        ? generateDraggableMarkerScript(scriptOpts)
-        : generateStaticMarkerScript(scriptOpts);
+  // Generar scripts
+  const initScript = generateMapInitScript(scriptOpts);
+  const layersScript = generateLayersScript(tileUrls);
+  const fallbackScript = generateFallbackScript(tileUrls.fallback);
+  const markerScript = draggable
+    ? generateDraggableMarkerScript(scriptOpts)
+    : generateStaticMarkerScript(scriptOpts);
 
-    // Generar HTML de coordenadas
-    const coordsHTML = showCoordinates ? `
+  // Generar HTML de coordenadas
+  const coordsHTML = showCoordinates
+    ? `
     <div class="coordinates-display">
         <div><b>Lat:</b> <span id="lat">${latitude.toFixed(6)}</span></div>
         <div><b>Lng:</b> <span id="lng">${longitude.toFixed(6)}</span></div>
-    </div>` : '';
+    </div>`
+    : '';
 
-    return `
+  return `
 <!DOCTYPE html>
 <html>
 <head>

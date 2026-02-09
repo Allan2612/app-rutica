@@ -1,8 +1,23 @@
 import { memo, useState, useEffect, useMemo, useCallback } from 'react';
-import { View, ScrollView, RefreshControl, ActivityIndicator, Pressable, Text, Platform } from 'react-native';
+import {
+  View,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+  Pressable,
+  Text,
+  Platform,
+} from 'react-native';
 import { Search, SlidersHorizontal, MapPin as MapPinIcon } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { TabSelector, TabOption, SearchFilterModal, SearchFilters, LocationSectionHeader, NoLocalResultsPlaceholder } from '@/components/ui';
+import {
+  TabSelector,
+  TabOption,
+  SearchFilterModal,
+  SearchFilters,
+  LocationSectionHeader,
+  NoLocalResultsPlaceholder,
+} from '@/components/ui';
 import { AttractionPost } from '@/components/attractions/AttractionPost';
 import { AttractionsList } from '@/components/attractions';
 import { EventPost } from '@/components/events/EventPost';
@@ -94,12 +109,12 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   // Dividir por ubicación
   const attractionSplit = useMemo(
     () => splitItemsByLocation(attractions, locationFilter),
-    [attractions, locationFilter]
+    [attractions, locationFilter],
   );
 
   const eventSplit = useMemo(
     () => splitItemsByLocation(events, locationFilter),
-    [events, locationFilter]
+    [events, locationFilter],
   );
 
   // Estado para controlar el pull-to-refresh manualmente
@@ -122,7 +137,11 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   const hasActiveFilters =
     currentFilters.searchText !== '' ||
     currentFilters.categoryIds.length > 0 ||
-    Boolean(currentFilters.location?.province || currentFilters.location?.canton || currentFilters.location?.district);
+    Boolean(
+      currentFilters.location?.province ||
+      currentFilters.location?.canton ||
+      currentFilters.location?.district,
+    );
 
   const handleApplyFilters = (filters: SearchFilters) => {
     if (activeTab === 'attractions') {
@@ -138,9 +157,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
       style={[
         styles.searchButton,
         {
-          backgroundColor: hasActiveFilters
-            ? colors.primary[500]
-            : colors.background.secondary,
+          backgroundColor: hasActiveFilters ? colors.primary[500] : colors.background.secondary,
         },
       ]}
     >
@@ -156,7 +173,11 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   const postContainerStyle = {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
-    ...(Platform.OS === 'web' && { maxWidth: 600, alignSelf: 'center' as const, width: '100%' as const }),
+    ...(Platform.OS === 'web' && {
+      maxWidth: 600,
+      alignSelf: 'center' as const,
+      width: '100%' as const,
+    }),
   };
 
   // Renderizar items de atracciones

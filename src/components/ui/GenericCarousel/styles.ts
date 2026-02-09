@@ -1,22 +1,22 @@
-import { StyleSheet, Platform } from "react-native";
-import { colors, spacing } from "@/styles/theme";
+import { StyleSheet, Platform } from 'react-native';
+import { colors, spacing } from '@/styles/theme';
 
-const isWeb = Platform.OS === "web";
+const isWeb = Platform.OS === 'web';
 
 export const styles = StyleSheet.create({
   carouselContainer: {
-    position: "relative",
-    width: "100%",
+    position: 'relative',
+    width: '100%',
   },
   navButton: {
-    position: "absolute",
-    top: "50%",
+    position: 'absolute',
+    top: '50%',
     transform: [{ translateY: -20 }],
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 10,
     elevation: 4,
     shadowColor: colors.shadow,
@@ -31,12 +31,12 @@ export const styles = StyleSheet.create({
     right: spacing.md,
   },
   indicators: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: spacing.md,
     gap: spacing.xs,
-    width: "100%",
+    width: '100%',
   },
   indicator: {
     width: 8,

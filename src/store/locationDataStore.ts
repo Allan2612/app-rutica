@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { LocationDataService, type Province, type Canton, type District } from '@/features/maps/services/locationDataService';
+import {
+  LocationDataService,
+  type Province,
+  type Canton,
+  type District,
+} from '@/features/maps/services/locationDataService';
 
 /**
  * Estado del store de datos de ubicaciones
@@ -9,12 +14,12 @@ interface LocationDataState {
   provinces: Province[];
   cantons: Canton[];
   districts: District[];
-  
+
   // Estados de carga
   isLoading: boolean;
   isLoaded: boolean;
   hasError: boolean;
-  
+
   // Timestamp de última carga para caché
   lastLoadedAt: number | null;
 }
@@ -34,25 +39,25 @@ type LocationDataStore = LocationDataState & LocationDataActions;
 
 /**
  * Store global para datos de ubicaciones desde Supabase
- * 
+ *
  * Carga datos una vez al iniciar y los mantiene en caché
  * Si falla la carga, mantiene el estado de error
- * 
+ *
  * @example
  * ```tsx
  * import { useLocationDataStore } from '@/store';
- * 
+ *
  * function MyComponent() {
  *   const { provinces, isLoading, hasError, hasData } = useLocationDataStore();
  *   const { loadLocations, refreshLocations } = useLocationDataStore();
- *   
+ *
  *   useEffect(() => {
  *     loadLocations(); // Cargar al iniciar
  *   }, []);
- *   
+ *
  *   if (isLoading) return <Loader />;
  *   if (hasError || !hasData) return <NoLocationView />;
- *   
+ *
  *   return <LocationPicker provinces={provinces} />;
  * }
  * ```
@@ -87,7 +92,7 @@ export const useLocationDataStore = create<LocationDataStore>((set, get) => ({
    */
   loadLocations: async () => {
     const { isLoading, isLoaded } = get();
-    
+
     if (isLoaded || isLoading) return;
 
     set({ isLoading: true, hasError: false });

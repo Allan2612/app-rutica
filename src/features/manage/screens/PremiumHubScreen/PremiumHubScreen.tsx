@@ -47,13 +47,11 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
 
   // Separar suscripciones por tipo
   const fullPremiumSubscriptions = subscriptions.filter(
-    (s) => s.subscriptionType === 'full_premium'
+    (s) => s.subscriptionType === 'full_premium',
   );
-  const dashboardSubscriptions = subscriptions.filter(
-    (s) => s.subscriptionType === 'dashboard'
-  );
+  const dashboardSubscriptions = subscriptions.filter((s) => s.subscriptionType === 'dashboard');
   const otherSubscriptions = subscriptions.filter(
-    (s) => s.subscriptionType !== 'dashboard' && s.subscriptionType !== 'full_premium'
+    (s) => s.subscriptionType !== 'dashboard' && s.subscriptionType !== 'full_premium',
   );
 
   return (
@@ -131,4 +129,3 @@ export const PremiumHubScreen = memo(function PremiumHubScreen() {
     </View>
   );
 });
-

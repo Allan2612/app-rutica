@@ -14,7 +14,7 @@ export const AuthInput = memo(function AuthInput({
   ...inputProps
 }: AuthInputProps) {
   const colors = useThemedColors();
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -28,7 +28,7 @@ export const AuthInput = memo(function AuthInput({
             borderColor: colors.border.medium,
             color: colors.text.primary,
             backgroundColor: colors.background.secondary,
-          }
+          },
         ]}
         placeholderTextColor={colors.text.tertiary}
         {...inputProps}

@@ -87,7 +87,9 @@ export interface Database {
           created_at_ppm?: string;
           updated_at_ppm?: string;
         };
-        Update: Partial<Omit<ProfilePremium, 'profile_id_ppm' | 'created_at_ppm' | 'updated_at_ppm'>> & {
+        Update: Partial<
+          Omit<ProfilePremium, 'profile_id_ppm' | 'created_at_ppm' | 'updated_at_ppm'>
+        > & {
           updated_at_ppm?: string;
         };
         Relationships: [
@@ -97,7 +99,7 @@ export interface Database {
             isOneToOne: true;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
 
@@ -121,7 +123,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'countries';
             referencedColumns: ['id_ctr'];
-          }
+          },
         ];
       };
       cantons: {
@@ -135,7 +137,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'provinces';
             referencedColumns: ['id_prv'];
-          }
+          },
         ];
       };
       districts: {
@@ -149,7 +151,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'cantons';
             referencedColumns: ['id_ctn'];
-          }
+          },
         ];
       };
       locations: {
@@ -163,7 +165,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'districts';
             referencedColumns: ['id_dst'];
-          }
+          },
         ];
       };
 
@@ -197,7 +199,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'categories';
             referencedColumns: ['id_cat'];
-          }
+          },
         ];
       };
       event_category_map: {
@@ -218,7 +220,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'categories';
             referencedColumns: ['id_cat'];
-          }
+          },
         ];
       };
       attraction_category_map: {
@@ -239,7 +241,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'categories';
             referencedColumns: ['id_cat'];
-          }
+          },
         ];
       };
       product_category_map: {
@@ -260,7 +262,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'categories';
             referencedColumns: ['id_cat'];
-          }
+          },
         ];
       };
       promotion_category_map: {
@@ -281,7 +283,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'categories';
             referencedColumns: ['id_cat'];
-          }
+          },
         ];
       };
 
@@ -290,7 +292,16 @@ export interface Database {
       // ============================================
       businesses: {
         Row: Business;
-        Insert: Omit<Business, 'id_bus' | 'moderation_status_bus' | 'is_active_bus' | 'avg_rating_bus' | 'reviews_count_bus' | 'created_at_bus' | 'updated_at_bus'> & {
+        Insert: Omit<
+          Business,
+          | 'id_bus'
+          | 'moderation_status_bus'
+          | 'is_active_bus'
+          | 'avg_rating_bus'
+          | 'reviews_count_bus'
+          | 'created_at_bus'
+          | 'updated_at_bus'
+        > & {
           id_bus?: string;
           moderation_status_bus?: ModerationStatus | null;
           is_active_bus?: boolean;
@@ -323,7 +334,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       business_images: {
@@ -340,7 +351,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'businesses';
             referencedColumns: ['id_bus'];
-          }
+          },
         ];
       };
 
@@ -349,7 +360,17 @@ export interface Database {
       // ============================================
       events: {
         Row: Event;
-        Insert: Omit<Event, 'id_evt' | 'is_free_evt' | 'moderation_status_evt' | 'avg_rating_evt' | 'reviews_count_evt' | 'is_active_evt' | 'created_at_evt' | 'updated_at_evt'> & {
+        Insert: Omit<
+          Event,
+          | 'id_evt'
+          | 'is_free_evt'
+          | 'moderation_status_evt'
+          | 'avg_rating_evt'
+          | 'reviews_count_evt'
+          | 'is_active_evt'
+          | 'created_at_evt'
+          | 'updated_at_evt'
+        > & {
           id_evt?: string;
           is_free_evt?: boolean;
           moderation_status_evt?: ModerationStatus | null;
@@ -383,7 +404,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       event_images: {
@@ -400,7 +421,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'events';
             referencedColumns: ['id_evt'];
-          }
+          },
         ];
       };
 
@@ -409,7 +430,16 @@ export interface Database {
       // ============================================
       attractions: {
         Row: Attraction;
-        Insert: Omit<Attraction, 'id_atr' | 'moderation_status_atr' | 'avg_rating_atr' | 'reviews_count_atr' | 'is_active_atr' | 'created_at_atr' | 'updated_at_atr'> & {
+        Insert: Omit<
+          Attraction,
+          | 'id_atr'
+          | 'moderation_status_atr'
+          | 'avg_rating_atr'
+          | 'reviews_count_atr'
+          | 'is_active_atr'
+          | 'created_at_atr'
+          | 'updated_at_atr'
+        > & {
           id_atr?: string;
           moderation_status_atr?: ModerationStatus | null;
           avg_rating_atr?: number;
@@ -442,7 +472,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       attraction_images: {
@@ -459,7 +489,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'attractions';
             referencedColumns: ['id_atr'];
-          }
+          },
         ];
       };
 
@@ -468,7 +498,15 @@ export interface Database {
       // ============================================
       products: {
         Row: Product;
-        Insert: Omit<Product, 'id_prd' | 'is_active_prd' | 'avg_rating_prd' | 'reviews_count_prd' | 'created_at_prd' | 'updated_at_prd'> & {
+        Insert: Omit<
+          Product,
+          | 'id_prd'
+          | 'is_active_prd'
+          | 'avg_rating_prd'
+          | 'reviews_count_prd'
+          | 'created_at_prd'
+          | 'updated_at_prd'
+        > & {
           id_prd?: string;
           is_active_prd?: boolean;
           avg_rating_prd?: number;
@@ -486,7 +524,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'businesses';
             referencedColumns: ['id_bus'];
-          }
+          },
         ];
       };
       product_images: {
@@ -503,7 +541,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'products';
             referencedColumns: ['id_prd'];
-          }
+          },
         ];
       };
 
@@ -512,7 +550,16 @@ export interface Database {
       // ============================================
       promotions: {
         Row: Promotion;
-        Insert: Omit<Promotion, 'id_prm' | 'moderation_status_prm' | 'payment_state_prm' | 'is_active_prm' | 'discount_value_prm' | 'created_at_prm' | 'updated_at_prm'> & {
+        Insert: Omit<
+          Promotion,
+          | 'id_prm'
+          | 'moderation_status_prm'
+          | 'payment_state_prm'
+          | 'is_active_prm'
+          | 'discount_value_prm'
+          | 'created_at_prm'
+          | 'updated_at_prm'
+        > & {
           id_prm?: string;
           moderation_status_prm?: ModerationStatus | null;
           payment_state_prm?: PaymentState | null;
@@ -545,7 +592,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       promotion_images: {
@@ -562,7 +609,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'promotions';
             referencedColumns: ['id_prm'];
-          }
+          },
         ];
       };
       promotion_combo_items: {
@@ -585,7 +632,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'products';
             referencedColumns: ['id_prd'];
-          }
+          },
         ];
       };
       promotion_products: {
@@ -606,7 +653,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'products';
             referencedColumns: ['id_prd'];
-          }
+          },
         ];
       };
       promotion_scope_categories: {
@@ -629,7 +676,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'categories';
             referencedColumns: ['id_cat'];
-          }
+          },
         ];
       };
 
@@ -642,7 +689,9 @@ export interface Database {
           id_brv?: string;
           created_at_brv?: string;
         };
-        Update: Partial<Omit<BusinessReview, 'id_brv' | 'business_id_brv' | 'user_id_brv' | 'created_at_brv'>>;
+        Update: Partial<
+          Omit<BusinessReview, 'id_brv' | 'business_id_brv' | 'user_id_brv' | 'created_at_brv'>
+        >;
         Relationships: [
           {
             foreignKeyName: 'business_reviews_business_id_brv_fkey';
@@ -657,7 +706,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       event_reviews: {
@@ -666,7 +715,9 @@ export interface Database {
           id_erv?: string;
           created_at_erv?: string;
         };
-        Update: Partial<Omit<EventReview, 'id_erv' | 'event_id_erv' | 'user_id_erv' | 'created_at_erv'>>;
+        Update: Partial<
+          Omit<EventReview, 'id_erv' | 'event_id_erv' | 'user_id_erv' | 'created_at_erv'>
+        >;
         Relationships: [
           {
             foreignKeyName: 'event_reviews_event_id_erv_fkey';
@@ -681,7 +732,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       attraction_reviews: {
@@ -690,7 +741,9 @@ export interface Database {
           id_arv?: string;
           created_at_arv?: string;
         };
-        Update: Partial<Omit<AttractionReview, 'id_arv' | 'attraction_id_arv' | 'user_id_arv' | 'created_at_arv'>>;
+        Update: Partial<
+          Omit<AttractionReview, 'id_arv' | 'attraction_id_arv' | 'user_id_arv' | 'created_at_arv'>
+        >;
         Relationships: [
           {
             foreignKeyName: 'attraction_reviews_attraction_id_arv_fkey';
@@ -705,7 +758,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       product_reviews: {
@@ -714,7 +767,9 @@ export interface Database {
           id_prv?: string;
           created_at_prv?: string;
         };
-        Update: Partial<Omit<ProductReview, 'id_prv' | 'product_id_prv' | 'user_id_prv' | 'created_at_prv'>>;
+        Update: Partial<
+          Omit<ProductReview, 'id_prv' | 'product_id_prv' | 'user_id_prv' | 'created_at_prv'>
+        >;
         Relationships: [
           {
             foreignKeyName: 'product_reviews_product_id_prv_fkey';
@@ -729,7 +784,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
 
@@ -754,7 +809,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       event_likes: {
@@ -775,7 +830,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       attraction_likes: {
@@ -796,7 +851,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       business_review_likes: {
@@ -817,7 +872,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       event_review_likes: {
@@ -838,7 +893,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       attraction_review_likes: {
@@ -859,7 +914,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
 
@@ -887,7 +942,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       event_interactions: {
@@ -911,7 +966,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       attraction_interactions: {
@@ -935,7 +990,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       business_review_interactions: {
@@ -959,7 +1014,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       event_review_interactions: {
@@ -983,7 +1038,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       attraction_review_interactions: {
@@ -1007,7 +1062,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
       product_review_interactions: {
@@ -1031,7 +1086,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id_prf'];
-          }
+          },
         ];
       };
     };

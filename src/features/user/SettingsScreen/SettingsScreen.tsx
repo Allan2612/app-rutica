@@ -30,9 +30,7 @@ export const SettingsScreen = memo(function SettingsScreen() {
           <View style={styles.headerWithBack}>
             <BackButton />
             <View style={styles.headerContent}>
-              <Text style={[styles.title, { color: colors.text.primary }]}>
-                Configuración
-              </Text>
+              <Text style={[styles.title, { color: colors.text.primary }]}>Configuración</Text>
               <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
                 Personaliza tu experiencia
               </Text>
@@ -41,13 +39,16 @@ export const SettingsScreen = memo(function SettingsScreen() {
 
           {/* Apariencia */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>
-              Apariencia
-            </Text>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>Apariencia</Text>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.settingRow}>
                 <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   {isDark ? (
@@ -76,13 +77,16 @@ export const SettingsScreen = memo(function SettingsScreen() {
 
           {/* General */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>
-              General
-            </Text>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>General</Text>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <Pressable style={styles.settingRow}>
                 <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <Globe color={colors.text.primary} size={20} />

@@ -26,14 +26,17 @@ export const ActiveToggleSection = memo(function ActiveToggleSection({
 
   return (
     <View style={formSectionStyles.section}>
-      <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
-        {label}
-      </Text>
-      
-      <View style={[styles.toggleContainer, { 
-        backgroundColor: colors.background.secondary,
-        borderColor: colors.border.medium,
-      }]}>
+      <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>{label}</Text>
+
+      <View
+        style={[
+          styles.toggleContainer,
+          {
+            backgroundColor: colors.background.secondary,
+            borderColor: colors.border.medium,
+          },
+        ]}
+      >
         <View style={styles.toggleContent}>
           <View style={styles.iconContainer}>
             {isActive ? (
@@ -42,21 +45,24 @@ export const ActiveToggleSection = memo(function ActiveToggleSection({
               <EyeOff size={24} color={colors.text.tertiary} strokeWidth={2} />
             )}
           </View>
-          
+
           <View style={styles.toggleInfo}>
-            <Text style={[styles.toggleStatus, { 
-              color: isActive ? colors.success : colors.text.secondary 
-            }]}>
+            <Text
+              style={[
+                styles.toggleStatus,
+                {
+                  color: isActive ? colors.success : colors.text.secondary,
+                },
+              ]}
+            >
               {isActive ? activeText : inactiveText}
             </Text>
             {helperText && (
-              <Text style={[styles.helperText, { color: colors.text.tertiary }]}>
-                {helperText}
-              </Text>
+              <Text style={[styles.helperText, { color: colors.text.tertiary }]}>{helperText}</Text>
             )}
           </View>
         </View>
-        
+
         <Switch
           value={isActive}
           onValueChange={onToggle}

@@ -55,9 +55,7 @@ export const PlansSummary = memo(function PlansSummary({
     return map;
   }, [events]);
 
-  const selectedPlansInfo = SUBSCRIPTION_PLANS.filter(p =>
-    selectedPlans.includes(p.type)
-  );
+  const selectedPlansInfo = SUBSCRIPTION_PLANS.filter((p) => selectedPlans.includes(p.type));
 
   const totalPrice = selectedPlansInfo.reduce((sum, plan) => {
     const priceNum = parseInt(plan.price.replace(/[^\d]/g, ''));
@@ -90,7 +88,10 @@ export const PlansSummary = memo(function PlansSummary({
       if (preSelectedEntityName && selectedPlans.length === 1) {
         return { type: entitySelection.entityType, name: preSelectedEntityName };
       }
-      if (entitySelection.entityType === 'attraction' && attractionNames[entitySelection.entityId]) {
+      if (
+        entitySelection.entityType === 'attraction' &&
+        attractionNames[entitySelection.entityId]
+      ) {
         return { type: 'attraction', name: attractionNames[entitySelection.entityId] };
       }
       if (entitySelection.entityType === 'event' && eventNames[entitySelection.entityId]) {
@@ -102,29 +103,46 @@ export const PlansSummary = memo(function PlansSummary({
   };
 
   return (
-    <View
-      style={[
-        styles.selectedPlanSummary,
-        { backgroundColor: colors.background.tertiary },
-      ]}
-    >
+    <View style={[styles.selectedPlanSummary, { backgroundColor: colors.background.tertiary }]}>
       <Text style={[styles.summaryLabel, { color: colors.text.tertiary }]}>
         {selectedPlans.length === 1 ? 'Plan seleccionado' : 'Planes seleccionados'}
       </Text>
       {selectedPlansInfo.map((plan, index) => {
         const entityInfo = getAssociatedEntityInfo(plan.type);
         return (
-          <View key={plan.type} style={{ marginBottom: index < selectedPlansInfo.length - 1 ? 12 : 0 }}>
-            <Text style={[styles.summaryValue, { color: colors.text.primary, fontSize: 15, fontWeight: '700' }]}>
+          <View
+            key={plan.type}
+            style={{ marginBottom: index < selectedPlansInfo.length - 1 ? 12 : 0 }}
+          >
+            <Text
+              style={[
+                styles.summaryValue,
+                { color: colors.text.primary, fontSize: 15, fontWeight: '700' },
+              ]}
+            >
               • {plan.name}
             </Text>
-            <Text style={{ color: colors.text.secondary, fontSize: 13, marginLeft: 12, marginTop: 4 }}>
+            <Text
+              style={{ color: colors.text.secondary, fontSize: 13, marginLeft: 12, marginTop: 4 }}
+            >
               {plan.description}
             </Text>
             {entityInfo && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 12, marginTop: 6, gap: 6 }}>
-                {entityInfo.type === 'business' && <Building2 size={14} color={colors.primary[500]} />}
-                {entityInfo.type === 'attraction' && <MapPin size={14} color={colors.primary[500]} />}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginLeft: 12,
+                  marginTop: 6,
+                  gap: 6,
+                }}
+              >
+                {entityInfo.type === 'business' && (
+                  <Building2 size={14} color={colors.primary[500]} />
+                )}
+                {entityInfo.type === 'attraction' && (
+                  <MapPin size={14} color={colors.primary[500]} />
+                )}
                 {entityInfo.type === 'event' && <Calendar size={14} color={colors.primary[500]} />}
                 <Text style={{ color: colors.primary[500], fontSize: 13, fontWeight: '600' }}>
                   {entityInfo.name}
@@ -134,9 +152,17 @@ export const PlansSummary = memo(function PlansSummary({
           </View>
         );
       })}
-      <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border.light }}>
+      <View
+        style={{
+          marginTop: 12,
+          paddingTop: 12,
+          borderTopWidth: 1,
+          borderTopColor: colors.border.light,
+        }}
+      >
         <Text style={[styles.summaryPrice, { color: colors.primary[500] }]}>
-          Total: ₡{totalPrice.toLocaleString('es-CR')}{showPerMonth ? '/mes' : ''}
+          Total: ₡{totalPrice.toLocaleString('es-CR')}
+          {showPerMonth ? '/mes' : ''}
         </Text>
       </View>
     </View>

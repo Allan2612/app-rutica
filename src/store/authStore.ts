@@ -36,18 +36,18 @@ type AuthStore = AuthState & AuthActions;
 
 /**
  * Store global de autenticación usando Zustand
- * 
+ *
  * @example
  * ```tsx
  * import { useAuthStore } from '@/store';
- * 
+ *
  * function MyComponent() {
  *   const { user, role, isAuthenticated, isLoading } = useAuthStore();
  *   const { signOut, loadUserData } = useAuthStore();
- *   
+ *
  *   if (isLoading) return <Loader />;
  *   if (!isAuthenticated) return <Login />;
- *   
+ *
  *   return <div>Hola {user.email}</div>;
  * }
  * ```
@@ -81,13 +81,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    */
   loadUserData: async () => {
     const state = get();
-    
+
     // NO cargar datos si estamos en modo recovery (recuperación de contraseña)
     if (state._isRecoveryMode) {
       set({ isLoading: false, _isLoadingData: false });
       return;
     }
-    
+
     // Evitar cargas múltiples simultáneas
     if (state._isLoadingData) {
       return;
@@ -99,12 +99,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       // 1. Verificar si hay una sesión válida
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
       // Si hay error de refresh token, limpiar todo
       if (sessionError) {
-        if (sessionError.message?.includes('Invalid Refresh Token') || 
-            sessionError.message?.includes('Refresh Token Not Found')) {
+        if (
+          sessionError.message?.includes('Invalid Refresh Token') ||
+          sessionError.message?.includes('Refresh Token Not Found')
+        ) {
           console.warn('[AUTH] Token inválido detectado, limpiando sesión...');
           await supabase.auth.signOut();
         }
@@ -151,7 +156,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         .from('profiles')
         .select('role_prf, first_name_prf, last_name1_prf')
         .eq('id_prf', authUser.id)
-        .single<{ role_prf: UserRole; first_name_prf: string | null; last_name1_prf: string | null }>();
+        .single<{
+          role_prf: UserRole;
+          first_name_prf: string | null;
+          last_name1_prf: string | null;
+        }>();
 
       if (profileError) {
         // Si el perfil no existe, desloguear
@@ -160,7 +169,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           await get().signOut();
           return;
         }
-        
+
         // Otros errores: mantener sesión sin rol
         set({
           user: authUser,
@@ -186,10 +195,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
     } catch (error: any) {
       console.error('[AUTH] Error cargando datos de usuario:', error);
-      
+
       // Si es error de refresh token, limpiar almacenamiento
-      if (error?.message?.includes('Invalid Refresh Token') || 
-          error?.message?.includes('Refresh Token Not Found')) {
+      if (
+        error?.message?.includes('Invalid Refresh Token') ||
+        error?.message?.includes('Refresh Token Not Found')
+      ) {
         console.warn('[AUTH] Limpiando sesión corrupta...');
         try {
           await supabase.auth.signOut();
@@ -197,7 +208,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           console.error('[AUTH] Error al hacer signOut:', signOutError);
         }
       }
-      
+
       // IMPORTANTE: Siempre resetear el flag en caso de error
       set({
         user: null,
@@ -243,7 +254,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    */
   initialize: () => {
     const state = get();
-    
+
     // Evitar múltiples inicializaciones
     if (state._initialized) {
       return;
@@ -251,91 +262,91 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ _initialized: true });
 
     // Registrar listener antes de cargar datos (evita race conditions)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        // Manejar recuperación de contraseña - NO autenticar al usuario
-        if (event === 'PASSWORD_RECOVERY') {
-          set({
-            _isRecoveryMode: true,
-            isLoading: false,
-            _isLoadingData: false,
-          });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Manejar recuperación de contraseña - NO autenticar al usuario
+      if (event === 'PASSWORD_RECOVERY') {
+        set({
+          _isRecoveryMode: true,
+          isLoading: false,
+          _isLoadingData: false,
+        });
+        return;
+      }
+
+      if (event === 'SIGNED_OUT') {
+        set({
+          user: null,
+          role: null,
+          profileName: null,
+          isAuthenticated: false,
+          isLoading: false,
+          _isLoadingData: false,
+          _isRecoveryMode: false,
+        });
+      } else if (event === 'INITIAL_SESSION' && !session) {
+        // Si no hay sesión inicial, asegurarse de limpiar el estado
+        set({
+          user: null,
+          role: null,
+          profileName: null,
+          isAuthenticated: false,
+          isLoading: false,
+          _isLoadingData: false,
+        });
+      } else if (event === 'SIGNED_IN') {
+        // NO cargar datos si estamos en modo recovery
+        const currentState = get();
+        if (currentState._isRecoveryMode) {
+          set({ isLoading: false, _isLoadingData: false });
           return;
         }
-        
-        if (event === 'SIGNED_OUT') {
-          set({
-            user: null,
-            role: null,
-            profileName: null,
-            isAuthenticated: false,
-            isLoading: false,
-            _isLoadingData: false,
-            _isRecoveryMode: false,
-          });
-        } else if (event === 'INITIAL_SESSION' && !session) {
-          // Si no hay sesión inicial, asegurarse de limpiar el estado
-          set({
-            user: null,
-            role: null,
-            profileName: null,
-            isAuthenticated: false,
-            isLoading: false,
-            _isLoadingData: false,
-          });
-        } else if (event === 'SIGNED_IN') {
-          // NO cargar datos si estamos en modo recovery
-          const currentState = get();
-          if (currentState._isRecoveryMode) {
-            set({ isLoading: false, _isLoadingData: false });
-            return;
-          }
-          // Solo cargar si NO tenemos usuario ya cargado
-          if (!currentState.user) {
-            await get().loadUserData();
-          }
-        } else if (event === 'TOKEN_REFRESHED') {
-          // NO cargar datos si estamos en modo recovery
-          const currentState = get();
-          if (currentState._isRecoveryMode) {
-            return;
-          }
-          // Solo refrescar si el usuario cambió, no mostrar spinner
-          if (session?.user?.id && session.user.id !== currentState.user?.id) {
-            await get().loadUserData();
-          }
-          // Si es el mismo usuario, solo actualizar el objeto user sin recargar todo
-          else if (session?.user && currentState.user) {
-            set({ user: session.user });
-          }
-        } else if (event === 'USER_UPDATED') {
-          // Si estamos en modo recovery y se actualizó el usuario (contraseña cambiada),
-          // no recargar datos - la pantalla de reset se encargará
-          const currentState = get();
-          if (currentState._isRecoveryMode) {
-            return;
-          }
-          // Solo recargar si hay cambios reales en el usuario
-          if (session?.user && JSON.stringify(session.user) !== JSON.stringify(currentState.user)) {
-            await get().loadUserData();
-          }
-        } else if (event === 'INITIAL_SESSION') {
-          // Este evento ocurre al iniciar - cargar datos del usuario
-          // NO cargar si estamos en modo recovery
-          const currentState = get();
-          if (currentState._isRecoveryMode) {
-            set({ isLoading: false, _isLoadingData: false });
-            return;
-          }
-          if (session?.user) {
-            await get().loadUserData();
-          }
+        // Solo cargar si NO tenemos usuario ya cargado
+        if (!currentState.user) {
+          await get().loadUserData();
+        }
+      } else if (event === 'TOKEN_REFRESHED') {
+        // NO cargar datos si estamos en modo recovery
+        const currentState = get();
+        if (currentState._isRecoveryMode) {
+          return;
+        }
+        // Solo refrescar si el usuario cambió, no mostrar spinner
+        if (session?.user?.id && session.user.id !== currentState.user?.id) {
+          await get().loadUserData();
+        }
+        // Si es el mismo usuario, solo actualizar el objeto user sin recargar todo
+        else if (session?.user && currentState.user) {
+          set({ user: session.user });
+        }
+      } else if (event === 'USER_UPDATED') {
+        // Si estamos en modo recovery y se actualizó el usuario (contraseña cambiada),
+        // no recargar datos - la pantalla de reset se encargará
+        const currentState = get();
+        if (currentState._isRecoveryMode) {
+          return;
+        }
+        // Solo recargar si hay cambios reales en el usuario
+        if (session?.user && JSON.stringify(session.user) !== JSON.stringify(currentState.user)) {
+          await get().loadUserData();
+        }
+      } else if (event === 'INITIAL_SESSION') {
+        // Este evento ocurre al iniciar - cargar datos del usuario
+        // NO cargar si estamos en modo recovery
+        const currentState = get();
+        if (currentState._isRecoveryMode) {
+          set({ isLoading: false, _isLoadingData: false });
+          return;
+        }
+        if (session?.user) {
+          await get().loadUserData();
         }
       }
-    );
+    });
 
     (get() as any)._subscription = subscription;
-    
+
     // Cargar datos inicialmente
     get().loadUserData();
   },

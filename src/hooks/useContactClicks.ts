@@ -16,7 +16,8 @@ export const contactClicksKeys = {
   all: ['contactClicks'] as const,
   stats: (userId: string, days: ContactPeriod, businessId: string | null) =>
     [...contactClicksKeys.all, 'stats', userId, days, businessId] as const,
-  businessOptions: (userId: string) => [...contactClicksKeys.all, 'businessOptions', userId] as const,
+  businessOptions: (userId: string) =>
+    [...contactClicksKeys.all, 'businessOptions', userId] as const,
 };
 
 // ============================================
@@ -60,13 +61,8 @@ export function useTrackContactClick() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      businessId,
-      contactType,
-    }: {
-      businessId: string;
-      contactType: ContactType;
-    }) => trackContactClick(businessId, contactType, user?.id),
+    mutationFn: ({ businessId, contactType }: { businessId: string; contactType: ContactType }) =>
+      trackContactClick(businessId, contactType, user?.id),
     onSuccess: () => {
       // Invalidar las estadísticas para que se actualicen
       if (user?.id) {

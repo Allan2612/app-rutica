@@ -18,7 +18,7 @@ export const STORAGE_BUCKETS = {
   promotions: 'promotions-images',
 } as const;
 
-export type StorageBucket = typeof STORAGE_BUCKETS[keyof typeof STORAGE_BUCKETS];
+export type StorageBucket = (typeof STORAGE_BUCKETS)[keyof typeof STORAGE_BUCKETS];
 
 // ============================================
 // Helper Functions
@@ -43,8 +43,16 @@ export function getImageTypeFromPath(path: string): ImageType | undefined {
   if (!path) return undefined;
   const filename = path.split('/').pop() || '';
   const prefix = filename.split('-')[0];
-  
-  const validTypes: ImageType[] = ['cover', 'logo', 'gallery', 'product', 'combo', 'brand', 'flyer'];
+
+  const validTypes: ImageType[] = [
+    'cover',
+    'logo',
+    'gallery',
+    'product',
+    'combo',
+    'brand',
+    'flyer',
+  ];
   return validTypes.includes(prefix as ImageType) ? (prefix as ImageType) : undefined;
 }
 
@@ -52,18 +60,20 @@ export function getImageTypeFromPath(path: string): ImageType | undefined {
  * Formatea la ubicación desde la jerarquía normalizada
  * Incluye Provincia > Cantón > Distrito
  */
-export function formatLocationFromHierarchy(location: {
-  address_loc?: string | null;
-  districts?: {
-    name_dst?: string;
-    cantons?: {
-      name_ctn?: string;
-      provinces?: {
-        name_prv?: string;
+export function formatLocationFromHierarchy(
+  location: {
+    address_loc?: string | null;
+    districts?: {
+      name_dst?: string;
+      cantons?: {
+        name_ctn?: string;
+        provinces?: {
+          name_prv?: string;
+        };
       };
     };
-  };
-} | null): string | null {
+  } | null,
+): string | null {
   if (!location?.districts) return null;
 
   const parts = [
@@ -78,19 +88,20 @@ export function formatLocationFromHierarchy(location: {
 /**
  * Formatea nombre completo desde profile
  */
-export function formatFullName(profile: {
-  first_name_prf?: string | null;
-  last_name1_prf?: string | null;
-  last_name2_prf?: string | null;
-} | null, fallback = 'Usuario'): string {
+export function formatFullName(
+  profile: {
+    first_name_prf?: string | null;
+    last_name1_prf?: string | null;
+    last_name2_prf?: string | null;
+  } | null,
+  fallback = 'Usuario',
+): string {
   if (!profile) return fallback;
-  
-  const parts = [
-    profile.first_name_prf,
-    profile.last_name1_prf,
-    profile.last_name2_prf,
-  ].filter(Boolean);
-  
+
+  const parts = [profile.first_name_prf, profile.last_name1_prf, profile.last_name2_prf].filter(
+    Boolean,
+  );
+
   return parts.length > 0 ? parts.join(' ') : fallback;
 }
 
@@ -99,7 +110,7 @@ export function formatFullName(profile: {
  */
 export function formatDateAdmin(date: string | null | undefined): string {
   if (!date) return 'No especificado';
-  
+
   return new Date(date).toLocaleDateString('es-CR', {
     day: 'numeric',
     month: 'long',
@@ -114,7 +125,7 @@ export function formatDateAdmin(date: string | null | undefined): string {
  */
 export function formatDateShort(date: string | null | undefined): string {
   if (!date) return 'No especificado';
-  
+
   return new Date(date).toLocaleDateString('es-CR', {
     day: 'numeric',
     month: 'short',

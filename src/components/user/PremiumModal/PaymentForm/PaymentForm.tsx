@@ -36,9 +36,7 @@ export const PaymentForm = memo(function PaymentForm({
             styles.input,
             {
               backgroundColor: colors.background.primary,
-              borderColor: error && !paymentReference.trim()
-                ? colors.error
-                : colors.border.medium,
+              borderColor: error && !paymentReference.trim() ? colors.error : colors.border.medium,
               color: colors.text.primary,
             },
           ]}
@@ -75,9 +73,7 @@ export const PaymentForm = memo(function PaymentForm({
       </View>
 
       {/* Aviso importante */}
-      <View
-        style={[styles.noticeCard, { backgroundColor: colors.warning + '10' }]}
-      >
+      <View style={[styles.noticeCard, { backgroundColor: colors.warning + '10' }]}>
         <Info size={16} color={colors.warning} />
         <Text style={[styles.noticeText, { color: colors.text.secondary }]}>
           Tu suscripción será activada una vez verificado el pago (hasta 24h).
@@ -88,9 +84,7 @@ export const PaymentForm = memo(function PaymentForm({
       {error && (
         <View style={styles.errorContainer}>
           <AlertCircle size={14} color={colors.error} />
-          <Text style={[styles.errorText, { color: colors.error }]}>
-            {error}
-          </Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
         </View>
       )}
     </>

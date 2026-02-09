@@ -4,44 +4,44 @@
 import type { MarkerType } from '@/features/maps/types';
 
 export interface ThemeColors {
-    backgroundColor: string;
-    surfaceColor: string;
-    surfaceBorder: string;
-    surfaceText: string;
-    popupBg: string;
-    popupTextColor: string;
+  backgroundColor: string;
+  surfaceColor: string;
+  surfaceBorder: string;
+  surfaceText: string;
+  popupBg: string;
+  popupTextColor: string;
 }
 
 export interface TileUrls {
-    primary: string;
-    details: string | null;
-    labels: string | null;
-    fallback: string;
-    attribution: string;
+  primary: string;
+  details: string | null;
+  labels: string | null;
+  fallback: string;
+  attribution: string;
 }
 
 /**
  * Obtiene los colores del tema
  */
 export function getThemeColors(theme: 'light' | 'dark'): ThemeColors {
-    if (theme === 'dark') {
-        return {
-            backgroundColor: '#0d1117',
-            surfaceColor: 'rgba(13,17,23,0.92)',
-            surfaceBorder: '#30363d',
-            surfaceText: '#e6edf3',
-            popupBg: '#161b22',
-            popupTextColor: '#e6edf3',
-        };
-    }
+  if (theme === 'dark') {
     return {
-        backgroundColor: '#ffffff',
-        surfaceColor: 'rgba(255,255,255,0.95)',
-        surfaceBorder: '#e5e7eb',
-        surfaceText: '#111827',
-        popupBg: '#ffffff',
-        popupTextColor: '#111827',
+      backgroundColor: '#0d1117',
+      surfaceColor: 'rgba(13,17,23,0.92)',
+      surfaceBorder: '#30363d',
+      surfaceText: '#e6edf3',
+      popupBg: '#161b22',
+      popupTextColor: '#e6edf3',
     };
+  }
+  return {
+    backgroundColor: '#ffffff',
+    surfaceColor: 'rgba(255,255,255,0.95)',
+    surfaceBorder: '#e5e7eb',
+    surfaceText: '#111827',
+    popupBg: '#ffffff',
+    popupTextColor: '#111827',
+  };
 }
 
 /**
@@ -49,33 +49,33 @@ export function getThemeColors(theme: 'light' | 'dark'): ThemeColors {
  * Usa la misma configuración que BusinessMap para consistencia
  */
 export function getTileUrl(theme: 'light' | 'dark'): TileUrls {
-    const isDark = theme === 'dark';
-    const attribution = '© OpenStreetMap contributors | © CartoDB';
+  const isDark = theme === 'dark';
+  const attribution = '© OpenStreetMap contributors | © CartoDB';
 
-    if (isDark) {
-        return {
-            primary: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-            details: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-            labels: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
-            fallback: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            attribution,
-        };
-    }
-
+  if (isDark) {
     return {
-        primary: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        details: null,
-        labels: null,
-        fallback: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution,
+      primary: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+      details: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      labels: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
+      fallback: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution,
     };
+  }
+
+  return {
+    primary: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    details: null,
+    labels: null,
+    fallback: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution,
+  };
 }
 
 /**
  * Genera los estilos CSS del mapa
  */
 export function generateMapStyles(colors: ThemeColors, isDark: boolean): string {
-    const baseStyles = `
+  const baseStyles = `
         body, html { 
             margin: 0; 
             padding: 0; 
@@ -102,7 +102,7 @@ export function generateMapStyles(colors: ThemeColors, isDark: boolean): string 
         }
     `;
 
-    const controlStyles = `
+  const controlStyles = `
         .leaflet-bar {
             box-shadow: 0 2px 8px rgba(0,0,0,${isDark ? '0.4' : '0.15'});
             border: 1px solid ${colors.surfaceBorder};
@@ -130,7 +130,7 @@ export function generateMapStyles(colors: ThemeColors, isDark: boolean): string 
         }
     `;
 
-    const attributionStyles = `
+  const attributionStyles = `
         .leaflet-control-attribution {
             background: ${colors.surfaceColor} !important;
             border: 1px solid ${colors.surfaceBorder} !important;
@@ -156,7 +156,7 @@ export function generateMapStyles(colors: ThemeColors, isDark: boolean): string 
         }
     `;
 
-    const popupStyles = `
+  const popupStyles = `
         .leaflet-popup-content-wrapper {
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -195,47 +195,47 @@ export function generateMapStyles(colors: ThemeColors, isDark: boolean): string 
         }
     `;
 
-    // Filtro para mejorar contraste en modo oscuro (igual que BusinessMap)
-    const tileFilter = isDark
-        ? `.leaflet-pane.leaflet-tile-pane img {
+  // Filtro para mejorar contraste en modo oscuro (igual que BusinessMap)
+  const tileFilter = isDark
+    ? `.leaflet-pane.leaflet-tile-pane img {
             filter: contrast(1.07) brightness(5) saturate(1.05);
         }`
-        : '';
+    : '';
 
-    return baseStyles + controlStyles + attributionStyles + popupStyles + tileFilter;
+  return baseStyles + controlStyles + attributionStyles + popupStyles + tileFilter;
 }
 
 export interface MapScriptOptions {
-    markersJSON: string;
-    markerColorsJSON: string;
-    userMarkerColor: string;
-    userLatitude: number;
-    userLongitude: number;
-    zoom: number;
-    tileUrl: TileUrls;
-    showUserMarker: boolean;
-    initialSelectedTypes: MarkerType[];
+  markersJSON: string;
+  markerColorsJSON: string;
+  userMarkerColor: string;
+  userLatitude: number;
+  userLongitude: number;
+  zoom: number;
+  tileUrl: TileUrls;
+  showUserMarker: boolean;
+  initialSelectedTypes: MarkerType[];
 }
 
 /**
  * Genera el script del mapa
  */
 export function generateMapScript(options: MapScriptOptions): string {
-    const {
-        markersJSON,
-        markerColorsJSON,
-        userMarkerColor,
-        userLatitude,
-        userLongitude,
-        zoom,
-        tileUrl,
-        showUserMarker,
-        initialSelectedTypes,
-    } = options;
+  const {
+    markersJSON,
+    markerColorsJSON,
+    userMarkerColor,
+    userLatitude,
+    userLongitude,
+    zoom,
+    tileUrl,
+    showUserMarker,
+    initialSelectedTypes,
+  } = options;
 
-    const initialTypesJSON = JSON.stringify(initialSelectedTypes);
+  const initialTypesJSON = JSON.stringify(initialSelectedTypes);
 
-    return `
+  return `
         (function() {
             var markers = ${markersJSON};
             var MARKER_COLORS = ${markerColorsJSON};
@@ -255,8 +255,9 @@ export function generateMapScript(options: MapScriptOptions): string {
                 subdomains: 'abcd'
             }).addTo(map);
 
-            ${tileUrl.details
-            ? `
+            ${
+              tileUrl.details
+                ? `
             // Crear pane para capa de detalles
             map.createPane('details');
             map.getPane('details').style.zIndex = 640;
@@ -270,11 +271,12 @@ export function generateMapScript(options: MapScriptOptions): string {
                 opacity: 0.35
             }).addTo(map);
             `
-            : ''
-        }
+                : ''
+            }
 
-            ${tileUrl.labels
-            ? `
+            ${
+              tileUrl.labels
+                ? `
             // Crear pane para capa de etiquetas
             map.createPane('labels');
             map.getPane('labels').style.zIndex = 650;
@@ -288,8 +290,8 @@ export function generateMapScript(options: MapScriptOptions): string {
                 opacity: 1
             }).addTo(map);
             `
-            : ''
-        }
+                : ''
+            }
 
             // Crear icono de marcador (mismo tamaño que el marcador del usuario)
             function createMarkerIcon(color) {

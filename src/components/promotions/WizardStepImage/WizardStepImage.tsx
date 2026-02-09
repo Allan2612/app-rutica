@@ -12,7 +12,7 @@ interface WizardStepImageProps {
   errors: PromotionWizardErrors;
   onFieldChange: <K extends keyof PromotionWizardFormData>(
     field: K,
-    value: PromotionWizardFormData[K]
+    value: PromotionWizardFormData[K],
   ) => void;
 }
 
@@ -50,7 +50,3 @@ export const WizardStepImage = memo(function WizardStepImage({
     </View>
   );
 });
-
-
-
-

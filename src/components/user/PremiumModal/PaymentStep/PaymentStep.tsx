@@ -55,10 +55,7 @@ export const PaymentStep = memo(function PaymentStep({
         preSelectedEntityName={preSelectedEntityName}
       />
 
-      <PaymentMethodSelector
-        selectedMethod={paymentMethod}
-        onSelectMethod={onMethodChange}
-      />
+      <PaymentMethodSelector selectedMethod={paymentMethod} onSelectMethod={onMethodChange} />
 
       <PaymentInfo
         method={paymentMethod}

@@ -21,10 +21,7 @@ export interface SignUpInput {
 /**
  * Sube la foto de perfil al storage y retorna el path
  */
-async function uploadProfilePhoto(
-  userId: string,
-  imageUri: string
-): Promise<string> {
+async function uploadProfilePhoto(userId: string, imageUri: string): Promise<string> {
   const fileName = `${userId}/profile-${Date.now()}.jpg`;
 
   if (Platform.OS === 'web') {
@@ -32,12 +29,10 @@ async function uploadProfilePhoto(
     const response = await fetch(imageUri);
     const blob = await response.blob();
 
-    const { error } = await supabase.storage
-      .from(PROFILE_IMAGES_BUCKET)
-      .upload(fileName, blob, {
-        contentType: 'image/jpeg',
-        upsert: true,
-      });
+    const { error } = await supabase.storage.from(PROFILE_IMAGES_BUCKET).upload(fileName, blob, {
+      contentType: 'image/jpeg',
+      upsert: true,
+    });
 
     if (error) throw error;
   } else {
@@ -84,7 +79,7 @@ export async function signUp(input: SignUpInput) {
 
   // 2. Verificar que el perfil se creó correctamente por el trigger
   // Esperar un momento para que el trigger se ejecute
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -103,10 +98,13 @@ export async function signUp(input: SignUpInput) {
   // La foto se subirá después del primer login cuando haya sesión activa
   if (profilePhotoUri) {
     try {
-      await AsyncStorage.setItem(PENDING_PROFILE_PHOTO_KEY, JSON.stringify({
-        uri: profilePhotoUri,
-        userId: data.user.id,
-      }));
+      await AsyncStorage.setItem(
+        PENDING_PROFILE_PHOTO_KEY,
+        JSON.stringify({
+          uri: profilePhotoUri,
+          userId: data.user.id,
+        }),
+      );
     } catch (storageError) {
       console.warn('Error guardando foto pendiente:', storageError);
     }
@@ -180,13 +178,19 @@ export async function signOut() {
 }
 
 export async function getCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
   if (error) throw error;
   return user;
 }
 
 export async function getCurrentSession() {
-  const { data: { session }, error } = await supabase.auth.getSession();
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
   if (error) throw error;
   return session;
 }

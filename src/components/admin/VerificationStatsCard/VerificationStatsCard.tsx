@@ -71,10 +71,7 @@ export const VerificationStatsCard = memo(function VerificationStatsCard({
           return (
             <View
               key={item.key}
-              style={[
-                styles.statItem,
-                { backgroundColor: colors.background.secondary },
-              ]}
+              style={[styles.statItem, { backgroundColor: colors.background.secondary }]}
             >
               <View style={[styles.statIconContainer, { backgroundColor: item.bgColor }]}>
                 <Icon color={item.color} size={18} strokeWidth={2} />

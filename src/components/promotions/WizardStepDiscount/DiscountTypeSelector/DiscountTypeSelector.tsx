@@ -53,24 +53,14 @@ export const DiscountTypeSelector = memo(function DiscountTypeSelector({
               style={[
                 styles.card,
                 {
-                  backgroundColor: isSelected
-                    ? colors.primary[500]
-                    : colors.background.secondary,
+                  backgroundColor: isSelected ? colors.primary[500] : colors.background.secondary,
                   borderColor: isSelected ? colors.primary[500] : colors.border.medium,
                 },
               ]}
               onPress={() => onTypeChange(type.value)}
             >
-              <Icon
-                size={20}
-                color={isSelected ? '#FFFFFF' : colors.text.tertiary}
-              />
-              <Text
-                style={[
-                  styles.label,
-                  { color: isSelected ? '#FFFFFF' : colors.text.primary },
-                ]}
-              >
+              <Icon size={20} color={isSelected ? '#FFFFFF' : colors.text.tertiary} />
+              <Text style={[styles.label, { color: isSelected ? '#FFFFFF' : colors.text.primary }]}>
                 {type.label}
               </Text>
               {isSelected && <Check size={16} color="#FFFFFF" />}

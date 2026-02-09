@@ -23,10 +23,7 @@ import {
   useUpdateModeration,
   useToggleActive,
 } from '../../hooks/useAdminVerification';
-import type {
-  VerificationEntityType,
-  VerificationRequest,
-} from '../../types';
+import type { VerificationEntityType, VerificationRequest } from '../../types';
 import type { ModerationStatus } from '@/types/enums';
 import { styles } from './styles';
 
@@ -64,10 +61,15 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
       status: selectedStatus,
       search: searchQuery,
     }),
-    [selectedType, selectedStatus, searchQuery]
+    [selectedType, selectedStatus, searchQuery],
   );
 
-  const { data: requests = [], isLoading, refetch, isRefetching } = useVerificationRequests(filters);
+  const {
+    data: requests = [],
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useVerificationRequests(filters);
   const { data: stats, refetch: refetchStats } = useVerificationStats();
   const updateMutation = useUpdateModeration();
   const toggleActiveMutation = useToggleActive();
@@ -102,7 +104,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
           break;
       }
     },
-    [router]
+    [router],
   );
 
   const handleConfirmModeration = useCallback(
@@ -127,9 +129,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
         // Build dynamic toast message
         const actions: string[] = [];
         if (data.moderationStatus) {
-          actions.push(
-            data.moderationStatus === 'approved' ? 'aprobado' : 'rechazado'
-          );
+          actions.push(data.moderationStatus === 'approved' ? 'aprobado' : 'rechazado');
         }
         if (data.isActive !== undefined) {
           actions.push(data.isActive ? 'activado' : 'desactivado');
@@ -154,7 +154,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
         });
       }
     },
-    [statusDialog, updateMutation]
+    [statusDialog, updateMutation],
   );
 
   const handleToggleActive = useCallback(
@@ -183,7 +183,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
         });
       }
     },
-    [toggleActiveMutation]
+    [toggleActiveMutation],
   );
 
   const handleCancelDialog = useCallback(() => {
@@ -198,9 +198,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
   const renderEmpty = useMemo(
     () => (
       <View style={styles.emptyContainer}>
-        <View
-          style={[styles.emptyIconWrapper, { backgroundColor: colors.background.tertiary }]}
-        >
+        <View style={[styles.emptyIconWrapper, { backgroundColor: colors.background.tertiary }]}>
           <CheckCircle color={colors.success} size={40} strokeWidth={1.5} />
         </View>
         <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
@@ -213,7 +211,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
         </Text>
       </View>
     ),
-    [colors, selectedStatus]
+    [colors, selectedStatus],
   );
 
   // Memoized processing state
@@ -224,7 +222,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
         statusDialog.request?.id === requestId
       );
     },
-    [updateMutation.isPending, toggleActiveMutation.isPending, statusDialog.request?.id]
+    [updateMutation.isPending, toggleActiveMutation.isPending, statusDialog.request?.id],
   );
 
   return (
@@ -281,10 +279,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.primary[500]} />
               <Text
-                style={[
-                  styles.emptyDescription,
-                  { color: colors.text.secondary, marginTop: 16 },
-                ]}
+                style={[styles.emptyDescription, { color: colors.text.secondary, marginTop: 16 }]}
               >
                 Cargando solicitudes...
               </Text>

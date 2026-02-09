@@ -5,27 +5,31 @@ import { COSTA_RICA_BOUNDS, PRIMARY_ATTRIBUTION, FALLBACK_ATTRIBUTION } from './
 import type { MapTileUrls } from './types';
 
 interface ScriptOptions {
-    latitude: number;
-    longitude: number;
-    zoom: number;
-    draggable: boolean;
-    showCoordinates: boolean;
-    restrictToCostaRica: boolean;
-    popupText?: string;
-    tileUrls: MapTileUrls;
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  draggable: boolean;
+  showCoordinates: boolean;
+  restrictToCostaRica: boolean;
+  popupText?: string;
+  tileUrls: MapTileUrls;
 }
 
 /**
  * Genera el script de inicialización del mapa
  */
 export function generateMapInitScript(opts: ScriptOptions): string {
-    const { latitude, longitude, zoom, restrictToCostaRica, tileUrls } = opts;
+  const { latitude, longitude, zoom, restrictToCostaRica, tileUrls } = opts;
 
-    return `
-    const costaRicaBounds = ${restrictToCostaRica ? `[
+  return `
+    const costaRicaBounds = ${
+      restrictToCostaRica
+        ? `[
         [${COSTA_RICA_BOUNDS.south}, ${COSTA_RICA_BOUNDS.west}],
         [${COSTA_RICA_BOUNDS.north}, ${COSTA_RICA_BOUNDS.east}]
-    ]` : 'null'};
+    ]`
+        : 'null'
+    };
 
     const mapOptions = {
         maxBounds: costaRicaBounds,
@@ -48,7 +52,7 @@ export function generateMapInitScript(opts: ScriptOptions): string {
  * Genera el script para capas adicionales (detalles y labels)
  */
 export function generateLayersScript(tileUrls: MapTileUrls): string {
-    return `
+  return `
     const detailsUrl = ${JSON.stringify(tileUrls.details)};
     let detailsLayer = null;
     if (detailsUrl) {
@@ -82,7 +86,7 @@ export function generateLayersScript(tileUrls: MapTileUrls): string {
  * Genera el script de fallback para tiles
  */
 export function generateFallbackScript(fallbackUrl: string): string {
-    return `
+  return `
     let switchedToFallback = false;
     function switchToFallback() {
         if (switchedToFallback) return;

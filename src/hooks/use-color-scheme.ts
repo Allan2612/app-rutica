@@ -6,7 +6,7 @@ import { useThemeStore } from '@/store';
  * Hook que devuelve el tema actual considerando:
  * 1. La preferencia del usuario (store)
  * 2. El tema del sistema (si está en modo 'auto')
- * 
+ *
  * Carga automáticamente el tema guardado en AsyncStorage
  */
 export function useColorScheme(): 'light' | 'dark' {

@@ -53,18 +53,20 @@ interface LikeQueryResult {
 export async function getUserBusinessesFavoriteStats(
   userId: string,
   businessId: string | null = null,
-  days: number = 7
+  days: number = 7,
 ): Promise<UserDashboardStats> {
   // 1. Obtener los negocios del usuario con sus imágenes
   const { data: businessesData, error: businessError } = await supabase
     .from('businesses')
-    .select(`
+    .select(
+      `
       id_bus,
       name_bus,
       business_images (
         path_bim
       )
-    `)
+    `,
+    )
     .eq('owner_id_bus', userId)
     .eq('is_active_bus', true);
 
@@ -95,9 +97,7 @@ export async function getUserBusinessesFavoriteStats(
   }
 
   // 2. Obtener IDs de negocios (filtrar si se especifica uno)
-  const businessIds = businessId
-    ? [businessId]
-    : businesses.map((b) => b.id_bus);
+  const businessIds = businessId ? [businessId] : businesses.map((b) => b.id_bus);
 
   // 3. Contar favoritos por negocio con fechas
   const { data: likesData, error: likesError } = await supabase
@@ -132,15 +132,13 @@ export async function getUserBusinessesFavoriteStats(
     const logoImage = images.find((img) => img.path_bim.includes('logo-'));
     if (!logoImage) return null;
 
-    const { data } = supabase.storage
-      .from('business-images')
-      .getPublicUrl(logoImage.path_bim);
+    const { data } = supabase.storage.from('business-images').getPublicUrl(logoImage.path_bim);
     return data.publicUrl;
   };
 
   // 8. Construir estadísticas por negocio (filtrar si se especifica uno)
   const filteredBusinesses = businessId
-    ? businesses.filter(b => b.id_bus === businessId)
+    ? businesses.filter((b) => b.id_bus === businessId)
     : businesses;
 
   const businessesStats: BusinessFavoriteStats[] = filteredBusinesses.map((business) => ({
@@ -209,8 +207,18 @@ function calculateDailyTrend(likes: LikeQueryResult[], days: number): DailyFavor
   if (days === 90) {
     const monthlyData: { [key: string]: { count: number; label: string; order: number } } = {};
     const monthOrder: { [key: string]: number } = {
-      'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6,
-      'julio': 7, 'agosto': 8, 'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
+      enero: 1,
+      febrero: 2,
+      marzo: 3,
+      abril: 4,
+      mayo: 5,
+      junio: 6,
+      julio: 7,
+      agosto: 8,
+      septiembre: 9,
+      octubre: 10,
+      noviembre: 11,
+      diciembre: 12,
     };
 
     for (let i = days - 1; i >= 0; i--) {
@@ -231,7 +239,7 @@ function calculateDailyTrend(likes: LikeQueryResult[], days: number): DailyFavor
 
     return Object.values(monthlyData)
       .sort((a, b) => a.order - b.order)
-      .map(month => ({
+      .map((month) => ({
         date: '',
         label: month.label,
         count: month.count,

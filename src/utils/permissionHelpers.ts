@@ -18,7 +18,10 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 
     if (error || !data) return false;
 
-    return (data as { role_prf: string; is_active_prf: boolean }).role_prf === 'admin' && (data as { role_prf: string; is_active_prf: boolean }).is_active_prf === true;
+    return (
+      (data as { role_prf: string; is_active_prf: boolean }).role_prf === 'admin' &&
+      (data as { role_prf: string; is_active_prf: boolean }).is_active_prf === true
+    );
   } catch (err) {
     console.error('[isUserAdmin] Error:', err);
     return false;
@@ -29,10 +32,7 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
  * Verifica si el usuario puede editar el contenido
  * Retorna true si es el dueño O si es admin
  */
-export async function canUserEdit(
-  userId: string,
-  ownerId: string | null
-): Promise<boolean> {
+export async function canUserEdit(userId: string, ownerId: string | null): Promise<boolean> {
   // Si es el dueño, puede editar
   if (userId === ownerId) {
     return true;

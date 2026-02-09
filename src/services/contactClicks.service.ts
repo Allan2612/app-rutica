@@ -48,7 +48,10 @@ export interface UserBusinessOption {
 }
 
 // Mapeo de tipos a labels e iconos
-const CONTACT_TYPE_CONFIG: Record<ContactType, { label: string; shortLabel: string; icon: string }> = {
+const CONTACT_TYPE_CONFIG: Record<
+  ContactType,
+  { label: string; shortLabel: string; icon: string }
+> = {
   phone: { label: 'Teléfono', shortLabel: 'Teléfono', icon: 'Phone' },
   email: { label: 'Email', shortLabel: 'Email', icon: 'Mail' },
   website: { label: 'Sitio Web', shortLabel: 'Sitio Web', icon: 'Globe' },
@@ -72,7 +75,7 @@ const CONTACT_TYPE_CONFIG: Record<ContactType, { label: string; shortLabel: stri
 export async function trackContactClick(
   businessId: string,
   contactType: ContactType,
-  userId?: string
+  userId?: string,
 ): Promise<boolean> {
   // Note: La tabla business_contact_clicks debe existir en Supabase
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -98,9 +101,7 @@ interface BusinessIdResult {
 /**
  * Obtiene las empresas del usuario para el selector
  */
-export async function getUserBusinessOptions(
-  userId: string
-): Promise<UserBusinessOption[]> {
+export async function getUserBusinessOptions(userId: string): Promise<UserBusinessOption[]> {
   interface BusinessImageResult {
     path_bim: string;
   }
@@ -112,13 +113,15 @@ export async function getUserBusinessOptions(
 
   const { data, error } = await supabase
     .from('businesses')
-    .select(`
+    .select(
+      `
       id_bus,
       name_bus,
       business_images (
         path_bim
       )
-    `)
+    `,
+    )
     .eq('owner_id_bus', userId)
     .eq('is_active_bus', true)
     .order('name_bus', { ascending: true });
@@ -137,9 +140,7 @@ export async function getUserBusinessOptions(
     const logoImage = images.find((img) => img.path_bim.includes('logo-'));
     if (!logoImage) return null;
 
-    const { data } = supabase.storage
-      .from('business-images')
-      .getPublicUrl(logoImage.path_bim);
+    const { data } = supabase.storage.from('business-images').getPublicUrl(logoImage.path_bim);
     return data.publicUrl;
   };
 
@@ -157,7 +158,7 @@ export async function getUserBusinessOptions(
 export async function getUserBusinessesContactStats(
   userId: string,
   days: ContactPeriod = 30,
-  businessId: string | null = null
+  businessId: string | null = null,
 ): Promise<BusinessContactStats> {
   let businessIds: string[];
 
@@ -195,8 +196,9 @@ export async function getUserBusinessesContactStats(
   // 3. Obtener clicks filtrados por período
   // Note: La tabla business_contact_clicks debe existir en Supabase
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: clicksData, error: clicksError } = await (supabase
-    .from('business_contact_clicks') as any)
+  const { data: clicksData, error: clicksError } = await (
+    supabase.from('business_contact_clicks') as any
+  )
     .select('contact_type_bcc, created_at_bcc')
     .in('business_id_bcc', businessIds)
     .gte('created_at_bcc', startDateISO);
@@ -266,7 +268,7 @@ export async function getUserBusinessesContactStats(
  */
 function calculateDailyContactTrend(
   clicks: { contact_type_bcc: string; created_at_bcc: string }[],
-  days: number
+  days: number,
 ): DailyContactTrend[] {
   const { format, subDays } = require('date-fns');
   const { es } = require('date-fns/locale');
@@ -297,10 +299,13 @@ function calculateDailyContactTrend(
 
   // Determinar el formato de label según el período
   const labelFormat =
-    days === 7 ? 'EEE' :        // Lun, Mar, Mié...
-      days === 15 ? 'd' :          // 1, 2, 3... (solo número del día)
-        days === 30 ? 'd' :          // 1, 2, 3...
-          'MMMM';                      // febrero, marzo, abril...
+    days === 7
+      ? 'EEE' // Lun, Mar, Mié...
+      : days === 15
+        ? 'd' // 1, 2, 3... (solo número del día)
+        : days === 30
+          ? 'd' // 1, 2, 3...
+          : 'MMMM'; // febrero, marzo, abril...
 
   for (let i = days - 1; i >= 0; i--) {
     const date = subDays(today, i);
@@ -344,7 +349,7 @@ function calculateDailyContactTrend(
  * Calcula el porcentaje de crecimiento comparando última semana vs semana anterior
  */
 function calculateContactGrowthPercentage(
-  clicks: { contact_type_bcc: string; created_at_bcc: string }[]
+  clicks: { contact_type_bcc: string; created_at_bcc: string }[],
 ): number {
   const { subDays, startOfDay, endOfDay } = require('date-fns');
 

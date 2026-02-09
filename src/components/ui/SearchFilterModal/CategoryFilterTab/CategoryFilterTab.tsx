@@ -8,152 +8,152 @@ import { CategoryRow } from './CategoryRow';
 import { styles } from './styles';
 
 interface CategoryFilterTabProps {
-    categories: HierarchicalCategoryOption[];
-    selectedIds: string[];
-    onChange: (ids: string[]) => void;
+  categories: HierarchicalCategoryOption[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
 }
 
 export const CategoryFilterTab = memo(function CategoryFilterTab({
-    categories,
-    selectedIds,
-    onChange,
+  categories,
+  selectedIds,
+  onChange,
 }: CategoryFilterTabProps) {
-    const colors = useThemedColors();
-    const [searchText, setSearchText] = useState('');
-    const [includeSubcategories, setIncludeSubcategories] = useState(false);
-    const scrollViewRef = useRef<ScrollView>(null);
-    
-    // Estado: [gen1_id, gen2_id, gen3_id...]
-    const [activePath, setActivePath] = useState<string[]>([]);
+  const colors = useThemedColors();
+  const [searchText, setSearchText] = useState('');
+  const [includeSubcategories, setIncludeSubcategories] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-    // Mapa de categorías por ID
-    const categoryById = useMemo(() => {
-        const map = new Map<string, HierarchicalCategoryOption>();
-        categories.forEach((cat) => map.set(cat.id, cat));
-        return map;
-    }, [categories]);
+  // Estado: [gen1_id, gen2_id, gen3_id...]
+  const [activePath, setActivePath] = useState<string[]>([]);
 
-    // Mapa de parentId -> children
-    const childrenByParentId = useMemo(() => {
-        const map = new Map<string | null, HierarchicalCategoryOption[]>();
-        categories.forEach((cat) => {
-            const children = map.get(cat.parentId) || [];
-            children.push(cat);
-            map.set(cat.parentId, children);
-        });
-        return map;
-    }, [categories]);
+  // Mapa de categorías por ID
+  const categoryById = useMemo(() => {
+    const map = new Map<string, HierarchicalCategoryOption>();
+    categories.forEach((cat) => map.set(cat.id, cat));
+    return map;
+  }, [categories]);
 
-    // Primera generación (roots)
-    const gen1Categories = useMemo(() => {
-        return childrenByParentId.get(null) || [];
-    }, [childrenByParentId]);
+  // Mapa de parentId -> children
+  const childrenByParentId = useMemo(() => {
+    const map = new Map<string | null, HierarchicalCategoryOption[]>();
+    categories.forEach((cat) => {
+      const children = map.get(cat.parentId) || [];
+      children.push(cat);
+      map.set(cat.parentId, children);
+    });
+    return map;
+  }, [categories]);
 
-    // Segunda generación (hijos del seleccionado en gen1)
-    const gen2Categories = useMemo(() => {
-        if (activePath.length === 0) return [];
-        return childrenByParentId.get(activePath[0]) || [];
-    }, [activePath, childrenByParentId]);
+  // Primera generación (roots)
+  const gen1Categories = useMemo(() => {
+    return childrenByParentId.get(null) || [];
+  }, [childrenByParentId]);
 
-    // Tercera generación (hijos del seleccionado en gen2)
-    const gen3Categories = useMemo(() => {
-        if (activePath.length < 2) return [];
-        return childrenByParentId.get(activePath[1]) || [];
-    }, [activePath, childrenByParentId]);
+  // Segunda generación (hijos del seleccionado en gen1)
+  const gen2Categories = useMemo(() => {
+    if (activePath.length === 0) return [];
+    return childrenByParentId.get(activePath[0]) || [];
+  }, [activePath, childrenByParentId]);
 
-    // Cuarta generación (hijos del seleccionado en gen3)
-    const gen4Categories = useMemo(() => {
-        if (activePath.length < 3) return [];
-        return childrenByParentId.get(activePath[2]) || [];
-    }, [activePath, childrenByParentId]);
+  // Tercera generación (hijos del seleccionado en gen2)
+  const gen3Categories = useMemo(() => {
+    if (activePath.length < 2) return [];
+    return childrenByParentId.get(activePath[1]) || [];
+  }, [activePath, childrenByParentId]);
 
-    // Filtrar por búsqueda
-    const searchResults = useMemo(() => {
-        if (!searchText.trim()) return [];
-        const search = searchText.toLowerCase().trim();
-        return categories.filter((cat) => cat.name.toLowerCase().includes(search));
-    }, [categories, searchText]);
+  // Cuarta generación (hijos del seleccionado en gen3)
+  const gen4Categories = useMemo(() => {
+    if (activePath.length < 3) return [];
+    return childrenByParentId.get(activePath[2]) || [];
+  }, [activePath, childrenByParentId]);
 
-    // Seleccionar categoría en una generación (actualiza activePath para navegación)
-    const handleSelectInGen = useCallback((genIndex: number, categoryId: string) => {
-        setActivePath((prev) => {
-            const newPath = prev.slice(0, genIndex);
-            newPath.push(categoryId);
-            return newPath;
-        });
-        
-        // Hacer scroll hacia abajo después de un pequeño delay para que se renderice la nueva sección
-        setTimeout(() => {
-            scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-    }, []);
+  // Filtrar por búsqueda
+  const searchResults = useMemo(() => {
+    if (!searchText.trim()) return [];
+    const search = searchText.toLowerCase().trim();
+    return categories.filter((cat) => cat.name.toLowerCase().includes(search));
+  }, [categories, searchText]);
 
-    // Toggle selección (click simple para agregar/quitar del filtro)
-    const handleToggleSelection = useCallback(
-        (id: string) => {
-            if (selectedIds.includes(id)) {
-                // Remover categoría y sus hijas si está includeSubcategories
-                if (includeSubcategories) {
-                    const toRemove = new Set([id]);
-                    // Buscar recursivamente todas las subcategorías
-                    const findChildren = (parentId: string) => {
-                        const children = childrenByParentId.get(parentId) || [];
-                        children.forEach((child) => {
-                            toRemove.add(child.id);
-                            findChildren(child.id);
-                        });
-                    };
-                    findChildren(id);
-                    onChange(selectedIds.filter((catId) => !toRemove.has(catId)));
-                } else {
-                    onChange(selectedIds.filter((catId) => catId !== id));
-                }
-            } else {
-                // Agregar categoría y sus hijas si está includeSubcategories
-                if (includeSubcategories) {
-                    const toAdd = new Set([id]);
-                    // Buscar recursivamente todas las subcategorías
-                    const findChildren = (parentId: string) => {
-                        const children = childrenByParentId.get(parentId) || [];
-                        children.forEach((child) => {
-                            toAdd.add(child.id);
-                            findChildren(child.id);
-                        });
-                    };
-                    findChildren(id);
-                    // Añadir nuevas categorías al inicio del arreglo
-                    const newIds = [...new Set([...Array.from(toAdd), ...selectedIds])];
-                    onChange(newIds);
-                } else {
-                    // Añadir al inicio en lugar del final
-                    onChange([id, ...selectedIds]);
-                }
-            }
-        },
-        [selectedIds, onChange, includeSubcategories, childrenByParentId]
-    );
+  // Seleccionar categoría en una generación (actualiza activePath para navegación)
+  const handleSelectInGen = useCallback((genIndex: number, categoryId: string) => {
+    setActivePath((prev) => {
+      const newPath = prev.slice(0, genIndex);
+      newPath.push(categoryId);
+      return newPath;
+    });
 
-    // Remover una categoría
-    const handleRemove = useCallback(
-        (id: string) => {
-            onChange(selectedIds.filter((catId) => catId !== id));
-        },
-        [selectedIds, onChange]
-    );
+    // Hacer scroll hacia abajo después de un pequeño delay para que se renderice la nueva sección
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  }, []);
 
-    // Limpiar todas
-    const handleClearAll = useCallback(() => {
-        onChange([]);
-    }, [onChange]);
+  // Toggle selección (click simple para agregar/quitar del filtro)
+  const handleToggleSelection = useCallback(
+    (id: string) => {
+      if (selectedIds.includes(id)) {
+        // Remover categoría y sus hijas si está includeSubcategories
+        if (includeSubcategories) {
+          const toRemove = new Set([id]);
+          // Buscar recursivamente todas las subcategorías
+          const findChildren = (parentId: string) => {
+            const children = childrenByParentId.get(parentId) || [];
+            children.forEach((child) => {
+              toRemove.add(child.id);
+              findChildren(child.id);
+            });
+          };
+          findChildren(id);
+          onChange(selectedIds.filter((catId) => !toRemove.has(catId)));
+        } else {
+          onChange(selectedIds.filter((catId) => catId !== id));
+        }
+      } else {
+        // Agregar categoría y sus hijas si está includeSubcategories
+        if (includeSubcategories) {
+          const toAdd = new Set([id]);
+          // Buscar recursivamente todas las subcategorías
+          const findChildren = (parentId: string) => {
+            const children = childrenByParentId.get(parentId) || [];
+            children.forEach((child) => {
+              toAdd.add(child.id);
+              findChildren(child.id);
+            });
+          };
+          findChildren(id);
+          // Añadir nuevas categorías al inicio del arreglo
+          const newIds = [...new Set([...Array.from(toAdd), ...selectedIds])];
+          onChange(newIds);
+        } else {
+          // Añadir al inicio en lugar del final
+          onChange([id, ...selectedIds]);
+        }
+      }
+    },
+    [selectedIds, onChange, includeSubcategories, childrenByParentId],
+  );
 
-    const isSearching = searchText.trim().length > 0;
+  // Remover una categoría
+  const handleRemove = useCallback(
+    (id: string) => {
+      onChange(selectedIds.filter((catId) => catId !== id));
+    },
+    [selectedIds, onChange],
+  );
 
-    // Agregar estilos CSS personalizados para scrollbar en web
-    useEffect(() => {
-        if (Platform.OS === 'web') {
-            const style = document.createElement('style');
-            style.id = 'category-scrollbar-styles';
-            style.textContent = `
+  // Limpiar todas
+  const handleClearAll = useCallback(() => {
+    onChange([]);
+  }, [onChange]);
+
+  const isSearching = searchText.trim().length > 0;
+
+  // Agregar estilos CSS personalizados para scrollbar en web
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const style = document.createElement('style');
+      style.id = 'category-scrollbar-styles';
+      style.textContent = `
                 .category-scroll::-webkit-scrollbar {
                     height: 8px;
                 }
@@ -171,139 +171,138 @@ export const CategoryFilterTab = memo(function CategoryFilterTab({
                     background: ${colors.text.secondary};
                 }
             `;
-            
-            // Eliminar estilo anterior si existe
-            const existingStyle = document.getElementById('category-scrollbar-styles');
-            if (existingStyle) {
-                existingStyle.remove();
-            }
-            
-            document.head.appendChild(style);
-            
-            return () => {
-                style.remove();
-            };
-        }
-    }, [colors]);
 
-    return (
-        <View style={styles.container}>
-            {/* 1. Search bar */}
-            <CategorySearchBar value={searchText} onChange={setSearchText} />
+      // Eliminar estilo anterior si existe
+      const existingStyle = document.getElementById('category-scrollbar-styles');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
 
-            {/* 2. Chips seleccionadas */}
-            <SelectedCategoryChipsRow
-                selectedIds={selectedIds}
-                categoryById={categoryById}
-                onRemove={handleRemove}
-                onClearAll={handleClearAll}
+      document.head.appendChild(style);
+
+      return () => {
+        style.remove();
+      };
+    }
+  }, [colors]);
+
+  return (
+    <View style={styles.container}>
+      {/* 1. Search bar */}
+      <CategorySearchBar value={searchText} onChange={setSearchText} />
+
+      {/* 2. Chips seleccionadas */}
+      <SelectedCategoryChipsRow
+        selectedIds={selectedIds}
+        categoryById={categoryById}
+        onRemove={handleRemove}
+        onClearAll={handleClearAll}
+      />
+
+      {isSearching ? (
+        /* Resultados de búsqueda */
+        <View style={styles.searchResults}>
+          <CategoryRow
+            title="Resultados de búsqueda"
+            categories={searchResults}
+            activeId={null}
+            selectedIds={selectedIds}
+            onSelect={(id) => {
+              // En búsqueda, solo seleccionar sin navegar
+              handleToggleSelection(id);
+            }}
+            onToggleSelection={handleToggleSelection}
+          />
+        </View>
+      ) : (
+        <>
+          {/* 3. Toggle incluir hijas y botón limpiar */}
+          <View style={styles.toggleContainer}>
+            <View style={styles.toggleRow}>
+              <Text style={[styles.toggleLabel, { color: colors.text.primary }]}>
+                Incluir subcategorías
+              </Text>
+              <Switch
+                value={includeSubcategories}
+                onValueChange={setIncludeSubcategories}
+                trackColor={{
+                  false: colors.border.medium,
+                  true: colors.primary[500],
+                }}
+                thumbColor={
+                  includeSubcategories ? colors.background.tertiary : colors.background.tertiary
+                }
+                ios_backgroundColor={colors.border.medium}
+              />
+            </View>
+            {selectedIds.length > 0 && (
+              <Pressable
+                onPress={handleClearAll}
+                style={({ pressed }) => [
+                  styles.clearAllButton,
+                  {
+                    backgroundColor: colors.background.secondary,
+                    opacity: pressed ? 0.7 : 1,
+                  },
+                ]}
+              >
+                <Text style={[styles.clearAllText, { color: colors.primary[500] }]}>
+                  Limpiar todo
+                </Text>
+              </Pressable>
+            )}
+          </View>
+
+          {/* 4. Filas de categorías (se apilan verticalmente) */}
+          <ScrollView ref={scrollViewRef} style={styles.generationsContainer}>
+            {/* Primera generación */}
+            <CategoryRow
+              title="Categorías principales"
+              categories={gen1Categories}
+              activeId={activePath[0] || null}
+              selectedIds={selectedIds}
+              onSelect={(id) => handleSelectInGen(0, id)}
+              onToggleSelection={handleToggleSelection}
             />
 
-            {isSearching ? (
-                /* Resultados de búsqueda */
-                <View style={styles.searchResults}>
-                    <CategoryRow
-                        title="Resultados de búsqueda"
-                        categories={searchResults}
-                        activeId={null}
-                        selectedIds={selectedIds}
-                        onSelect={(id) => {
-                            // En búsqueda, solo seleccionar sin navegar
-                            handleToggleSelection(id);
-                        }}
-                        onToggleSelection={handleToggleSelection}
-                    />
-                </View>
-            ) : (
-                <>
-                    {/* 3. Toggle incluir hijas y botón limpiar */}
-                    <View style={styles.toggleContainer}>
-                        <View style={styles.toggleRow}>
-                            <Text style={[styles.toggleLabel, { color: colors.text.primary }]}>
-                                Incluir subcategorías
-                            </Text>
-                            <Switch
-                                value={includeSubcategories}
-                                onValueChange={setIncludeSubcategories}
-                                trackColor={{
-                                    false: colors.border.medium,
-                                    true: colors.primary[500],
-                                }}
-                                thumbColor={includeSubcategories ? colors.background.tertiary : colors.background.tertiary}
-                                ios_backgroundColor={colors.border.medium}
-                            />
-                        </View>
-                        {selectedIds.length > 0 && (
-                            <Pressable 
-                                onPress={handleClearAll}
-                                style={({ pressed }) => [
-                                    styles.clearAllButton,
-                                    {
-                                        backgroundColor: colors.background.secondary,
-                                        opacity: pressed ? 0.7 : 1,
-                                    },
-                                ]}
-                            >
-                                <Text style={[styles.clearAllText, { color: colors.primary[500] }]}>
-                                    Limpiar todo
-                                </Text>
-                            </Pressable>
-                        )}
-                    </View>
-
-                    {/* 4. Filas de categorías (se apilan verticalmente) */}
-                    <ScrollView 
-                        ref={scrollViewRef}
-                        style={styles.generationsContainer}
-                    >
-                        {/* Primera generación */}
-                        <CategoryRow
-                            title="Categorías principales"
-                            categories={gen1Categories}
-                            activeId={activePath[0] || null}
-                            selectedIds={selectedIds}
-                            onSelect={(id) => handleSelectInGen(0, id)}
-                            onToggleSelection={handleToggleSelection}
-                        />
-
-                        {/* Segunda generación */}
-                        {gen2Categories.length > 0 && (
-                            <CategoryRow
-                                title="Subcategorías"
-                                categories={gen2Categories}
-                                activeId={activePath[1] || null}
-                                selectedIds={selectedIds}
-                                onSelect={(id) => handleSelectInGen(1, id)}
-                                onToggleSelection={handleToggleSelection}
-                            />
-                        )}
-
-                        {/* Tercera generación */}
-                        {gen3Categories.length > 0 && (
-                            <CategoryRow
-                                title="Especialidades"
-                                categories={gen3Categories}
-                                activeId={activePath[2] || null}
-                                selectedIds={selectedIds}
-                                onSelect={(id) => handleSelectInGen(2, id)}
-                                onToggleSelection={handleToggleSelection}
-                            />
-                        )}
-
-                        {/* Cuarta generación */}
-                        {gen4Categories.length > 0 && (
-                            <CategoryRow
-                                title="Detalles"
-                                categories={gen4Categories}
-                                activeId={activePath[3] || null}
-                                selectedIds={selectedIds}
-                                onSelect={(id) => handleSelectInGen(3, id)}
-                                onToggleSelection={handleToggleSelection}
-                            />
-                        )}
-                    </ScrollView>
-                </>
+            {/* Segunda generación */}
+            {gen2Categories.length > 0 && (
+              <CategoryRow
+                title="Subcategorías"
+                categories={gen2Categories}
+                activeId={activePath[1] || null}
+                selectedIds={selectedIds}
+                onSelect={(id) => handleSelectInGen(1, id)}
+                onToggleSelection={handleToggleSelection}
+              />
             )}
-        </View>
-    );
+
+            {/* Tercera generación */}
+            {gen3Categories.length > 0 && (
+              <CategoryRow
+                title="Especialidades"
+                categories={gen3Categories}
+                activeId={activePath[2] || null}
+                selectedIds={selectedIds}
+                onSelect={(id) => handleSelectInGen(2, id)}
+                onToggleSelection={handleToggleSelection}
+              />
+            )}
+
+            {/* Cuarta generación */}
+            {gen4Categories.length > 0 && (
+              <CategoryRow
+                title="Detalles"
+                categories={gen4Categories}
+                activeId={activePath[3] || null}
+                selectedIds={selectedIds}
+                onSelect={(id) => handleSelectInGen(3, id)}
+                onToggleSelection={handleToggleSelection}
+              />
+            )}
+          </ScrollView>
+        </>
+      )}
+    </View>
+  );
 });

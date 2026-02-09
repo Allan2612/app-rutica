@@ -23,32 +23,20 @@ export const PaymentInfo = memo(function PaymentInfo({
 
   if (method === 'sinpe') {
     return (
-      <View
-        style={[styles.sinpeCard, { borderColor: colors.border.light }]}
-      >
+      <View style={[styles.sinpeCard, { borderColor: colors.border.light }]}>
         <View style={styles.sinpeHeader}>
           <Smartphone size={18} color={colors.primary[500]} />
-          <Text style={[styles.sinpeTitle, { color: colors.text.primary }]}>
-            SINPE Móvil
-          </Text>
+          <Text style={[styles.sinpeTitle, { color: colors.text.primary }]}>SINPE Móvil</Text>
         </View>
 
         <View style={styles.sinpeDetails}>
           <View style={styles.sinpeRow}>
-            <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>
-              Número:
-            </Text>
-            <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>
-              {sinpeNumber}
-            </Text>
+            <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>Número:</Text>
+            <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>{sinpeNumber}</Text>
           </View>
           <View style={styles.sinpeRow}>
-            <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>
-              A nombre de:
-            </Text>
-            <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>
-              {sinpeName}
-            </Text>
+            <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>A nombre de:</Text>
+            <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>{sinpeName}</Text>
           </View>
         </View>
       </View>
@@ -56,9 +44,7 @@ export const PaymentInfo = memo(function PaymentInfo({
   }
 
   return (
-    <View
-      style={[styles.sinpeCard, { borderColor: colors.border.light }]}
-    >
+    <View style={[styles.sinpeCard, { borderColor: colors.border.light }]}>
       <View style={styles.sinpeHeader}>
         <CreditCard size={18} color={colors.primary[500]} />
         <Text style={[styles.sinpeTitle, { color: colors.text.primary }]}>
@@ -68,20 +54,12 @@ export const PaymentInfo = memo(function PaymentInfo({
 
       <View style={styles.sinpeDetails}>
         <View style={styles.sinpeRow}>
-          <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>
-            Cuenta IBAN:
-          </Text>
-          <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>
-            {ibanAccount}
-          </Text>
+          <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>Cuenta IBAN:</Text>
+          <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>{ibanAccount}</Text>
         </View>
         <View style={styles.sinpeRow}>
-          <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>
-            A nombre de:
-          </Text>
-          <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>
-            {transferName}
-          </Text>
+          <Text style={[styles.sinpeLabel, { color: colors.text.secondary }]}>A nombre de:</Text>
+          <Text style={[styles.sinpeValue, { color: colors.text.primary }]}>{transferName}</Text>
         </View>
       </View>
     </View>

@@ -48,7 +48,7 @@ export const ModerationConfirmDialog = memo(function ModerationConfirmDialog({
   isProcessing = false,
 }: ModerationConfirmDialogProps) {
   const colors = useThemedColors();
-  
+
   // State
   const [moderationStatus, setModerationStatus] = useState<ModerationStatus | null>(null);
   const [moderationNote, setModerationNote] = useState('');
@@ -113,30 +113,55 @@ export const ModerationConfirmDialog = memo(function ModerationConfirmDialog({
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             {/* Entity Info Header */}
             <View style={[styles.entityHeader, { backgroundColor: colors.background.secondary }]}>
-              <Text style={[styles.entityName, { color: colors.text.primary }]}>
-                {entityName}
-              </Text>
+              <Text style={[styles.entityName, { color: colors.text.primary }]}>{entityName}</Text>
               <Text style={[styles.entityType, { color: colors.text.secondary }]}>
                 {entityTypeLabels[entityType]}
               </Text>
             </View>
 
             {/* Visibility Toggle Section */}
-            <View style={[styles.section, { backgroundColor: colors.background.secondary, borderRadius: 12, padding: 16, marginBottom: 16 }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <View
+              style={[
+                styles.section,
+                {
+                  backgroundColor: colors.background.secondary,
+                  borderRadius: 12,
+                  padding: 16,
+                  marginBottom: 16,
+                },
+              ]}
+            >
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
+              >
                 {effectiveIsActive ? (
                   <Eye size={20} color={colors.success} />
                 ) : (
                   <EyeOff size={20} color={colors.error} />
                 )}
-                <Text style={[styles.sectionTitle, { color: colors.text.primary, marginBottom: 0 }]}>
+                <Text
+                  style={[styles.sectionTitle, { color: colors.text.primary, marginBottom: 0 }]}
+                >
                   Visibilidad
                 </Text>
               </View>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <View style={{ flex: 1, marginRight: 12 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text.primary, marginBottom: 2 }}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '600',
+                      color: colors.text.primary,
+                      marginBottom: 2,
+                    }}
+                  >
                     {effectiveIsActive ? 'Activo (Visible)' : 'Inactivo (Oculto)'}
                   </Text>
                   <Text style={{ fontSize: 12, color: colors.text.secondary }}>
@@ -154,7 +179,16 @@ export const ModerationConfirmDialog = memo(function ModerationConfirmDialog({
               </View>
 
               {activeChanged && (
-                <View style={{ marginTop: 12, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.warning, alignSelf: 'flex-start' }}>
+                <View
+                  style={{
+                    marginTop: 12,
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 8,
+                    backgroundColor: colors.warning,
+                    alignSelf: 'flex-start',
+                  }}
+                >
                   <Text style={{ fontSize: 12, fontWeight: '600', color: '#fff' }}>
                     Cambio pendiente: {isActive ? 'Activar' : 'Desactivar'}
                   </Text>
@@ -176,14 +210,30 @@ export const ModerationConfirmDialog = memo(function ModerationConfirmDialog({
 
               {/* Show existing moderation note */}
               {currentModerationNote && (
-                <View style={{ padding: 12, borderRadius: 8, backgroundColor: colors.background.tertiary, marginBottom: 12 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                <View
+                  style={{
+                    padding: 12,
+                    borderRadius: 8,
+                    backgroundColor: colors.background.tertiary,
+                    marginBottom: 12,
+                  }}
+                >
+                  <View
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}
+                  >
                     <MessageSquare size={14} color={colors.warning} />
                     <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.secondary }}>
                       Nota anterior:
                     </Text>
                   </View>
-                  <Text style={{ fontSize: 13, lineHeight: 18, fontStyle: 'italic', color: colors.text.primary }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      lineHeight: 18,
+                      fontStyle: 'italic',
+                      color: colors.text.primary,
+                    }}
+                  >
                     {currentModerationNote}
                   </Text>
                 </View>
@@ -199,8 +249,8 @@ export const ModerationConfirmDialog = memo(function ModerationConfirmDialog({
                         moderationStatus === 'approved'
                           ? colors.success
                           : pressed
-                          ? colors.background.tertiary
-                          : colors.background.secondary,
+                            ? colors.background.tertiary
+                            : colors.background.secondary,
                       borderColor:
                         moderationStatus === 'approved' ? colors.success : colors.border.light,
                     },
@@ -232,8 +282,8 @@ export const ModerationConfirmDialog = memo(function ModerationConfirmDialog({
                         moderationStatus === 'rejected'
                           ? colors.error
                           : pressed
-                          ? colors.background.tertiary
-                          : colors.background.secondary,
+                            ? colors.background.tertiary
+                            : colors.background.secondary,
                       borderColor:
                         moderationStatus === 'rejected' ? colors.error : colors.border.light,
                     },
@@ -302,8 +352,8 @@ export const ModerationConfirmDialog = memo(function ModerationConfirmDialog({
                     !canConfirm || isProcessing
                       ? colors.background.tertiary
                       : pressed
-                      ? colors.primary[600]
-                      : colors.primary[500],
+                        ? colors.primary[600]
+                        : colors.primary[500],
                 },
               ]}
               onPress={handleConfirm}

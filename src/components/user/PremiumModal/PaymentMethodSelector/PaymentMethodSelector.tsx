@@ -17,21 +17,16 @@ export const PaymentMethodSelector = memo(function PaymentMethodSelector({
 
   return (
     <View style={styles.paymentMethodSection}>
-      <Text style={[styles.sectionTitle, { color: colors.text.secondary }]}>
-        Método de pago
-      </Text>
+      <Text style={[styles.sectionTitle, { color: colors.text.secondary }]}>Método de pago</Text>
       <View style={styles.paymentMethodButtons}>
         <Pressable
           style={[
             styles.paymentMethodButton,
             selectedMethod === 'sinpe' && styles.paymentMethodButtonActive,
             {
-              backgroundColor: selectedMethod === 'sinpe'
-                ? colors.primary[500] + '15'
-                : colors.background.primary,
-              borderColor: selectedMethod === 'sinpe'
-                ? colors.primary[500]
-                : colors.border.light,
+              backgroundColor:
+                selectedMethod === 'sinpe' ? colors.primary[500] + '15' : colors.background.primary,
+              borderColor: selectedMethod === 'sinpe' ? colors.primary[500] : colors.border.light,
             },
           ]}
           onPress={() => onSelectMethod('sinpe')}
@@ -44,9 +39,7 @@ export const PaymentMethodSelector = memo(function PaymentMethodSelector({
             style={[
               styles.paymentMethodText,
               {
-                color: selectedMethod === 'sinpe'
-                  ? colors.primary[500]
-                  : colors.text.primary,
+                color: selectedMethod === 'sinpe' ? colors.primary[500] : colors.text.primary,
               },
             ]}
           >
@@ -59,12 +52,12 @@ export const PaymentMethodSelector = memo(function PaymentMethodSelector({
             styles.paymentMethodButton,
             selectedMethod === 'transfer' && styles.paymentMethodButtonActive,
             {
-              backgroundColor: selectedMethod === 'transfer'
-                ? colors.primary[500] + '15'
-                : colors.background.primary,
-              borderColor: selectedMethod === 'transfer'
-                ? colors.primary[500]
-                : colors.border.light,
+              backgroundColor:
+                selectedMethod === 'transfer'
+                  ? colors.primary[500] + '15'
+                  : colors.background.primary,
+              borderColor:
+                selectedMethod === 'transfer' ? colors.primary[500] : colors.border.light,
             },
           ]}
           onPress={() => onSelectMethod('transfer')}
@@ -77,9 +70,7 @@ export const PaymentMethodSelector = memo(function PaymentMethodSelector({
             style={[
               styles.paymentMethodText,
               {
-                color: selectedMethod === 'transfer'
-                  ? colors.primary[500]
-                  : colors.text.primary,
+                color: selectedMethod === 'transfer' ? colors.primary[500] : colors.text.primary,
               },
             ]}
           >

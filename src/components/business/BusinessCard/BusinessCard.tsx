@@ -46,28 +46,54 @@ export const BusinessCard = memo(function BusinessCard({
 
   const isFavorite = favoriteIds.includes(id);
 
-  const handleToggleFavorite = useCallback((e: any) => {
-    e.stopPropagation?.();
-    if (!isAuthenticated || isPending) return;
-    toggleFavorite(id);
-  }, [id, isAuthenticated, isPending, toggleFavorite]);
+  const handleToggleFavorite = useCallback(
+    (e: any) => {
+      e.stopPropagation?.();
+      if (!isAuthenticated || isPending) return;
+      toggleFavorite(id);
+    },
+    [id, isAuthenticated, isPending, toggleFavorite],
+  );
 
   return (
-    <Pressable style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]} onPress={onPress} disabled={!onPress}>
+    <Pressable
+      style={[
+        styles.card,
+        { backgroundColor: colors.background.primary, borderColor: colors.border.medium },
+      ]}
+      onPress={onPress}
+      disabled={!onPress}
+    >
       {imageUrl ? (
         <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
       ) : (
-        <View style={[styles.heroFull, styles.heroPlaceholder, { backgroundColor: colors.background.tertiary }]} />
+        <View
+          style={[
+            styles.heroFull,
+            styles.heroPlaceholder,
+            { backgroundColor: colors.background.tertiary },
+          ]}
+        />
       )}
 
       {logoUrl ? (
-        <View style={[styles.logoBadge, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}>
+        <View
+          style={[
+            styles.logoBadge,
+            { backgroundColor: colors.background.primary, borderColor: colors.border.medium },
+          ]}
+        >
           <Image source={{ uri: logoUrl }} style={styles.logoImage} resizeMode="cover" />
         </View>
       ) : null}
 
       {rating > 0 && (
-        <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
+        <View
+          style={[
+            styles.ratingBadge,
+            { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium },
+          ]}
+        >
           <Star size={16} color="#fbbf24" fill="#fbbf24" />
           <Text style={styles.ratingValue}>{rating.toFixed(1)}</Text>
           <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>({reviewCount})</Text>
@@ -99,14 +125,17 @@ export const BusinessCard = memo(function BusinessCard({
           )}
         </View>
         <View style={styles.metaRow}>
-          {categoryNames.length > 0 && categoryNames.slice(0, 2).map((catName, index) => (
-            <CategoryChip
-              key={categoryIds[index] || index}
-              categoryId={categoryIds[index]}
-              categoryName={catName}
-              variant="small"
-            />
-          ))}
+          {categoryNames.length > 0 &&
+            categoryNames
+              .slice(0, 2)
+              .map((catName, index) => (
+                <CategoryChip
+                  key={categoryIds[index] || index}
+                  categoryId={categoryIds[index]}
+                  categoryName={catName}
+                  variant="small"
+                />
+              ))}
           {categoryNames.length > 2 && (
             <View style={[styles.categoryChip, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
               <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
@@ -128,9 +157,11 @@ export const BusinessCard = memo(function BusinessCard({
                 style={[
                   styles.favoriteButton,
                   {
-                    backgroundColor: isFavorite ? 'rgba(239, 68, 68, 0.9)' : 'rgba(255, 255, 255, 0.25)',
+                    backgroundColor: isFavorite
+                      ? 'rgba(239, 68, 68, 0.9)'
+                      : 'rgba(255, 255, 255, 0.25)',
                     borderColor: isFavorite ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.3)',
-                  }
+                  },
                 ]}
                 onPress={handleToggleFavorite}
                 disabled={isPending}

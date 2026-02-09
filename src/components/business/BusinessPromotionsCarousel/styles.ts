@@ -1,5 +1,5 @@
-import { StyleSheet, Platform } from "react-native";
-import { spacing, typography } from "@/styles/theme";
+import { StyleSheet, Platform } from 'react-native';
+import { spacing, typography } from '@/styles/theme';
 
 const isWeb = Platform.OS === 'web';
 
@@ -22,12 +22,11 @@ export const styles = StyleSheet.create({
   countText: {
     fontSize: typography.sizes.base,
     fontWeight: typography.fontWeights.semibold,
-    
   },
   loadingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: spacing.xl,
   },
 });

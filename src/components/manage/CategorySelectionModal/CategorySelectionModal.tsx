@@ -7,93 +7,83 @@ import type { HierarchicalCategoryOption } from '@/types/entities';
 import { styles } from './styles';
 
 export interface CategorySelectionModalProps {
-    visible: boolean;
-    categories: HierarchicalCategoryOption[];
-    selectedIds: string[];
-    onClose: () => void;
-    onConfirm: (selectedIds: string[]) => void;
-    title?: string;
+  visible: boolean;
+  categories: HierarchicalCategoryOption[];
+  selectedIds: string[];
+  onClose: () => void;
+  onConfirm: (selectedIds: string[]) => void;
+  title?: string;
 }
 
 export const CategorySelectionModal = memo(function CategorySelectionModal({
-    visible,
-    categories,
-    selectedIds: initialSelectedIds,
-    onClose,
-    onConfirm,
-    title = 'Seleccionar Categorías',
+  visible,
+  categories,
+  selectedIds: initialSelectedIds,
+  onClose,
+  onConfirm,
+  title = 'Seleccionar Categorías',
 }: CategorySelectionModalProps) {
-    const colors = useThemedColors();
-    
-    // Estado local temporal para la selección
-    const [tempSelectedIds, setTempSelectedIds] = useState<string[]>(initialSelectedIds);
+  const colors = useThemedColors();
 
-    // Sincronizar cuando se abra el modal
-    useEffect(() => {
-        if (visible) {
-            setTempSelectedIds(initialSelectedIds);
-        }
-    }, [visible, initialSelectedIds]);
+  // Estado local temporal para la selección
+  const [tempSelectedIds, setTempSelectedIds] = useState<string[]>(initialSelectedIds);
 
-    const handleConfirm = useCallback(() => {
-        onConfirm(tempSelectedIds);
-        onClose();
-    }, [tempSelectedIds, onConfirm, onClose]);
+  // Sincronizar cuando se abra el modal
+  useEffect(() => {
+    if (visible) {
+      setTempSelectedIds(initialSelectedIds);
+    }
+  }, [visible, initialSelectedIds]);
 
-    const handleCancel = useCallback(() => {
-        setTempSelectedIds(initialSelectedIds); // Restaurar
-        onClose();
-    }, [initialSelectedIds, onClose]);
+  const handleConfirm = useCallback(() => {
+    onConfirm(tempSelectedIds);
+    onClose();
+  }, [tempSelectedIds, onConfirm, onClose]);
 
-    return (
-        <Modal
-            visible={visible}
-            animationType="slide"
-            transparent
-            onRequestClose={handleCancel}
-        >
-            <View style={styles.overlay}>
-                <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
-                    {/* Header */}
-                    <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-                        <View style={styles.headerLeft}>
-                            <Pressable
-                                onPress={handleCancel}
-                                style={({ pressed }) => [
-                                    styles.closeButton,
-                                    { opacity: pressed ? 0.6 : 1 },
-                                ]}
-                            >
-                                <X size={24} color={colors.text.primary} />
-                            </Pressable>
-                            <Text style={[styles.title, { color: colors.text.primary }]}>
-                                {title}
-                            </Text>
-                        </View>
-                        <Pressable
-                            onPress={handleConfirm}
-                            style={({ pressed }) => [
-                                styles.confirmButton,
-                                {
-                                    backgroundColor: colors.primary[500],
-                                    opacity: pressed ? 0.8 : 1,
-                                },
-                            ]}
-                        >
-                            <Text style={styles.confirmButtonText}>Confirmar</Text>
-                        </Pressable>
-                    </View>
+  const handleCancel = useCallback(() => {
+    setTempSelectedIds(initialSelectedIds); // Restaurar
+    onClose();
+  }, [initialSelectedIds, onClose]);
 
-                    {/* Category Filter Tab */}
-                    <View style={styles.content}>
-                        <CategoryFilterTab
-                            categories={categories}
-                            selectedIds={tempSelectedIds}
-                            onChange={setTempSelectedIds}
-                        />
-                    </View>
-                </View>
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleCancel}>
+      <View style={styles.overlay}>
+        <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
+          {/* Header */}
+          <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
+            <View style={styles.headerLeft}>
+              <Pressable
+                onPress={handleCancel}
+                style={({ pressed }) => [styles.closeButton, { opacity: pressed ? 0.6 : 1 }]}
+              >
+                <X size={24} color={colors.text.primary} />
+              </Pressable>
+              <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
             </View>
-        </Modal>
-    );
+            <Pressable
+              onPress={handleConfirm}
+              style={({ pressed }) => [
+                styles.confirmButton,
+                {
+                  backgroundColor: colors.primary[500],
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+            >
+              <Text style={styles.confirmButtonText}>Confirmar</Text>
+            </Pressable>
+          </View>
+
+          {/* Category Filter Tab */}
+          <View style={styles.content}>
+            <CategoryFilterTab
+              categories={categories}
+              selectedIds={tempSelectedIds}
+              onChange={setTempSelectedIds}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 });

@@ -4,18 +4,18 @@ import { useLocationStore, LocationState } from '@/store';
 /**
  * Hook para gestionar la ubicación del usuario con sincronización
  * Combina el store global con lógica adicional
- * 
+ *
  * @example
  * ```tsx
  * const { location, updateLocation, saveToDatabase } = useLocation();
- * 
+ *
  * // Actualizar ubicación en el store
  * updateLocation({
  *   province: 'San José',
  *   canton: 'San José',
  *   district: 'Carmen'
  * });
- * 
+ *
  * // Guardar en base de datos
  * await saveToDatabase();
  * ```
@@ -30,7 +30,7 @@ export function useLocation() {
     (newLocation: LocationState) => {
       setLocation(newLocation);
     },
-    [setLocation]
+    [setLocation],
   );
 
   /**
@@ -56,9 +56,9 @@ export function useLocation() {
       //     address: location.address,
       //     updated_at: new Date().toISOString(),
       //   });
-      
+
       // if (error) throw error;
-      
+
       return { success: true, data: location };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -77,7 +77,7 @@ export function useLocation() {
       //   .select('*')
       //   .eq('user_id', userId)
       //   .single();
-      
+
       // if (error) throw error;
       // if (data) {
       //   setLocation({
@@ -91,7 +91,7 @@ export function useLocation() {
       //     address: data.address,
       //   });
       // }
-      
+
       return { success: true, data: null };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -103,12 +103,12 @@ export function useLocation() {
    */
   const getLocationText = useCallback((): string => {
     if (!location) return 'Sin ubicación';
-    
+
     const parts: string[] = [];
     if (location.district) parts.push(location.district);
     if (location.canton) parts.push(location.canton);
     if (location.province) parts.push(location.province);
-    
+
     return parts.length > 0 ? parts.join(', ') : 'Sin ubicación';
   }, [location]);
 
@@ -116,15 +116,15 @@ export function useLocation() {
     // Estado
     location,
     hasLocation,
-    
+
     // Acciones
     updateLocation,
     clearLocation,
-    
+
     // Base de datos
     saveToDatabase,
     loadFromDatabase,
-    
+
     // Utilidades
     getLocationText,
   };

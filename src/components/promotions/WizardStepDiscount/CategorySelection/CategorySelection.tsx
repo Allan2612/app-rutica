@@ -70,9 +70,7 @@ export const CategorySelection = memo(function CategorySelection({
                 style={[
                   styles.chip,
                   {
-                    backgroundColor: isSelected
-                      ? colors.primary[500]
-                      : colors.background.secondary,
+                    backgroundColor: isSelected ? colors.primary[500] : colors.background.secondary,
                     borderColor: isSelected ? colors.primary[500] : colors.border.medium,
                   },
                 ]}
@@ -96,9 +94,7 @@ export const CategorySelection = memo(function CategorySelection({
       {error && (
         <View style={styles.errorContainer}>
           <AlertCircle size={14} color={colors.error} />
-          <Text style={[styles.errorText, { color: colors.error }]}>
-            {error}
-          </Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
         </View>
       )}
     </View>

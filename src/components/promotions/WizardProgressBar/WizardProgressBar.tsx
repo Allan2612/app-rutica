@@ -33,8 +33,8 @@ export const WizardProgressBar = memo(function WizardProgressBar({
                     backgroundColor: isCompleted
                       ? colors.primary[500]
                       : isActive
-                      ? colors.primary[500]
-                      : colors.background.tertiary,
+                        ? colors.primary[500]
+                        : colors.background.tertiary,
                     borderWidth: isActive ? 0 : 0,
                   },
                 ]}
@@ -61,9 +61,7 @@ export const WizardProgressBar = memo(function WizardProgressBar({
                   style={[
                     styles.connector,
                     {
-                      backgroundColor: isCompleted
-                        ? colors.primary[500]
-                        : colors.border.light,
+                      backgroundColor: isCompleted ? colors.primary[500] : colors.border.light,
                     },
                   ]}
                 />
@@ -75,7 +73,3 @@ export const WizardProgressBar = memo(function WizardProgressBar({
     </View>
   );
 });
-
-
-
-

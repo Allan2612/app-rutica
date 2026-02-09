@@ -45,7 +45,7 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
       scope: formData.scope,
       discountType: formData.discountType,
       discountValue: formData.discountValue,
-      comboItems: formData.comboItems
+      comboItems: formData.comboItems,
     } as any);
   }, [formData.scope, formData.discountType, formData.discountValue, formData.comboItems]);
 
@@ -66,10 +66,7 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
             <Image source={{ uri: formData.coverUri }} style={styles.compactImage} />
           ) : (
             <View
-              style={[
-                styles.compactPlaceholder,
-                { backgroundColor: colors.background.tertiary },
-              ]}
+              style={[styles.compactPlaceholder, { backgroundColor: colors.background.tertiary }]}
             >
               <Tag size={20} color={colors.text.tertiary} />
             </View>
@@ -81,10 +78,7 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
         </View>
 
         <View style={styles.compactInfo}>
-          <Text
-            style={[styles.compactTitle, { color: colors.text.primary }]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.compactTitle, { color: colors.text.primary }]} numberOfLines={1}>
             {formData.title || 'Título de la promoción'}
           </Text>
           <Text
@@ -113,9 +107,7 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
         {formData.coverUri ? (
           <Image source={{ uri: formData.coverUri }} style={styles.image} />
         ) : (
-          <View
-            style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}
-          >
+          <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
             <Tag size={32} color={colors.text.tertiary} />
             <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>
               Vista previa de imagen
@@ -129,20 +121,15 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
         </View>
 
         {/* Scope Badge */}
-        <View
-          style={[
-            styles.scopeBadge,
-            { backgroundColor: 'rgba(0,0,0,0.6)' },
-          ]}
-        >
+        <View style={[styles.scopeBadge, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
           <Text style={styles.scopeText}>
             {formData.scope === 'all'
               ? 'Todo el negocio'
               : formData.scope === 'products'
-              ? `${formData.selectedProductIds.length} producto(s)`
-              : formData.scope === 'categories'
-              ? `${formData.scopeCategoryIds.length} categoría(s)`
-              : `Combo (${formData.comboItems.length} productos)`}
+                ? `${formData.selectedProductIds.length} producto(s)`
+                : formData.scope === 'categories'
+                  ? `${formData.scopeCategoryIds.length} categoría(s)`
+                  : `Combo (${formData.comboItems.length} productos)`}
           </Text>
         </View>
       </View>
@@ -150,18 +137,12 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
       {/* Content Section */}
       <View style={styles.content}>
         {/* Title */}
-        <Text
-          style={[styles.title, { color: colors.text.primary }]}
-          numberOfLines={2}
-        >
+        <Text style={[styles.title, { color: colors.text.primary }]} numberOfLines={2}>
           {formData.title || 'Título de la promoción'}
         </Text>
 
         {/* Description */}
-        <Text
-          style={[styles.description, { color: colors.text.secondary }]}
-          numberOfLines={2}
-        >
+        <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={2}>
           {formData.description || 'Descripción de la promoción...'}
         </Text>
 
@@ -169,19 +150,14 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
         <View style={styles.metaRow}>
           <View style={styles.metaItem}>
             <Building2 size={14} color={colors.text.tertiary} />
-            <Text
-              style={[styles.metaText, { color: colors.text.secondary }]}
-              numberOfLines={1}
-            >
+            <Text style={[styles.metaText, { color: colors.text.secondary }]} numberOfLines={1}>
               {businessName}
             </Text>
           </View>
 
           <View style={styles.metaItem}>
             <Calendar size={14} color={colors.text.tertiary} />
-            <Text style={[styles.metaText, { color: colors.text.secondary }]}>
-              {dateRange}
-            </Text>
+            <Text style={[styles.metaText, { color: colors.text.secondary }]}>{dateRange}</Text>
           </View>
         </View>
 
@@ -197,17 +173,9 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
       </View>
 
       {/* Preview Label */}
-      <View
-        style={[styles.previewLabel, { backgroundColor: colors.background.tertiary }]}
-      >
-        <Text style={[styles.previewLabelText, { color: colors.text.tertiary }]}>
-          VISTA PREVIA
-        </Text>
+      <View style={[styles.previewLabel, { backgroundColor: colors.background.tertiary }]}>
+        <Text style={[styles.previewLabelText, { color: colors.text.tertiary }]}>VISTA PREVIA</Text>
       </View>
     </View>
   );
 });
-
-
-
-

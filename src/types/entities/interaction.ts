@@ -232,7 +232,13 @@ export function isViewInteraction(type: InteractionType): boolean {
  * Verifica si un tipo de interacción es un click en red social
  */
 export function isSocialInteraction(type: InteractionType): boolean {
-  return ['whatsapp_click', 'instagram_click', 'facebook_click', 'tiktok_click', 'youtube_click'].includes(type);
+  return [
+    'whatsapp_click',
+    'instagram_click',
+    'facebook_click',
+    'tiktok_click',
+    'youtube_click',
+  ].includes(type);
 }
 
 /**

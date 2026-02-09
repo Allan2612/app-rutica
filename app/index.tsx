@@ -55,29 +55,43 @@ export default function Index() {
           contentFit="contain"
           transition={0}
         />
-        <Text style={[
-          styles.title,
-          { color: themedColors.primary[500] },
-          fontsLoaded && { fontFamily: 'Caveat_700Bold' },
-        ]}>Bienvenido a Rutica</Text>
+        <Text
+          style={[
+            styles.title,
+            { color: themedColors.primary[500] },
+            fontsLoaded && { fontFamily: 'Caveat_700Bold' },
+          ]}
+        >
+          Bienvenido a Rutica
+        </Text>
         <Text style={[styles.subtitle, { color: themedColors.text.secondary }]}>
           Descubre comercios, atracciones y promociones cerca de ti
         </Text>
 
         {/* Botones */}
         <View style={styles.buttons}>
-          <Pressable style={[styles.buttonPrimary, { backgroundColor: themedColors.primary[500] }]} onPress={handleExplore}>
+          <Pressable
+            style={[styles.buttonPrimary, { backgroundColor: themedColors.primary[500] }]}
+            onPress={handleExplore}
+          >
             <Text style={styles.buttonPrimaryText}>Explorar sin cuenta</Text>
           </Pressable>
 
-          <Pressable style={[styles.buttonSecondary, { borderColor: themedColors.primary[500] }]} onPress={handleLogin}>
-            <Text style={[styles.buttonSecondaryText, { color: themedColors.primary[500] }]}>Iniciar sesión</Text>
+          <Pressable
+            style={[styles.buttonSecondary, { borderColor: themedColors.primary[500] }]}
+            onPress={handleLogin}
+          >
+            <Text style={[styles.buttonSecondaryText, { color: themedColors.primary[500] }]}>
+              Iniciar sesión
+            </Text>
           </Pressable>
 
           <Pressable style={styles.buttonText} onPress={handleRegister}>
             <Text style={[styles.buttonTextLabel, { color: themedColors.text.secondary }]}>
               ¿No tienes cuenta?{' '}
-              <Text style={[styles.buttonTextLink, { color: themedColors.primary[500] }]}>Regístrate aquí</Text>
+              <Text style={[styles.buttonTextLink, { color: themedColors.primary[500] }]}>
+                Regístrate aquí
+              </Text>
             </Text>
           </Pressable>
         </View>

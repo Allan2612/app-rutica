@@ -8,19 +8,19 @@ export { useMapLocation, useUserLocation, useMapMarkers, useMarkersByType } from
 
 // Types
 export type {
-    MapMarker,
-    MarkerType,
-    MapBounds,
-    MarkerResponse,
-    MarkerPaginationOptions
+  MapMarker,
+  MarkerType,
+  MapBounds,
+  MarkerResponse,
+  MarkerPaginationOptions,
 } from './types';
 export { MARKER_COLORS, USER_MARKER_COLOR } from './types';
 
 // Services
 export {
-    generateMapHTML,
-    getBusinessMarkers,
-    getAttractionMarkers,
-    getEventMarkers,
-    getAllMarkers
+  generateMapHTML,
+  getBusinessMarkers,
+  getAttractionMarkers,
+  getEventMarkers,
+  getAllMarkers,
 } from './services';

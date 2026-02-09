@@ -5,20 +5,20 @@
  */
 
 interface WithLocationLabel {
-    locationLabel: string | null;
+  locationLabel: string | null;
 }
 
 export interface LocationFilter {
-    province?: string | null;
-    canton?: string | null;
-    district?: string | null;
+  province?: string | null;
+  canton?: string | null;
+  district?: string | null;
 }
 
 export interface SplitResult<T> {
-    local: T[];
-    others: T[];
-    hasLocation: boolean;
-    locationName: string;
+  local: T[];
+  others: T[];
+  hasLocation: boolean;
+  locationName: string;
 }
 
 /**
@@ -26,50 +26,52 @@ export interface SplitResult<T> {
  * When no location filter is active, all items go into `local` and `others` is empty.
  */
 export function splitItemsByLocation<T extends WithLocationLabel>(
-    items: T[],
-    location: LocationFilter | null | undefined
+  items: T[],
+  location: LocationFilter | null | undefined,
 ): SplitResult<T> {
-    const locationName = getLocationDisplayName(location ?? null);
-    const hasLocation = Boolean(location && (location.province || location.canton || location.district));
+  const locationName = getLocationDisplayName(location ?? null);
+  const hasLocation = Boolean(
+    location && (location.province || location.canton || location.district),
+  );
 
-    if (!hasLocation) {
-        return { local: items, others: [], hasLocation: false, locationName: '' };
+  if (!hasLocation) {
+    return { local: items, others: [], hasLocation: false, locationName: '' };
+  }
+
+  const local: T[] = [];
+  const others: T[] = [];
+
+  for (const item of items) {
+    const parts = item.locationLabel?.split(', ').map((p) => p.toLowerCase()) || [];
+    let matches = false;
+
+    if (location!.district) {
+      matches = parts.some((part) => part === location!.district!.toLowerCase());
+    } else if (location!.canton) {
+      matches = parts.some((part) => part === location!.canton!.toLowerCase());
+    } else if (location!.province) {
+      matches = parts.some((part) => part === location!.province!.toLowerCase());
     }
 
-    const local: T[] = [];
-    const others: T[] = [];
-
-    for (const item of items) {
-        const parts = item.locationLabel?.split(', ').map(p => p.toLowerCase()) || [];
-        let matches = false;
-
-        if (location!.district) {
-            matches = parts.some(part => part === location!.district!.toLowerCase());
-        } else if (location!.canton) {
-            matches = parts.some(part => part === location!.canton!.toLowerCase());
-        } else if (location!.province) {
-            matches = parts.some(part => part === location!.province!.toLowerCase());
-        }
-
-        if (matches) {
-            local.push(item);
-        } else {
-            others.push(item);
-        }
+    if (matches) {
+      local.push(item);
+    } else {
+      others.push(item);
     }
+  }
 
-    return { local, others, hasLocation: true, locationName };
+  return { local, others, hasLocation: true, locationName };
 }
 
 /**
  * Gets the most specific location name for display purposes.
  */
 export function getLocationDisplayName(location: LocationFilter | null): string {
-    if (!location) return '';
-    if (location.district) return location.district;
-    if (location.canton) return location.canton;
-    if (location.province) return location.province;
-    return '';
+  if (!location) return '';
+  if (location.district) return location.district;
+  if (location.canton) return location.canton;
+  if (location.province) return location.province;
+  return '';
 }
 
 /**
@@ -79,8 +81,8 @@ export function getLocationDisplayName(location: LocationFilter | null): string 
  * If label has ≤2 parts, returns as-is.
  */
 export function getShortLocationLabel(label: string | null | undefined): string | null {
-    if (!label) return null;
-    const parts = label.split(', ');
-    if (parts.length <= 2) return label;
-    return parts.slice(-2).join(', ');
+  if (!label) return null;
+  const parts = label.split(', ');
+  if (parts.length <= 2) return label;
+  return parts.slice(-2).join(', ');
 }

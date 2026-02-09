@@ -213,7 +213,7 @@ export interface EventFormData {
  * Extrae la URL del cover de las imágenes
  */
 export function getEventCoverUrl(images: EventImage[] | undefined, baseUrl: string): string | null {
-  const cover = images?.find(img => img.path_eim.includes('/cover-'));
+  const cover = images?.find((img) => img.path_eim.includes('/cover-'));
   return cover ? `${baseUrl}/${cover.path_eim}` : null;
 }
 
@@ -223,9 +223,9 @@ export function getEventCoverUrl(images: EventImage[] | undefined, baseUrl: stri
 export function getEventGalleryUrls(images: EventImage[] | undefined, baseUrl: string): string[] {
   if (!images) return [];
   return images
-    .filter(img => img.path_eim.includes('/gallery-'))
+    .filter((img) => img.path_eim.includes('/gallery-'))
     .sort((a, b) => (a.sort_order_eim ?? 0) - (b.sort_order_eim ?? 0))
-    .map(img => `${baseUrl}/${img.path_eim}`);
+    .map((img) => `${baseUrl}/${img.path_eim}`);
 }
 
 /**

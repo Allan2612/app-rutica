@@ -20,4 +20,3 @@ export * from './ReviewsSection';
 export * from './BusinessPromotionsCarousel';
 export * from './ProductReviewsModal';
 // BusinessesList se importa directamente para evitar referencias circulares
-

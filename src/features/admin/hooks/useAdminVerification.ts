@@ -6,11 +6,7 @@ import {
   getVerificationDetail,
   toggleEntityActive,
 } from '../services/verification.service';
-import type {
-  VerificationFilters,
-  UpdateModerationData,
-  VerificationEntityType,
-} from '../types';
+import type { VerificationFilters, UpdateModerationData, VerificationEntityType } from '../types';
 
 // ============================================
 // Query Keys
@@ -84,8 +80,15 @@ export function useToggleActive() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, type, isActive }: { id: string; type: VerificationEntityType; isActive: boolean }) =>
-      toggleEntityActive(id, type, isActive),
+    mutationFn: ({
+      id,
+      type,
+      isActive,
+    }: {
+      id: string;
+      type: VerificationEntityType;
+      isActive: boolean;
+    }) => toggleEntityActive(id, type, isActive),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: verificationKeys.all });
     },

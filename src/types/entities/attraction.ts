@@ -142,20 +142,26 @@ export interface AttractionFormData {
 /**
  * Extrae la URL de la imagen de portada de las imágenes
  */
-export function getAttractionCoverImageUrl(images: AttractionImage[] | undefined, baseUrl: string): string | null {
-  const cover = images?.find(img => img.path_aim.includes('/cover-'));
+export function getAttractionCoverImageUrl(
+  images: AttractionImage[] | undefined,
+  baseUrl: string,
+): string | null {
+  const cover = images?.find((img) => img.path_aim.includes('/cover-'));
   return cover ? `${baseUrl}/${cover.path_aim}` : null;
 }
 
 /**
  * Extrae las URLs de galería ordenadas
  */
-export function getAttractionGalleryUrls(images: AttractionImage[] | undefined, baseUrl: string): string[] {
+export function getAttractionGalleryUrls(
+  images: AttractionImage[] | undefined,
+  baseUrl: string,
+): string[] {
   if (!images) return [];
   return images
-    .filter(img => img.path_aim.includes('/gallery-'))
+    .filter((img) => img.path_aim.includes('/gallery-'))
     .sort((a, b) => (a.sort_order_aim ?? 0) - (b.sort_order_aim ?? 0))
-    .map(img => `${baseUrl}/${img.path_aim}`);
+    .map((img) => `${baseUrl}/${img.path_aim}`);
 }
 
 /**

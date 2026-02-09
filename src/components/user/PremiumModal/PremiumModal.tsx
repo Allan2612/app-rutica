@@ -16,18 +16,18 @@ import { usePremiumModal } from './usePremiumModal';
 import { styles } from './styles';
 
 interface PremiumModalProps {
-    visible: boolean;
-    onClose: () => void;
-    onSuccess?: (planNames: string, planCount: number) => void;
-    onInfo?: (title: string, message: string) => void;
-    onSubscribed?: () => void;
-    userRole?: UserRole | null;
-    initialPlan?: import('@/types/enums').SubscriptionType;
-    preSelectedBusinessId?: string;
-    preSelectedBusinessName?: string;
-    preSelectedEntityId?: string;
-    preSelectedEntityType?: 'attraction' | 'event';
-    preSelectedEntityName?: string;
+  visible: boolean;
+  onClose: () => void;
+  onSuccess?: (planNames: string, planCount: number) => void;
+  onInfo?: (title: string, message: string) => void;
+  onSubscribed?: () => void;
+  userRole?: UserRole | null;
+  initialPlan?: import('@/types/enums').SubscriptionType;
+  preSelectedBusinessId?: string;
+  preSelectedBusinessName?: string;
+  preSelectedEntityId?: string;
+  preSelectedEntityType?: 'attraction' | 'event';
+  preSelectedEntityName?: string;
 }
 
 // Configuración de pago
@@ -37,152 +37,147 @@ const IBAN_ACCOUNT = 'CR12345678901234567890';
 const TRANSFER_NAME = 'Rutica S.A';
 
 export const PremiumModal = memo(function PremiumModal({
+  visible,
+  onClose,
+  onSuccess,
+  onInfo,
+  onSubscribed,
+  userRole,
+  initialPlan,
+  preSelectedBusinessId,
+  preSelectedBusinessName,
+  preSelectedEntityId,
+  preSelectedEntityType,
+  preSelectedEntityName,
+}: PremiumModalProps) {
+  const colors = useThemedColors();
+  const isBuyer = userRole === 'buyer';
+
+  const {
+    step,
+    selectedPlans,
+    businessSelections,
+    businessRequiredPlans,
+    entitySelections,
+    entityRequiredPlans,
+    requiresBusinessSelection,
+    requiresEntitySelection,
+    paymentMethod,
+    paymentReference,
+    paymentNote,
+    error,
+    isLoading,
+    setPaymentMethod,
+    setPaymentReference,
+    setPaymentNote,
+    handleSelectPlan,
+    handleSelectBusiness,
+    handleSelectEntity,
+    handleContinue,
+    handleBack,
+    handleSubmit,
+    handleClose,
+  } = usePremiumModal({
     visible,
     onClose,
     onSuccess,
-    onInfo,
     onSubscribed,
-    userRole,
     initialPlan,
     preSelectedBusinessId,
-    preSelectedBusinessName,
     preSelectedEntityId,
     preSelectedEntityType,
-    preSelectedEntityName,
-}: PremiumModalProps) {
-    const colors = useThemedColors();
-    const isBuyer = userRole === 'buyer';
+  });
 
-    const {
-        step,
-        selectedPlans,
-        businessSelections,
-        businessRequiredPlans,
-        entitySelections,
-        entityRequiredPlans,
-        requiresBusinessSelection,
-        requiresEntitySelection,
-        paymentMethod,
-        paymentReference,
-        paymentNote,
-        error,
-        isLoading,
-        setPaymentMethod,
-        setPaymentReference,
-        setPaymentNote,
-        handleSelectPlan,
-        handleSelectBusiness,
-        handleSelectEntity,
-        handleContinue,
-        handleBack,
-        handleSubmit,
-        handleClose,
-    } = usePremiumModal({
-        visible,
-        onClose,
-        onSuccess,
-        onSubscribed,
-        initialPlan,
-        preSelectedBusinessId,
-        preSelectedEntityId,
-        preSelectedEntityType,
-    });
+  // Renderizar el contenido según el paso actual
+  const renderStepContent = () => {
+    if (step === 'plans') {
+      return (
+        <PlansStep
+          selectedPlans={isBuyer ? [] : selectedPlans}
+          onSelectPlan={isBuyer ? () => {} : handleSelectPlan}
+          isBuyer={isBuyer}
+        />
+      );
+    }
 
-    // Renderizar el contenido según el paso actual
-    const renderStepContent = () => {
-        if (step === 'plans') {
-            return (
-                <PlansStep
-                    selectedPlans={isBuyer ? [] : selectedPlans}
-                    onSelectPlan={isBuyer ? () => { } : handleSelectPlan}
-                    isBuyer={isBuyer}
-                />
-            );
-        }
+    if (step === 'business') {
+      return (
+        <BusinessStep
+          businessRequiredPlans={businessRequiredPlans}
+          businessSelections={businessSelections}
+          onSelectBusiness={handleSelectBusiness}
+        />
+      );
+    }
 
-        if (step === 'business') {
-            return (
-                <BusinessStep
-                    businessRequiredPlans={businessRequiredPlans}
-                    businessSelections={businessSelections}
-                    onSelectBusiness={handleSelectBusiness}
-                />
-            );
-        }
-
-        if (step === 'entity') {
-            return (
-                <EntityStep
-                    entityRequiredPlans={entityRequiredPlans}
-                    entitySelections={entitySelections}
-                    onSelectEntity={handleSelectEntity}
-                />
-            );
-        }
-
-        return (
-            <PaymentStep
-                selectedPlans={selectedPlans}
-                businessSelections={businessSelections}
-                entitySelections={entitySelections}
-                preSelectedBusinessName={preSelectedBusinessName}
-                preSelectedEntityName={preSelectedEntityName}
-                paymentMethod={paymentMethod}
-                paymentReference={paymentReference}
-                paymentNote={paymentNote}
-                error={error}
-                sinpeNumber={SINPE_NUMBER}
-                sinpeName={SINPE_NAME}
-                ibanAccount={IBAN_ACCOUNT}
-                transferName={TRANSFER_NAME}
-                onMethodChange={setPaymentMethod}
-                onReferenceChange={setPaymentReference}
-                onNoteChange={setPaymentNote}
-            />
-        );
-    };
+    if (step === 'entity') {
+      return (
+        <EntityStep
+          entityRequiredPlans={entityRequiredPlans}
+          entitySelections={entitySelections}
+          onSelectEntity={handleSelectEntity}
+        />
+      );
+    }
 
     return (
-        <AccessibleModal
-            visible={visible}
-            transparent
-            animationType="fade"
-            onRequestClose={handleClose}
-        >
-            <View style={styles.overlay}>
-                <View
-                    style={[
-                        styles.modalContainer,
-                        { backgroundColor: colors.background.secondary },
-                    ]}
-                >
-                    <ModalHeader step={step} onClose={handleClose} />
-
-                    {!isBuyer && <StepIndicator currentStep={step} />}
-                    {isBuyer && <BuyerNotice />}
-
-                    <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                        {renderStepContent()}
-                    </ScrollView>
-
-                    {!isBuyer && (
-                        <ModalFooter
-                            step={step}
-                            selectedPlans={selectedPlans}
-                            businessSelections={businessSelections}
-                            businessRequiredPlans={businessRequiredPlans}
-                            entitySelections={entitySelections}
-                            entityRequiredPlans={entityRequiredPlans}
-                            isLoading={isLoading}
-                            onBack={handleBack}
-                            onContinue={handleContinue}
-                            onSubmit={handleSubmit}
-                        />
-                    )}
-                </View>
-            </View>
-
-            <ToastConfig />
-        </AccessibleModal>
+      <PaymentStep
+        selectedPlans={selectedPlans}
+        businessSelections={businessSelections}
+        entitySelections={entitySelections}
+        preSelectedBusinessName={preSelectedBusinessName}
+        preSelectedEntityName={preSelectedEntityName}
+        paymentMethod={paymentMethod}
+        paymentReference={paymentReference}
+        paymentNote={paymentNote}
+        error={error}
+        sinpeNumber={SINPE_NUMBER}
+        sinpeName={SINPE_NAME}
+        ibanAccount={IBAN_ACCOUNT}
+        transferName={TRANSFER_NAME}
+        onMethodChange={setPaymentMethod}
+        onReferenceChange={setPaymentReference}
+        onNoteChange={setPaymentNote}
+      />
     );
+  };
+
+  return (
+    <AccessibleModal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={handleClose}
+    >
+      <View style={styles.overlay}>
+        <View style={[styles.modalContainer, { backgroundColor: colors.background.secondary }]}>
+          <ModalHeader step={step} onClose={handleClose} />
+
+          {!isBuyer && <StepIndicator currentStep={step} />}
+          {isBuyer && <BuyerNotice />}
+
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {renderStepContent()}
+          </ScrollView>
+
+          {!isBuyer && (
+            <ModalFooter
+              step={step}
+              selectedPlans={selectedPlans}
+              businessSelections={businessSelections}
+              businessRequiredPlans={businessRequiredPlans}
+              entitySelections={entitySelections}
+              entityRequiredPlans={entityRequiredPlans}
+              isLoading={isLoading}
+              onBack={handleBack}
+              onContinue={handleContinue}
+              onSubmit={handleSubmit}
+            />
+          )}
+        </View>
+      </View>
+
+      <ToastConfig />
+    </AccessibleModal>
+  );
 });

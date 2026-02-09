@@ -55,47 +55,50 @@ export const ProfileEditModal = memo(function ProfileEditModal({
     setProfilePhoto(null);
   }, []);
 
-  const uploadProfilePhoto = useCallback(async (uri: string) => {
-    try {
-      // Si existe una foto anterior, eliminarla del bucket
-      if (profile.profile_photo_path_prf) {
-        const { error: deleteError } = await supabase.storage
-          .from('profiles-images')
-          .remove([profile.profile_photo_path_prf]);
-        
-        if (deleteError) {
-          console.warn('Error al eliminar foto anterior:', deleteError);
+  const uploadProfilePhoto = useCallback(
+    async (uri: string) => {
+      try {
+        // Si existe una foto anterior, eliminarla del bucket
+        if (profile.profile_photo_path_prf) {
+          const { error: deleteError } = await supabase.storage
+            .from('profiles-images')
+            .remove([profile.profile_photo_path_prf]);
+
+          if (deleteError) {
+            console.warn('Error al eliminar foto anterior:', deleteError);
+          }
         }
+
+        const fileName = `${profile.id_prf}-${Date.now()}.jpg`;
+        const filePath = `${profile.id_prf}/${fileName}`;
+
+        // Obtener el archivo como blob para web
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        const { error: uploadError } = await supabase.storage
+          .from('profiles-images')
+          .upload(filePath, blob, {
+            contentType: 'image/jpeg',
+            upsert: true,
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ profile_photo_path_prf: filePath } as never)
+          .eq('id_prf', profile.id_prf);
+
+        if (updateError) throw updateError;
+
+        return filePath;
+      } catch (error: any) {
+        throw new Error(error.message || 'Error al subir la foto');
       }
-
-      const fileName = `${profile.id_prf}-${Date.now()}.jpg`;
-      const filePath = `${profile.id_prf}/${fileName}`;
-
-      // Obtener el archivo como blob para web
-      const response = await fetch(uri);
-      const blob = await response.blob();
-
-      const { error: uploadError } = await supabase.storage
-        .from('profiles-images')
-        .upload(filePath, blob, {
-          contentType: 'image/jpeg',
-          upsert: true,
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ profile_photo_path_prf: filePath } as never)
-        .eq('id_prf', profile.id_prf);
-
-      if (updateError) throw updateError;
-
-      return filePath;
-    } catch (error: any) {
-      throw new Error(error.message || 'Error al subir la foto');
-    }
-  }, [profile.id_prf, profile.profile_photo_path_prf]);
+    },
+    [profile.id_prf, profile.profile_photo_path_prf],
+  );
 
   const handleSave = useCallback(async () => {
     if (!firstName.trim() || !lastName1.trim()) {
@@ -142,22 +145,32 @@ export const ProfileEditModal = memo(function ProfileEditModal({
     } finally {
       setLoading(false);
     }
-  }, [firstName, lastName1, lastName2, phoneNumber, profilePhoto, uploadProfilePhoto, onSave, onClose]);
+  }, [
+    firstName,
+    lastName1,
+    lastName2,
+    phoneNumber,
+    profilePhoto,
+    uploadProfilePhoto,
+    onSave,
+    onClose,
+  ]);
 
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable 
-          style={[styles.container, { 
-            backgroundColor: colors.background.primary,
-            borderColor: colors.border.light,
-          }]} 
+        <Pressable
+          style={[
+            styles.container,
+            {
+              backgroundColor: colors.background.primary,
+              borderColor: colors.border.light,
+            },
+          ]}
           onPress={(e) => e.stopPropagation()}
         >
           <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.text.primary }]}>
-              Editar Perfil
-            </Text>
+            <Text style={[styles.title, { color: colors.text.primary }]}>Editar Perfil</Text>
             <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
               Actualiza tu información personal
             </Text>
@@ -189,9 +202,14 @@ export const ProfileEditModal = memo(function ProfileEditModal({
                   transition={200}
                 />
               ) : (
-                <View style={[styles.photo, { 
-                  backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] 
-                }]}>
+                <View
+                  style={[
+                    styles.photo,
+                    {
+                      backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50],
+                    },
+                  ]}
+                >
                   <User color={colors.primary[500]} size={48} />
                 </View>
               )}
@@ -242,11 +260,14 @@ export const ProfileEditModal = memo(function ProfileEditModal({
 
           <View style={styles.buttons}>
             <Pressable
-              style={[styles.button, { 
-                backgroundColor: colors.background.tertiary,
-                borderWidth: 1,
-                borderColor: colors.border.medium,
-              }]}
+              style={[
+                styles.button,
+                {
+                  backgroundColor: colors.background.tertiary,
+                  borderWidth: 1,
+                  borderColor: colors.border.medium,
+                },
+              ]}
               onPress={onClose}
               disabled={loading}
             >
@@ -256,16 +277,17 @@ export const ProfileEditModal = memo(function ProfileEditModal({
             </Pressable>
 
             <Pressable
-              style={[styles.button, { 
-                backgroundColor: colors.primary[500],
-                opacity: loading ? 0.7 : 1,
-              }]}
+              style={[
+                styles.button,
+                {
+                  backgroundColor: colors.primary[500],
+                  opacity: loading ? 0.7 : 1,
+                },
+              ]}
               onPress={handleSave}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>
-                {loading ? 'Guardando...' : 'Guardar'}
-              </Text>
+              <Text style={styles.buttonText}>{loading ? 'Guardando...' : 'Guardar'}</Text>
             </Pressable>
           </View>
         </Pressable>

@@ -13,127 +13,145 @@ import { formatDate, DATE_FORMAT_OPTIONS } from '@/utils';
 import { styles } from './styles';
 
 export interface EventCardProps {
-    id: string;
-    name: string;
-    startAt: string;
-    endAt: string;
-    isFree?: boolean;
-    price?: number | null;
-    currency?: string | null;
-    categoryNames?: string[];
-    categoryIds?: string[];
-    locationLabel?: string | null;
-    imageUrls?: string[];
-    rating?: number;
-    reviewCount?: number;
-    onPress?: () => void;
+  id: string;
+  name: string;
+  startAt: string;
+  endAt: string;
+  isFree?: boolean;
+  price?: number | null;
+  currency?: string | null;
+  categoryNames?: string[];
+  categoryIds?: string[];
+  locationLabel?: string | null;
+  imageUrls?: string[];
+  rating?: number;
+  reviewCount?: number;
+  onPress?: () => void;
 }
 
 export const EventCard = memo(function EventCard({
-    id,
-    name,
-    startAt,
-    endAt,
-    isFree = false,
-    price,
-    currency = 'CRC',
-    categoryNames = [],
-    categoryIds = [],
-    locationLabel,
-    imageUrls = [],
-    rating = 0,
-    reviewCount = 0,
-    onPress,
+  id,
+  name,
+  startAt,
+  endAt,
+  isFree = false,
+  price,
+  currency = 'CRC',
+  categoryNames = [],
+  categoryIds = [],
+  locationLabel,
+  imageUrls = [],
+  rating = 0,
+  reviewCount = 0,
+  onPress,
 }: EventCardProps) {
-    const colors = useThemedColors();
-    const imageUrl = imageUrls[0];
+  const colors = useThemedColors();
+  const imageUrl = imageUrls[0];
 
-    const formatEventDate = (dateString: string) => {
-        return formatDate(dateString, DATE_FORMAT_OPTIONS.dayMonthShort);
-    };
+  const formatEventDate = (dateString: string) => {
+    return formatDate(dateString, DATE_FORMAT_OPTIONS.dayMonthShort);
+  };
 
-    const formatEventPrice = () => {
-        if (isFree) return 'Gratis';
-        if (!price) return '';
-        const formatter = new Intl.NumberFormat('es-CR', {
-            style: 'currency',
-            currency: currency || 'CRC',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        });
-        return formatter.format(price);
-    };
+  const formatEventPrice = () => {
+    if (isFree) return 'Gratis';
+    if (!price) return '';
+    const formatter = new Intl.NumberFormat('es-CR', {
+      style: 'currency',
+      currency: currency || 'CRC',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+    return formatter.format(price);
+  };
 
-    return (
-        <Pressable style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]} onPress={onPress} disabled={!onPress}>
-            {imageUrl ? (
-                <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
-            ) : (
-                <View style={[styles.heroFull, styles.heroPlaceholder, { backgroundColor: colors.background.tertiary }]}>
-                    <Calendar size={40} color={colors.text.tertiary} strokeWidth={1.5} />
-                </View>
-            )}
+  return (
+    <Pressable
+      style={[
+        styles.card,
+        { backgroundColor: colors.background.primary, borderColor: colors.border.medium },
+      ]}
+      onPress={onPress}
+      disabled={!onPress}
+    >
+      {imageUrl ? (
+        <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
+      ) : (
+        <View
+          style={[
+            styles.heroFull,
+            styles.heroPlaceholder,
+            { backgroundColor: colors.background.tertiary },
+          ]}
+        >
+          <Calendar size={40} color={colors.text.tertiary} strokeWidth={1.5} />
+        </View>
+      )}
 
-            {rating > 0 && (
-                <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
-                    <Star size={16} color="#fbbf24" fill="#fbbf24" />
-                    <Text style={styles.ratingValue}>{rating.toFixed(1)}</Text>
-                    <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>({reviewCount})</Text>
-                </View>
-            )}
+      {rating > 0 && (
+        <View
+          style={[
+            styles.ratingBadge,
+            { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium },
+          ]}
+        >
+          <Star size={16} color="#fbbf24" fill="#fbbf24" />
+          <Text style={styles.ratingValue}>{rating.toFixed(1)}</Text>
+          <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>({reviewCount})</Text>
+        </View>
+      )}
 
-            <LinearGradient
-                colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.gradientOverlay}
+      <LinearGradient
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradientOverlay}
+      />
+
+      <View style={styles.content}>
+        {categoryNames.length > 0 && (
+          <View style={styles.categoryRow}>
+            <CategoryChip
+              categoryId={categoryIds[0]}
+              categoryName={categoryNames[0]}
+              variant="small"
             />
-
-            <View style={styles.content}>
-                {categoryNames.length > 0 && (
-                    <View style={styles.categoryRow}>
-                        <CategoryChip
-                            categoryId={categoryIds[0]}
-                            categoryName={categoryNames[0]}
-                            variant="small"
-                        />
-                        {categoryNames.length > 1 && (
-                            <View style={[styles.categoryChip, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-                                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
-                                    +{categoryNames.length - 1}
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-                )}
-
-                <Text style={styles.title} numberOfLines={2}>
-                    {name}
+            {categoryNames.length > 1 && (
+              <View style={[styles.categoryChip, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
+                  +{categoryNames.length - 1}
                 </Text>
+              </View>
+            )}
+          </View>
+        )}
 
-                <View style={styles.infoRow}>
-                    <Calendar size={14} color="rgba(255,255,255,0.85)" strokeWidth={2} />
-                    <Text style={styles.infoText}>
-                        {formatEventDate(startAt)}
-                        {startAt !== endAt && ` - ${formatEventDate(endAt)}`}
-                    </Text>
-                </View>
+        <Text style={styles.title} numberOfLines={2}>
+          {name}
+        </Text>
 
-                {locationLabel && (
-                    <View style={styles.infoRow}>
-                        <MapPin size={14} color="rgba(255,255,255,0.85)" strokeWidth={2} />
-                        <Text style={styles.infoText} numberOfLines={1}>
-                            {locationLabel}
-                        </Text>
-                    </View>
-                )}
+        <View style={styles.infoRow}>
+          <Calendar size={14} color="rgba(255,255,255,0.85)" strokeWidth={2} />
+          <Text style={styles.infoText}>
+            {formatEventDate(startAt)}
+            {startAt !== endAt && ` - ${formatEventDate(endAt)}`}
+          </Text>
+        </View>
 
-                {(isFree || price) && (
-                    <View style={styles.priceContainer}>
-                        <Text style={styles.priceText}>{formatEventPrice()}</Text>
-                    </View>
-                )}
-            </View>
-        </Pressable>
-    );
+        {locationLabel && (
+          <View style={styles.infoRow}>
+            <MapPin size={14} color="rgba(255,255,255,0.85)" strokeWidth={2} />
+            <Text style={styles.infoText} numberOfLines={1}>
+              {locationLabel}
+            </Text>
+          </View>
+        )}
+
+        {(isFree || price) && (
+          <View style={styles.priceContainer}>
+            <Text style={styles.priceText}>{formatEventPrice()}</Text>
+          </View>
+        )}
+      </View>
+    </Pressable>
+  );
 });

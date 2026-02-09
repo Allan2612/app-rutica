@@ -9,9 +9,8 @@ export default function TabsLayout() {
   const router = useRouter();
 
   // Ocultar tabs en formularios de creación/edición
-  const shouldHideTabs = pathname.includes('/create') || 
-                         pathname.includes('/edit') || 
-                         pathname.includes('/wizard');
+  const shouldHideTabs =
+    pathname.includes('/create') || pathname.includes('/edit') || pathname.includes('/wizard');
 
   return (
     <Tabs
@@ -20,15 +19,17 @@ export default function TabsLayout() {
         header: () => <HeaderWithSearch />,
         tabBarActiveTintColor: colors.primary[500],
         tabBarInactiveTintColor: colors.text.tertiary,
-        tabBarStyle: shouldHideTabs ? { display: 'none' } : {
-          backgroundColor: colors.background.primary,
-          borderTopWidth: 0,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 3,
-          elevation: 8,
-        },
+        tabBarStyle: shouldHideTabs
+          ? { display: 'none' }
+          : {
+              backgroundColor: colors.background.primary,
+              borderTopWidth: 0,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 3,
+              elevation: 8,
+            },
       }}
     >
       {/* Tab 1: Negocios (con subtabs de negocios y promociones) */}

@@ -4,7 +4,7 @@
 
 /**
  * Categoría del sistema - Tabla: categories (cat)
- * 
+ *
  * Esta tabla es compartida por todas las entidades:
  * - Business (via business_category_map)
  * - Events (via event_category_map)
@@ -99,7 +99,7 @@ export function categoriesToOptions(categories: Category[]): CategoryOption[] {
  */
 export function getCategoryNames(categories: Category[] | undefined): string {
   if (!categories?.length) return '';
-  return categories.map(c => c.name_cat).join(', ');
+  return categories.map((c) => c.name_cat).join(', ');
 }
 
 /**
@@ -107,6 +107,5 @@ export function getCategoryNames(categories: Category[] | undefined): string {
  */
 export function getCategoryIds(categories: Category[] | undefined): string[] {
   if (!categories?.length) return [];
-  return categories.map(c => c.id_cat);
+  return categories.map((c) => c.id_cat);
 }
-

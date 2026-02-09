@@ -17,7 +17,7 @@ interface WizardStepDiscountProps {
   errors: PromotionWizardErrors;
   onFieldChange: <K extends keyof PromotionWizardFormData>(
     field: K,
-    value: PromotionWizardFormData[K]
+    value: PromotionWizardFormData[K],
   ) => void;
   onToggleProduct: (productId: string) => void;
   onToggleScopeCategory: (categoryId: string) => void;
@@ -33,26 +33,28 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
   onToggleScopeCategory,
   onUpdateComboItem,
 }: WizardStepDiscountProps) {
-  const { data: products = [], isLoading: loadingProducts } = useBusinessProducts(formData.businessId);
+  const { data: products = [], isLoading: loadingProducts } = useBusinessProducts(
+    formData.businessId,
+  );
   const { data: allCategories = [], isLoading: loadingCategories } = useCategories();
 
   // Get categories that exist in the business's products
   // Include parent categories if a product has a subcategory
   const productCategories = useMemo(() => {
     const categoryIds = new Set<string>();
-    
+
     products.forEach((product) => {
       if (product.categoryIds && Array.isArray(product.categoryIds)) {
         product.categoryIds.forEach((catId) => {
           categoryIds.add(catId);
-          
+
           // Also add all parent categories up to the root
-          const category = allCategories.find(c => c.id === catId);
+          const category = allCategories.find((c) => c.id === catId);
           if (category) {
             let currentCat = category;
             while (currentCat.parentId) {
               categoryIds.add(currentCat.parentId);
-              const parentCat = allCategories.find(c => c.id === currentCat.parentId);
+              const parentCat = allCategories.find((c) => c.id === currentCat.parentId);
               if (!parentCat) break;
               currentCat = parentCat;
             }
@@ -60,7 +62,7 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
         });
       }
     });
-    
+
     return allCategories.filter((cat) => categoryIds.has(cat.id));
   }, [products, allCategories]);
 
@@ -84,10 +86,7 @@ export const WizardStepDiscount = memo(function WizardStepDiscount({
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Scope Selection */}
-        <ScopeSelection
-          selectedScope={formData.scope}
-          onScopeChange={handleScopeChange}
-        />
+        <ScopeSelection selectedScope={formData.scope} onScopeChange={handleScopeChange} />
 
         {/* Discount Type - NOT shown for combo */}
         {!isCombo && (

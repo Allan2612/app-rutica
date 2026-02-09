@@ -7,7 +7,7 @@ import type { MapThemeColors } from './types';
  * Genera CSS base del mapa
  */
 export function generateBaseStyles(colors: MapThemeColors): string {
-    return `
+  return `
     body, html { 
         margin: 0; 
         padding: 0; 
@@ -41,7 +41,7 @@ export function generateBaseStyles(colors: MapThemeColors): string {
  * Genera CSS para modo oscuro
  */
 export function generateDarkModeStyles(colors: MapThemeColors): string {
-    return `
+  return `
     .leaflet-bar {
         box-shadow: none;
         border: 1px solid ${colors.surfaceBorder};
@@ -99,7 +99,7 @@ export function generateDarkModeStyles(colors: MapThemeColors): string {
  * Genera CSS para el display de coordenadas
  */
 export function generateCoordinatesStyles(colors: MapThemeColors): string {
-    return `
+  return `
     .coordinates-display {
         position: absolute;
         bottom: 10px;

@@ -55,8 +55,16 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       wizard.updateField('scope', promotionData.scope);
       wizard.updateField('discountType', promotionData.discountType);
       wizard.updateField('discountValue', promotionData.discountValue);
-      wizard.updateField('startDate', promotionData.startAt ? new Date(promotionData.startAt) : new Date());
-      wizard.updateField('endDate', promotionData.endAt ? new Date(promotionData.endAt) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+      wizard.updateField(
+        'startDate',
+        promotionData.startAt ? new Date(promotionData.startAt) : new Date(),
+      );
+      wizard.updateField(
+        'endDate',
+        promotionData.endAt
+          ? new Date(promotionData.endAt)
+          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      );
       wizard.updateField('selectedCategoryIds', promotionData.categoryIds);
       wizard.updateField('selectedProductIds', promotionData.productIds);
       wizard.updateField('scopeCategoryIds', promotionData.scopeCategoryIds);
@@ -74,18 +82,15 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
       wizard.formData.description !== promotionData.description ||
       wizard.formData.discountValue !== promotionData.discountValue ||
       wizard.formData.coverUri !== promotionData.coverUrl ||
-      JSON.stringify(wizard.formData.selectedCategoryIds) !== JSON.stringify(promotionData.categoryIds) ||
-      JSON.stringify(wizard.formData.selectedProductIds) !== JSON.stringify(promotionData.productIds)
+      JSON.stringify(wizard.formData.selectedCategoryIds) !==
+        JSON.stringify(promotionData.categoryIds) ||
+      JSON.stringify(wizard.formData.selectedProductIds) !==
+        JSON.stringify(promotionData.productIds)
     );
   }, [wizard.formData, promotionData]);
 
   // Hook para manejar la confirmación de salida
-  const {
-    showExitDialog,
-    handleSafeBack,
-    confirmExit,
-    cancelExit,
-  } = useFormExitGuard({
+  const { showExitDialog, handleSafeBack, confirmExit, cancelExit } = useFormExitGuard({
     hasChanges,
     onExit: () => {
       router.back();
@@ -144,7 +149,7 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
             text2: error.message || 'No se pudo actualizar la promoción.',
           });
         },
-      }
+      },
     );
   }, [wizard, buildUpdateData, updateMutation, promotionId]);
 
@@ -254,9 +259,7 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
             style={({ pressed }) => [
               styles.backButton,
               {
-                backgroundColor: pressed
-                  ? colors.primary[500]
-                  : colors.background.tertiary,
+                backgroundColor: pressed ? colors.primary[500] : colors.background.tertiary,
               },
             ]}
             hitSlop={8}

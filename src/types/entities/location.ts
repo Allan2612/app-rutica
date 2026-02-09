@@ -116,9 +116,9 @@ export interface DistrictOption extends LocationOption {
  */
 export function formatLocationLabel(location: LocationWithHierarchy | null | undefined): string {
   if (!location?.district) return '';
-  
+
   const parts: string[] = [];
-  
+
   if (location.district.name_dst) {
     parts.push(location.district.name_dst);
   }
@@ -128,18 +128,19 @@ export function formatLocationLabel(location: LocationWithHierarchy | null | und
   if (location.district.canton?.province?.name_prv) {
     parts.push(location.district.canton.province.name_prv);
   }
-  
+
   return parts.join(', ');
 }
 
 /**
  * Obtiene coordenadas de una ubicación
  */
-export function getCoordinates(location: Location | null | undefined): { lat: number; lng: number } | null {
+export function getCoordinates(
+  location: Location | null | undefined,
+): { lat: number; lng: number } | null {
   if (!location?.latitude_loc || !location?.longitude_loc) return null;
   return {
     lat: location.latitude_loc,
     lng: location.longitude_loc,
   };
 }
-

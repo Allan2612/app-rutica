@@ -63,12 +63,7 @@ export const UserMenu = memo(function UserMenu({
   if (!visible) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.menuOverlay} onPress={onClose}>
         <View style={[styles.menuContainer, { backgroundColor: colors.background.primary }]}>
           {isAuthenticated ? (
@@ -83,15 +78,26 @@ export const UserMenu = memo(function UserMenu({
                     transition={200}
                   />
                 ) : (
-                  <View style={[styles.menuUserIcon, { backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] }]}>
+                  <View
+                    style={[
+                      styles.menuUserIcon,
+                      { backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] },
+                    ]}
+                  >
                     <User color={colors.primary[500]} size={24} />
                   </View>
                 )}
                 <View style={styles.menuUserInfo}>
-                  <Text style={[styles.menuUserName, { color: colors.text.primary }]} numberOfLines={1}>
+                  <Text
+                    style={[styles.menuUserName, { color: colors.text.primary }]}
+                    numberOfLines={1}
+                  >
                     {profileName || 'Usuario'}
                   </Text>
-                  <Text style={[styles.menuUserEmail, { color: colors.text.secondary }]} numberOfLines={1}>
+                  <Text
+                    style={[styles.menuUserEmail, { color: colors.text.secondary }]}
+                    numberOfLines={1}
+                  >
                     {user?.email || ''}
                   </Text>
                 </View>
@@ -107,12 +113,16 @@ export const UserMenu = memo(function UserMenu({
 
               <Pressable style={styles.menuItem} onPress={handleFavorites}>
                 <Heart color="#ef4444" size={20} />
-                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Mis favoritos</Text>
+                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>
+                  Mis favoritos
+                </Text>
               </Pressable>
 
               <Pressable style={styles.menuItem} onPress={handleSettings}>
                 <Settings color={colors.text.primary} size={20} />
-                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Configuración</Text>
+                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>
+                  Configuración
+                </Text>
               </Pressable>
 
               <Pressable style={styles.menuItem} onPress={handleSupport}>
@@ -132,17 +142,23 @@ export const UserMenu = memo(function UserMenu({
               {/* Opciones para usuario no logueado */}
               <Pressable style={styles.menuItem} onPress={handleLogin}>
                 <User color={colors.primary[500]} size={20} />
-                <Text style={[styles.menuItemTextPrimary, { color: colors.primary[600] }]}>Iniciar sesión</Text>
+                <Text style={[styles.menuItemTextPrimary, { color: colors.primary[600] }]}>
+                  Iniciar sesión
+                </Text>
               </Pressable>
 
               <Pressable style={styles.menuItem} onPress={handleRegister}>
                 <UserCircle color={colors.text.primary} size={20} />
-                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Registrarse</Text>
+                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>
+                  Registrarse
+                </Text>
               </Pressable>
 
               <Pressable style={styles.menuItem} onPress={handleSettings}>
                 <Settings color={colors.text.primary} size={20} />
-                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Configuración</Text>
+                <Text style={[styles.menuItemText, { color: colors.text.primary }]}>
+                  Configuración
+                </Text>
               </Pressable>
 
               <Pressable style={styles.menuItem} onPress={handleSupport}>

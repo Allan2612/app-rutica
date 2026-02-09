@@ -39,7 +39,7 @@ export const ManageCard = memo(function ManageCard({
         tension: 120,
       }).start();
     },
-    [scale]
+    [scale],
   );
 
   const handlePressIn = useCallback(() => {
@@ -55,7 +55,7 @@ export const ManageCard = memo(function ManageCard({
       colors.isDark
         ? ([colors.primary[800], colors.primary[600]] as const)
         : ([colors.primary[700], colors.primary[500]] as const),
-    [colors.isDark, colors.primary]
+    [colors.isDark, colors.primary],
   );
 
   const gradientContentColor = colors.isDark ? colors.text.primary : colors.text.inverse;
@@ -66,9 +66,7 @@ export const ManageCard = memo(function ManageCard({
     const defaultCardStyle = [
       styles.card,
       {
-        backgroundColor: colors.isDark
-          ? colors.background.primary
-          : colors.background.primary,
+        backgroundColor: colors.isDark ? colors.background.primary : colors.background.primary,
         borderColor: colors.isDark ? colors.border.light : colors.border.medium,
       },
       colors.isDark ? shadows.lg : shadows.xl,
@@ -77,9 +75,7 @@ export const ManageCard = memo(function ManageCard({
     const defaultIconContainerStyle = [
       styles.iconContainer,
       {
-        backgroundColor: colors.isDark
-          ? colors.background.tertiary
-          : colors.background.secondary,
+        backgroundColor: colors.isDark ? colors.background.tertiary : colors.background.secondary,
         borderColor: colors.isDark ? colors.border.light : colors.border.medium,
       },
     ];
@@ -87,19 +83,13 @@ export const ManageCard = memo(function ManageCard({
     const defaultBadgeStyle = [
       styles.badge,
       {
-        backgroundColor: colors.isDark
-          ? colors.background.tertiary
-          : colors.background.secondary,
+        backgroundColor: colors.isDark ? colors.background.tertiary : colors.background.secondary,
         borderColor: colors.isDark ? colors.border.light : colors.border.medium,
       },
     ];
 
     // Admin y Premium usan los mismos estilos (primary/green)
-    const gradientCardStyle = [
-      styles.card,
-      { borderColor: colors.primary[400] },
-      shadows.lg,
-    ];
+    const gradientCardStyle = [styles.card, { borderColor: colors.primary[400] }, shadows.lg];
 
     const gradientIconContainerStyle = [
       styles.iconContainer,
@@ -141,7 +131,7 @@ export const ManageCard = memo(function ManageCard({
     gradientColors: readonly [string, string],
     themedStyles: typeof themed.admin | typeof themed.premium,
     badgeTextColor: string,
-    ctaBorderColor: string
+    ctaBorderColor: string,
   ) => (
     <LinearGradient
       colors={gradientColors}
@@ -150,23 +140,17 @@ export const ManageCard = memo(function ManageCard({
       style={themedStyles.card}
     >
       <View style={styles.topRow}>
-        <View style={themedStyles.iconContainer}>
-          {icon}
-        </View>
+        <View style={themedStyles.iconContainer}>{icon}</View>
 
         {badgeText ? (
           <View style={themedStyles.badge}>
-            <Text style={[styles.badgeText, { color: badgeTextColor }]}>
-              {badgeText}
-            </Text>
+            <Text style={[styles.badgeText, { color: badgeTextColor }]}>{badgeText}</Text>
           </View>
         ) : null}
       </View>
 
       <Text style={[styles.title, { color: gradientContentColor }]}>{title}</Text>
-      <Text style={[styles.description, { color: gradientContentColor }]}>
-        {description}
-      </Text>
+      <Text style={[styles.description, { color: gradientContentColor }]}>{description}</Text>
 
       <View style={[styles.ctaRow, { borderTopColor: ctaBorderColor }]}>
         <Text style={[styles.ctaText, { color: gradientContentColor }]}>Abrir</Text>
@@ -193,21 +177,19 @@ export const ManageCard = memo(function ManageCard({
             adminGradientColors,
             themed.admin,
             colors.primary[700],
-            colors.primary[300]
+            colors.primary[300],
           )
         ) : variant === 'premium' ? (
           renderGradientCard(
             adminGradientColors,
             themed.premium,
             colors.primary[700],
-            colors.primary[300]
+            colors.primary[300],
           )
         ) : (
           <View style={themed.default.card}>
             <View style={styles.topRow}>
-              <View style={themed.default.iconContainer}>
-                {icon}
-              </View>
+              <View style={themed.default.iconContainer}>{icon}</View>
 
               {badgeText ? (
                 <View style={themed.default.badge}>

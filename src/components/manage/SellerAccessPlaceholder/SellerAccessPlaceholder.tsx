@@ -22,14 +22,16 @@ export const SellerAccessPlaceholder = memo(function SellerAccessPlaceholder({
   };
 
   return (
-    <View style={[
-      styles.container,
-      {
-        backgroundColor: colors.background.primary,
-        borderColor: colors.isDark ? colors.border.light : colors.border.medium,
-      },
-      colors.isDark ? shadows.lg : shadows.xl,
-    ]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background.primary,
+          borderColor: colors.isDark ? colors.border.light : colors.border.medium,
+        },
+        colors.isDark ? shadows.lg : shadows.xl,
+      ]}
+    >
       <View style={[styles.iconContainer, { backgroundColor: colors.background.tertiary }]}>
         <Store size={32} color={colors.primary[500]} strokeWidth={2} />
       </View>

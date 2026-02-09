@@ -41,7 +41,7 @@ interface SubscriptionQueryResult {
  * Obtiene las suscripciones activas (aprobadas) del usuario actual
  */
 export async function getUserActiveSubscriptions(
-  userId: string
+  userId: string,
 ): Promise<UserActiveSubscription[]> {
   // Validar que userId sea válido
   if (!userId || userId === 'undefined' || userId === 'null') {
@@ -51,7 +51,8 @@ export async function getUserActiveSubscriptions(
 
   const { data, error } = await supabase
     .from('profile_subscriptions')
-    .select(`
+    .select(
+      `
       id_psub,
       approved_at_psub,
       subscription:subscription_id_psub (
@@ -60,7 +61,8 @@ export async function getUserActiveSubscriptions(
         description_sub,
         features_sub
       )
-    `)
+    `,
+    )
     .eq('profile_id_psub', userId)
     .eq('status_psub', 'approved' as SubscriptionStatus)
     .order('approved_at_psub', { ascending: false });
@@ -81,7 +83,7 @@ export async function getUserActiveSubscriptions(
       const sub = item.subscription!;
 
       // Usar los features del código como fuente de verdad (no de la BD)
-      const planInfo = SUBSCRIPTION_PLANS.find(p => p.type === sub.type_sub);
+      const planInfo = SUBSCRIPTION_PLANS.find((p) => p.type === sub.type_sub);
       const features = planInfo?.features || sub.features_sub || [];
 
       return {
@@ -98,9 +100,7 @@ export async function getUserActiveSubscriptions(
 /**
  * Obtiene un resumen de las suscripciones del usuario
  */
-export async function getUserSubscriptionSummary(
-  userId: string
-): Promise<UserSubscriptionSummary> {
+export async function getUserSubscriptionSummary(userId: string): Promise<UserSubscriptionSummary> {
   const subscriptions = await getUserActiveSubscriptions(userId);
 
   return {
@@ -115,7 +115,7 @@ export async function getUserSubscriptionSummary(
  */
 export async function hasActiveSubscription(
   userId: string,
-  subscriptionType: SubscriptionType
+  subscriptionType: SubscriptionType,
 ): Promise<boolean> {
   // Validar que userId sea válido
   if (!userId || userId === 'undefined' || userId === 'null') {
@@ -185,7 +185,7 @@ export interface UserSubscriptionDetail {
  * Obtiene las suscripciones del usuario con detalles de consumo y entidades asociadas
  */
 export async function getUserSubscriptionDetails(
-  userId: string
+  userId: string,
 ): Promise<UserSubscriptionDetail[]> {
   // Validar que userId sea válido
   if (!userId || userId === 'undefined' || userId === 'null') {
@@ -196,7 +196,8 @@ export async function getUserSubscriptionDetails(
   // 1. Obtener suscripciones aprobadas del usuario con precio
   const { data: subscriptionsData, error: subError } = await supabase
     .from('profile_subscriptions')
-    .select(`
+    .select(
+      `
       id_psub,
       status_psub,
       approved_at_psub,
@@ -209,7 +210,8 @@ export async function getUserSubscriptionDetails(
         features_sub,
         price_sub
       )
-    `)
+    `,
+    )
     .eq('profile_id_psub', userId)
     .eq('status_psub', 'approved' as SubscriptionStatus)
     .order('approved_at_psub', { ascending: false });
@@ -226,7 +228,8 @@ export async function getUserSubscriptionDetails(
   // 2. Obtener todos los registros de usage para estas suscripciones
   const { data: usageData, error: usageError } = await supabase
     .from('subscription_usage')
-    .select(`
+    .select(
+      `
       profile_subscription_id_sus,
       resource_type_sus,
       used_count_sus,
@@ -234,7 +237,8 @@ export async function getUserSubscriptionDetails(
       business_id_sus,
       attraction_id_sus,
       event_id_sus
-    `)
+    `,
+    )
     .in('profile_subscription_id_sus', subscriptionIds);
 
   if (usageError) {
@@ -242,9 +246,23 @@ export async function getUserSubscriptionDetails(
   }
 
   // 3. Obtener nombres de entidades referenciadas
-  const businessIds = [...new Set((usageData || []).filter((u: any) => u.business_id_sus).map((u: any) => u.business_id_sus))];
-  const attractionIds = [...new Set((usageData || []).filter((u: any) => u.attraction_id_sus).map((u: any) => u.attraction_id_sus))];
-  const eventIds = [...new Set((usageData || []).filter((u: any) => u.event_id_sus).map((u: any) => u.event_id_sus))];
+  const businessIds = [
+    ...new Set(
+      (usageData || []).filter((u: any) => u.business_id_sus).map((u: any) => u.business_id_sus),
+    ),
+  ];
+  const attractionIds = [
+    ...new Set(
+      (usageData || [])
+        .filter((u: any) => u.attraction_id_sus)
+        .map((u: any) => u.attraction_id_sus),
+    ),
+  ];
+  const eventIds = [
+    ...new Set(
+      (usageData || []).filter((u: any) => u.event_id_sus).map((u: any) => u.event_id_sus),
+    ),
+  ];
 
   // Fetch nombres de negocios
   const businessNames: Record<string, string> = {};
@@ -325,7 +343,7 @@ export async function getUserSubscriptionDetails(
     const subscriptionType = subscription?.type_sub || 'unknown';
 
     // Usar los features del código como fuente de verdad (no de la BD)
-    const planInfo = SUBSCRIPTION_PLANS.find(p => p.type === subscriptionType);
+    const planInfo = SUBSCRIPTION_PLANS.find((p) => p.type === subscriptionType);
     const features = planInfo?.features || subscription?.features_sub || [];
 
     return {

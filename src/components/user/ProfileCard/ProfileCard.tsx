@@ -32,7 +32,9 @@ export const ProfileCard = memo(function ProfileCard({
 }: ProfileCardProps) {
   const colors = useThemedColors();
   const profilePhotoUrl = useProfilePhoto(profile.id_prf);
-  const translatedRole = profile.role_prf ? (roleTranslations[profile.role_prf] || profile.role_prf) : 'Sin rol';
+  const translatedRole = profile.role_prf
+    ? roleTranslations[profile.role_prf] || profile.role_prf
+    : 'Sin rol';
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const loadUserData = useAuthStore((state) => state.loadUserData);
@@ -51,19 +53,19 @@ export const ProfileCard = memo(function ProfileCard({
     try {
       setIsUpgrading(true);
       await upgradeToSeller(profile.id_prf);
-      
+
       // Actualizar el authStore con el nuevo rol
       await loadUserData();
-      
+
       setShowConfirmDialog(false);
-      
+
       Toast.show({
         type: 'success',
         text1: '¡Bienvenido vendedor!',
         text2: 'Ahora puedes gestionar negocios y promociones',
         position: 'top',
       });
-      
+
       // Refrescar el perfil para actualizar UI
       onRoleUpdate?.();
     } catch (error: any) {
@@ -79,10 +81,15 @@ export const ProfileCard = memo(function ProfileCard({
   };
 
   return (
-    <View style={[styles.container, { 
-      backgroundColor: colors.background.primary,
-      borderColor: colors.border.light,
-    }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background.primary,
+          borderColor: colors.border.light,
+        },
+      ]}
+    >
       {/* Foto de perfil */}
       <View style={styles.photoContainer}>
         {profilePhotoUrl ? (
@@ -93,18 +100,21 @@ export const ProfileCard = memo(function ProfileCard({
             transition={200}
           />
         ) : (
-          <View style={[styles.profilePhoto, { 
-            backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] 
-          }]}>
+          <View
+            style={[
+              styles.profilePhoto,
+              {
+                backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50],
+              },
+            ]}
+          >
             <User color={colors.primary[500]} size={48} />
           </View>
         )}
       </View>
 
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text.primary }]}>
-          Información Personal
-        </Text>
+        <Text style={[styles.title, { color: colors.text.primary }]}>Información Personal</Text>
         <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
           Tus datos personales
         </Text>
@@ -132,9 +142,14 @@ export const ProfileCard = memo(function ProfileCard({
 
         <View style={styles.field}>
           <Text style={[styles.label, { color: colors.text.tertiary }]}>Estado</Text>
-          <Text style={[styles.value, { 
-            color: profile.is_active_prf ? colors.primary[500] : colors.text.secondary 
-          }]}>
+          <Text
+            style={[
+              styles.value,
+              {
+                color: profile.is_active_prf ? colors.primary[500] : colors.text.secondary,
+              },
+            ]}
+          >
             {profile.is_active_prf ? 'Activo' : 'Inactivo'}
           </Text>
         </View>
@@ -160,18 +175,21 @@ export const ProfileCard = memo(function ProfileCard({
       )}
 
       <View style={styles.buttonContainer}>
-        <Pressable 
-          style={[styles.backButton, { 
-            backgroundColor: colors.background.tertiary,
-            borderColor: colors.border.medium,
-          }]} 
+        <Pressable
+          style={[
+            styles.backButton,
+            {
+              backgroundColor: colors.background.tertiary,
+              borderColor: colors.border.medium,
+            },
+          ]}
           onPress={onBack}
         >
           <Text style={[styles.backButtonText, { color: colors.text.primary }]}>Volver</Text>
         </Pressable>
 
-        <Pressable 
-          style={[styles.editButton, { backgroundColor: colors.primary[500] }]} 
+        <Pressable
+          style={[styles.editButton, { backgroundColor: colors.primary[500] }]}
           onPress={onEdit}
         >
           <Text style={styles.editButtonText}>Editar Perfil</Text>

@@ -21,9 +21,9 @@ interface PromotionCardProps {
 
 export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
   const colors = useThemedColors();
-  
+
   const badgeLabel = getPromotionBadgeLabel(promotion as any);
-  
+
   const handlePress = () => {
     onPress?.(promotion);
   };
@@ -36,19 +36,22 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
   };
 
   return (
-    <Pressable 
-      style={[styles.container, { 
-        backgroundColor: colors.background.secondary,
-        borderColor: colors.border.light,
-      }]} 
+    <Pressable
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background.secondary,
+          borderColor: colors.border.light,
+        },
+      ]}
       onPress={handlePress}
       android_ripple={{ color: colors.primary[100] }}
     >
       <View style={styles.cardContent}>
         {/* Imagen */}
         {promotion.coverUrl ? (
-          <Image 
-            source={{ uri: promotion.coverUrl }} 
+          <Image
+            source={{ uri: promotion.coverUrl }}
             style={styles.image}
             contentFit="cover"
             transition={200}
@@ -71,7 +74,7 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
         <Text style={[styles.title, { color: colors.text.primary }]} numberOfLines={2}>
           {promotion.title}
         </Text>
-        
+
         {promotion.businessName && (
           <View style={styles.infoRow}>
             <Store size={14} color={colors.text.secondary} />
@@ -105,33 +108,40 @@ export function PromotionCard({ promotion, onPress }: PromotionCardProps) {
         )}
 
         {/* Status badge */}
-        <View style={[
-          styles.statusBadge,
-          { backgroundColor: promotion.moderationStatus === 'approved' 
-            ? colors.success + '20' 
-            : promotion.moderationStatus === 'rejected'
-            ? colors.error + '20'
-            : colors.warning + '20'
-          }
-        ]}>
-          <Text style={[
-            styles.statusText,
-            { color: promotion.moderationStatus === 'approved' 
-              ? colors.success
-              : promotion.moderationStatus === 'rejected'
-              ? colors.error
-              : colors.warning
-            }
-          ]}>
-            {promotion.moderationStatus === 'pending' ? 'En revisión' : 
-             promotion.moderationStatus === 'approved' ? 'Aprobada' : 'Rechazada'}
+        <View
+          style={[
+            styles.statusBadge,
+            {
+              backgroundColor:
+                promotion.moderationStatus === 'approved'
+                  ? colors.success + '20'
+                  : promotion.moderationStatus === 'rejected'
+                    ? colors.error + '20'
+                    : colors.warning + '20',
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.statusText,
+              {
+                color:
+                  promotion.moderationStatus === 'approved'
+                    ? colors.success
+                    : promotion.moderationStatus === 'rejected'
+                      ? colors.error
+                      : colors.warning,
+              },
+            ]}
+          >
+            {promotion.moderationStatus === 'pending'
+              ? 'En revisión'
+              : promotion.moderationStatus === 'approved'
+                ? 'Aprobada'
+                : 'Rechazada'}
           </Text>
         </View>
       </View>
     </Pressable>
   );
 }
-
-
-
-

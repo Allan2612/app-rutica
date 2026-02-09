@@ -12,7 +12,12 @@ export function useMapLocation(options: UseMapLocationOptions = {}) {
 
   const shouldDetect = enableAutoDetect && !hasCoordinates;
 
-  const { location: detectedLocation, loading: detecting, error, retry } = useUserLocation({
+  const {
+    location: detectedLocation,
+    loading: detecting,
+    error,
+    retry,
+  } = useUserLocation({
     enabled: shouldDetect,
   });
 

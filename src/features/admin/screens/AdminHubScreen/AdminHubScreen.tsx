@@ -97,7 +97,7 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
         <View style={styles.grid}>
           {actions.map((action) => {
             const Icon = action.icon;
-            const pendingCount = action.showBadge ? (action.badgeCount || 0) : 0;
+            const pendingCount = action.showBadge ? action.badgeCount || 0 : 0;
 
             return (
               <Pressable

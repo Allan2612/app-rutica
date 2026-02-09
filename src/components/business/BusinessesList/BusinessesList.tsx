@@ -25,12 +25,20 @@ export const BusinessesList = memo(function BusinessesList({
   const colors = useThemedColors();
   const router = useRouter();
 
-  const handleBusinessPress = useCallback((businessId: string) => {
-    router.push(`/(app)/(tabs)/businesses/${businessId}`);
-  }, [router]);
+  const handleBusinessPress = useCallback(
+    (businessId: string) => {
+      router.push(`/(app)/(tabs)/businesses/${businessId}`);
+    },
+    [router],
+  );
 
   const renderItem = ({ item }: { item: BusinessListItem }) => (
-    <View style={[styles.cardWrapper, { width: numColumns === 1 ? '100%' : numColumns === 2 ? '48%' : '32%' }]}>
+    <View
+      style={[
+        styles.cardWrapper,
+        { width: numColumns === 1 ? '100%' : numColumns === 2 ? '48%' : '32%' },
+      ]}
+    >
       <BusinessCard
         id={item.id}
         name={item.name}
@@ -51,8 +59,12 @@ export const BusinessesList = memo(function BusinessesList({
   const emptyComponent = (
     <View style={styles.emptyState}>
       <Store size={48} color={colors.text.tertiary} strokeWidth={1.5} />
-      <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>No hay comercios disponibles</Text>
-      <Text style={[styles.emptySubtitle, { color: colors.text.secondary }]}>Los comercios activos aparecerán aquí</Text>
+      <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
+        No hay comercios disponibles
+      </Text>
+      <Text style={[styles.emptySubtitle, { color: colors.text.secondary }]}>
+        Los comercios activos aparecerán aquí
+      </Text>
     </View>
   );
 

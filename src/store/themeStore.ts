@@ -11,19 +11,19 @@ export type ThemeMode = 'light' | 'dark' | 'auto';
 interface ThemeState {
   /** Modo de tema seleccionado por el usuario */
   mode: ThemeMode;
-  
+
   /** Tema actual efectivo (resuelve 'auto' al tema del sistema) */
   effectiveTheme: 'light' | 'dark';
-  
+
   /** Indica si el tema se ha cargado desde storage */
   isLoaded: boolean;
-  
+
   /** Cambiar el modo de tema */
   setMode: (mode: ThemeMode) => void;
-  
+
   /** Actualizar el tema efectivo basado en el sistema */
   updateEffectiveTheme: (systemTheme: 'light' | 'dark') => void;
-  
+
   /** Cargar el tema guardado desde AsyncStorage */
   loadTheme: () => Promise<void>;
 }
@@ -37,24 +37,24 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   mode: 'light', // Por defecto inicia en light
   effectiveTheme: 'light',
   isLoaded: false,
-  
+
   setMode: async (mode) => {
     set({ mode });
-    
+
     // Guardar en AsyncStorage
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
     } catch (error) {
       // Error saving theme
     }
-    
+
     // Si es auto, ya se resolverá con updateEffectiveTheme
     // Si es light o dark, establecerlo directamente
     if (mode !== 'auto') {
       set({ effectiveTheme: mode });
     }
   },
-  
+
   updateEffectiveTheme: (systemTheme) => {
     const { mode } = get();
     // Solo actualizar si el modo es 'auto'
@@ -62,7 +62,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
       set({ effectiveTheme: systemTheme });
     }
   },
-  
+
   loadTheme: async () => {
     try {
       const savedMode = await AsyncStorage.getItem(THEME_STORAGE_KEY);

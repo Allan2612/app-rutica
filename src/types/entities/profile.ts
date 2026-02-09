@@ -145,11 +145,9 @@ export interface ProfileUpdate {
  */
 export function getFullName(profile: Profile | null | undefined): string {
   if (!profile) return '';
-  const parts = [
-    profile.first_name_prf,
-    profile.last_name1_prf,
-    profile.last_name2_prf,
-  ].filter(Boolean);
+  const parts = [profile.first_name_prf, profile.last_name1_prf, profile.last_name2_prf].filter(
+    Boolean,
+  );
   return parts.join(' ');
 }
 
@@ -232,11 +230,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
     type: 'gallery_business',
     name: 'Galería Empresa',
     description: 'Hasta 10 fotos para tu negocio',
-    features: [
-      'Hasta 10 fotos en galería',
-      'Fotos en alta resolución',
-      'Galería destacada',
-    ],
+    features: ['Hasta 10 fotos en galería', 'Fotos en alta resolución', 'Galería destacada'],
     price: '₡1,500',
     priceValue: 1500,
   },
@@ -244,11 +238,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
     type: 'package_products',
     name: 'Paquete Productos',
     description: 'Publica hasta 20 productos por negocio',
-    features: [
-      'Hasta 20 productos por negocio',
-      '2 fotos por producto',
-      'Catálogo completo',
-    ],
+    features: ['Hasta 20 productos por negocio', '2 fotos por producto', 'Catálogo completo'],
     price: '₡5,000',
     priceValue: 5000,
   },
@@ -256,11 +246,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
     type: 'gallery_attractions',
     name: 'Galería Atracciones',
     description: 'Hasta 10 fotos para tus atracciones',
-    features: [
-      'Hasta 10 fotos por atracción',
-      'Mayor visibilidad',
-      'Destaca en búsquedas',
-    ],
+    features: ['Hasta 10 fotos por atracción', 'Mayor visibilidad', 'Destaca en búsquedas'],
     price: '₡2,000',
     priceValue: 2000,
   },
@@ -268,11 +254,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
     type: 'gallery_events',
     name: 'Galería Eventos',
     description: 'Hasta 10 fotos para tus eventos',
-    features: [
-      'Hasta 10 fotos por evento',
-      'Mayor visibilidad',
-      'Destaca en búsquedas',
-    ],
+    features: ['Hasta 10 fotos por evento', 'Mayor visibilidad', 'Destaca en búsquedas'],
     price: '₡2,000',
     priceValue: 2000,
   },
@@ -297,7 +279,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanInfo[] = [
  * Obtiene la información de un plan por su tipo
  */
 export function getSubscriptionPlanInfo(type: SubscriptionType): SubscriptionPlanInfo | undefined {
-  return SUBSCRIPTION_PLANS.find(plan => plan.type === type);
+  return SUBSCRIPTION_PLANS.find((plan) => plan.type === type);
 }
 
 /**
@@ -307,4 +289,3 @@ export function getSubscriptionTypeName(type: SubscriptionType): string {
   const plan = getSubscriptionPlanInfo(type);
   return plan?.name ?? type;
 }
-

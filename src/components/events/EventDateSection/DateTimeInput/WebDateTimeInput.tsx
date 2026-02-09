@@ -5,41 +5,41 @@ import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 interface WebDateTimeInputProps {
-    date: Date;
-    onDateChange: (date: Date) => void;
-    icon: 'calendar-outline' | 'time-outline';
-    type: 'date' | 'time';
-    error?: string;
-    minDate?: string;
-    formatForInput: (date: Date) => string;
-    formatForDisplay: (date: Date) => string;
+  date: Date;
+  onDateChange: (date: Date) => void;
+  icon: 'calendar-outline' | 'time-outline';
+  type: 'date' | 'time';
+  error?: string;
+  minDate?: string;
+  formatForInput: (date: Date) => string;
+  formatForDisplay: (date: Date) => string;
 }
 
 export const WebDateTimeInput = memo(function WebDateTimeInput({
-    date,
-    onDateChange,
-    icon,
-    type,
-    error,
-    minDate,
-    formatForInput,
-    formatForDisplay,
+  date,
+  onDateChange,
+  icon,
+  type,
+  error,
+  minDate,
+  formatForInput,
+  formatForDisplay,
 }: WebDateTimeInputProps) {
-    const colors = useThemedColors();
-    const inputRef = useRef<HTMLInputElement>(null);
+  const colors = useThemedColors();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    // Inyectar estilos CSS para el datepicker
-    useEffect(() => {
-        const styleId = 'datepicker-theme';
-        let styleElement = document.getElementById(styleId) as HTMLStyleElement;
+  // Inyectar estilos CSS para el datepicker
+  useEffect(() => {
+    const styleId = 'datepicker-theme';
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement;
 
-        if (!styleElement) {
-            styleElement = document.createElement('style');
-            styleElement.id = styleId;
-            document.head.appendChild(styleElement);
-        }
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      document.head.appendChild(styleElement);
+    }
 
-        styleElement.textContent = `
+    styleElement.textContent = `
             input[type="date"],
             input[type="time"] {
                 color-scheme: ${colors.isDark ? 'dark' : 'light'};
@@ -62,51 +62,51 @@ export const WebDateTimeInput = memo(function WebDateTimeInput({
                 color: ${colors.text.primary};
             }
         `;
-    }, [colors.isDark, colors.text.primary]);
+  }, [colors.isDark, colors.text.primary]);
 
-    const handleWebChange = (value: string) => {
-        if (type === 'date') {
-            const [year, month, day] = value.split('-').map(Number);
-            const newDate = new Date(date);
-            newDate.setFullYear(year);
-            newDate.setMonth(month - 1);
-            newDate.setDate(day);
-            onDateChange(newDate);
-        } else {
-            const [hours, minutes] = value.split(':').map(Number);
-            const newDate = new Date(date);
-            newDate.setHours(hours);
-            newDate.setMinutes(minutes);
-            onDateChange(newDate);
-        }
-    };
+  const handleWebChange = (value: string) => {
+    if (type === 'date') {
+      const [year, month, day] = value.split('-').map(Number);
+      const newDate = new Date(date);
+      newDate.setFullYear(year);
+      newDate.setMonth(month - 1);
+      newDate.setDate(day);
+      onDateChange(newDate);
+    } else {
+      const [hours, minutes] = value.split(':').map(Number);
+      const newDate = new Date(date);
+      newDate.setHours(hours);
+      newDate.setMinutes(minutes);
+      onDateChange(newDate);
+    }
+  };
 
-    return (
-        <TouchableOpacity
-            style={[
-                styles.dateButton,
-                {
-                    backgroundColor: colors.background.secondary,
-                    borderColor: error ? colors.error : colors.border.medium,
-                },
-            ]}
-            onPress={() => inputRef.current?.showPicker?.()}
-            activeOpacity={0.7}
-        >
-            <View style={styles.dateButtonContent}>
-                <Ionicons name={icon} size={20} color={colors.text.primary} />
-                <Text style={[styles.dateText, { color: colors.text.primary }]}>
-                    {formatForDisplay(date)}
-                </Text>
-            </View>
-            <input
-                ref={inputRef as any}
-                type={type}
-                style={styles.hiddenInput}
-                value={formatForInput(date)}
-                onChange={(e) => handleWebChange(e.target.value)}
-                min={minDate}
-            />
-        </TouchableOpacity>
-    );
+  return (
+    <TouchableOpacity
+      style={[
+        styles.dateButton,
+        {
+          backgroundColor: colors.background.secondary,
+          borderColor: error ? colors.error : colors.border.medium,
+        },
+      ]}
+      onPress={() => inputRef.current?.showPicker?.()}
+      activeOpacity={0.7}
+    >
+      <View style={styles.dateButtonContent}>
+        <Ionicons name={icon} size={20} color={colors.text.primary} />
+        <Text style={[styles.dateText, { color: colors.text.primary }]}>
+          {formatForDisplay(date)}
+        </Text>
+      </View>
+      <input
+        ref={inputRef as any}
+        type={type}
+        style={styles.hiddenInput}
+        value={formatForInput(date)}
+        onChange={(e) => handleWebChange(e.target.value)}
+        min={minDate}
+      />
+    </TouchableOpacity>
+  );
 });

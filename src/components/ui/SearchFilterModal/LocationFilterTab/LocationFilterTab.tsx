@@ -16,7 +16,8 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
   const { location, updateLocation } = useLocation();
   const colors = useThemedColors();
   const { getCurrentLocation, loadingLocation } = useLocationDetection(false);
-  const { filteredProvinces, getCantons, getDistricts, isLoading, hasError, hasData } = useLocationFilters('');
+  const { filteredProvinces, getCantons, getDistricts, isLoading, hasError, hasData } =
+    useLocationFilters('');
 
   const [navigation, setNavigation] = useState<NavigationState>({
     step: 'province',
@@ -25,67 +26,76 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
   });
 
   // Manejar selección de provincia
-  const handleProvinceSelect = useCallback((provinceName: string) => {
-    updateLocation({
-      province: provinceName,
-      canton: null,
-      district: null,
-      coordinates: undefined,
-      address: provinceName,
-      searchText: provinceName,
-    });
-    
-    setNavigation({
-      step: 'canton',
-      selectedProvince: provinceName,
-      selectedCanton: null,
-    });
-  }, [updateLocation]);
-
-  // Manejar selección de cantón
-  const handleCantonSelect = useCallback((cantonName: string) => {
-    const { selectedProvince } = navigation;
-    
-    if (selectedProvince) {
+  const handleProvinceSelect = useCallback(
+    (provinceName: string) => {
       updateLocation({
-        province: selectedProvince,
-        canton: cantonName,
+        province: provinceName,
+        canton: null,
         district: null,
         coordinates: undefined,
-        address: `${cantonName}, ${selectedProvince}`,
-        searchText: `${cantonName}, ${selectedProvince}`,
+        address: provinceName,
+        searchText: provinceName,
       });
-    }
-    
-    setNavigation((prev) => ({
-      ...prev,
-      step: 'district',
-      selectedCanton: cantonName,
-    }));
-  }, [navigation, updateLocation]);
 
-  // Manejar selección de distrito
-  const handleDistrictSelect = useCallback((districtName: string) => {
-    const { selectedProvince, selectedCanton } = navigation;
-
-    if (selectedProvince && selectedCanton) {
-      updateLocation({
-        province: selectedProvince,
-        canton: selectedCanton,
-        district: districtName,
-        coordinates: undefined,
-        address: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
-        searchText: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
-      });
-      
-      // Volver al inicio después de seleccionar distrito
       setNavigation({
-        step: 'province',
-        selectedProvince: null,
+        step: 'canton',
+        selectedProvince: provinceName,
         selectedCanton: null,
       });
-    }
-  }, [navigation, updateLocation]);
+    },
+    [updateLocation],
+  );
+
+  // Manejar selección de cantón
+  const handleCantonSelect = useCallback(
+    (cantonName: string) => {
+      const { selectedProvince } = navigation;
+
+      if (selectedProvince) {
+        updateLocation({
+          province: selectedProvince,
+          canton: cantonName,
+          district: null,
+          coordinates: undefined,
+          address: `${cantonName}, ${selectedProvince}`,
+          searchText: `${cantonName}, ${selectedProvince}`,
+        });
+      }
+
+      setNavigation((prev) => ({
+        ...prev,
+        step: 'district',
+        selectedCanton: cantonName,
+      }));
+    },
+    [navigation, updateLocation],
+  );
+
+  // Manejar selección de distrito
+  const handleDistrictSelect = useCallback(
+    (districtName: string) => {
+      const { selectedProvince, selectedCanton } = navigation;
+
+      if (selectedProvince && selectedCanton) {
+        updateLocation({
+          province: selectedProvince,
+          canton: selectedCanton,
+          district: districtName,
+          coordinates: undefined,
+          address: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
+          searchText: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
+        });
+
+        // Volver al inicio después de seleccionar distrito
+        setNavigation({
+          step: 'province',
+          selectedProvince: null,
+          selectedCanton: null,
+        });
+      }
+    },
+    [navigation, updateLocation],
+  );
 
   // Manejar retroceso
   const handleBack = useCallback(() => {
@@ -173,19 +183,19 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
   // Obtener datos a mostrar según el paso
   const getCurrentData = () => {
     if (isLoading) return [];
-    
+
     if (navigation.step === 'province') {
-      return filteredProvinces.map(p => ({ id: p.id, name: p.name }));
+      return filteredProvinces.map((p) => ({ id: p.id, name: p.name }));
     }
-    
+
     if (navigation.step === 'canton' && navigation.selectedProvince) {
-      return getCantons(navigation.selectedProvince).map(c => ({ id: c.id, name: c.name }));
+      return getCantons(navigation.selectedProvince).map((c) => ({ id: c.id, name: c.name }));
     }
 
     if (navigation.step === 'district' && navigation.selectedCanton) {
-      return getDistricts(navigation.selectedCanton).map(d => ({ id: d.id, name: d.name }));
+      return getDistricts(navigation.selectedCanton).map((d) => ({ id: d.id, name: d.name }));
     }
-    
+
     return [];
   };
 
@@ -220,23 +230,28 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
 
       {/* Botón de ubicación actual */}
       <View style={styles.currentLocationSection}>
-        <View style={[styles.searchButton, {
-          backgroundColor: colors.background.secondary,
-          borderColor: colors.border.medium,
-        }]}>
+        <View
+          style={[
+            styles.searchButton,
+            {
+              backgroundColor: colors.background.secondary,
+              borderColor: colors.border.medium,
+            },
+          ]}
+        >
           <MapPin size={18} color={colors.text.secondary} />
           <Text style={[styles.searchButtonText, { color: colors.text.primary }]} numberOfLines={1}>
             {getButtonText()}
           </Text>
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
             styles.actionButton,
             {
               backgroundColor: colors.background.secondary,
               borderColor: colors.border.medium,
-            }
+            },
           ]}
           onPress={handleClearLocation}
           activeOpacity={0.7}
@@ -244,13 +259,13 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
           <XCircle size={18} color={colors.text.secondary} />
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
             styles.actionButton,
             {
               backgroundColor: loadingLocation ? colors.background.tertiary : colors.primary[500],
               borderColor: loadingLocation ? colors.border.medium : colors.primary[500],
-            }
+            },
           ]}
           onPress={handleDetectLocation}
           disabled={loadingLocation}
@@ -277,9 +292,7 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
 
         {!isLoading && (hasError || !hasData) && (
           <View style={styles.centerContainer}>
-            <Text style={[styles.messageTitle, { color: colors.text.primary }]}>
-              Sin ubicación
-            </Text>
+            <Text style={[styles.messageTitle, { color: colors.text.primary }]}>Sin ubicación</Text>
             <Text style={[styles.messageText, { color: colors.text.tertiary }]}>
               No se pudieron cargar las ubicaciones
             </Text>
@@ -294,24 +307,24 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
           </View>
         )}
 
-        {!isLoading && hasData && currentData.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[
-              styles.listItem,
-              {
-                backgroundColor: colors.background.secondary,
-                borderColor: colors.border.light,
-              }
-            ]}
-            onPress={() => handleItemSelect(item.name)}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.listItemText, { color: colors.text.primary }]}>
-              {item.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {!isLoading &&
+          hasData &&
+          currentData.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.listItem,
+                {
+                  backgroundColor: colors.background.secondary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+              onPress={() => handleItemSelect(item.name)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.listItemText, { color: colors.text.primary }]}>{item.name}</Text>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </View>
   );

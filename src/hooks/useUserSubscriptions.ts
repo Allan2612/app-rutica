@@ -51,7 +51,11 @@ export function useUserSubscriptionSummary() {
     queryKey: userSubscriptionKeys.summary(userId || 'anonymous'),
     queryFn: () => {
       if (!userId) {
-        return Promise.resolve({ hasActiveSubscriptions: false, activeCount: 0, subscriptions: [] });
+        return Promise.resolve({
+          hasActiveSubscriptions: false,
+          activeCount: 0,
+          subscriptions: [],
+        });
       }
       return getUserSubscriptionSummary(userId);
     },

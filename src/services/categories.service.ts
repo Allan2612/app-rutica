@@ -4,7 +4,7 @@ import type { Database } from '@/lib/supabase/database.types';
 
 /**
  * Servicio centralizado para gestión de categorías
- * Todas las entidades (business, events, attractions, products, promotions) 
+ * Todas las entidades (business, events, attractions, products, promotions)
  * usan la misma tabla 'categories'
  */
 
@@ -15,21 +15,21 @@ type CategoryRow = Database['public']['Tables']['categories']['Row'];
  * @returns Array de CategoryOption con {id, name, parentId}
  */
 export async function getCategories(): Promise<CategoryOption[]> {
-    const { data, error } = await supabase
-        .from('categories')
-        .select('id_cat, name_cat, parent_id_cat')
-        .eq('is_active_cat', true)
-        .order('sort_order_cat', { ascending: true });
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id_cat, name_cat, parent_id_cat')
+    .eq('is_active_cat', true)
+    .order('sort_order_cat', { ascending: true });
 
-    if (error) {
-        return [];
-    }
+  if (error) {
+    return [];
+  }
 
-    return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
-        id: row.id_cat,
-        name: row.name_cat,
-        parentId: row.parent_id_cat,
-    }));
+  return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
+    id: row.id_cat,
+    name: row.name_cat,
+    parentId: row.parent_id_cat,
+  }));
 }
 
 /**
@@ -37,59 +37,59 @@ export async function getCategories(): Promise<CategoryOption[]> {
  * @returns Array de Category con todos los campos
  */
 export async function getCategoriesRaw(): Promise<Category[]> {
-    const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active_cat', true)
-        .order('sort_order_cat', { ascending: true });
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('is_active_cat', true)
+    .order('sort_order_cat', { ascending: true });
 
-    if (error) {
-        return [];
-    }
+  if (error) {
+    return [];
+  }
 
-    return data ?? [];
+  return data ?? [];
 }
 
 /**
  * Obtiene una categoría por ID
  */
 export async function getCategoryById(id: string): Promise<CategoryOption | null> {
-    const { data, error } = await supabase
-        .from('categories')
-        .select('id_cat, name_cat, parent_id_cat')
-        .eq('id_cat', id)
-        .single();
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id_cat, name_cat, parent_id_cat')
+    .eq('id_cat', id)
+    .single();
 
-    if (error || !data) {
-        return null;
-    }
+  if (error || !data) {
+    return null;
+  }
 
-    const category = data as unknown as CategoryRow;
-    return {
-        id: category.id_cat,
-        name: category.name_cat,
-        parentId: category.parent_id_cat,
-    };
+  const category = data as unknown as CategoryRow;
+  return {
+    id: category.id_cat,
+    name: category.name_cat,
+    parentId: category.parent_id_cat,
+  };
 }
 
 /**
  * Busca categorías por nombre
  */
 export async function searchCategories(searchTerm: string): Promise<CategoryOption[]> {
-    const { data, error } = await supabase
-        .from('categories')
-        .select('id_cat, name_cat, parent_id_cat')
-        .ilike('name_cat', `%${searchTerm}%`)
-        .order('name_cat', { ascending: true })
-        .limit(20);
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id_cat, name_cat, parent_id_cat')
+    .ilike('name_cat', `%${searchTerm}%`)
+    .order('name_cat', { ascending: true })
+    .limit(20);
 
-    if (error) {
-        return [];
-    }
+  if (error) {
+    return [];
+  }
 
-    return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
-        id: row.id_cat,
-        name: row.name_cat,
-        parentId: row.parent_id_cat,
-    }));
+  return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
+    id: row.id_cat,
+    name: row.name_cat,
+    parentId: row.parent_id_cat,
+  }));
 }

@@ -5,11 +5,7 @@ import type { Profile, ProfileUpdate } from '@/types/entities';
  * Obtiene el perfil del usuario actual
  */
 export async function getCurrentProfile(userId: string): Promise<Profile> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id_prf', userId)
-    .single();
+  const { data, error } = await supabase.from('profiles').select('*').eq('id_prf', userId).single();
 
   if (error) throw error;
   return data as Profile;
@@ -18,10 +14,7 @@ export async function getCurrentProfile(userId: string): Promise<Profile> {
 /**
  * Actualiza el perfil del usuario
  */
-export async function updateUserProfile(
-  userId: string,
-  updates: ProfileUpdate
-): Promise<Profile> {
+export async function updateUserProfile(userId: string, updates: ProfileUpdate): Promise<Profile> {
   const { data, error } = await supabase
     .from('profiles')
     .update({

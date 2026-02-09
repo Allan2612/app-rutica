@@ -56,7 +56,7 @@ export const UserPromotionCard = memo(function UserPromotionCard({
     scope,
     discountType,
     discountValue,
-    comboItems
+    comboItems,
   } as any);
 
   return (
@@ -75,7 +75,13 @@ export const UserPromotionCard = memo(function UserPromotionCard({
       {imageUrl ? (
         <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
       ) : (
-        <View style={[styles.heroFull, styles.heroPlaceholder, { backgroundColor: colors.background.tertiary }]}>
+        <View
+          style={[
+            styles.heroFull,
+            styles.heroPlaceholder,
+            { backgroundColor: colors.background.tertiary },
+          ]}
+        >
           <Tag color={colors.text.tertiary} size={48} strokeWidth={1.5} />
         </View>
       )}
@@ -169,20 +175,19 @@ export const UserPromotionCard = memo(function UserPromotionCard({
 
         {/* Nota de moderación */}
         {moderationNote && moderationStatus === 'rejected' && (
-          <View style={[styles.moderationNoteContainer, { backgroundColor: colors.error + '15', borderColor: colors.error + '40' }]}>
+          <View
+            style={[
+              styles.moderationNoteContainer,
+              { backgroundColor: colors.error + '15', borderColor: colors.error + '40' },
+            ]}
+          >
             <Text style={[styles.moderationNoteLabel, { color: colors.error }]}>
               Razón de rechazo:
             </Text>
-            <Text style={[styles.moderationNoteText, { color: '#FFFFFF' }]}>
-              {moderationNote}
-            </Text>
+            <Text style={[styles.moderationNoteText, { color: '#FFFFFF' }]}>{moderationNote}</Text>
           </View>
         )}
       </View>
     </Pressable>
   );
 });
-
-
-
-

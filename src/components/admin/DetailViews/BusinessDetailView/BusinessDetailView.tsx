@@ -4,14 +4,7 @@
 
 import { memo } from 'react';
 import { View, Text, Image, ScrollView } from 'react-native';
-import {
-  MapPin,
-  User,
-  Calendar,
-  Tag,
-  Store,
-  Star,
-} from 'lucide-react-native';
+import { MapPin, User, Calendar, Tag, Store, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
 import {
@@ -56,17 +49,11 @@ export const BusinessDetailView = memo(function BusinessDetailView({
     >
       {/* Main Image */}
       {request.imageUrl ? (
-        <Image
-          source={{ uri: request.imageUrl }}
-          style={styles.coverImage}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: request.imageUrl }} style={styles.coverImage} resizeMode="cover" />
       ) : (
         <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
           <Store size={48} color={colors.text.tertiary} />
-          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>
-            Sin imagen
-          </Text>
+          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>Sin imagen</Text>
         </View>
       )}
 
@@ -77,7 +64,10 @@ export const BusinessDetailView = memo(function BusinessDetailView({
 
       {/* Description */}
       {request.description && (
-        <Text style={[styles.description, { color: colors.text.secondary }]} allowFontScaling={false}>
+        <Text
+          style={[styles.description, { color: colors.text.secondary }]}
+          allowFontScaling={false}
+        >
           {request.description}
         </Text>
       )}
@@ -85,13 +75,13 @@ export const BusinessDetailView = memo(function BusinessDetailView({
       {/* Status Row */}
       <View style={styles.statusRow}>
         <StatusBadge status={request.moderationStatus} size="md" />
-        <View style={[
-          styles.activeIndicator,
-          { backgroundColor: request.isActive ? colors.success : colors.error }
-        ]}>
-          <Text style={styles.activeIndicatorText}>
-            {request.isActive ? 'Visible' : 'Oculto'}
-          </Text>
+        <View
+          style={[
+            styles.activeIndicator,
+            { backgroundColor: request.isActive ? colors.success : colors.error },
+          ]}
+        >
+          <Text style={styles.activeIndicatorText}>{request.isActive ? 'Visible' : 'Oculto'}</Text>
         </View>
       </View>
 
@@ -118,10 +108,7 @@ export const BusinessDetailView = memo(function BusinessDetailView({
 
       {/* Categories */}
       {metadata.categoriesNames.length > 0 && (
-        <InfoCard
-          icon={<Tag size={18} color={colors.primary[500]} />}
-          title="Categorías"
-        >
+        <InfoCard icon={<Tag size={18} color={colors.primary[500]} />} title="Categorías">
           <CategoryChips categories={metadata.categoriesNames} />
         </InfoCard>
       )}
@@ -136,19 +123,13 @@ export const BusinessDetailView = memo(function BusinessDetailView({
       )}
 
       {/* Contact Info */}
-      <ContactInfo
-        phone={metadata.phone}
-        email={metadata.email}
-        website={metadata.website}
-      />
+      <ContactInfo phone={metadata.phone} email={metadata.email} website={metadata.website} />
 
       {/* Social Links */}
       <SocialLinksDisplay socialLinks={metadata.socialLinks} />
 
       {/* Image Gallery */}
-      {request.images.length > 0 && (
-        <ImageGallery images={request.images} />
-      )}
+      {request.images.length > 0 && <ImageGallery images={request.images} />}
 
       {/* Moderation Note */}
       <ModerationNote note={request.moderationNote} />

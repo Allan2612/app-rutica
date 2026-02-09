@@ -246,7 +246,7 @@ export interface PromotionWizardFormData {
 
   // Step 4: Image
   coverUri: string | null;
-  
+
   // Status
   isActive: boolean;
 }
@@ -268,10 +268,26 @@ export interface PromotionWizardErrors {
 }
 
 export const WIZARD_STEPS = [
-  { id: 'business' as const, title: 'Selecciona tu Negocio', description: 'Elige el negocio para tu promoción' },
-  { id: 'info' as const, title: 'Información Básica', description: 'Escribe el título y descripción de tu promoción' },
-  { id: 'discount' as const, title: 'Configura el Descuento', description: 'Define el tipo y valor del descuento' },
-  { id: 'dates' as const, title: 'Vigencia y Categorías', description: 'Establece cuándo estará activa' },
+  {
+    id: 'business' as const,
+    title: 'Selecciona tu Negocio',
+    description: 'Elige el negocio para tu promoción',
+  },
+  {
+    id: 'info' as const,
+    title: 'Información Básica',
+    description: 'Escribe el título y descripción de tu promoción',
+  },
+  {
+    id: 'discount' as const,
+    title: 'Configura el Descuento',
+    description: 'Define el tipo y valor del descuento',
+  },
+  {
+    id: 'dates' as const,
+    title: 'Vigencia y Categorías',
+    description: 'Establece cuándo estará activa',
+  },
   { id: 'image' as const, title: 'Imagen', description: 'Sube una imagen atractiva' },
 ] as const;
 
@@ -284,29 +300,32 @@ export type WizardStepId = 'business' | 'info' | 'discount' | 'dates' | 'image';
 /**
  * Extrae la URL del flyer de las imágenes
  */
-export function getPromotionCoverUrl(images: PromotionImage[] | undefined, baseUrl: string): string | null {
-  const flyer = images?.find(img => img.path_pim.includes('/flyer-'));
+export function getPromotionCoverUrl(
+  images: PromotionImage[] | undefined,
+  baseUrl: string,
+): string | null {
+  const flyer = images?.find((img) => img.path_pim.includes('/flyer-'));
   return flyer ? `${baseUrl}/${flyer.path_pim}` : null;
 }
 
 /**
  * Extrae todas las URLs de flyers (por si hay múltiples)
  */
-export function getPromotionGalleryUrls(images: PromotionImage[] | undefined, baseUrl: string): string[] {
+export function getPromotionGalleryUrls(
+  images: PromotionImage[] | undefined,
+  baseUrl: string,
+): string[] {
   if (!images) return [];
   return images
-    .filter(img => img.path_pim.includes('/flyer-'))
-    .map(img => `${baseUrl}/${img.path_pim}`);
+    .filter((img) => img.path_pim.includes('/flyer-'))
+    .map((img) => `${baseUrl}/${img.path_pim}`);
 }
 
 /**
  * Verifica si una promoción está aprobada y activa
  */
 export function isPromotionActive(promotion: Promotion): boolean {
-  return (
-    promotion.moderation_status_prm === 'approved' &&
-    promotion.is_active_prm
-  );
+  return promotion.moderation_status_prm === 'approved' && promotion.is_active_prm;
 }
 
 /**
@@ -333,7 +352,7 @@ export function isPromotionPublic(promotion: Promotion): boolean {
 export function calculateDiscountedPrice(
   originalPrice: number,
   discountType: DiscountType,
-  discountValue: number
+  discountValue: number,
 ): number {
   if (discountType === 'percentage') {
     return originalPrice * (1 - discountValue / 100);

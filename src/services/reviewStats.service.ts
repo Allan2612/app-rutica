@@ -115,9 +115,7 @@ function getLogoUrl(images: { path_bim: string }[] | null): string | null {
   const logoImage = images.find((img) => img.path_bim.includes('logo-'));
   if (!logoImage) return null;
 
-  const { data } = supabase.storage
-    .from('business-images')
-    .getPublicUrl(logoImage.path_bim);
+  const { data } = supabase.storage.from('business-images').getPublicUrl(logoImage.path_bim);
   return data.publicUrl;
 }
 
@@ -164,18 +162,20 @@ function calculateRatingDistribution(reviews: { rating: number }[]): RatingDistr
 export async function getUserReviewDashboardStats(
   userId: string,
   businessId: string | null = null,
-  days: number = 30
+  days: number = 30,
 ): Promise<UserReviewDashboardStats> {
   // 1. Obtener los negocios del usuario
   const { data: businessesData, error: businessError } = await supabase
     .from('businesses')
-    .select(`
+    .select(
+      `
       id_bus,
       name_bus,
       business_images (
         path_bim
       )
-    `)
+    `,
+    )
     .eq('owner_id_bus', userId)
     .eq('is_active_bus', true);
 
@@ -190,14 +190,13 @@ export async function getUserReviewDashboardStats(
   }
 
   // Filtrar por negocio específico si se proporciona
-  const businessIds = businessId
-    ? [businessId]
-    : businesses.map((b) => b.id_bus);
+  const businessIds = businessId ? [businessId] : businesses.map((b) => b.id_bus);
 
   // 2. Obtener reseñas de negocios
   const { data: businessReviewsData, error: reviewsError } = await supabase
     .from('business_reviews')
-    .select(`
+    .select(
+      `
       id_brv,
       business_id_brv,
       rating_brv,
@@ -207,7 +206,8 @@ export async function getUserReviewDashboardStats(
         first_name_prf,
         last_name1_prf
       )
-    `)
+    `,
+    )
     .in('business_id_brv', businessIds)
     .order('created_at_brv', { ascending: false });
 
@@ -220,7 +220,8 @@ export async function getUserReviewDashboardStats(
   // 3. Obtener productos de los negocios con sus stats
   const { data: productsData, error: productsError } = await supabase
     .from('products')
-    .select(`
+    .select(
+      `
       id_prd,
       name_prd,
       business_id_prd,
@@ -229,7 +230,8 @@ export async function getUserReviewDashboardStats(
       businesses!products_business_id_prd_fkey (
         name_bus
       )
-    `)
+    `,
+    )
     .in('business_id_prd', businessIds)
     .eq('is_active_prd', true)
     .gt('reviews_count_prd', 0)
@@ -254,13 +256,15 @@ export async function getUserReviewDashboardStats(
     console.error('[reviewStats] Error fetching all product IDs:', allProductsError);
   }
 
-  const allProductIds = (allProductsData as unknown as { id_prd: string }[])?.map(p => p.id_prd) ?? [];
+  const allProductIds =
+    (allProductsData as unknown as { id_prd: string }[])?.map((p) => p.id_prd) ?? [];
   let productReviews: ProductReviewQueryResult[] = [];
 
   if (allProductIds.length > 0) {
     const { data: productReviewsData, error: productReviewsError } = await supabase
       .from('product_reviews')
-      .select(`
+      .select(
+        `
         id_prv,
         product_id_prv,
         rating_prv,
@@ -273,7 +277,8 @@ export async function getUserReviewDashboardStats(
         products!product_reviews_product_id_prv_fkey (
           name_prd
         )
-      `)
+      `,
+      )
       .in('product_id_prv', allProductIds)
       .order('created_at_prv', { ascending: false });
 
@@ -286,7 +291,7 @@ export async function getUserReviewDashboardStats(
 
   // 5. Calcular estadísticas por negocio
   const businessesStats: BusinessReviewStats[] = businesses
-    .filter((b) => businessId ? b.id_bus === businessId : true)
+    .filter((b) => (businessId ? b.id_bus === businessId : true))
     .map((business) => {
       const reviews = businessReviews.filter((r) => r.business_id_brv === business.id_bus);
       const totalReviews = reviews.length;
@@ -302,7 +307,7 @@ export async function getUserReviewDashboardStats(
         averageRating: Math.round(averageRating * 10) / 10,
         totalReviews,
         ratingDistribution: calculateRatingDistribution(
-          reviews.map((r) => ({ rating: r.rating_brv || 0 }))
+          reviews.map((r) => ({ rating: r.rating_brv || 0 })),
         ),
       };
     })
@@ -386,7 +391,7 @@ export async function getUserReviewDashboardStats(
 function calculateRatingTrend(
   businessReviews: BusinessReviewQueryResult[],
   productReviews: ProductReviewQueryResult[],
-  days: number
+  days: number,
 ): RatingTrendPoint[] {
   const { format, subDays } = require('date-fns');
   const { es } = require('date-fns/locale');
@@ -427,8 +432,18 @@ function calculateRatingTrend(
   if (days === 90) {
     const monthlyData: { [key: string]: { total: number; count: number; order: number } } = {};
     const monthOrder: { [key: string]: number } = {
-      'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6,
-      'julio': 7, 'agosto': 8, 'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
+      enero: 1,
+      febrero: 2,
+      marzo: 3,
+      abril: 4,
+      mayo: 5,
+      junio: 6,
+      julio: 7,
+      agosto: 8,
+      septiembre: 9,
+      octubre: 10,
+      noviembre: 11,
+      diciembre: 12,
     };
 
     for (let i = days - 1; i >= 0; i--) {

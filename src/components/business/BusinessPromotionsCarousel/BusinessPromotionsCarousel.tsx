@@ -7,60 +7,58 @@ import { GenericCarousel } from '@/components/ui';
 import { styles } from './styles';
 
 interface BusinessPromotionsCarouselProps {
-    businessId: string;
-    onPromotionPress?: (promotionId: string) => void;
+  businessId: string;
+  onPromotionPress?: (promotionId: string) => void;
 }
 
 export const BusinessPromotionsCarousel = memo(function BusinessPromotionsCarousel({
-    businessId,
-    onPromotionPress,
+  businessId,
+  onPromotionPress,
 }: BusinessPromotionsCarouselProps) {
-    const colors = useThemedColors();
-    const { data: activePromotions = [], isLoading } = useBusinessActivePromotions(businessId);
+  const colors = useThemedColors();
+  const { data: activePromotions = [], isLoading } = useBusinessActivePromotions(businessId);
 
-    const handlePress = (promotion: any) => {
-        if (onPromotionPress) {
-            onPromotionPress(promotion.id);
-        }
-    };
-
-    // Si no hay promociones activas, no mostrar nada
-    if (!isLoading && activePromotions.length === 0) {
-        return null;
+  const handlePress = (promotion: any) => {
+    if (onPromotionPress) {
+      onPromotionPress(promotion.id);
     }
+  };
 
-    if (isLoading) {
-        return (
-            <View style={styles.container}>
-                <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-                    Promociones Activas
-                </Text>
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={colors.primary[500]} />
-                </View>
-            </View>
-        );
-    }
+  // Si no hay promociones activas, no mostrar nada
+  if (!isLoading && activePromotions.length === 0) {
+    return null;
+  }
 
+  if (isLoading) {
     return (
-        <View style={styles.container}>
-            <View style={styles.headerRow}>
-                <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-                    Promociones
-                </Text>
-            </View>
-
-            <GenericCarousel
-                items={activePromotions}
-                renderItem={(promotion) => (
-                    <PromotionPublicCard
-                        promotion={promotion}
-                        onPress={onPromotionPress ? () => handlePress(promotion) : undefined}
-                    />
-                )}
-                showNavigation={true}
-                showIndicators={true}
-            />
+      <View style={styles.container}>
+        <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+          Promociones Activas
+        </Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary[500]} />
         </View>
+      </View>
     );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Promociones</Text>
+      </View>
+
+      <GenericCarousel
+        items={activePromotions}
+        renderItem={(promotion) => (
+          <PromotionPublicCard
+            promotion={promotion}
+            onPress={onPromotionPress ? () => handlePress(promotion) : undefined}
+          />
+        )}
+        showNavigation={true}
+        showIndicators={true}
+      />
+    </View>
+  );
 });

@@ -69,42 +69,50 @@ export const PremiumDashboardScreen = memo(function PremiumDashboardScreen() {
   };
 
   // Normalizar businessOptions: convertir null a undefined
-  const normalizedBusinessOptions = businessOptions?.map(opt => ({
+  const normalizedBusinessOptions = businessOptions?.map((opt) => ({
     ...opt,
     logoUrl: opt.logoUrl ?? undefined,
   }));
 
   // Normalizar stats: convertir null a undefined
-  const normalizedStats = stats ? {
-    ...stats,
-    topBusiness: stats.topBusiness ? {
-      ...stats.topBusiness,
-      logoUrl: stats.topBusiness.logoUrl ?? undefined,
-    } : undefined,
-    businessesStats: stats.businessesStats.map(bs => ({
-      ...bs,
-      logoUrl: bs.logoUrl ?? undefined,
-    })),
-  } : undefined;
+  const normalizedStats = stats
+    ? {
+        ...stats,
+        topBusiness: stats.topBusiness
+          ? {
+              ...stats.topBusiness,
+              logoUrl: stats.topBusiness.logoUrl ?? undefined,
+            }
+          : undefined,
+        businessesStats: stats.businessesStats.map((bs) => ({
+          ...bs,
+          logoUrl: bs.logoUrl ?? undefined,
+        })),
+      }
+    : undefined;
 
   // Normalizar contactStats: convertir null a undefined
-  const normalizedContactStats = contactStats ? {
-    ...contactStats,
-    topContactType: contactStats.topContactType ?? undefined,
-  } : undefined;
+  const normalizedContactStats = contactStats
+    ? {
+        ...contactStats,
+        topContactType: contactStats.topContactType ?? undefined,
+      }
+    : undefined;
 
   // Normalizar reviewStats: convertir null a undefined
-  const normalizedReviewStats = reviewStats ? {
-    ...reviewStats,
-    businessesStats: reviewStats.businessesStats.map(bs => ({
-      ...bs,
-      logoUrl: bs.logoUrl ?? undefined,
-    })),
-    recentReviews: reviewStats.recentReviews.map(rr => ({
-      ...rr,
-      comment: rr.comment ?? undefined,
-    })),
-  } : undefined;
+  const normalizedReviewStats = reviewStats
+    ? {
+        ...reviewStats,
+        businessesStats: reviewStats.businessesStats.map((bs) => ({
+          ...bs,
+          logoUrl: bs.logoUrl ?? undefined,
+        })),
+        recentReviews: reviewStats.recentReviews.map((rr) => ({
+          ...rr,
+          comment: rr.comment ?? undefined,
+        })),
+      }
+    : undefined;
 
   const showTabs = !isLoadingAll && !!stats && stats.totalBusinesses > 0;
 

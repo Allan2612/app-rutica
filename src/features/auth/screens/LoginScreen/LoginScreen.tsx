@@ -30,7 +30,7 @@ export const LoginScreen = memo(function LoginScreen() {
 
     try {
       await signIn({ email, password });
-      
+
       Toast.show({
         type: 'success',
         text1: '¡Bienvenido!',
@@ -45,13 +45,11 @@ export const LoginScreen = memo(function LoginScreen() {
       }, 500);
     } catch (error: any) {
       const errorMessage = error?.message || 'Credenciales incorrectas';
-      
+
       Toast.show({
         type: 'error',
         text1: 'Error al iniciar sesión',
-        text2: errorMessage.includes('Invalid') 
-          ? 'Correo o contraseña incorrectos' 
-          : errorMessage,
+        text2: errorMessage.includes('Invalid') ? 'Correo o contraseña incorrectos' : errorMessage,
         position: 'top',
         visibilityTime: 4000,
       });
@@ -98,7 +96,9 @@ export const LoginScreen = memo(function LoginScreen() {
         editable={!loading}
         headerRight={
           <Link href="/(auth)/recover">
-            <Text style={[sharedStyles.linkSmall, { color: colors.primary[500] }]}>¿Olvidaste la contraseña?</Text>
+            <Text style={[sharedStyles.linkSmall, { color: colors.primary[500] }]}>
+              ¿Olvidaste la contraseña?
+            </Text>
           </Link>
         }
       />

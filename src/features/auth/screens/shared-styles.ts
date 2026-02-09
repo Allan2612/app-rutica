@@ -18,13 +18,13 @@ export const sharedStyles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-  
+
   // Separadores
   separator: {
     height: 1,
     marginVertical: 20,
   },
-  
+
   // Footer
   footerText: {
     fontSize: 12,
@@ -39,18 +39,18 @@ export const sharedStyles = StyleSheet.create({
   footerLink: {
     textDecorationLine: 'underline',
   },
-  
+
   // Contenedores
   section: {
     marginTop: 20,
     alignItems: 'center',
   },
-  
+
   // Botones
   buttonSpacing: {
     marginTop: 16,
   },
-  
+
   // Links de navegación
   backLink: {
     marginTop: 24,

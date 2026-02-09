@@ -19,17 +19,23 @@ export const SupportScreen = memo(function SupportScreen() {
     Linking.openURL('mailto:rutica.app@gmail.com');
   }, []);
 
-  const handlePhone = useCallback((phone: string) => () => {
-    Linking.openURL(`tel:${phone}`);
-  }, []);
+  const handlePhone = useCallback(
+    (phone: string) => () => {
+      Linking.openURL(`tel:${phone}`);
+    },
+    [],
+  );
 
-  const handleWhatsApp = useCallback((phoneNumber: string) => () => {
-    // Formato: https://wa.me/PHONENUMBER?text=MESSAGE
-    // Número sin espacios ni caracteres especiales
-    const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
-    const message = encodeURIComponent('Hola, necesito ayuda con Rutica');
-    Linking.openURL(`https://wa.me/${cleanPhone}?text=${message}`);
-  }, []);
+  const handleWhatsApp = useCallback(
+    (phoneNumber: string) => () => {
+      // Formato: https://wa.me/PHONENUMBER?text=MESSAGE
+      // Número sin espacios ni caracteres especiales
+      const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
+      const message = encodeURIComponent('Hola, necesito ayuda con Rutica');
+      Linking.openURL(`https://wa.me/${cleanPhone}?text=${message}`);
+    },
+    [],
+  );
 
   return (
     <Screen>
@@ -43,9 +49,7 @@ export const SupportScreen = memo(function SupportScreen() {
           <View style={styles.headerWithBack}>
             <BackButton onPress={handleBack} />
             <View style={styles.headerContent}>
-              <Text style={[styles.title, { color: colors.text.primary }]}>
-                Soporte
-              </Text>
+              <Text style={[styles.title, { color: colors.text.primary }]}>Soporte</Text>
               <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
                 Estamos aquí para ayudarte
               </Text>
@@ -54,13 +58,16 @@ export const SupportScreen = memo(function SupportScreen() {
 
           {/* Contacto */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>
-              Contacto
-            </Text>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>Contacto</Text>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <Pressable style={styles.contactItem} onPress={handleEmail}>
                 <Mail color={colors.primary[500]} size={20} />
                 <View style={{ flex: 1 }}>
@@ -136,16 +143,22 @@ export const SupportScreen = memo(function SupportScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>
               Preguntas Frecuentes
             </Text>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.faqItem}>
                 <Text style={[styles.faqQuestion, { color: colors.text.primary }]}>
                   ¿Cómo puedo crear una cuenta?
                 </Text>
                 <Text style={[styles.faqAnswer, { color: colors.text.secondary }]}>
-                  Puedes registrarte desde la pantalla de inicio tocando el botón "Registrarse" y completando el formulario con tus datos.
+                  Puedes registrarte desde la pantalla de inicio tocando el botón "Registrarse" y
+                  completando el formulario con tus datos.
                 </Text>
               </View>
 
@@ -156,7 +169,8 @@ export const SupportScreen = memo(function SupportScreen() {
                   ¿Cómo cambio mi contraseña?
                 </Text>
                 <Text style={[styles.faqAnswer, { color: colors.text.secondary }]}>
-                  Ve a tu perfil, selecciona "Configuración" y encontrarás la opción para cambiar tu contraseña.
+                  Ve a tu perfil, selecciona "Configuración" y encontrarás la opción para cambiar tu
+                  contraseña.
                 </Text>
               </View>
 
@@ -167,7 +181,8 @@ export const SupportScreen = memo(function SupportScreen() {
                   ¿Cómo reporto un problema?
                 </Text>
                 <Text style={[styles.faqAnswer, { color: colors.text.secondary }]}>
-                  Puedes contactarnos directamente por correo o teléfono. Nuestro equipo te responderá en menos de 24 horas.
+                  Puedes contactarnos directamente por correo o teléfono. Nuestro equipo te
+                  responderá en menos de 24 horas.
                 </Text>
               </View>
             </View>

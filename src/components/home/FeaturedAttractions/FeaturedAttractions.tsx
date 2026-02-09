@@ -19,200 +19,224 @@ import type { AttractionListItem } from '@/features/attractions/hooks/useAttract
 import { styles } from './styles';
 
 interface FeaturedAttractionsProps {
-    attractions: AttractionListItem[];
-    isLoading?: boolean;
+  attractions: AttractionListItem[];
+  isLoading?: boolean;
 }
 
 export const FeaturedAttractions = memo(function FeaturedAttractions({
-    attractions,
-    isLoading = false,
+  attractions,
+  isLoading = false,
 }: FeaturedAttractionsProps) {
-    const colors = useThemedColors();
-    const { location } = useLocationStore();
+  const colors = useThemedColors();
+  const { location } = useLocationStore();
 
-    const locationFilter = useMemo(() => {
-        if (!location) return null;
-        return { province: location.province, canton: location.canton, district: location.district };
-    }, [location?.province, location?.canton, location?.district]);
+  const locationFilter = useMemo(() => {
+    if (!location) return null;
+    return { province: location.province, canton: location.canton, district: location.district };
+  }, [location?.province, location?.canton, location?.district]);
 
-    const { local, others, hasLocation, locationName } = useMemo(
-        () => splitItemsByLocation(attractions, locationFilter),
-        [attractions, locationFilter]
-    );
+  const { local, others, hasLocation, locationName } = useMemo(
+    () => splitItemsByLocation(attractions, locationFilter),
+    [attractions, locationFilter],
+  );
 
-    const handleAttractionPress = useCallback((attraction: AttractionListItem) => {
-        router.push(`/(app)/(tabs)/attractions/${attraction.id}`);
-    }, []);
+  const handleAttractionPress = useCallback((attraction: AttractionListItem) => {
+    router.push(`/(app)/(tabs)/attractions/${attraction.id}`);
+  }, []);
 
-    const handleSeeAll = useCallback(() => {
-        router.push('/(app)/(tabs)/attractions');
-    }, []);
+  const handleSeeAll = useCallback(() => {
+    router.push('/(app)/(tabs)/attractions');
+  }, []);
 
-    const renderCard = (attraction: AttractionListItem) => (
-        <Pressable
-            key={attraction.id}
-            style={[styles.card, { backgroundColor: colors.background.primary, borderColor: colors.border.medium }]}
-            onPress={() => handleAttractionPress(attraction)}
+  const renderCard = (attraction: AttractionListItem) => (
+    <Pressable
+      key={attraction.id}
+      style={[
+        styles.card,
+        { backgroundColor: colors.background.primary, borderColor: colors.border.medium },
+      ]}
+      onPress={() => handleAttractionPress(attraction)}
+    >
+      {attraction.imageUrls[0] ? (
+        <Image
+          source={{ uri: attraction.imageUrls[0] }}
+          style={styles.heroFull}
+          resizeMode="cover"
+        />
+      ) : (
+        <View
+          style={[
+            styles.heroFull,
+            styles.heroPlaceholder,
+            { backgroundColor: colors.background.tertiary },
+          ]}
         >
-            {attraction.imageUrls[0] ? (
-                <Image source={{ uri: attraction.imageUrls[0] }} style={styles.heroFull} resizeMode="cover" />
-            ) : (
-                <View style={[styles.heroFull, styles.heroPlaceholder, { backgroundColor: colors.background.tertiary }]}>
-                    <Mountain size={40} color={colors.text.tertiary} strokeWidth={1.5} />
-                </View>
-            )}
-
-            {attraction.rating > 0 && (
-                <View style={[styles.ratingBadge, { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium }]}>
-                    <Star size={16} color="#fbbf24" fill="#fbbf24" />
-                    <Text style={styles.ratingValue}>{attraction.rating.toFixed(1)}</Text>
-                    <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>({attraction.reviewCount})</Text>
-                </View>
-            )}
-
-            <LinearGradient
-                colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.gradientOverlay}
-            />
-
-            <View style={styles.content}>
-                {attraction.categoryNames.length > 0 && (
-                    <View style={styles.categoryRow}>
-                        <CategoryChip
-                            categoryId={attraction.categoryIds[0]}
-                            categoryName={attraction.categoryNames[0]}
-                            variant="small"
-                        />
-                        {attraction.categoryNames.length > 1 && (
-                            <View style={[styles.categoryChip, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-                                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
-                                    +{attraction.categoryNames.length - 1}
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-                )}
-
-                <Text style={styles.title} numberOfLines={2}>
-                    {attraction.name}
-                </Text>
-
-                {attraction.description && (
-                    <Text style={styles.description} numberOfLines={2}>
-                        {attraction.description}
-                    </Text>
-                )}
-
-                {attraction.locationLabel && (
-                    <View style={styles.infoRow}>
-                        <MapPin size={14} color="rgba(255,255,255,0.85)" strokeWidth={2} />
-                        <Text style={styles.infoText} numberOfLines={1}>
-                            {attraction.locationLabel}
-                        </Text>
-                    </View>
-                )}
-            </View>
-        </Pressable>
-    );
-
-    const renderCarousel = (items: AttractionListItem[]) => (
-        <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-        >
-            {items.map(renderCard)}
-        </ScrollView>
-    );
-
-    return (
-        <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
-            {/* Section Header */}
-            <View style={styles.header}>
-                <View style={styles.titleRow}>
-                    <View style={[styles.iconBadge, { backgroundColor: colors.isDark ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.15)' }]}>
-                        <MapPin size={18} color={colors.isDark ? '#4ade80' : '#22c55e'} strokeWidth={2} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-                            Atracciones Destacadas
-                        </Text>
-                        <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
-                            Lugares que debes conocer
-                        </Text>
-                    </View>
-                </View>
-                {attractions.length > 0 && (
-                    <Pressable
-                        style={({ pressed }) => [
-                            styles.seeAllButton,
-                            { opacity: pressed ? 0.7 : 1 },
-                        ]}
-                        onPress={handleSeeAll}
-                    >
-                        <Text style={[styles.seeAllText, { color: colors.primary[500] }]}>
-                            Ver todas
-                        </Text>
-                        <ChevronRight size={16} color={colors.primary[500]} strokeWidth={2} />
-                    </Pressable>
-                )}
-            </View>
-
-            {/* Content */}
-            {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={colors.primary[500]} />
-                </View>
-            ) : attractions.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                    <MapPin size={48} color={colors.text.tertiary} strokeWidth={1.5} />
-                    <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-                        No hay atracciones disponibles
-                    </Text>
-                </View>
-            ) : hasLocation ? (
-                /* Split por ubicación */
-                <>
-                    {local.length > 0 && (
-                        <>
-                            <LocationSectionHeader
-                                type="local"
-                                locationName={locationName}
-                                count={local.length}
-                                entityLabel="atracciones"
-                                compact
-                            />
-                            {renderCarousel(local)}
-                        </>
-                    )}
-
-                    {/* Placeholder si no hay atracciones locales */}
-                    {local.length === 0 && others.length > 0 && (
-                        <NoLocalResultsPlaceholder
-                            locationName={locationName}
-                            entityLabel="atracciones"
-                            compact
-                        />
-                    )}
-
-                    {others.length > 0 && (
-                        <>
-                            <LocationSectionHeader
-                                type="others"
-                                count={others.length}
-                                entityLabel="atracciones"
-                                compact
-                            />
-                            {renderCarousel(others)}
-                        </>
-                    )}
-                </>
-            ) : (
-                /* Sin ubicación: mostrar todos en un solo carrusel */
-                renderCarousel(attractions)
-            )}
+          <Mountain size={40} color={colors.text.tertiary} strokeWidth={1.5} />
         </View>
-    );
+      )}
+
+      {attraction.rating > 0 && (
+        <View
+          style={[
+            styles.ratingBadge,
+            { backgroundColor: 'rgba(255,255,255,0.92)', borderColor: colors.border.medium },
+          ]}
+        >
+          <Star size={16} color="#fbbf24" fill="#fbbf24" />
+          <Text style={styles.ratingValue}>{attraction.rating.toFixed(1)}</Text>
+          <Text style={[styles.ratingCount, { color: colors.text.tertiary }]}>
+            ({attraction.reviewCount})
+          </Text>
+        </View>
+      )}
+
+      <LinearGradient
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradientOverlay}
+      />
+
+      <View style={styles.content}>
+        {attraction.categoryNames.length > 0 && (
+          <View style={styles.categoryRow}>
+            <CategoryChip
+              categoryId={attraction.categoryIds[0]}
+              categoryName={attraction.categoryNames[0]}
+              variant="small"
+            />
+            {attraction.categoryNames.length > 1 && (
+              <View style={[styles.categoryChip, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+                <Text style={[styles.categoryText, { color: '#FFFFFF' }]}>
+                  +{attraction.categoryNames.length - 1}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        <Text style={styles.title} numberOfLines={2}>
+          {attraction.name}
+        </Text>
+
+        {attraction.description && (
+          <Text style={styles.description} numberOfLines={2}>
+            {attraction.description}
+          </Text>
+        )}
+
+        {attraction.locationLabel && (
+          <View style={styles.infoRow}>
+            <MapPin size={14} color="rgba(255,255,255,0.85)" strokeWidth={2} />
+            <Text style={styles.infoText} numberOfLines={1}>
+              {attraction.locationLabel}
+            </Text>
+          </View>
+        )}
+      </View>
+    </Pressable>
+  );
+
+  const renderCarousel = (items: AttractionListItem[]) => (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+    >
+      {items.map(renderCard)}
+    </ScrollView>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
+      {/* Section Header */}
+      <View style={styles.header}>
+        <View style={styles.titleRow}>
+          <View
+            style={[
+              styles.iconBadge,
+              {
+                backgroundColor: colors.isDark
+                  ? 'rgba(34, 197, 94, 0.2)'
+                  : 'rgba(34, 197, 94, 0.15)',
+              },
+            ]}
+          >
+            <MapPin size={18} color={colors.isDark ? '#4ade80' : '#22c55e'} strokeWidth={2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+              Atracciones Destacadas
+            </Text>
+            <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
+              Lugares que debes conocer
+            </Text>
+          </View>
+        </View>
+        {attractions.length > 0 && (
+          <Pressable
+            style={({ pressed }) => [styles.seeAllButton, { opacity: pressed ? 0.7 : 1 }]}
+            onPress={handleSeeAll}
+          >
+            <Text style={[styles.seeAllText, { color: colors.primary[500] }]}>Ver todas</Text>
+            <ChevronRight size={16} color={colors.primary[500]} strokeWidth={2} />
+          </Pressable>
+        )}
+      </View>
+
+      {/* Content */}
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary[500]} />
+        </View>
+      ) : attractions.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <MapPin size={48} color={colors.text.tertiary} strokeWidth={1.5} />
+          <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
+            No hay atracciones disponibles
+          </Text>
+        </View>
+      ) : hasLocation ? (
+        /* Split por ubicación */
+        <>
+          {local.length > 0 && (
+            <>
+              <LocationSectionHeader
+                type="local"
+                locationName={locationName}
+                count={local.length}
+                entityLabel="atracciones"
+                compact
+              />
+              {renderCarousel(local)}
+            </>
+          )}
+
+          {/* Placeholder si no hay atracciones locales */}
+          {local.length === 0 && others.length > 0 && (
+            <NoLocalResultsPlaceholder
+              locationName={locationName}
+              entityLabel="atracciones"
+              compact
+            />
+          )}
+
+          {others.length > 0 && (
+            <>
+              <LocationSectionHeader
+                type="others"
+                count={others.length}
+                entityLabel="atracciones"
+                compact
+              />
+              {renderCarousel(others)}
+            </>
+          )}
+        </>
+      ) : (
+        /* Sin ubicación: mostrar todos en un solo carrusel */
+        renderCarousel(attractions)
+      )}
+    </View>
+  );
 });

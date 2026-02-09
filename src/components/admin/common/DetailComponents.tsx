@@ -44,19 +44,18 @@ export const InfoCard = memo(function InfoCard({
   const colors = useThemedColors();
 
   return (
-    <View 
-      style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}
-    >
+    <View style={[styles.infoCard, { backgroundColor: colors.background.secondary }]}>
       <View style={styles.infoCardHeader}>
         {icon}
-        <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>
-          {title}
-        </Text>
+        <Text style={[styles.infoCardTitle, { color: colors.text.primary }]}>{title}</Text>
       </View>
       {children ? (
         children
       ) : (
-        <Text style={[styles.infoCardValue, { color: valueColor || colors.text.primary }]} allowFontScaling={false}>
+        <Text
+          style={[styles.infoCardValue, { color: valueColor || colors.text.primary }]}
+          allowFontScaling={false}
+        >
           {value ?? 'No especificado'}
         </Text>
       )}
@@ -85,12 +84,8 @@ export const CategoryChips = memo(function CategoryChips({ categories }: Categor
           style={[
             styles.categoryChip,
             {
-              backgroundColor: colors.isDark
-                ? 'rgba(59, 130, 246, 0.15)'
-                : colors.primary[50],
-              borderColor: colors.isDark
-                ? colors.primary[500]
-                : colors.primary[200],
+              backgroundColor: colors.isDark ? 'rgba(59, 130, 246, 0.15)' : colors.primary[50],
+              borderColor: colors.isDark ? colors.primary[500] : colors.primary[200],
             },
           ]}
         >
@@ -98,9 +93,7 @@ export const CategoryChips = memo(function CategoryChips({ categories }: Categor
             style={[
               styles.categoryChipText,
               {
-                color: colors.isDark
-                  ? colors.primary[400]
-                  : colors.primary[700],
+                color: colors.isDark ? colors.primary[400] : colors.primary[700],
               },
             ]}
           >
@@ -130,9 +123,7 @@ export const RatingDisplay = memo(function RatingDisplay({
   return (
     <View style={styles.ratingContainer}>
       <Star size={18} color={colors.warning} fill={colors.warning} />
-      <Text style={[styles.ratingValue, { color: colors.text.primary }]}>
-        {rating.toFixed(1)}
-      </Text>
+      <Text style={[styles.ratingValue, { color: colors.text.primary }]}>{rating.toFixed(1)}</Text>
       <Text style={[styles.ratingCount, { color: colors.text.secondary }]}>
         ({reviewsCount} reseñas)
       </Text>
@@ -263,16 +254,9 @@ export const ImageGallery = memo(function ImageGallery({ images }: ImageGalleryP
           <Pressable
             key={index}
             onPress={() => handleImagePress(img.url)}
-            style={({ pressed }) => [
-              styles.galleryImageWrapper,
-              pressed && { opacity: 0.8 },
-            ]}
+            style={({ pressed }) => [styles.galleryImageWrapper, pressed && { opacity: 0.8 }]}
           >
-            <Image
-              source={{ uri: img.url }}
-              style={styles.galleryImage}
-              resizeMode="cover"
-            />
+            <Image source={{ uri: img.url }} style={styles.galleryImage} resizeMode="cover" />
           </Pressable>
         ))}
       </ScrollView>
@@ -284,8 +268,8 @@ export const ImageGallery = memo(function ImageGallery({ images }: ImageGalleryP
         animationType="fade"
         onRequestClose={handleCloseModal}
       >
-        <Pressable 
-          style={[styles.lightboxOverlay, { backgroundColor: colors.overlay.dark }]} 
+        <Pressable
+          style={[styles.lightboxOverlay, { backgroundColor: colors.overlay.dark }]}
           onPress={handleCloseModal}
         >
           <Pressable style={styles.lightboxContent} onPress={(e) => e.stopPropagation()}>
@@ -319,19 +303,13 @@ interface ContactInfoProps {
   website?: string | null;
 }
 
-export const ContactInfo = memo(function ContactInfo({
-  phone,
-  email,
-  website,
-}: ContactInfoProps) {
+export const ContactInfo = memo(function ContactInfo({ phone, email, website }: ContactInfoProps) {
   const colors = useThemedColors();
 
   if (!phone && !email && !website) return null;
 
   return (
-    <View 
-      style={[styles.contactSection, { backgroundColor: colors.background.secondary }]}
-    >
+    <View style={[styles.contactSection, { backgroundColor: colors.background.secondary }]}>
       <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
         Información de Contacto
       </Text>
@@ -371,14 +349,10 @@ export const ModerationNote = memo(function ModerationNote({ note }: ModerationN
   if (!note) return null;
 
   return (
-    <View 
-      style={[styles.noteContainer, { backgroundColor: colors.background.secondary }]}
-    >
+    <View style={[styles.noteContainer, { backgroundColor: colors.background.secondary }]}>
       <View style={styles.noteHeader}>
         <MessageSquare size={16} color={colors.warning} />
-        <Text style={[styles.noteTitle, { color: colors.text.primary }]}>
-          Nota de Moderación
-        </Text>
+        <Text style={[styles.noteTitle, { color: colors.text.primary }]}>Nota de Moderación</Text>
       </View>
       <Text style={[styles.noteText, { color: colors.text.secondary }]}>{note}</Text>
     </View>
@@ -407,17 +381,13 @@ export const SocialLinksDisplay = memo(function SocialLinksDisplay({
   if (!socialLinks) return null;
 
   const { facebook, instagram, tiktok, youtube, whatsapp } = socialLinks;
-  
+
   // Only show if at least one social link exists
   if (!facebook && !instagram && !tiktok && !youtube && !whatsapp) return null;
 
   return (
-     <View 
-      style={[styles.contactSection, { backgroundColor: colors.background.secondary }]}
-    >
-      <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-        Redes Sociales
-      </Text>
+    <View style={[styles.contactSection, { backgroundColor: colors.background.secondary }]}>
+      <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Redes Sociales</Text>
       {facebook && (
         <View style={styles.contactRow}>
           <Facebook size={16} color={colors.social.facebook} />

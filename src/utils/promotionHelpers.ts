@@ -7,21 +7,21 @@ import type { DiscountType } from '@/types/enums';
  * @returns Label formateado (ej: "2x1", "-10%", "-₡1000")
  */
 export function getPromotionBadgeLabel(promotion: PromotionListItem): string {
-    // Si es combo, usar generateComboLabel
-    if (promotion.scope === 'combo' && promotion.comboItems && promotion.comboItems.length > 0) {
-        return generateComboLabel(promotion.comboItems);
-    }
+  // Si es combo, usar generateComboLabel
+  if (promotion.scope === 'combo' && promotion.comboItems && promotion.comboItems.length > 0) {
+    return generateComboLabel(promotion.comboItems);
+  }
 
-    // Si es descuento, formatear según el tipo
-    if (promotion.discountType === 'percentage') {
-        return `-${promotion.discountValue}%`;
-    }
+  // Si es descuento, formatear según el tipo
+  if (promotion.discountType === 'percentage') {
+    return `-${promotion.discountValue}%`;
+  }
 
-    if (promotion.discountType === 'fixed') {
-        return `-₡${promotion.discountValue.toLocaleString()}`;
-    }
+  if (promotion.discountType === 'fixed') {
+    return `-₡${promotion.discountValue.toLocaleString()}`;
+  }
 
-    return 'Promo';
+  return 'Promo';
 }
 
 /**
@@ -30,11 +30,14 @@ export function getPromotionBadgeLabel(promotion: PromotionListItem): string {
  * @param discountValue Valor del descuento
  * @returns Label formateado
  */
-export function formatDiscountBadge(discountType: DiscountType | string, discountValue: number): string {
-    if (discountType === 'percentage') {
-        return `-${discountValue}%`;
-    }
-    return `-₡${discountValue.toLocaleString()}`;
+export function formatDiscountBadge(
+  discountType: DiscountType | string,
+  discountValue: number,
+): string {
+  if (discountType === 'percentage') {
+    return `-${discountValue}%`;
+  }
+  return `-₡${discountValue.toLocaleString()}`;
 }
 
 /**
@@ -44,29 +47,29 @@ export function formatDiscountBadge(discountType: DiscountType | string, discoun
  * @returns Precio con descuento o null si no aplica descuento
  */
 export function calculateDiscountedPrice(
-    originalPrice: number,
-    promotion: PromotionListItem | null | undefined
+  originalPrice: number,
+  promotion: PromotionListItem | null | undefined,
 ): number | null {
-    if (!promotion) return null;
+  if (!promotion) return null;
 
-    const { discountType, discountValue } = promotion;
+  const { discountType, discountValue } = promotion;
 
-    if (discountValue <= 0) {
-        return null;
-    }
-
-    if (discountType === 'percentage') {
-        // Descuento porcentual
-        const discountAmount = (originalPrice * discountValue) / 100;
-        return Math.max(0, originalPrice - discountAmount);
-    }
-
-    if (discountType === 'fixed') {
-        // Descuento fijo
-        return Math.max(0, originalPrice - discountValue);
-    }
-
+  if (discountValue <= 0) {
     return null;
+  }
+
+  if (discountType === 'percentage') {
+    // Descuento porcentual
+    const discountAmount = (originalPrice * discountValue) / 100;
+    return Math.max(0, originalPrice - discountAmount);
+  }
+
+  if (discountType === 'fixed') {
+    // Descuento fijo
+    return Math.max(0, originalPrice - discountValue);
+  }
+
+  return null;
 }
 
 /**
@@ -77,38 +80,38 @@ export function calculateDiscountedPrice(
  * @returns true si la promoción aplica al producto
  */
 export function doesPromotionApplyToProduct(
-    promotion: PromotionListItem | null | undefined,
-    productId: string,
-    productCategoryIds?: string[]
+  promotion: PromotionListItem | null | undefined,
+  productId: string,
+  productCategoryIds?: string[],
 ): boolean {
-    if (!promotion) return false;
+  if (!promotion) return false;
 
-    const { scope, productIds, scopeCategoryIds, comboItems } = promotion;
+  const { scope, productIds, scopeCategoryIds, comboItems } = promotion;
 
-    // Promoción general aplica a todos los productos
-    if (scope === 'all') {
-        return true;
+  // Promoción general aplica a todos los productos
+  if (scope === 'all') {
+    return true;
+  }
+
+  // Promoción específica de producto
+  if (scope === 'products') {
+    return productIds?.includes(productId) ?? false;
+  }
+
+  // Promoción por categoría - aplica si el producto pertenece a alguna de las categorías del scope
+  if (scope === 'categories') {
+    if (!productCategoryIds || productCategoryIds.length === 0) {
+      return false;
     }
+    return scopeCategoryIds?.some((catId) => productCategoryIds.includes(catId)) ?? false;
+  }
 
-    // Promoción específica de producto
-    if (scope === 'products') {
-        return productIds?.includes(productId) ?? false;
-    }
+  // Promoción de combo - el producto está en el combo si es parte de los items
+  if (scope === 'combo') {
+    return comboItems?.some((item) => item.productId === productId) ?? false;
+  }
 
-    // Promoción por categoría - aplica si el producto pertenece a alguna de las categorías del scope
-    if (scope === 'categories') {
-        if (!productCategoryIds || productCategoryIds.length === 0) {
-            return false;
-        }
-        return scopeCategoryIds?.some(catId => productCategoryIds.includes(catId)) ?? false;
-    }
-
-    // Promoción de combo - el producto está en el combo si es parte de los items
-    if (scope === 'combo') {
-        return comboItems?.some(item => item.productId === productId) ?? false;
-    }
-
-    return false;
+  return false;
 }
 
 /**
@@ -118,13 +121,13 @@ export function doesPromotionApplyToProduct(
  * @returns Cantidad requerida en el combo o 0 si no está en el combo
  */
 export function getComboQuantityForProduct(
-    promotion: PromotionListItem | null | undefined,
-    productId: string
+  promotion: PromotionListItem | null | undefined,
+  productId: string,
 ): number {
-    if (!promotion || promotion.scope !== 'combo') return 0;
+  if (!promotion || promotion.scope !== 'combo') return 0;
 
-    const comboItem = promotion.comboItems?.find(item => item.productId === productId);
-    return comboItem?.quantity ?? 0;
+  const comboItem = promotion.comboItems?.find((item) => item.productId === productId);
+  return comboItem?.quantity ?? 0;
 }
 
 /**
@@ -134,31 +137,31 @@ export function getComboQuantityForProduct(
  * @returns { originalTotal, discountedTotal, savings }
  */
 export function calculateComboPrice(
-    promotion: PromotionListItem | null | undefined,
-    productPrices: Map<string, number>
+  promotion: PromotionListItem | null | undefined,
+  productPrices: Map<string, number>,
 ): { originalTotal: number; discountedTotal: number; savings: number } | null {
-    if (!promotion || promotion.scope !== 'combo' || !promotion.comboItems) {
-        return null;
-    }
+  if (!promotion || promotion.scope !== 'combo' || !promotion.comboItems) {
+    return null;
+  }
 
-    let originalTotal = 0;
+  let originalTotal = 0;
 
-    for (const item of promotion.comboItems) {
-        const price = productPrices.get(item.productId) ?? 0;
-        originalTotal += price * item.quantity;
-    }
+  for (const item of promotion.comboItems) {
+    const price = productPrices.get(item.productId) ?? 0;
+    originalTotal += price * item.quantity;
+  }
 
-    const discountedTotal = calculateDiscountedPrice(originalTotal, promotion);
+  const discountedTotal = calculateDiscountedPrice(originalTotal, promotion);
 
-    if (discountedTotal === null) {
-        return { originalTotal, discountedTotal: originalTotal, savings: 0 };
-    }
+  if (discountedTotal === null) {
+    return { originalTotal, discountedTotal: originalTotal, savings: 0 };
+  }
 
-    return {
-        originalTotal,
-        discountedTotal,
-        savings: originalTotal - discountedTotal,
-    };
+  return {
+    originalTotal,
+    discountedTotal,
+    savings: originalTotal - discountedTotal,
+  };
 }
 
 /**
@@ -169,40 +172,40 @@ export function calculateComboPrice(
  * @returns Array de promociones activas que aplican
  */
 export function getAllActivePromotions(
-    promotions: PromotionListItem[] | undefined,
-    productId: string,
-    productCategoryIds?: string[]
+  promotions: PromotionListItem[] | undefined,
+  productId: string,
+  productCategoryIds?: string[],
 ): PromotionListItem[] {
-    if (!promotions || promotions.length === 0) return [];
+  if (!promotions || promotions.length === 0) return [];
 
-    const now = new Date();
-    const activePromotions: PromotionListItem[] = [];
+  const now = new Date();
+  const activePromotions: PromotionListItem[] = [];
 
-    // Buscar TODAS las promociones activas que apliquen al producto
-    for (const promo of promotions) {
-        // FILTRAR: Solo mostrar promos aprobadas y vigentes
-        if (promo.moderationStatus !== 'approved') {
-            continue;
-        }
-
-        // Verificar que las fechas no sean null
-        if (!promo.startAt || !promo.endAt) {
-            continue;
-        }
-
-        const startDate = new Date(promo.startAt);
-        const endDate = new Date(promo.endAt);
-
-        // Verificar que esté en el rango de fechas
-        if (now >= startDate && now <= endDate) {
-            // Verificar que aplique al producto
-            if (doesPromotionApplyToProduct(promo, productId, productCategoryIds)) {
-                activePromotions.push(promo);
-            }
-        }
+  // Buscar TODAS las promociones activas que apliquen al producto
+  for (const promo of promotions) {
+    // FILTRAR: Solo mostrar promos aprobadas y vigentes
+    if (promo.moderationStatus !== 'approved') {
+      continue;
     }
 
-    return activePromotions;
+    // Verificar que las fechas no sean null
+    if (!promo.startAt || !promo.endAt) {
+      continue;
+    }
+
+    const startDate = new Date(promo.startAt);
+    const endDate = new Date(promo.endAt);
+
+    // Verificar que esté en el rango de fechas
+    if (now >= startDate && now <= endDate) {
+      // Verificar que aplique al producto
+      if (doesPromotionApplyToProduct(promo, productId, productCategoryIds)) {
+        activePromotions.push(promo);
+      }
+    }
+  }
+
+  return activePromotions;
 }
 
 /**
@@ -213,12 +216,12 @@ export function getAllActivePromotions(
  * @returns La promoción activa que aplica o null
  */
 export function getActivePromotionForProduct(
-    promotions: PromotionListItem[] | undefined,
-    productId: string,
-    productCategoryIds?: string[]
+  promotions: PromotionListItem[] | undefined,
+  productId: string,
+  productCategoryIds?: string[],
 ): PromotionListItem | null {
-    const allPromotions = getAllActivePromotions(promotions, productId, productCategoryIds);
-    return allPromotions.length > 0 ? allPromotions[0] : null;
+  const allPromotions = getAllActivePromotions(promotions, productId, productCategoryIds);
+  return allPromotions.length > 0 ? allPromotions[0] : null;
 }
 
 /**
@@ -226,56 +229,56 @@ export function getActivePromotionForProduct(
  * Ej: "2x1", "3x2", "Combo"
  */
 export function generateComboLabel(
-    comboItems: { productId: string; quantity: number; paidQuantity?: number }[] | undefined
+  comboItems: { productId: string; quantity: number; paidQuantity?: number }[] | undefined,
 ): string {
-    if (!comboItems || comboItems.length === 0) return '';
+  if (!comboItems || comboItems.length === 0) return '';
 
-    const uniqueProducts = comboItems.length;
+  const uniqueProducts = comboItems.length;
 
-    // Si es un solo producto, verificar si es un combo tipo "NxM"
-    if (uniqueProducts === 1) {
-        const item = comboItems[0];
-        const takes = item.quantity;
-        const pays = item.paidQuantity ?? item.quantity;
+  // Si es un solo producto, verificar si es un combo tipo "NxM"
+  if (uniqueProducts === 1) {
+    const item = comboItems[0];
+    const takes = item.quantity;
+    const pays = item.paidQuantity ?? item.quantity;
 
-        // Siempre mostrar formato NxM si hay descuento de cantidad (ej: 3x2, 2x1)
-        if (pays < takes) {
-            return `${takes}x${pays}`;
-        }
-
-        // Si no hay descuento en cantidad pero hay cantidad > 1, mostrar cantidad
-        if (takes > 1) {
-            return `x${takes}`;
-        }
+    // Siempre mostrar formato NxM si hay descuento de cantidad (ej: 3x2, 2x1)
+    if (pays < takes) {
+      return `${takes}x${pays}`;
     }
 
-    // Si hay múltiples productos diferentes, revisar si todos tienen descuento similar
-    if (uniqueProducts >= 2) {
-        // Verificar si es un combo múltiple con mismo ratio (ej: 3 productos, todos 3x2)
-        const firstItem = comboItems[0];
-        const firstTakes = firstItem.quantity;
-        const firstPays = firstItem.paidQuantity ?? firstItem.quantity;
+    // Si no hay descuento en cantidad pero hay cantidad > 1, mostrar cantidad
+    if (takes > 1) {
+      return `x${takes}`;
+    }
+  }
 
-        // Si todos tienen el mismo ratio de descuento
-        const sameRatio = comboItems.every(item => {
-            const takes = item.quantity;
-            const pays = item.paidQuantity ?? item.quantity;
-            return takes === firstTakes && pays === firstPays;
-        });
+  // Si hay múltiples productos diferentes, revisar si todos tienen descuento similar
+  if (uniqueProducts >= 2) {
+    // Verificar si es un combo múltiple con mismo ratio (ej: 3 productos, todos 3x2)
+    const firstItem = comboItems[0];
+    const firstTakes = firstItem.quantity;
+    const firstPays = firstItem.paidQuantity ?? firstItem.quantity;
 
-        if (sameRatio && firstPays < firstTakes) {
-            return `${firstTakes}x${firstPays}`;
-        }
+    // Si todos tienen el mismo ratio de descuento
+    const sameRatio = comboItems.every((item) => {
+      const takes = item.quantity;
+      const pays = item.paidQuantity ?? item.quantity;
+      return takes === firstTakes && pays === firstPays;
+    });
 
-        return 'Combo';
+    if (sameRatio && firstPays < firstTakes) {
+      return `${firstTakes}x${firstPays}`;
     }
 
     return 'Combo';
+  }
+
+  return 'Combo';
 }
 
 /**
  * Verifica si una promoción es de tipo combo
  */
 export function isComboPromotion(promotion: PromotionListItem | null | undefined): boolean {
-    return promotion?.scope === 'combo';
+  return promotion?.scope === 'combo';
 }

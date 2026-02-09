@@ -49,11 +49,13 @@ export const LocationList = memo(function LocationList({
   getDistricts,
 }: LocationListProps) {
   const colors = useThemedColors();
-  
+
   if (provinces.length === 0) {
     return (
       <View style={styles.emptyState}>
-        <Text style={[styles.emptyStateText, { color: colors.text.tertiary }]}>No se encontraron resultados</Text>
+        <Text style={[styles.emptyStateText, { color: colors.text.tertiary }]}>
+          No se encontraron resultados
+        </Text>
       </View>
     );
   }

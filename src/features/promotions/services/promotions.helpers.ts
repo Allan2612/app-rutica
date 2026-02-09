@@ -13,112 +13,108 @@ const BUCKET_NAME = 'promotions-images';
  * Genera un UUID v4
  */
 export function generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 /**
  * Obtiene la URL pública de una imagen en el storage
  */
 export function getImageUrl(bucket: string, filePath: string): string {
-    // Limpiar el path de cualquier prefijo no deseado
-    const cleanPath = filePath.replace(/^\/+/, '');
-    
-    const { data } = supabase.storage.from(bucket).getPublicUrl(cleanPath);
-    
-    // Retornar la URL directamente
-    // Supabase ya genera la URL correcta: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
-    return data.publicUrl;
+  // Limpiar el path de cualquier prefijo no deseado
+  const cleanPath = filePath.replace(/^\/+/, '');
+
+  const { data } = supabase.storage.from(bucket).getPublicUrl(cleanPath);
+
+  // Retornar la URL directamente
+  // Supabase ya genera la URL correcta: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
+  return data.publicUrl;
 }
 
 /**
  * Determina si una URI es una imagen nueva (local) o existente (ya en storage)
  */
 export function isNewImage(uri: string | null | undefined): boolean {
-    if (!uri) return false;
-    return (
-        !uri.includes('supabase.co') &&
-        (uri.startsWith('file://') || uri.startsWith('blob:') || uri.startsWith('data:'))
-    );
+  if (!uri) return false;
+  return (
+    !uri.includes('supabase.co') &&
+    (uri.startsWith('file://') || uri.startsWith('blob:') || uri.startsWith('data:'))
+  );
 }
 
 /**
  * Sube una imagen al bucket de promociones
  */
 export async function uploadPromotionImage(
-    promotionId: string,
-    imageUri: string,
-    imageType: 'flyer'
+  promotionId: string,
+  imageUri: string,
+  imageType: 'flyer',
 ): Promise<string> {
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(7);
-    const filePath = `${promotionId}/${imageType}-${timestamp}-${randomStr}.jpg`;
+  const timestamp = Date.now();
+  const randomStr = Math.random().toString(36).substring(7);
+  const filePath = `${promotionId}/${imageType}-${timestamp}-${randomStr}.jpg`;
 
-    if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
-        
-        const { error } = await supabase.storage
-            .from(BUCKET_NAME)
-            .upload(filePath, blob, {
-                contentType: 'image/jpeg',
-                upsert: false,
-            });
+  if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
 
-        if (error) throw error;
-    } else {
-        // En mobile usamos base64 directamente con decode
-        const base64Data = await FileSystem.readAsStringAsync(imageUri, {
-            encoding: 'base64',
-        });
+    const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, blob, {
+      contentType: 'image/jpeg',
+      upsert: false,
+    });
 
-        const { error } = await supabase.storage
-            .from(BUCKET_NAME)
-            .upload(filePath, decode(base64Data), {
-                contentType: 'image/jpeg',
-                upsert: false,
-            });
+    if (error) throw error;
+  } else {
+    // En mobile usamos base64 directamente con decode
+    const base64Data = await FileSystem.readAsStringAsync(imageUri, {
+      encoding: 'base64',
+    });
 
-        if (error) throw error;
-    }
+    const { error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, decode(base64Data), {
+        contentType: 'image/jpeg',
+        upsert: false,
+      });
 
-    return filePath;
+    if (error) throw error;
+  }
+
+  return filePath;
 }
 
 /**
  * Decodifica base64 a ArrayBuffer para mobile
  */
 function decode(base64: string): ArrayBuffer {
-    const binaryString = atob(base64);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
 }
 
 /**
  * Elimina una imagen del bucket de promociones
  */
 export async function deletePromotionImage(filePath: string): Promise<void> {
-    const { error } = await supabase.storage
-        .from(BUCKET_NAME)
-        .remove([filePath]);
+  const { error } = await supabase.storage.from(BUCKET_NAME).remove([filePath]);
 
-    if (error) {
-        console.error('Error deleting promotion image:', error);
-    }
+  if (error) {
+    console.error('Error deleting promotion image:', error);
+  }
 }
 
 /**
  * Extrae el path de una URL de storage
  */
 export function extractPathFromUrl(url: string): string | null {
-    if (!url.includes('supabase.co')) return null;
-    
-    const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)/);
-    return match ? match[1] : null;
+  if (!url.includes('supabase.co')) return null;
+
+  const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)/);
+  return match ? match[1] : null;
 }

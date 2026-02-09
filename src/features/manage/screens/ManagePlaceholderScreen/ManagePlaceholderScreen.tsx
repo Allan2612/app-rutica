@@ -53,9 +53,7 @@ export const ManagePlaceholderScreen = memo(function ManagePlaceholderScreen({
         ) : null}
 
         <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
-        <Text style={[styles.description, { color: colors.text.secondary }]}>
-          {description}
-        </Text>
+        <Text style={[styles.description, { color: colors.text.secondary }]}>{description}</Text>
 
         <View style={styles.actions}>
           <AuthButton

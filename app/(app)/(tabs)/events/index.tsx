@@ -5,5 +5,5 @@ import { Redirect } from 'expo-router';
  * Esta ruta redirige al tab de atracciones.
  */
 export default function EventsIndex() {
-    return <Redirect href="/(app)/(tabs)/attractions" />;
+  return <Redirect href="/(app)/(tabs)/attractions" />;
 }

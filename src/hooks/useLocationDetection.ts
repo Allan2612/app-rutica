@@ -20,16 +20,19 @@ export interface LocationSelection {
  */
 export function useLocationDetection(
   autoDetect: boolean,
-  onLocationChange?: (selection: LocationSelection) => void
+  onLocationChange?: (selection: LocationSelection) => void,
 ) {
   const { location: storedLocation, hasLocation } = useLocationStore();
   const hasDetectedLocation = useRef(false);
-  
+
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [selectedCanton, setSelectedCanton] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
-  const [currentCoordinates, setCurrentCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentCoordinates, setCurrentCoordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   // Geocodificación inversa
   const reverseGeocode = useCallback(async (lat: number, lng: number) => {
@@ -38,7 +41,7 @@ export function useLocationDetection(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
         {
           headers: { 'Accept-Language': 'es' },
-        }
+        },
       );
       const data = await response.json();
 
@@ -63,7 +66,7 @@ export function useLocationDetection(
     setLoadingLocation(true);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status !== 'granted') {
         setLoadingLocation(false);
         return null;
@@ -81,11 +84,11 @@ export function useLocationDetection(
       setCurrentCoordinates(coords);
 
       const geoData = await reverseGeocode(coords.latitude, coords.longitude);
-      
+
       if (geoData?.province) setSelectedProvince(geoData.province);
       if (geoData?.canton) setSelectedCanton(geoData.canton);
       if (geoData?.district) setSelectedDistrict(geoData.district);
-      
+
       const newSelection: LocationSelection = {
         province: geoData?.province || null,
         canton: geoData?.canton || null,
@@ -96,7 +99,7 @@ export function useLocationDetection(
       };
 
       onLocationChange?.(newSelection);
-      
+
       return newSelection;
     } catch (error) {
       return null;

@@ -45,9 +45,10 @@ export const PromotionDetailView = memo(function PromotionDetailView({
   const { metadata } = request;
 
   // Format discount display
-  const discountDisplay = metadata.discountType === 'percentage'
-    ? `${metadata.discountValue}%`
-    : `₡${metadata.discountValue.toLocaleString('es-CR')}`;
+  const discountDisplay =
+    metadata.discountType === 'percentage'
+      ? `${metadata.discountValue}%`
+      : `₡${metadata.discountValue.toLocaleString('es-CR')}`;
 
   return (
     <ScrollView
@@ -63,24 +64,16 @@ export const PromotionDetailView = memo(function PromotionDetailView({
     >
       {/* Main Image */}
       {request.imageUrl ? (
-        <Image
-          source={{ uri: request.imageUrl }}
-          style={styles.coverImage}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: request.imageUrl }} style={styles.coverImage} resizeMode="cover" />
       ) : (
         <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
           <TagIcon size={48} color={colors.text.tertiary} />
-          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>
-            Sin imagen
-          </Text>
+          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>Sin imagen</Text>
         </View>
       )}
 
       {/* Name */}
-      <Text style={[styles.entityName, { color: colors.text.primary }]}>
-        {request.name}
-      </Text>
+      <Text style={[styles.entityName, { color: colors.text.primary }]}>{request.name}</Text>
 
       {/* Description */}
       {request.description && (
@@ -92,13 +85,13 @@ export const PromotionDetailView = memo(function PromotionDetailView({
       {/* Status Row */}
       <View style={styles.statusRow}>
         <StatusBadge status={request.moderationStatus} size="md" />
-        <View style={[
-          styles.activeIndicator,
-          { backgroundColor: request.isActive ? colors.success : colors.error }
-        ]}>
-          <Text style={styles.activeIndicatorText}>
-            {request.isActive ? 'Visible' : 'Oculto'}
-          </Text>
+        <View
+          style={[
+            styles.activeIndicator,
+            { backgroundColor: request.isActive ? colors.success : colors.error },
+          ]}
+        >
+          <Text style={styles.activeIndicatorText}>{request.isActive ? 'Visible' : 'Oculto'}</Text>
         </View>
       </View>
 
@@ -121,10 +114,7 @@ export const PromotionDetailView = memo(function PromotionDetailView({
       />
 
       {/* Validity Period */}
-      <InfoCard
-        icon={<Clock size={18} color={colors.warning} />}
-        title="Período de Validez"
-      >
+      <InfoCard icon={<Clock size={18} color={colors.warning} />} title="Período de Validez">
         <DateRangeDisplay startAt={metadata.startAt} endAt={metadata.endAt} />
       </InfoCard>
       {/* Scope */}
@@ -135,24 +125,15 @@ export const PromotionDetailView = memo(function PromotionDetailView({
       />
       {/* Discount Info - hide for combo */}
       {metadata.scope !== 'combo' && (
-        <InfoCard
-          icon={<TrendingDown size={18} color={colors.success} />}
-          title="Descuento"
-        >
+        <InfoCard icon={<TrendingDown size={18} color={colors.success} />} title="Descuento">
           <View style={styles.discountRow}>
-            <Text style={[styles.discountValue, { color: colors.success }]}>
-              {discountDisplay}
-            </Text>
+            <Text style={[styles.discountValue, { color: colors.success }]}>{discountDisplay}</Text>
             <Text style={[styles.discountType, { color: colors.text.secondary }]}>
               {metadata.discountType === 'percentage' ? 'de descuento' : 'de rebaja'}
             </Text>
           </View>
         </InfoCard>
       )}
-
-
-
-
 
       {/* Categories (if scope is categories) */}
       {metadata.scope === 'categories' && metadata.categories.length > 0 && (
@@ -165,36 +146,38 @@ export const PromotionDetailView = memo(function PromotionDetailView({
       )}
 
       {/* Products in Promotion (if scope is products) */}
-      {metadata.scope === 'products' && metadata.promotionProducts && metadata.promotionProducts.length > 0 && (
-        <View style={[styles.comboCard, { backgroundColor: colors.background.secondary }]}>
-          <View style={styles.comboHeader}>
-            <ShoppingBag size={18} color={colors.primary[500]} />
-            <Text style={[styles.comboTitle, { color: colors.text.primary }]}>
-              Productos en Promoción
-            </Text>
-          </View>
-          <View style={styles.comboList}>
-            {metadata.promotionProducts.map((item, index) => (
-              <View
-                key={index}
-                style={[styles.comboItem, { borderBottomColor: colors.border.light }]}
-              >
-                <View style={styles.comboItemHeader}>
-                  <Package size={16} color={colors.text.secondary} />
-                  <Text style={[styles.comboItemName, { color: colors.text.primary }]}>
-                    {item.productName}
-                  </Text>
+      {metadata.scope === 'products' &&
+        metadata.promotionProducts &&
+        metadata.promotionProducts.length > 0 && (
+          <View style={[styles.comboCard, { backgroundColor: colors.background.secondary }]}>
+            <View style={styles.comboHeader}>
+              <ShoppingBag size={18} color={colors.primary[500]} />
+              <Text style={[styles.comboTitle, { color: colors.text.primary }]}>
+                Productos en Promoción
+              </Text>
+            </View>
+            <View style={styles.comboList}>
+              {metadata.promotionProducts.map((item, index) => (
+                <View
+                  key={index}
+                  style={[styles.comboItem, { borderBottomColor: colors.border.light }]}
+                >
+                  <View style={styles.comboItemHeader}>
+                    <Package size={16} color={colors.text.secondary} />
+                    <Text style={[styles.comboItemName, { color: colors.text.primary }]}>
+                      {item.productName}
+                    </Text>
+                  </View>
+                  {item.price && (
+                    <Text style={[styles.comboItemPrice, { color: colors.success }]}>
+                      ₡{item.price.toLocaleString('es-CR')}
+                    </Text>
+                  )}
                 </View>
-                {item.price && (
-                  <Text style={[styles.comboItemPrice, { color: colors.success }]}>
-                    ₡{item.price.toLocaleString('es-CR')}
-                  </Text>
-                )}
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
       {/* Combo Items (if scope is combo) */}
       {metadata.scope === 'combo' && metadata.comboItems.length > 0 && (
@@ -240,9 +223,7 @@ export const PromotionDetailView = memo(function PromotionDetailView({
       )}
 
       {/* Additional Images */}
-      {request.images.length > 0 && (
-        <ImageGallery images={request.images} />
-      )}
+      {request.images.length > 0 && <ImageGallery images={request.images} />}
 
       {/* Moderation Note */}
       <ModerationNote note={request.moderationNote} />

@@ -1,1 +1,4 @@
-export { ManagePlaceholderScreen, type ManagePlaceholderScreenProps } from './ManagePlaceholderScreen';
+export {
+  ManagePlaceholderScreen,
+  type ManagePlaceholderScreenProps,
+} from './ManagePlaceholderScreen';

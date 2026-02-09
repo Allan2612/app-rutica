@@ -41,9 +41,7 @@ export const ProductSelection = memo(function ProductSelection({
         style={[
           styles.productCard,
           {
-            backgroundColor: isSelected
-              ? colors.primary[500]
-              : colors.background.secondary,
+            backgroundColor: isSelected ? colors.primary[500] : colors.background.secondary,
             borderColor: isSelected ? colors.primary[500] : colors.border.medium,
           },
         ]}
@@ -69,7 +67,10 @@ export const ProductSelection = memo(function ProductSelection({
           </Text>
           {product.price && (
             <Text
-              style={[styles.productPrice, { color: isSelected ? '#FFFFFF' : colors.text.secondary }]}
+              style={[
+                styles.productPrice,
+                { color: isSelected ? '#FFFFFF' : colors.text.secondary },
+              ]}
             >
               ₡{product.price.toLocaleString()}
             </Text>
@@ -135,9 +136,7 @@ export const ProductSelection = memo(function ProductSelection({
       {error && (
         <View style={styles.errorContainer}>
           <AlertCircle size={14} color={colors.error} />
-          <Text style={[styles.errorText, { color: colors.error }]}>
-            {error}
-          </Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
         </View>
       )}
     </View>

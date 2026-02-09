@@ -1,4 +1,7 @@
-import { generateMapHTML as generateMapHTMLBase, type MapOptions } from '@/components/maps/LeafletMap';
+import {
+  generateMapHTML as generateMapHTMLBase,
+  type MapOptions,
+} from '@/components/maps/LeafletMap';
 
 interface MapViewOptions {
   theme?: MapOptions['theme'];
@@ -12,7 +15,7 @@ interface MapViewOptions {
 export function generateMapHTML(
   latitude: number,
   longitude: number,
-  options: MapViewOptions = {}
+  options: MapViewOptions = {},
 ): string {
   return generateMapHTMLBase(latitude, longitude, {
     draggable: false,

@@ -64,9 +64,7 @@ export const WizardNavigation = memo(function WizardNavigation({
           styles.button,
           styles.primaryButton,
           {
-            backgroundColor: isCurrentStepValid
-              ? colors.primary[500]
-              : colors.primary[300],
+            backgroundColor: isCurrentStepValid ? colors.primary[500] : colors.primary[300],
           },
         ]}
         onPress={handleNextOrSubmit}
@@ -90,7 +88,3 @@ export const WizardNavigation = memo(function WizardNavigation({
     </View>
   );
 });
-
-
-
-

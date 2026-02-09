@@ -8,10 +8,6 @@ export interface ScreenProps {
 
 export const Screen = memo(function Screen({ children }: ScreenProps) {
   const colors = useThemedColors();
-  
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.background.primary }}>
-      {children}
-    </View>
-  );
+
+  return <View style={{ flex: 1, backgroundColor: colors.background.primary }}>{children}</View>;
 });

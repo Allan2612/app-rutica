@@ -18,13 +18,17 @@ export const AuthCard = memo(function AuthCard({
   footer,
 }: AuthCardProps) {
   const colors = useThemedColors();
-  
+
   return (
-    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background.secondary }]}>
+    <ScrollView
+      contentContainerStyle={[styles.container, { backgroundColor: colors.background.secondary }]}
+    >
       <View style={[styles.card, { backgroundColor: colors.background.primary }]}>
         <AuthLogo />
         <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
-        {description && <Text style={[styles.description, { color: colors.text.secondary }]}>{description}</Text>}
+        {description && (
+          <Text style={[styles.description, { color: colors.text.secondary }]}>{description}</Text>
+        )}
         {children}
       </View>
       {footer && <View style={styles.footer}>{footer}</View>}

@@ -35,9 +35,9 @@ export interface BaseVerificationRequest {
   ownerEmail: string;
   ownerId: string;
   imageUrl: string | null;
-  images: ImageData[];  // All images, not just primary
+  images: ImageData[]; // All images, not just primary
   moderationStatus: ModerationStatus;
-  moderationNote: string | null;  // Existing moderation note
+  moderationNote: string | null; // Existing moderation note
   isActive: boolean;
   createdAt: string;
   locationLabel: string | null;

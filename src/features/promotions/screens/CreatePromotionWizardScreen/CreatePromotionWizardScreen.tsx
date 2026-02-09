@@ -1,12 +1,5 @@
 import { memo, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-} from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, Pressable, ScrollView } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { styles } from './styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,7 +28,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
   // Obtener cuota de promociones para el negocio seleccionado
   const { quotaInfo: promotionQuota } = usePromotionQuota(
     wizard.formData.businessId || '',
-    !!wizard.formData.businessId
+    !!wizard.formData.businessId,
   );
 
   // Verificar si puede avanzar desde el paso de negocio
@@ -60,12 +53,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
   }, [wizard.formData, wizard.currentStepIndex]);
 
   // Hook para manejar la confirmación de salida
-  const {
-    showExitDialog,
-    handleSafeBack,
-    confirmExit,
-    cancelExit,
-  } = useFormExitGuard({
+  const { showExitDialog, handleSafeBack, confirmExit, cancelExit } = useFormExitGuard({
     hasChanges,
     onExit: () => {
       wizard.resetWizard();
@@ -197,9 +185,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
             style={({ pressed }) => [
               styles.backButton,
               {
-                backgroundColor: pressed
-                  ? colors.primary[500]
-                  : colors.background.tertiary,
+                backgroundColor: pressed ? colors.primary[500] : colors.background.tertiary,
               },
             ]}
             hitSlop={8}

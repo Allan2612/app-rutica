@@ -6,9 +6,9 @@ import { getCategories } from '@/services/categories.service';
  * Usa la tabla central 'categories' compartida por todas las entidades
  */
 export function useCategories() {
-    return useQuery({
-        queryKey: ['categories'],
-        queryFn: getCategories,
-        staleTime: 5 * 60 * 1000, // 5 minutos (las categorías no cambian frecuentemente)
-    });
+  return useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+    staleTime: 5 * 60 * 1000, // 5 minutos (las categorías no cambian frecuentemente)
+  });
 }

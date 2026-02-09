@@ -40,19 +40,29 @@ export const LogoutScreen = memo(function LogoutScreen() {
     <Screen>
       <BaseHeader />
       <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
-        <View style={[styles.card, { 
-          backgroundColor: colors.background.primary,
-          borderColor: colors.border.light,
-        }]}>
-          <View style={[styles.iconContainer, {
-            backgroundColor: colors.isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
-          }]}>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: colors.background.primary,
+              borderColor: colors.border.light,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: colors.isDark
+                  ? 'rgba(239, 68, 68, 0.15)'
+                  : 'rgba(239, 68, 68, 0.1)',
+              },
+            ]}
+          >
             <LogOut size={32} color="#ef4444" />
           </View>
 
-          <Text style={[styles.title, { color: colors.text.primary }]}>
-            Cerrar Sesión
-          </Text>
+          <Text style={[styles.title, { color: colors.text.primary }]}>Cerrar Sesión</Text>
 
           <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
             ¿Estás seguro de que quieres cerrar tu sesión?
@@ -60,10 +70,13 @@ export const LogoutScreen = memo(function LogoutScreen() {
 
           <View style={styles.buttonRow}>
             <Pressable
-              style={[styles.cancelButton, {
-                backgroundColor: colors.background.tertiary,
-                borderColor: colors.border.medium,
-              }]}
+              style={[
+                styles.cancelButton,
+                {
+                  backgroundColor: colors.background.tertiary,
+                  borderColor: colors.border.medium,
+                },
+              ]}
               onPress={handleCancel}
               disabled={loading}
             >

@@ -68,7 +68,10 @@ export default function RootLayout() {
         metaDescription.setAttribute('name', 'description');
         document.head.appendChild(metaDescription);
       }
-      metaDescription.setAttribute('content', 'Descubre comercios, atracciones y promociones cerca de ti');
+      metaDescription.setAttribute(
+        'content',
+        'Descubre comercios, atracciones y promociones cerca de ti',
+      );
 
       // Theme color
       let metaTheme = document.querySelector('meta[name="theme-color"]');
@@ -92,11 +95,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent={true}
-        />
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent={true} />
         <QueryClientProvider client={queryClient}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
@@ -106,78 +105,84 @@ export default function RootLayout() {
           <Toast
             config={{
               success: (props) => (
-                <View style={{
-                  backgroundColor: '#1a1a1a',
-                  padding: 16,
-                  borderRadius: 12,
-                  borderLeftWidth: 4,
-                  borderLeftColor: '#10b981',
-                  marginHorizontal: 16,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 4,
-                  elevation: 5,
-                  minWidth: 300,
-                }}>
-                  <Text style={{ color: '#10b981', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
+                <View
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    padding: 16,
+                    borderRadius: 12,
+                    borderLeftWidth: 4,
+                    borderLeftColor: '#10b981',
+                    marginHorizontal: 16,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 4,
+                    elevation: 5,
+                    minWidth: 300,
+                  }}
+                >
+                  <Text
+                    style={{ color: '#10b981', fontWeight: '600', fontSize: 16, marginBottom: 4 }}
+                  >
                     {props.text1}
                   </Text>
                   {props.text2 && (
-                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
-                      {props.text2}
-                    </Text>
+                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>{props.text2}</Text>
                   )}
                 </View>
               ),
               error: (props) => (
-                <View style={{
-                  backgroundColor: '#1a1a1a',
-                  padding: 16,
-                  borderRadius: 12,
-                  borderLeftWidth: 4,
-                  borderLeftColor: '#ef4444',
-                  marginHorizontal: 16,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 4,
-                  elevation: 5,
-                  minWidth: 300,
-                }}>
-                  <Text style={{ color: '#ef4444', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
+                <View
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    padding: 16,
+                    borderRadius: 12,
+                    borderLeftWidth: 4,
+                    borderLeftColor: '#ef4444',
+                    marginHorizontal: 16,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 4,
+                    elevation: 5,
+                    minWidth: 300,
+                  }}
+                >
+                  <Text
+                    style={{ color: '#ef4444', fontWeight: '600', fontSize: 16, marginBottom: 4 }}
+                  >
                     {props.text1}
                   </Text>
                   {props.text2 && (
-                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
-                      {props.text2}
-                    </Text>
+                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>{props.text2}</Text>
                   )}
                 </View>
               ),
               info: (props) => (
-                <View style={{
-                  backgroundColor: '#1a1a1a',
-                  padding: 16,
-                  borderRadius: 12,
-                  borderLeftWidth: 4,
-                  borderLeftColor: '#3b82f6',
-                  marginHorizontal: 16,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 4,
-                  elevation: 5,
-                  minWidth: 300,
-                  zIndex: 99999,
-                }}>
-                  <Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
+                <View
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    padding: 16,
+                    borderRadius: 12,
+                    borderLeftWidth: 4,
+                    borderLeftColor: '#3b82f6',
+                    marginHorizontal: 16,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 4,
+                    elevation: 5,
+                    minWidth: 300,
+                    zIndex: 99999,
+                  }}
+                >
+                  <Text
+                    style={{ color: '#3b82f6', fontWeight: '600', fontSize: 16, marginBottom: 4 }}
+                  >
                     {props.text1}
                   </Text>
                   {props.text2 && (
-                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>
-                      {props.text2}
-                    </Text>
+                    <Text style={{ color: '#b3b3b3', fontSize: 14 }}>{props.text2}</Text>
                   )}
                 </View>
               ),

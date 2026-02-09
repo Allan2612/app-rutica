@@ -9,5 +9,5 @@ import { Category } from '@/types/entities';
  * @deprecated Use getCategoriesRaw from '@/services/categories.service' instead
  */
 export async function getAttractionCategories(): Promise<Category[]> {
-    return getCategoriesRaw();
+  return getCategoriesRaw();
 }

@@ -23,5 +23,3 @@ export * from './CalendarPicker';
 export * from './TimePicker';
 export * from './LocationSectionHeader';
 export * from './NoLocalResultsPlaceholder';
-
-

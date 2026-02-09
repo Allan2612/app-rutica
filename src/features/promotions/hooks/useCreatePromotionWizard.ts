@@ -18,9 +18,9 @@ const createInitialFormData = (): PromotionWizardFormData => ({
   // Step 2 - Discount + Products/Categories/Combo
   discountType: 'percentage' as DiscountType,
   discountValue: 0,
-  selectedProductIds: [],    // Para scope: 'product'
-  scopeCategoryIds: [],      // Para scope: 'category'
-  comboItems: [],            // Para scope: 'combo'
+  selectedProductIds: [], // Para scope: 'product'
+  scopeCategoryIds: [], // Para scope: 'category'
+  comboItems: [], // Para scope: 'combo'
 
   // Step 3 - Dates & Categories (para filtrado de la promoción)
   startDate: new Date(),
@@ -29,7 +29,7 @@ const createInitialFormData = (): PromotionWizardFormData => ({
 
   // Step 4 - Image
   coverUri: null,
-  
+
   // Status
   isActive: true,
 });
@@ -88,18 +88,12 @@ const validateDiscountStep = (formData: PromotionWizardFormData): PromotionWizar
   }
 
   // Validación para scope: 'products'
-  if (
-    formData.scope === 'products' &&
-    formData.selectedProductIds.length === 0
-  ) {
+  if (formData.scope === 'products' && formData.selectedProductIds.length === 0) {
     errors.selectedProductIds = 'Debe seleccionar al menos un producto';
   }
 
   // Validación para scope: 'categories'
-  if (
-    formData.scope === 'categories' &&
-    formData.scopeCategoryIds.length === 0
-  ) {
+  if (formData.scope === 'categories' && formData.scopeCategoryIds.length === 0) {
     errors.scopeCategoryIds = 'Debe seleccionar al menos una categoría de productos';
   }
 
@@ -151,7 +145,7 @@ const validateImageStep = (formData: PromotionWizardFormData): PromotionWizardEr
 
 const validateStep = (
   stepId: WizardStepId,
-  formData: PromotionWizardFormData
+  formData: PromotionWizardFormData,
 ): PromotionWizardErrors => {
   switch (stepId) {
     case 'business':
@@ -193,30 +187,24 @@ export function useCreatePromotionWizard() {
 
   // Update form field
   const updateField = useCallback(
-    <K extends keyof PromotionWizardFormData>(
-      field: K,
-      value: PromotionWizardFormData[K]
-    ) => {
+    <K extends keyof PromotionWizardFormData>(field: K, value: PromotionWizardFormData[K]) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
       // Clear error for this field when updating
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     },
-    []
+    [],
   );
 
   // Update multiple fields at once
-  const updateFields = useCallback(
-    (updates: Partial<PromotionWizardFormData>) => {
-      setFormData((prev) => ({ ...prev, ...updates }));
-      // Clear errors for updated fields
-      const clearedErrors: Partial<PromotionWizardErrors> = {};
-      Object.keys(updates).forEach((key) => {
-        clearedErrors[key as keyof PromotionWizardErrors] = undefined;
-      });
-      setErrors((prev) => ({ ...prev, ...clearedErrors }));
-    },
-    []
-  );
+  const updateFields = useCallback((updates: Partial<PromotionWizardFormData>) => {
+    setFormData((prev) => ({ ...prev, ...updates }));
+    // Clear errors for updated fields
+    const clearedErrors: Partial<PromotionWizardErrors> = {};
+    Object.keys(updates).forEach((key) => {
+      clearedErrors[key as keyof PromotionWizardErrors] = undefined;
+    });
+    setErrors((prev) => ({ ...prev, ...clearedErrors }));
+  }, []);
 
   // Go to next step
   const goToNextStep = useCallback(() => {
@@ -270,7 +258,7 @@ export function useCreatePromotionWizard() {
       setCurrentStepIndex(stepIndex);
       return true;
     },
-    [currentStepIndex, formData]
+    [currentStepIndex, formData],
   );
 
   // Validate all steps
@@ -301,8 +289,8 @@ export function useCreatePromotionWizard() {
       ...prev,
       businessId,
       selectedProductIds: [], // Reset products when business changes
-      scopeCategoryIds: [],   // Reset scope categories when business changes
-      comboItems: [],         // Reset combo items when business changes
+      scopeCategoryIds: [], // Reset scope categories when business changes
+      comboItems: [], // Reset combo items when business changes
     }));
     setErrors((prev) => ({
       ...prev,
@@ -356,44 +344,47 @@ export function useCreatePromotionWizard() {
   }, []);
 
   // Add/Update/Remove combo item
-  const updateComboItem = useCallback((productId: string, quantity: number, paidQuantity?: number) => {
-    setFormData((prev) => {
-      const existingIndex = prev.comboItems.findIndex(item => item.productId === productId);
+  const updateComboItem = useCallback(
+    (productId: string, quantity: number, paidQuantity?: number) => {
+      setFormData((prev) => {
+        const existingIndex = prev.comboItems.findIndex((item) => item.productId === productId);
 
-      if (quantity <= 0) {
-        // Remove item if quantity is 0 or less
+        if (quantity <= 0) {
+          // Remove item if quantity is 0 or less
+          return {
+            ...prev,
+            comboItems: prev.comboItems.filter((item) => item.productId !== productId),
+          };
+        }
+
+        if (existingIndex >= 0) {
+          // Update existing item
+          const newComboItems = [...prev.comboItems];
+          newComboItems[existingIndex] = { productId, quantity, paidQuantity };
+          return { ...prev, comboItems: newComboItems };
+        }
+
+        // Add new item
         return {
           ...prev,
-          comboItems: prev.comboItems.filter(item => item.productId !== productId),
+          comboItems: [...prev.comboItems, { productId, quantity, paidQuantity }],
         };
-      }
-
-      if (existingIndex >= 0) {
-        // Update existing item
-        const newComboItems = [...prev.comboItems];
-        newComboItems[existingIndex] = { productId, quantity, paidQuantity };
-        return { ...prev, comboItems: newComboItems };
-      }
-
-      // Add new item
-      return {
-        ...prev,
-        comboItems: [...prev.comboItems, { productId, quantity, paidQuantity }],
-      };
-    });
-    setErrors((prev) => ({ ...prev, comboItems: undefined }));
-  }, []);
+      });
+      setErrors((prev) => ({ ...prev, comboItems: undefined }));
+    },
+    [],
+  );
 
   // Toggle combo item (add with quantity 1 or remove)
   const toggleComboItem = useCallback((productId: string) => {
     setFormData((prev) => {
-      const existingItem = prev.comboItems.find(item => item.productId === productId);
+      const existingItem = prev.comboItems.find((item) => item.productId === productId);
 
       if (existingItem) {
         // Remove item
         return {
           ...prev,
-          comboItems: prev.comboItems.filter(item => item.productId !== productId),
+          comboItems: prev.comboItems.filter((item) => item.productId !== productId),
         };
       }
 

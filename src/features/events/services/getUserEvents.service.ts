@@ -11,43 +11,43 @@ const STORAGE_BUCKET = 'events-images';
 // ============================================
 
 export interface UserEvent {
-    id_evt: string;
-    name_evt: string;
-    description_evt: string | null;
-    start_at_evt: string;
-    end_at_evt: string;
-    is_free_evt: boolean;
-    price_evt: number | null;
-    currency_evt: string | null;
-    capacity_evt: number | null;
-    moderation_status_evt: string;
-    moderation_note_evt: string | null;
-    is_active_evt: boolean;
-    created_at_evt: string;
-    event_images?: Array<{
-        path_eim: string;
-        sort_order_eim: number;
-    }>;
-    locations?: {
-        address_loc: string | null;
-        latitude_loc: number | null;
-        longitude_loc: number | null;
-        districts?: {
-            name_dst: string;
-            cantons?: {
-                name_ctn: string;
-                provinces?: {
-                    name_prv: string;
-                };
-            };
+  id_evt: string;
+  name_evt: string;
+  description_evt: string | null;
+  start_at_evt: string;
+  end_at_evt: string;
+  is_free_evt: boolean;
+  price_evt: number | null;
+  currency_evt: string | null;
+  capacity_evt: number | null;
+  moderation_status_evt: string;
+  moderation_note_evt: string | null;
+  is_active_evt: boolean;
+  created_at_evt: string;
+  event_images?: Array<{
+    path_eim: string;
+    sort_order_eim: number;
+  }>;
+  locations?: {
+    address_loc: string | null;
+    latitude_loc: number | null;
+    longitude_loc: number | null;
+    districts?: {
+      name_dst: string;
+      cantons?: {
+        name_ctn: string;
+        provinces?: {
+          name_prv: string;
         };
+      };
+    };
+  } | null;
+  event_category_map?: Array<{
+    categories: {
+      id_cat: string;
+      name_cat: string;
     } | null;
-    event_category_map?: Array<{
-        categories: {
-            id_cat: string;
-            name_cat: string;
-        } | null;
-    }>;
+  }>;
 }
 
 // ============================================
@@ -55,9 +55,9 @@ export interface UserEvent {
 // ============================================
 
 export function getImageUrl(path: string): string {
-    if (!path) return '';
-    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-    return data.publicUrl;
+  if (!path) return '';
+  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
 }
 
 // ============================================
@@ -65,11 +65,11 @@ export function getImageUrl(path: string): string {
 // ============================================
 
 export async function getUserEvents(userId: string): Promise<UserEvent[]> {
-    try {
-        const { data, error } = await supabase
-            .from('events')
-            .select(
-                `
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select(
+        `
                 id_evt,
                 name_evt,
                 description_evt,
@@ -107,15 +107,15 @@ export async function getUserEvents(userId: string): Promise<UserEvent[]> {
                         name_cat
                     )
                 )
-            `
-            )
-            .eq('created_by_evt', userId)
-            .order('created_at_evt', { ascending: false });
+            `,
+      )
+      .eq('created_by_evt', userId)
+      .order('created_at_evt', { ascending: false });
 
-        if (error) throw error;
-        return (data || []) as unknown as UserEvent[];
-    } catch (error) {
-        console.error('[getUserEvents] Error:', error);
-        throw error;
-    }
+    if (error) throw error;
+    return (data || []) as unknown as UserEvent[];
+  } catch (error) {
+    console.error('[getUserEvents] Error:', error);
+    throw error;
+  }
 }

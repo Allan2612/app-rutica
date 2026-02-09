@@ -9,7 +9,6 @@ import { useAuthStore } from '@/store';
  */
 export function useDeepLinkHandler() {
   useEffect(() => {
-
     const handleDeepLink = async (event: { url: string }) => {
       const url = event.url;
 
@@ -26,7 +25,7 @@ export function useDeepLinkHandler() {
             // IMPORTANTE: Activar modo recovery ANTES de establecer la sesión
             // Esto evita que el authStore cargue datos del usuario
             useAuthStore.getState().setRecoveryMode(true);
-            
+
             // Establecer la sesión con el token
             await supabase.auth.setSession({
               access_token: accessToken,
@@ -67,7 +66,6 @@ export function useDeepLinkHandler() {
     });
 
     return () => {
-
       subscription.remove();
     };
   }, []);

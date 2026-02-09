@@ -18,15 +18,17 @@ export const AuthButton = memo(function AuthButton({
   ...props
 }: AuthButtonProps) {
   const colors = useThemedColors();
-  
+
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        variant === 'primary' ? { backgroundColor: colors.primary[500] } : [
-          styles.secondary,
-          { borderColor: colors.border.medium, backgroundColor: colors.background.secondary }
-        ],
+        variant === 'primary'
+          ? { backgroundColor: colors.primary[500] }
+          : [
+              styles.secondary,
+              { borderColor: colors.border.medium, backgroundColor: colors.background.secondary },
+            ],
         (loading || disabled) && styles.disabled,
         style,
       ]}

@@ -132,11 +132,11 @@ const PulsingNode = memo(function PulsingNode({
       withRepeat(
         withSequence(
           withTiming(1, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0, { duration: 5000, easing: Easing.inOut(Easing.ease) })
+          withTiming(0, { duration: 5000, easing: Easing.inOut(Easing.ease) }),
         ),
         -1,
-        false
-      )
+        false,
+      ),
     );
   }, [delay, pulse]);
 
@@ -187,11 +187,11 @@ const TravelingDot = memo(function TravelingDot({
       withRepeat(
         withSequence(
           withTiming(1, { duration, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0, { duration: 0 })
+          withTiming(0, { duration: 0 }),
         ),
         -1,
-        false
-      )
+        false,
+      ),
     );
   }, [delay, duration, progress]);
 

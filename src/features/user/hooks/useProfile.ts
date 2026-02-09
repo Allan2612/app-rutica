@@ -59,7 +59,7 @@ export function useProfile(): UseProfileReturn {
         setIsLoading(false);
       }
     },
-    [user?.id]
+    [user?.id],
   );
 
   const refreshProfile = useCallback(async () => {

@@ -14,12 +14,20 @@ interface ScopeOption {
 
 const SCOPE_OPTIONS: ScopeOption[] = [
   { value: 'all', label: 'Todo el negocio', description: 'Aplica a todos los productos' },
-  { value: 'products', label: 'Productos específicos', description: 'Selecciona productos individuales' },
-  { value: 'categories', label: 'Por categoría', description: 'Aplica a productos de ciertas categorías' },
-  { 
-    value: 'combo', 
-    label: 'Combo / 2x1', 
-    description: 'Aplica a combos o promociones de tipo 2x1' 
+  {
+    value: 'products',
+    label: 'Productos específicos',
+    description: 'Selecciona productos individuales',
+  },
+  {
+    value: 'categories',
+    label: 'Por categoría',
+    description: 'Aplica a productos de ciertas categorías',
+  },
+  {
+    value: 'combo',
+    label: 'Combo / 2x1',
+    description: 'Aplica a combos o promociones de tipo 2x1',
   },
 ];
 
@@ -50,16 +58,14 @@ export const ScopeSelection = memo(function ScopeSelection({
         {SCOPE_OPTIONS.map((option) => {
           const isSelected = selectedScope === option.value;
           const ScopeIcon = SCOPE_ICONS[option.value];
-          
+
           return (
             <Pressable
               key={option.value}
               style={[
                 styles.card,
                 {
-                  backgroundColor: isSelected
-                    ? colors.primary[500]
-                    : colors.background.secondary,
+                  backgroundColor: isSelected ? colors.primary[500] : colors.background.secondary,
                   borderColor: isSelected ? colors.primary[500] : colors.border.medium,
                 },
               ]}
@@ -70,10 +76,7 @@ export const ScopeSelection = memo(function ScopeSelection({
                 {isSelected && <Check size={14} color="#FFFFFF" />}
               </View>
               <Text
-                style={[
-                  styles.cardTitle,
-                  { color: isSelected ? '#FFFFFF' : colors.text.primary },
-                ]}
+                style={[styles.cardTitle, { color: isSelected ? '#FFFFFF' : colors.text.primary }]}
               >
                 {option.label}
               </Text>

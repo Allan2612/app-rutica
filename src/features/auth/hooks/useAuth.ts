@@ -12,8 +12,11 @@ export function useAuth() {
     // Validar sesión inicial
     const initSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
           if (isMounted) {
             setSession(null);
@@ -24,8 +27,11 @@ export function useAuth() {
 
         if (session) {
           // Validar que el usuario realmente exista
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-          
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+
           if (userError || !user) {
             await supabase.auth.signOut();
             if (isMounted) {
@@ -50,14 +56,12 @@ export function useAuth() {
 
     initSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (isMounted) {
-          setSession(session);
-          setIsLoading(false);
-        }
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (isMounted) {
+        setSession(session);
+        setIsLoading(false);
       }
-    );
+    });
 
     return () => {
       isMounted = false;

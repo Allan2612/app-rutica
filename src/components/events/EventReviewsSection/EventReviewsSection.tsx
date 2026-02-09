@@ -9,93 +9,91 @@ import { useEventReviewsActions } from './useEventReviewsActions';
 import { styles } from './styles';
 
 interface EventReviewsSectionProps {
-    eventId: string;
-    eventName: string;
-    eventImage?: string;
-    ownerId?: string | null;
+  eventId: string;
+  eventName: string;
+  eventImage?: string;
+  ownerId?: string | null;
 }
 
 export const EventReviewsSection = memo(function EventReviewsSection({
-    eventId,
-    eventName,
-    eventImage,
-    ownerId,
+  eventId,
+  eventName,
+  eventImage,
+  ownerId,
 }: EventReviewsSectionProps) {
-    const colors = useThemedColors();
+  const colors = useThemedColors();
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
 
-    const closeModal = useCallback(() => setIsModalVisible(false), []);
+  const closeModal = useCallback(() => setIsModalVisible(false), []);
 
-    const {
-        user,
-        reviews,
-        userReview,
-        isLoadingReviews,
-        canWriteReview,
-        hasReviews,
-        isSubmitting,
-        isDeleting,
-        handleSubmitReview,
-        handleDeleteReview,
-    } = useEventReviewsActions(eventId, ownerId ?? '', closeModal);
+  const {
+    user,
+    reviews,
+    userReview,
+    isLoadingReviews,
+    canWriteReview,
+    hasReviews,
+    isSubmitting,
+    isDeleting,
+    handleSubmitReview,
+    handleDeleteReview,
+  } = useEventReviewsActions(eventId, ownerId ?? '', closeModal);
 
-    const handleOpenModal = useCallback(() => setIsModalVisible(true), []);
-    const handleOpenDeleteDialog = useCallback(() => setIsDeleteDialogVisible(true), []);
-    const handleCloseDeleteDialog = useCallback(() => setIsDeleteDialogVisible(false), []);
+  const handleOpenModal = useCallback(() => setIsModalVisible(true), []);
+  const handleOpenDeleteDialog = useCallback(() => setIsDeleteDialogVisible(true), []);
+  const handleCloseDeleteDialog = useCallback(() => setIsDeleteDialogVisible(false), []);
 
-    const handleConfirmDelete = useCallback(() => {
-        handleDeleteReview(handleCloseDeleteDialog);
-    }, [handleDeleteReview, handleCloseDeleteDialog]);
+  const handleConfirmDelete = useCallback(() => {
+    handleDeleteReview(handleCloseDeleteDialog);
+  }, [handleDeleteReview, handleCloseDeleteDialog]);
 
-    return (
-        <View style={styles.container}>
-            <Text style={[styles.title, { color: colors.text.primary }]}>
-                Comentarios
-            </Text>
+  return (
+    <View style={styles.container}>
+      <Text style={[styles.title, { color: colors.text.primary }]}>Comentarios</Text>
 
-            {!hasReviews ? (
-                <EmptyEventReviewsState
-                    canWriteReview={canWriteReview}
-                    isLoading={isLoadingReviews}
-                    onWriteReview={handleOpenModal}
-                />
-            ) : (
-                <EventReviewsList
-                    reviews={reviews}
-                    userReview={userReview ?? null}
-                    currentUserId={user?.id ?? null}
-                    canWriteReview={canWriteReview}
-                    isDeleting={isDeleting}
-                    onEdit={handleOpenModal}
-                    onDelete={handleOpenDeleteDialog}
-                    onWriteReview={handleOpenModal}
-                />
-            )}
+      {!hasReviews ? (
+        <EmptyEventReviewsState
+          canWriteReview={canWriteReview}
+          isLoading={isLoadingReviews}
+          onWriteReview={handleOpenModal}
+        />
+      ) : (
+        <EventReviewsList
+          reviews={reviews}
+          userReview={userReview ?? null}
+          currentUserId={user?.id ?? null}
+          canWriteReview={canWriteReview}
+          isDeleting={isDeleting}
+          onEdit={handleOpenModal}
+          onDelete={handleOpenDeleteDialog}
+          onWriteReview={handleOpenModal}
+        />
+      )}
 
-            {/* Review Modal */}
-            <ReviewModal
-                visible={isModalVisible}
-                onClose={closeModal}
-                onSubmit={handleSubmitReview}
-                businessName={eventName}
-                businessLogo={eventImage}
-                existingRating={userReview?.rating}
-                existingComment={userReview?.comment}
-                isEditMode={!!userReview}
-                isLoading={isSubmitting}
-            />
+      {/* Review Modal */}
+      <ReviewModal
+        visible={isModalVisible}
+        onClose={closeModal}
+        onSubmit={handleSubmitReview}
+        businessName={eventName}
+        businessLogo={eventImage}
+        existingRating={userReview?.rating}
+        existingComment={userReview?.comment}
+        isEditMode={!!userReview}
+        isLoading={isSubmitting}
+      />
 
-            {/* Delete Confirmation */}
-            <ConfirmDeleteDialog
-                visible={isDeleteDialogVisible}
-                entityName="Mi reseña"
-                entityType="reseña"
-                onConfirm={handleConfirmDelete}
-                onCancel={handleCloseDeleteDialog}
-                isDeleting={isDeleting}
-            />
-        </View>
-    );
+      {/* Delete Confirmation */}
+      <ConfirmDeleteDialog
+        visible={isDeleteDialogVisible}
+        entityName="Mi reseña"
+        entityType="reseña"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCloseDeleteDialog}
+        isDeleting={isDeleting}
+      />
+    </View>
+  );
 });

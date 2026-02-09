@@ -49,12 +49,7 @@ export const DiscountValueInput = memo(function DiscountValueInput({
           placeholderTextColor={colors.text.tertiary}
           keyboardType="numeric"
         />
-        <View
-          style={[
-            styles.unitBadge,
-            { backgroundColor: colors.background.tertiary },
-          ]}
-        >
+        <View style={[styles.unitBadge, { backgroundColor: colors.background.tertiary }]}>
           <Text style={[styles.unitText, { color: colors.text.secondary }]}>
             {isPercentage ? '%' : '₡'}
           </Text>
@@ -64,9 +59,7 @@ export const DiscountValueInput = memo(function DiscountValueInput({
       {error && (
         <View style={styles.errorContainer}>
           <AlertCircle size={14} color={colors.error} />
-          <Text style={[styles.errorText, { color: colors.error }]}>
-            {error}
-          </Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
         </View>
       )}
 

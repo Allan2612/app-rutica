@@ -54,12 +54,14 @@ export interface BusinessListRecord {
   is_active_bus: boolean;
   avg_rating_bus: number | null;
   reviews_count_bus: number | null;
-  business_category_map?: {
-    categories: {
-      id_cat: string;
-      name_cat: string;
-    } | null;
-  }[] | null;
+  business_category_map?:
+    | {
+        categories: {
+          id_cat: string;
+          name_cat: string;
+        } | null;
+      }[]
+    | null;
   locations?: {
     districts?: {
       name_dst: string;
@@ -71,19 +73,23 @@ export interface BusinessListRecord {
       } | null;
     } | null;
   } | null;
-  business_images?: {
-    path_bim: string;
-    sort_order_bim: number;
-  }[] | null;
-  promotions?: {
-    id_prm: string;
-  }[] | null;
+  business_images?:
+    | {
+        path_bim: string;
+        sort_order_bim: number;
+      }[]
+    | null;
+  promotions?:
+    | {
+        id_prm: string;
+      }[]
+    | null;
 }
 
 export async function uploadImageToStorage(
   imageUri: string,
   businessId: string,
-  fileName: string
+  fileName: string,
 ): Promise<string> {
   try {
     let fileData: Blob | ArrayBuffer;
@@ -114,12 +120,10 @@ export async function uploadImageToStorage(
     const filePath = `${businessId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
     // Subir a Supabase
-    const { data, error } = await supabase.storage
-      .from(BUCKET_IMAGES)
-      .upload(filePath, fileData, {
-        contentType: `image/${fileExt}`,
-        upsert: false,
-      });
+    const { data, error } = await supabase.storage.from(BUCKET_IMAGES).upload(filePath, fileData, {
+      contentType: `image/${fileExt}`,
+      upsert: false,
+    });
 
     if (error) {
       throw error;
@@ -134,16 +138,14 @@ export async function uploadImageToStorage(
 export async function saveBusinessImageReference(
   businessId: string,
   filePath: string,
-  sortOrder: number = 0
+  sortOrder: number = 0,
 ): Promise<void> {
-  const { error } = await (supabase as any)
-    .from('business_images')
-    .insert({
-      id_bim: generateUUID(),
-      business_id_bim: businessId,
-      path_bim: filePath,
-      sort_order_bim: sortOrder,
-    });
+  const { error } = await (supabase as any).from('business_images').insert({
+    id_bim: generateUUID(),
+    business_id_bim: businessId,
+    path_bim: filePath,
+    sort_order_bim: sortOrder,
+  });
 
   if (error) {
     throw error;
@@ -199,7 +201,7 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
       const logoPath = await uploadImageToStorage(
         input.logoUri,
         (business as any).id_bus,
-        'logo.png'
+        'logo.png',
       );
       await saveBusinessImageReference((business as any).id_bus, logoPath, 0);
     } catch (error) {
@@ -214,7 +216,7 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
         const imagePath = await uploadImageToStorage(
           input.imageUris[i],
           (business as any).id_bus,
-          `gallery-${i}.png`
+          `gallery-${i}.png`,
         );
         await saveBusinessImageReference((business as any).id_bus, imagePath, i + 1);
       }
@@ -226,14 +228,14 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   return business as any;
 }
 
-export async function getBusinessList(filters: BusinessListFilters = {}): Promise<BusinessListRecord[]> {
+export async function getBusinessList(
+  filters: BusinessListFilters = {},
+): Promise<BusinessListRecord[]> {
   const { searchText, categoryIds } = filters;
 
   const now = new Date().toISOString();
 
-  let query = (supabase as any)
-    .from('businesses')
-    .select(`
+  let query = (supabase as any).from('businesses').select(`
       id_bus,
       name_bus,
       description_bus,
@@ -265,9 +267,7 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
     `);
 
   // Solo negocios aprobados y activos
-  query = query
-    .eq('moderation_status_bus', 'approved')
-    .eq('is_active_bus', true);
+  query = query.eq('moderation_status_bus', 'approved').eq('is_active_bus', true);
 
   // Filtrar promociones activas en la relación
   query = query
@@ -300,7 +300,8 @@ export async function getBusinessList(filters: BusinessListFilters = {}): Promis
 export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
   const { data, error } = await (supabase as any)
     .from('businesses')
-    .select(`
+    .select(
+      `
       id_bus,
       name_bus,
       description_bus,
@@ -322,7 +323,8 @@ export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
           )
         )
       )
-    `)
+    `,
+    )
     .neq('moderation_status_bus', 'rejected')
     .order('created_at_bus', { ascending: false });
 
@@ -333,13 +335,15 @@ export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
 export async function getBusinessesByOwner(ownerId: string) {
   const { data, error } = await (supabase as any)
     .from('businesses')
-    .select(`
+    .select(
+      `
       id_bus,
       name_bus,
       description_bus,
       moderation_status_bus,
       is_active_bus
-    `)
+    `,
+    )
     .eq('owner_id_bus', ownerId)
     .order('created_at_bus', { ascending: false });
 
@@ -350,7 +354,8 @@ export async function getBusinessesByOwner(ownerId: string) {
 export async function getBusinessById(id: string): Promise<BusinessWithRelations> {
   const { data, error } = await (supabase as any)
     .from('businesses')
-    .select(`
+    .select(
+      `
       id_bus,
       name_bus,
       description_bus,
@@ -387,7 +392,8 @@ export async function getBusinessById(id: string): Promise<BusinessWithRelations
         path_bim,
         sort_order_bim
       )
-    `)
+    `,
+    )
     .eq('id_bus', id)
     .single();
 

@@ -1,5 +1,13 @@
 import { memo, useState, useCallback } from 'react';
-import { Text, View, TouchableOpacity, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Pressable,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { ArrowLeft, Camera, X } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -141,15 +149,21 @@ export const RegisterScreen = memo(function RegisterScreen() {
         footer={
           <Text style={[sharedStyles.footerTextSmall, { color: colors.text.tertiary }]}>
             Al registrarte, aceptas nuestros{' '}
-            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>Términos y Condiciones</Text>
+            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>
+              Términos y Condiciones
+            </Text>
             {' y '}
-            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>Política de Privacidad</Text>
+            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>
+              Política de Privacidad
+            </Text>
           </Text>
         }
       >
         {/* Foto de perfil */}
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.text.primary }]}>Foto de perfil (opcional)</Text>
+          <Text style={[styles.label, { color: colors.text.primary }]}>
+            Foto de perfil (opcional)
+          </Text>
           <View style={{ alignItems: 'center', marginTop: 8 }}>
             {profilePhoto ? (
               <View style={{ position: 'relative' }}>
@@ -202,7 +216,9 @@ export const RegisterScreen = memo(function RegisterScreen() {
                 ) : (
                   <>
                     <Camera size={28} color={colors.text.tertiary} />
-                    <Text style={{ color: colors.text.tertiary, fontSize: 12, marginTop: 4 }}>Añadir foto</Text>
+                    <Text style={{ color: colors.text.tertiary, fontSize: 12, marginTop: 4 }}>
+                      Añadir foto
+                    </Text>
                   </>
                 )}
               </Pressable>
@@ -219,7 +235,12 @@ export const RegisterScreen = memo(function RegisterScreen() {
                 styles.roleButton,
                 {
                   borderColor: role === 'buyer' ? colors.primary[500] : colors.border.medium,
-                  backgroundColor: role === 'buyer' ? (colors.isDark ? colors.primary[900] : colors.primary[50]) : colors.background.tertiary,
+                  backgroundColor:
+                    role === 'buyer'
+                      ? colors.isDark
+                        ? colors.primary[900]
+                        : colors.primary[50]
+                      : colors.background.tertiary,
                 },
               ]}
               onPress={() => setRole('buyer')}
@@ -228,13 +249,20 @@ export const RegisterScreen = memo(function RegisterScreen() {
                 style={[
                   styles.roleTitle,
                   {
-                    color: role === 'buyer' ? (colors.isDark ? colors.primary[400] : colors.primary[700]) : colors.text.primary,
+                    color:
+                      role === 'buyer'
+                        ? colors.isDark
+                          ? colors.primary[400]
+                          : colors.primary[700]
+                        : colors.text.primary,
                   },
                 ]}
               >
                 Usuario
               </Text>
-              <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>Descubre y explora</Text>
+              <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>
+                Descubre y explora
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -242,7 +270,12 @@ export const RegisterScreen = memo(function RegisterScreen() {
                 styles.roleButton,
                 {
                   borderColor: role === 'seller' ? colors.primary[500] : colors.border.medium,
-                  backgroundColor: role === 'seller' ? (colors.isDark ? colors.primary[900] : colors.primary[50]) : colors.background.tertiary,
+                  backgroundColor:
+                    role === 'seller'
+                      ? colors.isDark
+                        ? colors.primary[900]
+                        : colors.primary[50]
+                      : colors.background.tertiary,
                 },
               ]}
               onPress={() => setRole('seller')}
@@ -251,13 +284,20 @@ export const RegisterScreen = memo(function RegisterScreen() {
                 style={[
                   styles.roleTitle,
                   {
-                    color: role === 'seller' ? (colors.isDark ? colors.primary[400] : colors.primary[700]) : colors.text.primary,
+                    color:
+                      role === 'seller'
+                        ? colors.isDark
+                          ? colors.primary[400]
+                          : colors.primary[700]
+                        : colors.text.primary,
                   },
                 ]}
               >
                 Negocio
               </Text>
-              <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>Promociona tu negocio</Text>
+              <Text style={[styles.roleSubtitle, { color: colors.text.secondary }]}>
+                Promociona tu negocio
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -334,7 +374,9 @@ export const RegisterScreen = memo(function RegisterScreen() {
           <Text style={[sharedStyles.linkText, { color: colors.text.secondary }]}>
             ¿Ya tienes cuenta?{' '}
             <Pressable onPress={() => router.replace('/(auth)/login')}>
-              <Text style={[sharedStyles.link, { color: colors.primary[500] }]}>Inicia sesión aquí</Text>
+              <Text style={[sharedStyles.link, { color: colors.primary[500] }]}>
+                Inicia sesión aquí
+              </Text>
             </Pressable>
           </Text>
         </View>

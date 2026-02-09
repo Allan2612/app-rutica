@@ -1,8 +1,8 @@
 /**
  * Configuración de Reanimated y supresión de warnings conocidos
- * 
+ *
  * Los warnings que se suprimen son:
- * 1. "Reading from value during component render" - Falsos positivos cuando se usa 
+ * 1. "Reading from value during component render" - Falsos positivos cuando se usa
  *    correctamente dentro de useAnimatedProps/useAnimatedStyle
  * 2. Los warnings de gesture-handler que vienen de react-native-reanimated-carousel
  * 3. "Accessing element.ref was removed in React 19" - Error de compatibilidad con librerías
@@ -57,7 +57,10 @@ export function setupReanimatedConfig() {
 
     console.error = (...args: unknown[]) => {
       const message = args[0];
-      if (typeof message === 'string' && suppressedPatterns.some(pattern => message.includes(pattern))) {
+      if (
+        typeof message === 'string' &&
+        suppressedPatterns.some((pattern) => message.includes(pattern))
+      ) {
         return;
       }
       originalError.apply(console, args);
@@ -65,7 +68,10 @@ export function setupReanimatedConfig() {
 
     console.warn = (...args: unknown[]) => {
       const message = args[0];
-      if (typeof message === 'string' && suppressedPatterns.some(pattern => message.includes(pattern))) {
+      if (
+        typeof message === 'string' &&
+        suppressedPatterns.some((pattern) => message.includes(pattern))
+      ) {
         return;
       }
       originalWarn.apply(console, args);

@@ -44,10 +44,15 @@ export const TermsScreen = memo(function TermsScreen() {
 
           {/* Introducción */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <FileText color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -55,20 +60,29 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Bienvenido a Rutica. Al acceder y utilizar nuestra aplicación móvil y plataforma web, usted acepta estar sujeto a los presentes Términos y Condiciones de uso. Le recomendamos leerlos detenidamente antes de utilizar nuestros servicios.
+                Bienvenido a Rutica. Al acceder y utilizar nuestra aplicación móvil y plataforma
+                web, usted acepta estar sujeto a los presentes Términos y Condiciones de uso. Le
+                recomendamos leerlos detenidamente antes de utilizar nuestros servicios.
               </Text>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Rutica es una plataforma digital que permite a los usuarios explorar y descubrir negocios, eventos y atracciones turísticas en Costa Rica. Si no está de acuerdo con estos términos, le solicitamos abstenerse de utilizar la aplicación.
+                Rutica es una plataforma digital que permite a los usuarios explorar y descubrir
+                negocios, eventos y atracciones turísticas en Costa Rica. Si no está de acuerdo con
+                estos términos, le solicitamos abstenerse de utilizar la aplicación.
               </Text>
             </View>
           </View>
 
           {/* Uso de la plataforma */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <Users color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -89,7 +103,8 @@ export const TermsScreen = memo(function TermsScreen() {
                   • No intentar acceder a cuentas de otros usuarios sin autorización.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
-                  • No publicar contenido ofensivo, difamatorio, obsceno o que infrinja derechos de terceros.
+                  • No publicar contenido ofensivo, difamatorio, obsceno o que infrinja derechos de
+                  terceros.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
                   • No manipular calificaciones o reseñas de manera fraudulenta.
@@ -103,10 +118,15 @@ export const TermsScreen = memo(function TermsScreen() {
 
           {/* Cuentas de usuario */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <Shield color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -114,20 +134,29 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Para acceder a ciertas funcionalidades de Rutica, es necesario crear una cuenta proporcionando un correo electrónico válido y una contraseña segura. Usted es responsable de toda la actividad que ocurra bajo su cuenta.
+                Para acceder a ciertas funcionalidades de Rutica, es necesario crear una cuenta
+                proporcionando un correo electrónico válido y una contraseña segura. Usted es
+                responsable de toda la actividad que ocurra bajo su cuenta.
               </Text>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Rutica se reserva el derecho de suspender o eliminar cuentas que violen estos términos, que permanezcan inactivas por un período prolongado, o que se utilicen de forma fraudulenta.
+                Rutica se reserva el derecho de suspender o eliminar cuentas que violen estos
+                términos, que permanezcan inactivas por un período prolongado, o que se utilicen de
+                forma fraudulenta.
               </Text>
             </View>
           </View>
 
           {/* Contenido del usuario */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <Eye color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -135,31 +164,40 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Los usuarios pueden publicar reseñas, calificaciones, imágenes y registrar negocios, eventos y atracciones. Al publicar contenido, usted:
+                Los usuarios pueden publicar reseñas, calificaciones, imágenes y registrar negocios,
+                eventos y atracciones. Al publicar contenido, usted:
               </Text>
               <View style={styles.bulletList}>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
-                  • Otorga a Rutica una licencia no exclusiva para mostrar, distribuir y utilizar dicho contenido dentro de la plataforma.
+                  • Otorga a Rutica una licencia no exclusiva para mostrar, distribuir y utilizar
+                  dicho contenido dentro de la plataforma.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
-                  • Declara que es el propietario del contenido o tiene autorización para publicarlo.
+                  • Declara que es el propietario del contenido o tiene autorización para
+                  publicarlo.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
                   • Acepta que el contenido puede ser revisado y moderado por nuestro equipo.
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Rutica se reserva el derecho de eliminar cualquier contenido que se considere inapropiado, falso o que viole estos términos sin previo aviso.
+                Rutica se reserva el derecho de eliminar cualquier contenido que se considere
+                inapropiado, falso o que viole estos términos sin previo aviso.
               </Text>
             </View>
           </View>
 
           {/* Propiedad intelectual */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <Scale color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -167,20 +205,28 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Todos los derechos de propiedad intelectual de la aplicación Rutica, incluyendo pero no limitado a su diseño, código fuente, logotipos, marcas, gráficos e interfaces, son propiedad exclusiva de Rutica o sus licenciantes.
+                Todos los derechos de propiedad intelectual de la aplicación Rutica, incluyendo pero
+                no limitado a su diseño, código fuente, logotipos, marcas, gráficos e interfaces,
+                son propiedad exclusiva de Rutica o sus licenciantes.
               </Text>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Queda prohibida la reproducción, distribución, modificación o uso comercial de cualquier elemento de la plataforma sin autorización expresa por escrito.
+                Queda prohibida la reproducción, distribución, modificación o uso comercial de
+                cualquier elemento de la plataforma sin autorización expresa por escrito.
               </Text>
             </View>
           </View>
 
           {/* Privacidad */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <Eye color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -188,20 +234,23 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Rutica recopila y procesa datos personales necesarios para el funcionamiento de la plataforma, tales como nombre, correo electrónico y ubicación. Nos comprometemos a:
+                Rutica recopila y procesa datos personales necesarios para el funcionamiento de la
+                plataforma, tales como nombre, correo electrónico y ubicación. Nos comprometemos a:
               </Text>
               <View style={styles.bulletList}>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
                   • No vender ni compartir sus datos personales con terceros para fines comerciales.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
-                  • Utilizar la información de ubicación únicamente para mejorar su experiencia dentro de la app.
+                  • Utilizar la información de ubicación únicamente para mejorar su experiencia
+                  dentro de la app.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
                   • Almacenar sus datos de forma segura utilizando tecnologías de encriptación.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
-                  • Permitirle solicitar la eliminación de su cuenta y datos asociados en cualquier momento.
+                  • Permitirle solicitar la eliminación de su cuenta y datos asociados en cualquier
+                  momento.
                 </Text>
               </View>
             </View>
@@ -209,10 +258,15 @@ export const TermsScreen = memo(function TermsScreen() {
 
           {/* Limitación de responsabilidad */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <AlertTriangle color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -220,7 +274,8 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Rutica actúa como una plataforma de información y descubrimiento. No somos responsables de:
+                Rutica actúa como una plataforma de información y descubrimiento. No somos
+                responsables de:
               </Text>
               <View style={styles.bulletList}>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
@@ -233,21 +288,28 @@ export const TermsScreen = memo(function TermsScreen() {
                   • Daños directos o indirectos derivados del uso de la plataforma.
                 </Text>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
-                  • Interrupciones temporales del servicio por mantenimiento o causas ajenas a nuestro control.
+                  • Interrupciones temporales del servicio por mantenimiento o causas ajenas a
+                  nuestro control.
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                La plataforma se proporciona "tal cual" sin garantías de ningún tipo, ya sean expresas o implícitas.
+                La plataforma se proporciona "tal cual" sin garantías de ningún tipo, ya sean
+                expresas o implícitas.
               </Text>
             </View>
           </View>
 
           {/* Modificaciones */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <FileText color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -255,20 +317,29 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Rutica se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Las modificaciones entrarán en vigor desde su publicación en la aplicación. El uso continuado de la plataforma después de cualquier cambio constituye la aceptación de los nuevos términos.
+                Rutica se reserva el derecho de modificar estos Términos y Condiciones en cualquier
+                momento. Las modificaciones entrarán en vigor desde su publicación en la aplicación.
+                El uso continuado de la plataforma después de cualquier cambio constituye la
+                aceptación de los nuevos términos.
               </Text>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Se notificará a los usuarios sobre cambios significativos a través de la aplicación o por correo electrónico.
+                Se notificará a los usuarios sobre cambios significativos a través de la aplicación
+                o por correo electrónico.
               </Text>
             </View>
           </View>
 
           {/* Legislación aplicable */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <Scale color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -276,17 +347,23 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Estos términos se rigen por las leyes de la República de Costa Rica. Cualquier disputa será sometida a la jurisdicción de los tribunales competentes de Costa Rica.
+                Estos términos se rigen por las leyes de la República de Costa Rica. Cualquier
+                disputa será sometida a la jurisdicción de los tribunales competentes de Costa Rica.
               </Text>
             </View>
           </View>
 
           {/* Contacto */}
           <View style={styles.section}>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: colors.background.primary,
+                  borderColor: colors.border.light,
+                },
+              ]}
+            >
               <View style={styles.sectionHeader}>
                 <Mail color={colors.primary[500]} size={20} />
                 <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
@@ -294,7 +371,8 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
               <Text style={[styles.paragraph, { color: colors.text.secondary }]}>
-                Si tiene preguntas, comentarios o inquietudes sobre estos Términos y Condiciones, puede contactarnos a través de:
+                Si tiene preguntas, comentarios o inquietudes sobre estos Términos y Condiciones,
+                puede contactarnos a través de:
               </Text>
               <View style={styles.bulletList}>
                 <Text style={[styles.bulletItem, { color: colors.text.secondary }]}>
@@ -308,7 +386,10 @@ export const TermsScreen = memo(function TermsScreen() {
                 </Text>
               </View>
 
-              <Pressable style={[styles.contactButton, { borderColor: colors.primary[500] }]} onPress={handleContact}>
+              <Pressable
+                style={[styles.contactButton, { borderColor: colors.primary[500] }]}
+                onPress={handleContact}
+              >
                 <Mail color={colors.primary[500]} size={16} />
                 <Text style={[styles.contactButtonText, { color: colors.primary[500] }]}>
                   Enviar correo

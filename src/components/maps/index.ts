@@ -1,6 +1,6 @@
 /**
  * Componentes de Mapas
- * 
+ *
  * Esta carpeta centraliza todos los componentes relacionados con mapas:
  * - LocationPicker: Selector de ubicación interactivo
  * - MapBackground: Fondo animado con rutas de mapa

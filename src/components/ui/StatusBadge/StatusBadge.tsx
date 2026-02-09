@@ -14,15 +14,10 @@ const STATUS_LABELS: Record<ModerationStatus, string> = {
   rejected: 'Rechazado',
 };
 
-export const StatusBadge = memo(function StatusBadge({
-  status,
-  size = 'md',
-}: StatusBadgeProps) {
+export const StatusBadge = memo(function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
   return (
     <View style={[styles.badge, styles[`badge_${status}`], styles[`size_${size}`]]}>
-      <Text style={[styles.badgeText, styles[`text_${size}`]]}>
-        {STATUS_LABELS[status]}
-      </Text>
+      <Text style={[styles.badgeText, styles[`text_${size}`]]}>{STATUS_LABELS[status]}</Text>
     </View>
   );
 });

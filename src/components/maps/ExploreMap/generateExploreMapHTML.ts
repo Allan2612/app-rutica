@@ -6,50 +6,50 @@ import { MARKER_COLORS, USER_MARKER_COLOR } from '@/features/maps/types';
 import { getThemeColors, getTileUrl, generateMapStyles, generateMapScript } from './mapStyles';
 
 export interface ExploreMapOptions {
-    theme?: 'light' | 'dark';
-    zoom?: number;
-    userLatitude: number;
-    userLongitude: number;
-    markers: MapMarker[];
-    showUserMarker?: boolean;
-    initialSelectedTypes?: MarkerType[];
+  theme?: 'light' | 'dark';
+  zoom?: number;
+  userLatitude: number;
+  userLongitude: number;
+  markers: MapMarker[];
+  showUserMarker?: boolean;
+  initialSelectedTypes?: MarkerType[];
 }
 
 /**
  * Genera el HTML del mapa de exploración con marcadores
  */
 export function generateExploreMapHTML(options: ExploreMapOptions): string {
-    const {
-        theme = 'light',
-        zoom = 13,
-        userLatitude,
-        userLongitude,
-        markers,
-        showUserMarker = true,
-        initialSelectedTypes = ['attraction', 'event', 'business'],
-    } = options;
+  const {
+    theme = 'light',
+    zoom = 13,
+    userLatitude,
+    userLongitude,
+    markers,
+    showUserMarker = true,
+    initialSelectedTypes = ['attraction', 'event', 'business'],
+  } = options;
 
-    const colors = getThemeColors(theme);
-    const tileUrl = getTileUrl(theme);
-    const isDark = theme === 'dark';
+  const colors = getThemeColors(theme);
+  const tileUrl = getTileUrl(theme);
+  const isDark = theme === 'dark';
 
-    const markersJSON = JSON.stringify(markers);
-    const markerColorsJSON = JSON.stringify(MARKER_COLORS);
+  const markersJSON = JSON.stringify(markers);
+  const markerColorsJSON = JSON.stringify(MARKER_COLORS);
 
-    const styles = generateMapStyles(colors, isDark);
-    const script = generateMapScript({
-        markersJSON,
-        markerColorsJSON,
-        userMarkerColor: USER_MARKER_COLOR,
-        userLatitude,
-        userLongitude,
-        zoom,
-        tileUrl,
-        showUserMarker,
-        initialSelectedTypes,
-    });
+  const styles = generateMapStyles(colors, isDark);
+  const script = generateMapScript({
+    markersJSON,
+    markerColorsJSON,
+    userMarkerColor: USER_MARKER_COLOR,
+    userLatitude,
+    userLongitude,
+    zoom,
+    tileUrl,
+    showUserMarker,
+    initialSelectedTypes,
+  });
 
-    return `
+  return `
 <!DOCTYPE html>
 <html>
 <head>

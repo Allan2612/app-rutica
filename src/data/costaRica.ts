@@ -1,11 +1,11 @@
 /**
  * Datos oficiales de Costa Rica - 2026
- * 
+ *
  * Organización territorial según División Territorial Administrativa
  * - 7 Provincias
  * - 84 Cantones
  * - 488 Distritos
- * 
+ *
  * Fuente: Instituto Nacional de Estadística y Censos (INEC)
  * Última actualización: 2026
  */

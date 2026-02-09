@@ -18,11 +18,11 @@ interface BackButtonProps {
 
 /**
  * Botón de retroceso que navega a la ruta anterior
- * 
+ *
  * @example
  * // Navegación automática (usa historial del navegador)
  * <BackButton />
- * 
+ *
  * @example
  * // Navegación personalizada
  * <BackButton href="/(app)/(tabs)/manage/businesses" />
@@ -50,10 +50,8 @@ export const BackButton = memo(function BackButton({
       onPress={handlePress}
       style={({ pressed }) => [
         styles.button,
-        { 
-          backgroundColor: pressed 
-            ? colors.primary[500] 
-            : colors.background.tertiary,
+        {
+          backgroundColor: pressed ? colors.primary[500] : colors.background.tertiary,
         },
       ]}
       hitSlop={8}

@@ -21,8 +21,8 @@ export const PlansStep = memo(function PlansStep({
 
   // Separar planes en paquetes y mensualidades
   const { packages, monthly } = useMemo(() => {
-    const packages = SUBSCRIPTION_PLANS.filter(plan => !plan.isMonthly);
-    const monthly = SUBSCRIPTION_PLANS.filter(plan => plan.isMonthly);
+    const packages = SUBSCRIPTION_PLANS.filter((plan) => !plan.isMonthly);
+    const monthly = SUBSCRIPTION_PLANS.filter((plan) => plan.isMonthly);
     return { packages, monthly };
   }, []);
 
@@ -35,12 +35,8 @@ export const PlansStep = memo(function PlansStep({
       )}
 
       {/* Sección de Paquetes */}
-      <Text style={[styles.categoryTitle, { color: colors.text.primary }]}>
-        Paquetes
-      </Text>
-      <Text style={[styles.categorySubtitle, { color: colors.text.tertiary }]}>
-        Pago único
-      </Text>
+      <Text style={[styles.categoryTitle, { color: colors.text.primary }]}>Paquetes</Text>
+      <Text style={[styles.categorySubtitle, { color: colors.text.tertiary }]}>Pago único</Text>
       {packages.map((plan) => (
         <PlanCard
           key={plan.type}

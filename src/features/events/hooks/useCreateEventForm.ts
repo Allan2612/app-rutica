@@ -6,220 +6,227 @@ import { useCreateEvent } from './useCreateEvent';
 import type { CreateEventData } from '../services/createEvent.service';
 
 interface FormData {
-    name: string;
-    description: string;
-    selectedCategoryIds: string[];
-    coverUri: string | null;
-    galleryUris: string[];
-    country: string | null;      // Nombre del país
-    province: string | null;     // Nombre de la provincia
-    canton: string | null;       // Nombre del cantón
-    district: string | null;     // Nombre del distrito
-    address: string | null;
-    coordinates: { latitude: number; longitude: number } | null;
-    startDate: Date;
-    endDate: Date;
-    isFree: boolean;
-    price: string;
-    capacity: string;
-    phone: string;
-    email: string;
-    website: string;
-    ticketUrl: string;
-    facebook: string;
-    instagram: string;
-    tiktok: string;
-    isActive: boolean;
+  name: string;
+  description: string;
+  selectedCategoryIds: string[];
+  coverUri: string | null;
+  galleryUris: string[];
+  country: string | null; // Nombre del país
+  province: string | null; // Nombre de la provincia
+  canton: string | null; // Nombre del cantón
+  district: string | null; // Nombre del distrito
+  address: string | null;
+  coordinates: { latitude: number; longitude: number } | null;
+  startDate: Date;
+  endDate: Date;
+  isFree: boolean;
+  price: string;
+  capacity: string;
+  phone: string;
+  email: string;
+  website: string;
+  ticketUrl: string;
+  facebook: string;
+  instagram: string;
+  tiktok: string;
+  isActive: boolean;
 }
 
 interface FormErrors {
-    name?: string;
-    categories?: string;
-    location?: string;
-    endDate?: string;
+  name?: string;
+  categories?: string;
+  location?: string;
+  endDate?: string;
 }
 
 const initialFormData: FormData = {
-    name: '',
-    description: '',
-    selectedCategoryIds: [],
-    coverUri: null,
-    galleryUris: [],
-    country: null,
-    province: null,
-    canton: null,
-    district: null,
-    address: null,
-    coordinates: null,
-    startDate: new Date(),
-    endDate: new Date(Date.now() + 86400000), // +1 día
-    isFree: true,
-    price: '',
-    capacity: '',
-    phone: '',
-    email: '',
-    website: '',
-    ticketUrl: '',
-    facebook: '',
-    instagram: '',
-    tiktok: '',
-    isActive: true,
+  name: '',
+  description: '',
+  selectedCategoryIds: [],
+  coverUri: null,
+  galleryUris: [],
+  country: null,
+  province: null,
+  canton: null,
+  district: null,
+  address: null,
+  coordinates: null,
+  startDate: new Date(),
+  endDate: new Date(Date.now() + 86400000), // +1 día
+  isFree: true,
+  price: '',
+  capacity: '',
+  phone: '',
+  email: '',
+  website: '',
+  ticketUrl: '',
+  facebook: '',
+  instagram: '',
+  tiktok: '',
+  isActive: true,
 };
 
 export function useCreateEventForm() {
-    const router = useRouter();
-    const { data: categories = [], isLoading: loadingCategories } = useCategories();
-    const createMutation = useCreateEvent();
+  const router = useRouter();
+  const { data: categories = [], isLoading: loadingCategories } = useCategories();
+  const createMutation = useCreateEvent();
 
-    const [formData, setFormData] = useState<FormData>(initialFormData);
-    const [errors, setErrors] = useState<FormErrors>({});
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [errors, setErrors] = useState<FormErrors>({});
 
-    const hasChanges = useMemo(() => {
-        return JSON.stringify(formData) !== JSON.stringify(initialFormData);
-    }, [formData]);
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(formData) !== JSON.stringify(initialFormData);
+  }, [formData]);
 
-    const updateField = useCallback(<K extends keyof FormData>(field: K, value: FormData[K]) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-        if (field === 'isFree' && value === true) {
-            setFormData((prev) => ({ ...prev, price: '' }));
-        }
-        if (errors[field as keyof FormErrors]) {
-            setErrors((prev) => ({ ...prev, [field]: undefined }));
-        }
-    }, [errors]);
+  const updateField = useCallback(
+    <K extends keyof FormData>(field: K, value: FormData[K]) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      if (field === 'isFree' && value === true) {
+        setFormData((prev) => ({ ...prev, price: '' }));
+      }
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    },
+    [errors],
+  );
 
-    const handleLocationSelect = useCallback((location: any) => {
-        // Validar que la ubicación tenga país y sea Costa Rica
-        const country = location.country?.toLowerCase() || '';
-        const isCostaRica = country.includes('costa rica') || country === 'cr';
-        
-        if (!isCostaRica && location.country) {
-            // Si tiene país pero no es Costa Rica, rechazar
-            Toast.show({
-                type: 'error',
-                text1: 'Ubicación no válida',
-                text2: `La ubicación está en ${location.country}, debe estar en Costa Rica`,
-                position: 'top',
-                visibilityTime: 4000,
-            });
-            return;
-        }
-        
-        setFormData((prev) => ({
-            ...prev,
-            country: location.country || 'Costa Rica',
-            province: location.province || null,
-            canton: location.canton || null,
-            district: location.district || null,
-            address: location.address || null,
-            coordinates:
-                location.latitude && location.longitude
-                    ? { latitude: location.latitude, longitude: location.longitude }
-                    : null,
-        }));
-        if (errors.location) {
-            setErrors((prev) => ({ ...prev, location: undefined }));
-        }
-    }, [errors.location]);
+  const handleLocationSelect = useCallback(
+    (location: any) => {
+      // Validar que la ubicación tenga país y sea Costa Rica
+      const country = location.country?.toLowerCase() || '';
+      const isCostaRica = country.includes('costa rica') || country === 'cr';
 
-    const validate = (): boolean => {
-        const newErrors: FormErrors = {};
+      if (!isCostaRica && location.country) {
+        // Si tiene país pero no es Costa Rica, rechazar
+        Toast.show({
+          type: 'error',
+          text1: 'Ubicación no válida',
+          text2: `La ubicación está en ${location.country}, debe estar en Costa Rica`,
+          position: 'top',
+          visibilityTime: 4000,
+        });
+        return;
+      }
 
-        if (!formData.name.trim()) {
-            newErrors.name = 'El nombre es obligatorio';
-        }
+      setFormData((prev) => ({
+        ...prev,
+        country: location.country || 'Costa Rica',
+        province: location.province || null,
+        canton: location.canton || null,
+        district: location.district || null,
+        address: location.address || null,
+        coordinates:
+          location.latitude && location.longitude
+            ? { latitude: location.latitude, longitude: location.longitude }
+            : null,
+      }));
+      if (errors.location) {
+        setErrors((prev) => ({ ...prev, location: undefined }));
+      }
+    },
+    [errors.location],
+  );
 
-        if (formData.selectedCategoryIds.length === 0) {
-            newErrors.categories = 'Selecciona al menos una categoría';
-        }
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
 
-        if (!formData.coordinates) {
-            newErrors.location = 'Selecciona una ubicación en el mapa';
-        } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
-            newErrors.location = 'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
-        }
+    if (!formData.name.trim()) {
+      newErrors.name = 'El nombre es obligatorio';
+    }
 
-        if (formData.startDate >= formData.endDate) {
-            newErrors.endDate = 'La fecha de fin debe ser posterior a la de inicio';
-        }
+    if (formData.selectedCategoryIds.length === 0) {
+      newErrors.categories = 'Selecciona al menos una categoría';
+    }
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    if (!formData.coordinates) {
+      newErrors.location = 'Selecciona una ubicación en el mapa';
+    } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
+      newErrors.location =
+        'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
+    }
 
-    const handleSubmit = useCallback(async () => {
-        if (!validate()) {
-            Toast.show({
-                type: 'error',
-                text1: 'Campos incompletos',
-                text2: 'Por favor completa todos los campos obligatorios',
-                position: 'top',
-                visibilityTime: 3000,
-            });
-            return;
-        }
+    if (formData.startDate >= formData.endDate) {
+      newErrors.endDate = 'La fecha de fin debe ser posterior a la de inicio';
+    }
 
-        try {
-            const data: CreateEventData = {
-                name: formData.name.trim(),
-                description: formData.description.trim() || undefined,
-                categoryIds: formData.selectedCategoryIds,
-                startDate: formData.startDate,
-                endDate: formData.endDate,
-                isFree: formData.isFree,
-                price: !formData.isFree && formData.price ? parseFloat(formData.price) : undefined,
-                currency: !formData.isFree && formData.price ? 'CRC' : undefined,
-                capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
-                country: formData.country!,
-                province: formData.province!,
-                canton: formData.canton!,
-                district: formData.district!,
-                address: formData.address?.trim() ?? undefined,
-                latitude: formData.coordinates!.latitude,
-                longitude: formData.coordinates!.longitude,
-                phone: formData.phone.trim() || undefined,
-                email: formData.email.trim() || undefined,
-                website: formData.website.trim() || undefined,
-                ticketUrl: formData.ticketUrl.trim() || undefined,
-                facebook: formData.facebook.trim() || undefined,
-                instagram: formData.instagram.trim() || undefined,
-                tiktok: formData.tiktok.trim() || undefined,
-                coverUri: formData.coverUri,
-                galleryUris: formData.galleryUris,
-            };
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-            await createMutation.mutateAsync(data);
-            Toast.show({
-                type: 'success',
-                text1: '¡Evento creado!',
-                text2: 'Tu evento ha sido creado exitosamente',
-                position: 'top',
-                visibilityTime: 2000,
-            });
+  const handleSubmit = useCallback(async () => {
+    if (!validate()) {
+      Toast.show({
+        type: 'error',
+        text1: 'Campos incompletos',
+        text2: 'Por favor completa todos los campos obligatorios',
+        position: 'top',
+        visibilityTime: 3000,
+      });
+      return;
+    }
 
-            setTimeout(() => {
-                router.replace('/(app)/(tabs)/manage/events');
-            }, 500);
-        } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error al crear el evento',
-                text2: 'Por favor intenta de nuevo o contacta soporte',
-                position: 'top',
-                visibilityTime: 4000,
-            });
-        }
-    }, [formData, createMutation, router]);
+    try {
+      const data: CreateEventData = {
+        name: formData.name.trim(),
+        description: formData.description.trim() || undefined,
+        categoryIds: formData.selectedCategoryIds,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        isFree: formData.isFree,
+        price: !formData.isFree && formData.price ? parseFloat(formData.price) : undefined,
+        currency: !formData.isFree && formData.price ? 'CRC' : undefined,
+        capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
+        country: formData.country!,
+        province: formData.province!,
+        canton: formData.canton!,
+        district: formData.district!,
+        address: formData.address?.trim() ?? undefined,
+        latitude: formData.coordinates!.latitude,
+        longitude: formData.coordinates!.longitude,
+        phone: formData.phone.trim() || undefined,
+        email: formData.email.trim() || undefined,
+        website: formData.website.trim() || undefined,
+        ticketUrl: formData.ticketUrl.trim() || undefined,
+        facebook: formData.facebook.trim() || undefined,
+        instagram: formData.instagram.trim() || undefined,
+        tiktok: formData.tiktok.trim() || undefined,
+        coverUri: formData.coverUri,
+        galleryUris: formData.galleryUris,
+      };
 
-    return {
-        categories,
-        loadingCategories,
-        formData,
-        errors,
-        updateField,
-        handleSubmit,
-        handleLocationSelect,
-        isSubmitting: createMutation.isPending,
-        hasChanges,
-    };
+      await createMutation.mutateAsync(data);
+      Toast.show({
+        type: 'success',
+        text1: '¡Evento creado!',
+        text2: 'Tu evento ha sido creado exitosamente',
+        position: 'top',
+        visibilityTime: 2000,
+      });
+
+      setTimeout(() => {
+        router.replace('/(app)/(tabs)/manage/events');
+      }, 500);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error al crear el evento',
+        text2: 'Por favor intenta de nuevo o contacta soporte',
+        position: 'top',
+        visibilityTime: 4000,
+      });
+    }
+  }, [formData, createMutation, router]);
+
+  return {
+    categories,
+    loadingCategories,
+    formData,
+    errors,
+    updateField,
+    handleSubmit,
+    handleLocationSelect,
+    isSubmitting: createMutation.isPending,
+    hasChanges,
+  };
 }

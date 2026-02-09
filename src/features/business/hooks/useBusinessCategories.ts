@@ -5,5 +5,5 @@
 import { useCategories } from '@/hooks/useCategories';
 
 export function useBusinessCategories() {
-    return useCategories();
+  return useCategories();
 }

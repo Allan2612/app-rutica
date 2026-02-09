@@ -175,26 +175,35 @@ export interface ProductsStats {
 /**
  * Extrae la URL de la imagen principal de las imágenes
  */
-export function getProductMainImageUrl(images: ProductImage[] | undefined, baseUrl: string): string | null {
-  const main = images?.find(img => img.path_pim.includes('/main-'));
+export function getProductMainImageUrl(
+  images: ProductImage[] | undefined,
+  baseUrl: string,
+): string | null {
+  const main = images?.find((img) => img.path_pim.includes('/main-'));
   return main ? `${baseUrl}/${main.path_pim}` : null;
 }
 
 /**
  * Extrae las URLs de imágenes secundarias ordenadas
  */
-export function getProductSecondaryImageUrls(images: ProductImage[] | undefined, baseUrl: string): string[] {
+export function getProductSecondaryImageUrls(
+  images: ProductImage[] | undefined,
+  baseUrl: string,
+): string[] {
   if (!images) return [];
   return images
-    .filter(img => img.path_pim.includes('/secondary-'))
+    .filter((img) => img.path_pim.includes('/secondary-'))
     .sort((a, b) => (a.sort_order_pim ?? 0) - (b.sort_order_pim ?? 0))
-    .map(img => `${baseUrl}/${img.path_pim}`);
+    .map((img) => `${baseUrl}/${img.path_pim}`);
 }
 
 /**
  * Extrae todas las URLs de imágenes ordenadas (main primero, luego secondary)
  */
-export function getAllProductImageUrls(images: ProductImage[] | undefined, baseUrl: string): string[] {
+export function getAllProductImageUrls(
+  images: ProductImage[] | undefined,
+  baseUrl: string,
+): string[] {
   const mainUrl = getProductMainImageUrl(images, baseUrl);
   const secondaryUrls = getProductSecondaryImageUrls(images, baseUrl);
   return mainUrl ? [mainUrl, ...secondaryUrls] : secondaryUrls;

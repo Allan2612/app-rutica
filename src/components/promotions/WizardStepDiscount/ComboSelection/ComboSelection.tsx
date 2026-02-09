@@ -15,7 +15,7 @@ interface Product {
 interface ComboItem {
   productId: string;
   quantity: number;
-  paidQuantity?: number;  // Cuántas unidades paga (para 2x1, 3x2, etc.)
+  paidQuantity?: number; // Cuántas unidades paga (para 2x1, 3x2, etc.)
 }
 
 interface ComboSelectionProps {
@@ -32,10 +32,10 @@ interface ComboSelectionProps {
  */
 function generateComboLabel(comboItems: ComboItem[]): string {
   if (comboItems.length === 0) return '';
-  
+
   const totalQuantity = comboItems.reduce((sum, item) => sum + item.quantity, 0);
   const uniqueProducts = comboItems.length;
-  
+
   // Si es un solo producto con descuento de cantidad
   if (uniqueProducts === 1 && totalQuantity >= 2) {
     const item = comboItems[0];
@@ -44,12 +44,12 @@ function generateComboLabel(comboItems: ComboItem[]): string {
     }
     return `Combo ${totalQuantity} unidades`;
   }
-  
+
   // Si hay múltiples productos
   if (uniqueProducts >= 2) {
     return `Combo: ${totalQuantity} unidades`;
   }
-  
+
   return `${totalQuantity} unidades`;
 }
 
@@ -70,7 +70,7 @@ export const ComboSelection = memo(function ComboSelection({
   // Calculate total value of combo (lo que el cliente PAGA)
   const comboTotalValue = useMemo(() => {
     return comboItems.reduce((total, item) => {
-      const product = products.find(p => p.id === item.productId);
+      const product = products.find((p) => p.id === item.productId);
       const quantityToPay = item.paidQuantity ?? item.quantity;
       return total + (product?.price ?? 0) * quantityToPay;
     }, 0);
@@ -90,9 +90,7 @@ export const ComboSelection = memo(function ComboSelection({
     const isInCombo = quantity > 0;
 
     // Use theme-aware background colors
-    const selectedBgColor = colors.isDark 
-      ? `${colors.primary[500]}20`
-      : `${colors.primary[500]}15`;
+    const selectedBgColor = colors.isDark ? `${colors.primary[500]}20` : `${colors.primary[500]}15`;
 
     return (
       <View
@@ -100,32 +98,28 @@ export const ComboSelection = memo(function ComboSelection({
         style={[
           styles.productCard,
           {
-            backgroundColor: isInCombo
-              ? selectedBgColor
-              : colors.background.secondary,
+            backgroundColor: isInCombo ? selectedBgColor : colors.background.secondary,
             borderColor: isInCombo ? colors.primary[500] : colors.border.medium,
           },
         ]}
       >
         <View style={styles.productInfo}>
           <View style={styles.productNameRow}>
-            
-            <Text
-              style={[styles.productName, { color: colors.text.primary }]}
-              numberOfLines={1}
-            >
+            <Text style={[styles.productName, { color: colors.text.primary }]} numberOfLines={1}>
               {product.name}
             </Text>
             {isInCombo && (
               <View style={[styles.quantityBadge, { backgroundColor: colors.primary[500] }]}>
                 <Text style={styles.quantityBadgeText}>
-                  {paidQuantity && paidQuantity < quantity ? `${quantity}x${paidQuantity}` : `x${quantity}`}
+                  {paidQuantity && paidQuantity < quantity
+                    ? `${quantity}x${paidQuantity}`
+                    : `x${quantity}`}
                 </Text>
               </View>
             )}
           </View>
           {product.price && (
-            <Text 
+            <Text
               style={[styles.productPrice, { color: colors.text.secondary }]}
               numberOfLines={1}
               adjustsFontSizeToFit
@@ -134,7 +128,7 @@ export const ComboSelection = memo(function ComboSelection({
             </Text>
           )}
         </View>
-        
+
         {/* Controles de cantidad */}
         <View style={styles.quantitySection}>
           {/* Lleva */}
@@ -150,9 +144,9 @@ export const ComboSelection = memo(function ComboSelection({
                 }}
                 disabled={quantity === 0}
               >
-                <Minus 
-                  size={18} 
-                  color={quantity > 0 ? colors.primary[500] : colors.text.tertiary} 
+                <Minus
+                  size={18}
+                  color={quantity > 0 ? colors.primary[500] : colors.text.tertiary}
                   strokeWidth={2.5}
                 />
               </Pressable>
@@ -165,15 +159,11 @@ export const ComboSelection = memo(function ComboSelection({
                 style={styles.pillButton}
                 onPress={() => onUpdateComboItem(product.id, quantity + 1, paidQuantity)}
               >
-                <Plus 
-                  size={18} 
-                  color={colors.primary[500]} 
-                  strokeWidth={2.5}
-                />
+                <Plus size={18} color={colors.primary[500]} strokeWidth={2.5} />
               </Pressable>
             </View>
           </View>
-          
+
           {/* Paga (solo si quantity > 1) */}
           {quantity > 1 && (
             <View style={styles.quantityRowCentered}>
@@ -188,8 +178,8 @@ export const ComboSelection = memo(function ComboSelection({
                   }}
                   disabled={(paidQuantity ?? quantity) <= 1}
                 >
-                  <Minus 
-                    size={18} 
+                  <Minus
+                    size={18}
                     color={(paidQuantity ?? quantity) > 1 ? colors.success : colors.text.tertiary}
                     strokeWidth={2.5}
                   />
@@ -204,13 +194,19 @@ export const ComboSelection = memo(function ComboSelection({
                   onPress={() => {
                     const currentPaid = paidQuantity ?? quantity;
                     const newPaid = Math.min(quantity, currentPaid + 1);
-                    onUpdateComboItem(product.id, quantity, newPaid === quantity ? undefined : newPaid);
+                    onUpdateComboItem(
+                      product.id,
+                      quantity,
+                      newPaid === quantity ? undefined : newPaid,
+                    );
                   }}
                   disabled={(paidQuantity ?? quantity) >= quantity}
                 >
-                  <Plus 
-                    size={18} 
-                    color={(paidQuantity ?? quantity) < quantity ? colors.success : colors.text.tertiary}
+                  <Plus
+                    size={18}
+                    color={
+                      (paidQuantity ?? quantity) < quantity ? colors.success : colors.text.tertiary
+                    }
                     strokeWidth={2.5}
                   />
                 </Pressable>
@@ -230,9 +226,7 @@ export const ComboSelection = memo(function ComboSelection({
           <Package size={18} color="#FFFFFF" />
           <Text style={styles.comboPreviewLabel}>{comboLabel}</Text>
           {comboTotalValue > 0 && (
-            <Text style={styles.comboPreviewValue}>
-              Valor: ₡{comboTotalValue.toLocaleString()}
-            </Text>
+            <Text style={styles.comboPreviewValue}>Valor: ₡{comboTotalValue.toLocaleString()}</Text>
           )}
         </View>
       )}
@@ -303,17 +297,12 @@ export const ComboSelection = memo(function ComboSelection({
       {error && (
         <View style={styles.errorContainer}>
           <AlertCircle size={14} color={colors.error} />
-          <Text style={[styles.errorText, { color: colors.error }]}>
-            {error}
-          </Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
         </View>
       )}
 
       {/* Help Modal */}
-      <ComboHelpModal
-        visible={isHelpModalVisible}
-        onClose={() => setIsHelpModalVisible(false)}
-      />
+      <ComboHelpModal visible={isHelpModalVisible} onClose={() => setIsHelpModalVisible(false)} />
     </View>
   );
 });

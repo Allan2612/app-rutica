@@ -23,8 +23,8 @@ export const PromoCard = memo(function PromoCard({
   return (
     <Pressable style={styles.card} onPress={onPress} disabled={!onPress}>
       {imageUrl ? (
-        <Image 
-          source={{ uri: imageUrl }} 
+        <Image
+          source={{ uri: imageUrl }}
           style={styles.image}
           contentFit="cover"
           transition={300}

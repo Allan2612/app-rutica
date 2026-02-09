@@ -6,7 +6,7 @@ import { useLocationStore } from '@/store';
  * Útil para screens que usan SearchFilterModal
  */
 export function useFiltersWithLocation<T extends { searchText?: string; categoryIds?: string[] }>(
-  localFilters: T
+  localFilters: T,
 ) {
   const { location } = useLocationStore();
 
@@ -17,6 +17,6 @@ export function useFiltersWithLocation<T extends { searchText?: string; category
       canton: location?.canton || undefined,
       district: location?.district || undefined,
     }),
-    [localFilters, location?.province, location?.canton, location?.district]
+    [localFilters, location?.province, location?.canton, location?.district],
   );
 }

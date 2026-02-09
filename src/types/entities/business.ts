@@ -180,28 +180,37 @@ export interface BusinessFormData {
 /**
  * Extrae la URL del logo de las imágenes
  */
-export function getBusinessLogoUrl(images: BusinessImage[] | undefined, baseUrl: string): string | null {
-  const logo = images?.find(img => img.path_bim.includes('/logo-'));
+export function getBusinessLogoUrl(
+  images: BusinessImage[] | undefined,
+  baseUrl: string,
+): string | null {
+  const logo = images?.find((img) => img.path_bim.includes('/logo-'));
   return logo ? `${baseUrl}/${logo.path_bim}` : null;
 }
 
 /**
  * Extrae la URL del cover de las imágenes
  */
-export function getBusinessCoverUrl(images: BusinessImage[] | undefined, baseUrl: string): string | null {
-  const cover = images?.find(img => img.path_bim.includes('/cover-'));
+export function getBusinessCoverUrl(
+  images: BusinessImage[] | undefined,
+  baseUrl: string,
+): string | null {
+  const cover = images?.find((img) => img.path_bim.includes('/cover-'));
   return cover ? `${baseUrl}/${cover.path_bim}` : null;
 }
 
 /**
  * Extrae las URLs de galería ordenadas
  */
-export function getBusinessGalleryUrls(images: BusinessImage[] | undefined, baseUrl: string): string[] {
+export function getBusinessGalleryUrls(
+  images: BusinessImage[] | undefined,
+  baseUrl: string,
+): string[] {
   if (!images) return [];
   return images
-    .filter(img => img.path_bim.includes('/gallery-'))
+    .filter((img) => img.path_bim.includes('/gallery-'))
     .sort((a, b) => (a.sort_order_bim ?? 0) - (b.sort_order_bim ?? 0))
-    .map(img => `${baseUrl}/${img.path_bim}`);
+    .map((img) => `${baseUrl}/${img.path_bim}`);
 }
 
 /**

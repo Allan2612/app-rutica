@@ -40,15 +40,15 @@ type LocationStore = {
 
 /**
  * Store global de ubicación usando Zustand
- * 
+ *
  * @example
  * ```tsx
  * import { useLocationStore } from '@/store';
- * 
+ *
  * function MyComponent() {
  *   const { location, hasLocation } = useLocationStore();
  *   const { setLocation, clearLocation } = useLocationStore();
- *   
+ *
  *   // Establecer ubicación completa
  *   setLocation({
  *     province: 'San José',
@@ -56,15 +56,15 @@ type LocationStore = {
  *     district: 'Pejibaye',
  *     coordinates: { latitude: 9.5, longitude: -83.7 }
  *   });
- *   
+ *
  *   // Actualizar parcialmente
  *   updatePartialLocation({ province: 'Cartago' });
- *   
+ *
  *   // Verificar si hay ubicación
  *   if (hasLocation) {
  *     // Usar location?.province
  *   }
- *   
+ *
  *   // Limpiar ubicación
  *   clearLocation();
  * }
@@ -78,18 +78,13 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
   get hasLocation() {
     const { location } = get();
     return Boolean(
-      location?.province ||
-        location?.canton ||
-        location?.district ||
-        location?.coordinates
+      location?.province || location?.canton || location?.district || location?.coordinates,
     );
   },
 
   get hasCoordinates() {
     const { location } = get();
-    return Boolean(
-      location?.coordinates?.latitude && location?.coordinates?.longitude
-    );
+    return Boolean(location?.coordinates?.latitude && location?.coordinates?.longitude);
   },
 
   get hasAdministrativeLocation() {

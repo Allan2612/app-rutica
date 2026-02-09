@@ -18,7 +18,7 @@ const ExpoAsyncStorageAdapter = {
     try {
       const value = await AsyncStorage.getItem(key);
       if (!value) return null;
-      
+
       // Si la data está comprimida (empieza con 'z|'), descomprimirla
       if (value.startsWith('z|')) {
         const base64Data = value.substring(2);
@@ -30,7 +30,7 @@ const ExpoAsyncStorageAdapter = {
         const decompressed = new TextDecoder().decode(bytes);
         return decompressed;
       }
-      
+
       return value;
     } catch (error) {
       return null;
@@ -43,7 +43,7 @@ const ExpoAsyncStorageAdapter = {
       window.localStorage.setItem(key, value);
       return;
     }
-    
+
     try {
       // Si el valor es muy grande, no lo guardamos para evitar problemas
       if (value.length > MAX_SECURE_STORE_SIZE * 2) {
@@ -61,7 +61,7 @@ const ExpoAsyncStorageAdapter = {
           return;
         }
       }
-      
+
       await AsyncStorage.setItem(key, value);
     } catch (error: any) {
       // Si AsyncStorage falla por tamaño, intentar con localStorage en web
@@ -94,7 +94,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   },
   global: {
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
   },
 });

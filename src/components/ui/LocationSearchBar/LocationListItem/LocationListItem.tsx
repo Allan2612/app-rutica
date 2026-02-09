@@ -21,12 +21,15 @@ export const LocationListItem = memo(function LocationListItem({
 }: LocationListItemProps) {
   const colors = useThemedColors();
   const showChevron = level !== 'district';
-  
+
   const itemStyle = [
     styles.listItem,
     { borderBottomColor: colors.border.light },
     level === 'canton' && [styles.listItemNested, { backgroundColor: colors.background.secondary }],
-    level === 'district' && [styles.listItemNestedDeep, { backgroundColor: colors.background.tertiary }],
+    level === 'district' && [
+      styles.listItemNestedDeep,
+      { backgroundColor: colors.background.tertiary },
+    ],
     isSelected && { backgroundColor: colors.isDark ? colors.primary[900] : colors.primary[50] },
   ];
 
@@ -35,9 +38,9 @@ export const LocationListItem = memo(function LocationListItem({
     { color: colors.text.primary },
     level === 'canton' && styles.listItemTextNested,
     level === 'district' && [styles.listItemTextNestedDeep, { color: colors.text.secondary }],
-    isSelected && { 
+    isSelected && {
       color: colors.isDark ? colors.primary[400] : colors.primary[700],
-      fontWeight: '600' as const
+      fontWeight: '600' as const,
     },
   ];
 

@@ -14,15 +14,33 @@ export function usePremiumDashboardData() {
   const [reviewPeriod, setReviewPeriod] = useState<PeriodType>(30);
   const [reviewType, setReviewType] = useState<ReviewType>('all');
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
-  const [selectedFavoritesBusinessId, setSelectedFavoritesBusinessId] = useState<string | null>(null);
+  const [selectedFavoritesBusinessId, setSelectedFavoritesBusinessId] = useState<string | null>(
+    null,
+  );
   const [selectedReviewBusinessId, setSelectedReviewBusinessId] = useState<string | null>(null);
   const [visibleContactTypes, setVisibleContactTypes] = useState<Set<ContactType>>(new Set());
 
   // Queries
-  const { data: stats, isLoading, refetch: refetchStats } = usePremiumDashboardStats(selectedFavoritesBusinessId, favoritesPeriod);
-  const { data: businessOptions, isLoading: isLoadingBusinessOptions, refetch: refetchBusinessOptions } = useUserBusinessOptions();
-  const { data: contactStats, isLoading: isLoadingContacts, refetch: refetchContacts } = useContactClicksStats(contactPeriod, selectedBusinessId);
-  const { data: reviewStats, isLoading: isLoadingReviews, refetch: refetchReviews } = useReviewDashboardStats(selectedReviewBusinessId, reviewPeriod);
+  const {
+    data: stats,
+    isLoading,
+    refetch: refetchStats,
+  } = usePremiumDashboardStats(selectedFavoritesBusinessId, favoritesPeriod);
+  const {
+    data: businessOptions,
+    isLoading: isLoadingBusinessOptions,
+    refetch: refetchBusinessOptions,
+  } = useUserBusinessOptions();
+  const {
+    data: contactStats,
+    isLoading: isLoadingContacts,
+    refetch: refetchContacts,
+  } = useContactClicksStats(contactPeriod, selectedBusinessId);
+  const {
+    data: reviewStats,
+    isLoading: isLoadingReviews,
+    refetch: refetchReviews,
+  } = useReviewDashboardStats(selectedReviewBusinessId, reviewPeriod);
 
   const isLoadingAll = isLoading || isLoadingContacts || isLoadingReviews;
 
@@ -39,7 +57,7 @@ export function usePremiumDashboardData() {
   // Inicializar todos los tipos de contacto como visibles
   useEffect(() => {
     if (contactStats?.clicksByType && visibleContactTypes.size === 0) {
-      const allTypes = new Set(contactStats.clicksByType.map(item => item.contactType));
+      const allTypes = new Set(contactStats.clicksByType.map((item) => item.contactType));
       setVisibleContactTypes(allTypes);
     }
   }, [contactStats?.clicksByType]);
@@ -49,7 +67,7 @@ export function usePremiumDashboardData() {
   const { contactBarData, contactLineData, contactPieData } = useContactsChartData(
     contactStats,
     visibleContactTypes,
-    contactPeriod
+    contactPeriod,
   );
   const { reviewPieData } = useReviewsChartData(reviewStats);
 

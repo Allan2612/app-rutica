@@ -114,10 +114,7 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
 
           {/* Descripción */}
           {description && (
-            <Text
-              style={[styles.description, { color: colors.text.secondary }]}
-              numberOfLines={2}
-            >
+            <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={2}>
               {description}
             </Text>
           )}
@@ -141,9 +138,7 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
           {/* Date */}
           <View style={styles.metaRow}>
             <CalendarDays color={colors.text.tertiary} size={12} strokeWidth={2} />
-            <Text style={[styles.metaText, { color: colors.text.tertiary }]}>
-              {formattedDate}
-            </Text>
+            <Text style={[styles.metaText, { color: colors.text.tertiary }]}>{formattedDate}</Text>
           </View>
         </View>
       </View>

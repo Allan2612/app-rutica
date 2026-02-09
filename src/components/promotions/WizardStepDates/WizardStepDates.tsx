@@ -1,8 +1,5 @@
 import { memo } from 'react';
-import {
-  View,
-  Text,
-} from 'react-native';
+import { View, Text } from 'react-native';
 import { AlertCircle } from 'lucide-react-native';
 import { useThemedColors, useCategories } from '@/hooks';
 import { SimpleDateTimeInput } from '@/components/ui';
@@ -16,7 +13,7 @@ interface WizardStepDatesProps {
   errors: PromotionWizardErrors;
   onFieldChange: <K extends keyof PromotionWizardFormData>(
     field: K,
-    value: PromotionWizardFormData[K]
+    value: PromotionWizardFormData[K],
   ) => void;
   onToggleCategory: (categoryId: string) => void;
 }
@@ -56,7 +53,7 @@ export const WizardStepDates = memo(function WizardStepDates({
           <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
             Fecha de inicio <Text style={formSectionStyles.required}>*</Text>
           </Text>
-          
+
           <SimpleDateTimeInput
             date={formData.startDate}
             onDateChange={handleStartDateChange}
@@ -65,9 +62,7 @@ export const WizardStepDates = memo(function WizardStepDates({
           />
 
           {errors.startDate && (
-            <Text style={[styles.fieldError, { color: colors.error }]}>
-              {errors.startDate}
-            </Text>
+            <Text style={[styles.fieldError, { color: colors.error }]}>{errors.startDate}</Text>
           )}
         </View>
 
@@ -75,7 +70,7 @@ export const WizardStepDates = memo(function WizardStepDates({
           <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
             Fecha de fin <Text style={formSectionStyles.required}>*</Text>
           </Text>
-          
+
           <SimpleDateTimeInput
             date={formData.endDate}
             onDateChange={handleEndDateChange}
@@ -90,14 +85,12 @@ export const WizardStepDates = memo(function WizardStepDates({
 
           {/* Duration info */}
           {formData.startDate && formData.endDate && (
-            <View
-              style={[styles.durationBadge, { backgroundColor: colors.background.tertiary }]}
-            >
+            <View style={[styles.durationBadge, { backgroundColor: colors.background.tertiary }]}>
               <Text style={[styles.durationText, { color: colors.text.secondary }]}>
                 Duración:{' '}
                 {Math.ceil(
                   (formData.endDate.getTime() - formData.startDate.getTime()) /
-                    (1000 * 60 * 60 * 24)
+                    (1000 * 60 * 60 * 24),
                 )}{' '}
                 días
               </Text>
@@ -123,7 +116,3 @@ export const WizardStepDates = memo(function WizardStepDates({
     </View>
   );
 });
-
-
-
-

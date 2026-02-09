@@ -3,15 +3,15 @@ import { getUserAttractions } from '../services';
 import { useAuthStore } from '@/store';
 
 export function useUserAttractions() {
-    const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
 
-    return useQuery({
-        queryKey: ['user-attractions', user?.id],
-        queryFn: async () => {
-            if (!user) throw new Error('User not authenticated');
-            return await getUserAttractions(user.id);
-        },
-        enabled: !!user,
-        // staleTime: 0 (usa configuración global para siempre refetch en foco)
-    });
+  return useQuery({
+    queryKey: ['user-attractions', user?.id],
+    queryFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      return await getUserAttractions(user.id);
+    },
+    enabled: !!user,
+    // staleTime: 0 (usa configuración global para siempre refetch en foco)
+  });
 }

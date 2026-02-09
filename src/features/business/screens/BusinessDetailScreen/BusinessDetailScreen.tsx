@@ -5,172 +5,172 @@ import { ArrowLeft, Store } from 'lucide-react-native';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useBusinessDetail } from '@/features/business/hooks/useBusinessDetail';
 import {
-    BusinessHeader,
-    BusinessGallery,
-    BusinessProducts,
-    ContactSection,
-    CoverImage,
-    ImageViewerModal,
-    BusinessMap,
-    ReviewsSection,
-    BusinessPromotionsCarousel,
+  BusinessHeader,
+  BusinessGallery,
+  BusinessProducts,
+  ContactSection,
+  CoverImage,
+  ImageViewerModal,
+  BusinessMap,
+  ReviewsSection,
+  BusinessPromotionsCarousel,
 } from '@/components/business';
 import { styles } from './styles';
 
 export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
-    const colors = useThemedColors();
-    const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const colors = useThemedColors();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
 
-    const { data: business, isLoading, error, refetch } = useBusinessDetail(id);
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { data: business, isLoading, error, refetch } = useBusinessDetail(id);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-    // Refrescar datos cuando la pantalla recibe foco
-    useRefreshOnFocus(refetch);
+  // Refrescar datos cuando la pantalla recibe foco
+  useRefreshOnFocus(refetch);
 
-    const handleOpenLink = (url: string) => {
-        if (url) {
-            Linking.openURL(url).catch(err => { });
-        }
-    };
-
-    const handleClose = () => {
-        // Si viene del mapa, regresar al mapa
-        if (from === 'maps') {
-            router.replace('/(app)/(tabs)/maps');
-            return;
-        }
-        // Intentar regresar normalmente
-        if (router.canGoBack()) {
-            router.back();
-        } else {
-            router.replace('/(app)/(tabs)/businesses');
-        }
-    };
-
-    if (isLoading) {
-        return (
-            <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
-                <View style={styles.loader}>
-                    <ActivityIndicator size="large" color={colors.primary[500]} />
-                </View>
-            </View>
-        );
+  const handleOpenLink = (url: string) => {
+    if (url) {
+      Linking.openURL(url).catch((err) => {});
     }
+  };
 
-    if (error || !business) {
-        return (
-            <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
-                <View style={styles.errorContainer}>
-                    <Store size={48} color={colors.text.tertiary} />
-                    <Text style={[styles.errorText, { color: colors.text.secondary }]}>
-                        No se pudo cargar la información del negocio
-                    </Text>
-                </View>
-            </View>
-        );
+  const handleClose = () => {
+    // Si viene del mapa, regresar al mapa
+    if (from === 'maps') {
+      router.replace('/(app)/(tabs)/maps');
+      return;
     }
+    // Intentar regresar normalmente
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(app)/(tabs)/businesses');
+    }
+  };
 
+  if (isLoading) {
     return (
-        <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* Cover Image with Logo */}
-                <CoverImage
-                    coverImage={business.coverImageUrl}
-                    logoImage={business.logoUrl}
-                    rating={business.rating}
-                    reviewCount={business.reviewCount}
-                    onCoverPress={setSelectedImage}
-                    onLogoPress={setSelectedImage}
-                />
-
-                {/* Back Button */}
-                <Pressable
-                    style={({ pressed }) => ({
-                        position: 'absolute',
-                        top: 16,
-                        left: 16,
-                        width: 40,
-                        height: 40,
-                        borderRadius: 20,
-                        backgroundColor: colors.background.primary,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        opacity: pressed ? 0.7 : 1,
-                    })}
-                    onPress={handleClose}
-                >
-                    <ArrowLeft size={24} color={colors.text.primary} />
-                </Pressable>
-
-                {/* Main Content */}
-                <View style={styles.contentContainer}>
-                    <View style={styles.mainContent}>
-                        {/* Business Header */}
-                        <BusinessHeader
-                            name={business.name}
-                            description={business.description}
-                            categoryIds={business.categoryIds}
-                            categoryNames={business.categoryNames}
-                            locationLabel={business.locationLabel}
-                            latitude={business.latitude}
-                            longitude={business.longitude}
-                            isApproved={business.isApproved}
-                        />
-
-                        {/* Gallery */}
-                        {business.galleryImages && business.galleryImages.length > 0 && (
-                            <BusinessGallery
-                                images={business.galleryImages}
-                                onImagePress={setSelectedImage}
-                            />
-                        )}
-
-                        {/* Promotions Carousel */}
-                        <BusinessPromotionsCarousel businessId={business.id} />
-
-                        {/* Products Section */}
-                        <BusinessProducts businessId={business.id} ownerId={business.ownerId} onImagePress={setSelectedImage} />
-
-                        {/* Map Section */}
-                        {business.latitude && business.longitude && (
-                            <BusinessMap
-                                latitude={business.latitude}
-                                longitude={business.longitude}
-                                businessName={business.name}
-                                phone={business.contactPhone}
-                            />
-                        )}
-
-                        {/* Contact Section with Social Links */}
-                        <ContactSection
-                            businessId={business.id}
-                            phone={business.contactPhone}
-                            email={business.contactEmail}
-                            website={business.website}
-                            facebook={business.socialLinks.facebook}
-                            instagram={business.socialLinks.instagram}
-                            tiktok={business.socialLinks.tiktok}
-                            onContactPress={handleOpenLink}
-                        />
-
-                        {/* Reviews Section */}
-                        <ReviewsSection
-                            businessId={business.id}
-                            businessName={business.name}
-                            businessLogo={business.logoUrl ?? undefined}
-                            ownerId={business.ownerId}
-                        />
-
-                    </View>
-                </View>
-            </ScrollView>
-
-            {/* Image Viewer Modal */}
-            <ImageViewerModal
-                visible={selectedImage !== null}
-                imageUri={selectedImage}
-                onClose={() => setSelectedImage(null)}
-            />
+      <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color={colors.primary[500]} />
         </View>
+      </View>
     );
+  }
+
+  if (error || !business) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
+        <View style={styles.errorContainer}>
+          <Store size={48} color={colors.text.tertiary} />
+          <Text style={[styles.errorText, { color: colors.text.secondary }]}>
+            No se pudo cargar la información del negocio
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Cover Image with Logo */}
+        <CoverImage
+          coverImage={business.coverImageUrl}
+          logoImage={business.logoUrl}
+          rating={business.rating}
+          reviewCount={business.reviewCount}
+          onCoverPress={setSelectedImage}
+          onLogoPress={setSelectedImage}
+        />
+
+        {/* Back Button */}
+        <Pressable
+          style={({ pressed }) => ({
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: colors.background.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: pressed ? 0.7 : 1,
+          })}
+          onPress={handleClose}
+        >
+          <ArrowLeft size={24} color={colors.text.primary} />
+        </Pressable>
+
+        {/* Main Content */}
+        <View style={styles.contentContainer}>
+          <View style={styles.mainContent}>
+            {/* Business Header */}
+            <BusinessHeader
+              name={business.name}
+              description={business.description}
+              categoryIds={business.categoryIds}
+              categoryNames={business.categoryNames}
+              locationLabel={business.locationLabel}
+              latitude={business.latitude}
+              longitude={business.longitude}
+              isApproved={business.isApproved}
+            />
+
+            {/* Gallery */}
+            {business.galleryImages && business.galleryImages.length > 0 && (
+              <BusinessGallery images={business.galleryImages} onImagePress={setSelectedImage} />
+            )}
+
+            {/* Promotions Carousel */}
+            <BusinessPromotionsCarousel businessId={business.id} />
+
+            {/* Products Section */}
+            <BusinessProducts
+              businessId={business.id}
+              ownerId={business.ownerId}
+              onImagePress={setSelectedImage}
+            />
+
+            {/* Map Section */}
+            {business.latitude && business.longitude && (
+              <BusinessMap
+                latitude={business.latitude}
+                longitude={business.longitude}
+                businessName={business.name}
+                phone={business.contactPhone}
+              />
+            )}
+
+            {/* Contact Section with Social Links */}
+            <ContactSection
+              businessId={business.id}
+              phone={business.contactPhone}
+              email={business.contactEmail}
+              website={business.website}
+              facebook={business.socialLinks.facebook}
+              instagram={business.socialLinks.instagram}
+              tiktok={business.socialLinks.tiktok}
+              onContactPress={handleOpenLink}
+            />
+
+            {/* Reviews Section */}
+            <ReviewsSection
+              businessId={business.id}
+              businessName={business.name}
+              businessLogo={business.logoUrl ?? undefined}
+              ownerId={business.ownerId}
+            />
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Image Viewer Modal */}
+      <ImageViewerModal
+        visible={selectedImage !== null}
+        imageUri={selectedImage}
+        onClose={() => setSelectedImage(null)}
+      />
+    </View>
+  );
 });

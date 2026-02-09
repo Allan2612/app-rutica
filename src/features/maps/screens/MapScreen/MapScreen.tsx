@@ -20,7 +20,11 @@ export const MapScreen = memo(function MapScreen() {
   const webViewRef = useRef<WebView>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const { markers, isLoading: markersLoading, refetch } = useMapMarkers({
+  const {
+    markers,
+    isLoading: markersLoading,
+    refetch,
+  } = useMapMarkers({
     limitPerType: 500,
     enabled: !!coordinates,
   });
@@ -36,9 +40,12 @@ export const MapScreen = memo(function MapScreen() {
     }
   }, [markers, markersLoading]);
 
-  const allMarkers = initialMarkersRef.current.length > 0
-    ? initialMarkersRef.current
-    : (!markersLoading ? markers : []);
+  const allMarkers =
+    initialMarkersRef.current.length > 0
+      ? initialMarkersRef.current
+      : !markersLoading
+        ? markers
+        : [];
 
   // Enviar mensaje al mapa para actualizar filtros
   const updateMapFilters = useCallback((types: MarkerType[], showUser: boolean) => {
@@ -55,23 +62,28 @@ export const MapScreen = memo(function MapScreen() {
     }
   }, []);
 
-  const handleToggleType = useCallback((type: MarkerType) => {
-    setSelectedTypes(prev => {
-      const newTypes = prev.includes(type)
-        ? (prev.length === 1 ? prev : prev.filter(t => t !== type))
-        : [...prev, type];
+  const handleToggleType = useCallback(
+    (type: MarkerType) => {
+      setSelectedTypes((prev) => {
+        const newTypes = prev.includes(type)
+          ? prev.length === 1
+            ? prev
+            : prev.filter((t) => t !== type)
+          : [...prev, type];
 
-      // Actualizar mapa sin recargar
-      if (isMapLoaded) {
-        updateMapFilters(newTypes, showUserLocation);
-      }
+        // Actualizar mapa sin recargar
+        if (isMapLoaded) {
+          updateMapFilters(newTypes, showUserLocation);
+        }
 
-      return newTypes;
-    });
-  }, [isMapLoaded, showUserLocation, updateMapFilters]);
+        return newTypes;
+      });
+    },
+    [isMapLoaded, showUserLocation, updateMapFilters],
+  );
 
   const handleToggleUserLocation = useCallback(() => {
-    setShowUserLocation(prev => {
+    setShowUserLocation((prev) => {
       const newValue = !prev;
 
       // Actualizar mapa sin recargar
@@ -104,7 +116,7 @@ export const MapScreen = memo(function MapScreen() {
       if (data.type === 'navigate' && data.route) {
         router.push(data.route as any);
       }
-    } catch { }
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -116,7 +128,9 @@ export const MapScreen = memo(function MapScreen() {
 
   if (error && !coordinates) return <MapError error={error} onRetry={retry} />;
   if (loading || !coordinates || (markersLoading && allMarkers.length === 0)) {
-    return <MapLoading message={markersLoading ? 'Cargando marcadores...' : 'Preparando mapa...'} />;
+    return (
+      <MapLoading message={markersLoading ? 'Cargando marcadores...' : 'Preparando mapa...'} />
+    );
   }
 
   const showOverlay = !isMapLoaded || markersLoading;
@@ -164,7 +178,9 @@ export const MapScreen = memo(function MapScreen() {
           onLoadEnd={() => setIsMapLoaded(true)}
           renderLoading={() => (
             <View style={[styles.centerContainer, { backgroundColor: colors.background.primary }]}>
-              <Text style={[styles.loadingText, { color: colors.text.secondary }]}>Cargando mapa...</Text>
+              <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
+                Cargando mapa...
+              </Text>
             </View>
           )}
         />

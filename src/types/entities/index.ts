@@ -53,18 +53,12 @@ export type {
   HierarchicalCategoryOption,
 } from './category';
 
-export {
-  categoryToOption,
-  categoriesToOptions,
-} from './category';
+export { categoryToOption, categoriesToOptions } from './category';
 
 // ============================================
 // Filter
 // ============================================
-export type {
-  FilterTab,
-  SearchFilters,
-} from './filter';
+export type { FilterTab, SearchFilters } from './filter';
 
 // ============================================
 // Business
@@ -210,11 +204,7 @@ export type {
   ReviewFormData,
 } from './review';
 
-export {
-  formatRating,
-  getRatingLabel,
-  calculateAverageRating,
-} from './review';
+export { formatRating, getRatingLabel, calculateAverageRating } from './review';
 
 // ============================================
 // Likes

@@ -1,11 +1,5 @@
 import { memo, useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { Building2, Check, AlertCircle, Store, Star, Tag } from 'lucide-react-native';
 import { useThemedColors, usePromotionQuota } from '@/hooks';
 import { useUserBusinesses } from '@/features/business/hooks';
@@ -34,7 +28,7 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
   // Obtener cuota de promociones para el negocio seleccionado
   const { quotaInfo, invalidateQuota } = usePromotionQuota(
     formData.businessId || '',
-    !!formData.businessId
+    !!formData.businessId,
   );
 
   const handleOpenPremiumModal = useCallback(() => {
@@ -107,10 +101,7 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
                     onPress={() => onBusinessChange(business.id)}
                   >
                     <View style={styles.businessCardContent}>
-                      <Building2
-                        size={20}
-                        color={isSelected ? '#FFFFFF' : colors.text.tertiary}
-                      />
+                      <Building2 size={20} color={isSelected ? '#FFFFFF' : colors.text.tertiary} />
                       <Text
                         style={[
                           styles.businessName,
@@ -120,9 +111,7 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
                       >
                         {business.name}
                       </Text>
-                      {isSelected && (
-                        <Check size={16} color="#FFFFFF" />
-                      )}
+                      {isSelected && <Check size={16} color="#FFFFFF" />}
                     </View>
                   </Pressable>
                 );
@@ -132,25 +121,33 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
 
           {/* Información de cuota cuando hay un negocio seleccionado */}
           {formData.businessId && quotaInfo && (
-            <View style={{
-              marginTop: 12,
-              padding: 12,
-              backgroundColor: quotaInfo.hasPremium ? colors.primary[50] : colors.background.tertiary,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: quotaInfo.hasPremium ? colors.primary[200] : colors.border.light,
-            }}>
+            <View
+              style={{
+                marginTop: 12,
+                padding: 12,
+                backgroundColor: quotaInfo.hasPremium
+                  ? colors.primary[50]
+                  : colors.background.tertiary,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: quotaInfo.hasPremium ? colors.primary[200] : colors.border.light,
+              }}
+            >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Tag size={16} color={quotaInfo.hasPremium ? colors.primary[600] : colors.text.secondary} />
-                <Text style={{
-                  marginLeft: 8,
-                  fontSize: 14,
-                  color: colors.text.secondary,
-                }}>
+                <Tag
+                  size={16}
+                  color={quotaInfo.hasPremium ? colors.primary[600] : colors.text.secondary}
+                />
+                <Text
+                  style={{
+                    marginLeft: 8,
+                    fontSize: 14,
+                    color: colors.text.secondary,
+                  }}
+                >
                   {quotaInfo.hasPremium
                     ? `Promociones Premium: ${quotaInfo.usedCount}/${quotaInfo.totalQuota} usadas (${quotaInfo.availableCount} disponibles)`
-                    : `Promociones: ${quotaInfo.usedCount}/${quotaInfo.freeQuota} gratuitas usadas`
-                  }
+                    : `Promociones: ${quotaInfo.usedCount}/${quotaInfo.freeQuota} gratuitas usadas`}
                 </Text>
               </View>
             </View>
@@ -158,36 +155,40 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
 
           {/* Banner de límite alcanzado */}
           {showQuotaLimitBanner && (
-            <View style={{
-              marginTop: 12,
-              backgroundColor: colors.warning + '15',
-              borderRadius: 12,
-              padding: 16,
-              borderWidth: 1,
-              borderColor: colors.warning + '40',
-            }}>
+            <View
+              style={{
+                marginTop: 12,
+                backgroundColor: colors.warning + '15',
+                borderRadius: 12,
+                padding: 16,
+                borderWidth: 1,
+                borderColor: colors.warning + '40',
+              }}
+            >
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                 <AlertCircle size={20} color={colors.warning} />
-                <Text style={{
-                  fontSize: 15,
-                  fontWeight: '600',
-                  color: colors.warning,
-                  marginLeft: 8,
-                }}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: '600',
+                    color: colors.warning,
+                    marginLeft: 8,
+                  }}
+                >
                   Límite de promociones alcanzado
                 </Text>
               </View>
-              <Text style={{
-                fontSize: 14,
-                color: colors.text.secondary,
-                marginBottom: 12,
-                lineHeight: 20,
-              }}>
-                Ya usaste tus {quotaInfo?.freeQuota} promociones gratuitas para este negocio.
-                Con el paquete{' '}
-                <Text style={{ fontWeight: '600', color: colors.primary[600] }}>
-                  Promociones
-                </Text>{' '}
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: colors.text.secondary,
+                  marginBottom: 12,
+                  lineHeight: 20,
+                }}
+              >
+                Ya usaste tus {quotaInfo?.freeQuota} promociones gratuitas para este negocio. Con el
+                paquete{' '}
+                <Text style={{ fontWeight: '600', color: colors.primary[600] }}>Promociones</Text>{' '}
                 puedes añadir 10 promociones más.
               </Text>
               <Pressable
@@ -213,9 +214,7 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
           {errors.businessId && (
             <View style={styles.errorContainer}>
               <AlertCircle size={14} color={colors.error} />
-              <Text style={[styles.errorText, { color: colors.error }]}>
-                {errors.businessId}
-              </Text>
+              <Text style={[styles.errorText, { color: colors.error }]}>{errors.businessId}</Text>
             </View>
           )}
         </View>
@@ -233,7 +232,3 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
     </View>
   );
 });
-
-
-
-

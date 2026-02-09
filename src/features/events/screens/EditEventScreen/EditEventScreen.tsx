@@ -1,12 +1,12 @@
-import { memo, useState, useCallback, useMemo } from "react";
-import { View, Text, ActivityIndicator } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { memo, useState, useCallback, useMemo } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { useThemedColors, useEventGalleryQuota, useRefreshOnFocus } from "@/hooks";
+import { useThemedColors, useEventGalleryQuota, useRefreshOnFocus } from '@/hooks';
 import { useEventForm } from '@/features/events/hooks/useEventForm';
 import { EventFormView } from '@/components/events/EventFormView/EventFormView';
 import { PremiumModal } from '@/components/user/PremiumModal/PremiumModal';
-import { styles } from "@/components/events/EventFormView/styles";
+import { styles } from '@/components/events/EventFormView/styles';
 
 export const EditEventScreen = memo(function EditEventScreen() {
   const colors = useThemedColors();
@@ -31,7 +31,11 @@ export const EditEventScreen = memo(function EditEventScreen() {
   } = useEventForm(id);
 
   // Cuota de galería del evento
-  const { quotaInfo, invalidateQuota, refetch: refetchQuota } = useEventGalleryQuota(id ?? '', !!id);
+  const {
+    quotaInfo,
+    invalidateQuota,
+    refetch: refetchQuota,
+  } = useEventGalleryQuota(id ?? '', !!id);
 
   // Refrescar cuota de galería cuando la pantalla recibe foco
   useRefreshOnFocus(refetchQuota);
@@ -102,12 +106,7 @@ export const EditEventScreen = memo(function EditEventScreen() {
 
   if (loadingEvent || loadingCategories) {
     return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: colors.background.secondary },
-        ]}
-      >
+      <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
         <ActivityIndicator size="large" color={colors.primary[500]} />
       </View>
     );
@@ -115,15 +114,8 @@ export const EditEventScreen = memo(function EditEventScreen() {
 
   if (!event) {
     return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: colors.background.secondary },
-        ]}
-      >
-        <Text style={[styles.title, { color: colors.text.primary }]}>
-          No se encontró el evento
-        </Text>
+      <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
+        <Text style={[styles.title, { color: colors.text.primary }]}>No se encontró el evento</Text>
       </View>
     );
   }
@@ -142,7 +134,7 @@ export const EditEventScreen = memo(function EditEventScreen() {
         submitLabel="Guardar Cambios"
         onFieldChange={updateField}
         onLocationSelect={handleLocationSelect}
-        onCancel={() => router.push("/(app)/(tabs)/manage/events")}
+        onCancel={() => router.push('/(app)/(tabs)/manage/events')}
         onSubmit={handleSubmit}
         maxGalleryImages={maxGalleryImages}
         galleryHelperText={galleryHelperText}

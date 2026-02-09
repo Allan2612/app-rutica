@@ -11,7 +11,7 @@ interface WizardStepInfoProps {
   errors: PromotionWizardErrors;
   onFieldChange: <K extends keyof PromotionWizardFormData>(
     field: K,
-    value: PromotionWizardFormData[K]
+    value: PromotionWizardFormData[K],
   ) => void;
 }
 
@@ -54,9 +54,7 @@ export const WizardStepInfo = memo(function WizardStepInfo({
 
         {/* Description */}
         <View style={formSectionStyles.section}>
-          <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>
-            Descripción
-          </Text>
+          <Text style={[formSectionStyles.label, { color: colors.text.primary }]}>Descripción</Text>
           <TextInput
             style={[
               formSectionStyles.textArea,

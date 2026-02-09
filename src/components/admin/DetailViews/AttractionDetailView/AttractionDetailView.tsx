@@ -4,14 +4,7 @@
 
 import { memo } from 'react';
 import { View, Text, Image, ScrollView } from 'react-native';
-import {
-  MapPin,
-  User,
-  Calendar,
-  Tag,
-  Landmark,
-  Star,
-} from 'lucide-react-native';
+import { MapPin, User, Calendar, Tag, Landmark, Star } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
 import {
@@ -54,24 +47,16 @@ export const AttractionDetailView = memo(function AttractionDetailView({
     >
       {/* Main Image */}
       {request.imageUrl ? (
-        <Image
-          source={{ uri: request.imageUrl }}
-          style={styles.coverImage}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: request.imageUrl }} style={styles.coverImage} resizeMode="cover" />
       ) : (
         <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
           <Landmark size={48} color={colors.text.tertiary} />
-          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>
-            Sin imagen
-          </Text>
+          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>Sin imagen</Text>
         </View>
       )}
 
       {/* Name */}
-      <Text style={[styles.entityName, { color: colors.text.primary }]}>
-        {request.name}
-      </Text>
+      <Text style={[styles.entityName, { color: colors.text.primary }]}>{request.name}</Text>
 
       {/* Description */}
       {request.description && (
@@ -83,13 +68,13 @@ export const AttractionDetailView = memo(function AttractionDetailView({
       {/* Status Row */}
       <View style={styles.statusRow}>
         <StatusBadge status={request.moderationStatus} size="md" />
-        <View style={[
-          styles.activeIndicator,
-          { backgroundColor: request.isActive ? colors.success : colors.error }
-        ]}>
-          <Text style={styles.activeIndicatorText}>
-            {request.isActive ? 'Visible' : 'Oculto'}
-          </Text>
+        <View
+          style={[
+            styles.activeIndicator,
+            { backgroundColor: request.isActive ? colors.success : colors.error },
+          ]}
+        >
+          <Text style={styles.activeIndicatorText}>{request.isActive ? 'Visible' : 'Oculto'}</Text>
         </View>
       </View>
 
@@ -116,10 +101,7 @@ export const AttractionDetailView = memo(function AttractionDetailView({
 
       {/* Categories */}
       {metadata.categoriesNames.length > 0 && (
-        <InfoCard
-          icon={<Tag size={18} color={colors.primary[500]} />}
-          title="Categorías"
-        >
+        <InfoCard icon={<Tag size={18} color={colors.primary[500]} />} title="Categorías">
           <CategoryChips categories={metadata.categoriesNames} />
         </InfoCard>
       )}
@@ -134,9 +116,7 @@ export const AttractionDetailView = memo(function AttractionDetailView({
       )}
 
       {/* Image Gallery */}
-      {request.images.length > 0 && (
-        <ImageGallery images={request.images} />
-      )}
+      {request.images.length > 0 && <ImageGallery images={request.images} />}
 
       {/* Moderation Note */}
       <ModerationNote note={request.moderationNote} />

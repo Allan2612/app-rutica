@@ -51,12 +51,12 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
 
   const getLocationText = () => {
     if (!location) return 'Costa Rica';
-    
+
     // En mobile mostrar solo distrito o cantón
     if (isMobile) {
       return location.district || location.canton || location.province || 'Costa Rica';
     }
-    
+
     // En pantallas grandes mostrar todo
     const parts = [location.district, location.canton, location.province].filter(Boolean);
     return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
@@ -67,18 +67,18 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
   }
 
   return (
-    <SafeAreaView 
+    <SafeAreaView
       style={[
-        { 
-          backgroundColor: colors.background.primary, 
+        {
+          backgroundColor: colors.background.primary,
           borderBottomWidth: showBorder ? 0 : 0,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: showBorder ? 0.05 : 0,
           shadowRadius: 3,
           elevation: showBorder ? 4 : 0,
-        }
-      ]} 
+        },
+      ]}
       edges={['top']}
     >
       <View style={styles.topRow}>
@@ -90,27 +90,29 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
             transition={200}
             cachePolicy="memory-disk"
           />
-          <Text style={fontsLoaded ? [styles.logoText, { fontFamily: 'Caveat_700Bold', color: colors.primary[500] }] : [styles.logoText, { color: colors.primary[500] }]}>
+          <Text
+            style={
+              fontsLoaded
+                ? [styles.logoText, { fontFamily: 'Caveat_700Bold', color: colors.primary[500] }]
+                : [styles.logoText, { color: colors.primary[500] }]
+            }
+          >
             Rutica
           </Text>
         </Pressable>
 
         <View style={styles.rightControls}>
-          <Pressable
-            style={styles.locationContainer}
-            onPress={handleLocationPress}
-          >
-            <View style={[
-              styles.locationTextContainer, 
-              { 
-                backgroundColor: colors.background.tertiary,
-                maxWidth: isMobile ? 120 : 250
-              }
-            ]}>
-              <Text 
-                style={[styles.locationText, { color: colors.primary[500] }]} 
-                numberOfLines={1}
-              >
+          <Pressable style={styles.locationContainer} onPress={handleLocationPress}>
+            <View
+              style={[
+                styles.locationTextContainer,
+                {
+                  backgroundColor: colors.background.tertiary,
+                  maxWidth: isMobile ? 120 : 250,
+                },
+              ]}
+            >
+              <Text style={[styles.locationText, { color: colors.primary[500] }]} numberOfLines={1}>
                 {getLocationText()}
               </Text>
             </View>
@@ -118,12 +120,8 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
               <MapPin color={colors.primary[600]} size={20} />
             </View>
           </Pressable>
-          
-          <Pressable
-            style={styles.userButton}
-            onPress={handleUserPress}
-            disabled={isLoading}
-          >
+
+          <Pressable style={styles.userButton} onPress={handleUserPress} disabled={isLoading}>
             {isLoading ? (
               <ActivityIndicator size="small" color={colors.primary[500]} />
             ) : isAuthenticated ? (
@@ -135,7 +133,9 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
                   transition={200}
                 />
               ) : (
-                <View style={[styles.userIconAuthenticated, { backgroundColor: colors.primary[500] }]}>
+                <View
+                  style={[styles.userIconAuthenticated, { backgroundColor: colors.primary[500] }]}
+                >
                   <User color="#fff" size={20} />
                 </View>
               )
@@ -148,10 +148,7 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
         </View>
       </View>
 
-      <LocationDropdown 
-        visible={locationVisible}
-        onClose={handleCloseLocation}
-      />
+      <LocationDropdown visible={locationVisible} onClose={handleCloseLocation} />
 
       <UserMenu
         visible={menuVisible}

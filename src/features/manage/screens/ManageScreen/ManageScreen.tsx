@@ -15,7 +15,13 @@ import { styles } from './styles';
 function normalizeRole(value: unknown): UserRole | null {
   if (typeof value !== 'string') return null;
   const normalized = value.trim().toLowerCase();
-  if (normalized === 'buyer' || normalized === 'user' || normalized === 'seller' || normalized === 'admin' || normalized === 'premium') {
+  if (
+    normalized === 'buyer' ||
+    normalized === 'user' ||
+    normalized === 'seller' ||
+    normalized === 'admin' ||
+    normalized === 'premium'
+  ) {
     return normalized as UserRole;
   }
   return null;
@@ -117,7 +123,7 @@ export const ManageScreen = memo(function ManageScreen() {
         badgeText: 'Admin',
       },
     ],
-    []
+    [],
   );
 
   // Si no está autenticado: CTA centrado (no pantalla vacía)
@@ -145,10 +151,7 @@ export const ManageScreen = memo(function ManageScreen() {
     <Screen>
       <ScrollView
         style={{ backgroundColor: colors.background.secondary }}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { flexGrow: 1 },
-        ]}
+        contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
@@ -163,10 +166,10 @@ export const ManageScreen = memo(function ManageScreen() {
             {visibleActions.map((action, index) => {
               const isLastInRow = (index + 1) % columns === 0;
               const marginRight = columns === 1 || isLastInRow ? 0 : gap;
-              
+
               // Verificar si el buyer tiene acceso a esta acción
               const hasAccess = action.roles.includes(effectiveRole);
-              
+
               // Color del icono según variante
               let iconColor: string = colors.primary[600];
               if (action.variant === 'admin' || action.variant === 'premium') {
@@ -189,10 +192,7 @@ export const ManageScreen = memo(function ManageScreen() {
               }
 
               return (
-                <View
-                  key={action.key}
-                  style={{ width: cardWidth, marginRight, marginBottom: gap }}
-                >
+                <View key={action.key} style={{ width: cardWidth, marginRight, marginBottom: gap }}>
                   <ManageCard
                     title={action.title}
                     description={action.description}

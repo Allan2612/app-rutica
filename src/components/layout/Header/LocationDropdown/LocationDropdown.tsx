@@ -1,5 +1,13 @@
 import { memo, useCallback, useState, useEffect } from 'react';
-import { View, Pressable, Modal, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Pressable,
+  Modal,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { MapPin, Locate, X, ChevronLeft, XCircle } from 'lucide-react-native';
 import { useLocation, useThemedColors, useLocationDetection, useLocationFilters } from '@/hooks';
 import { styles } from './styles';
@@ -17,11 +25,15 @@ interface NavigationState {
   selectedCanton: string | null;
 }
 
-export const LocationDropdown = memo(function LocationDropdown({ visible, onClose }: LocationDropdownProps) {
+export const LocationDropdown = memo(function LocationDropdown({
+  visible,
+  onClose,
+}: LocationDropdownProps) {
   const { location, updateLocation } = useLocation();
   const colors = useThemedColors();
   const { getCurrentLocation, loadingLocation } = useLocationDetection(false);
-  const { filteredProvinces, getCantons, getDistricts, isLoading, hasError, hasData } = useLocationFilters('');
+  const { filteredProvinces, getCantons, getDistricts, isLoading, hasError, hasData } =
+    useLocationFilters('');
 
   const [navigation, setNavigation] = useState<NavigationState>({
     step: 'province',
@@ -46,77 +58,86 @@ export const LocationDropdown = memo(function LocationDropdown({ visible, onClos
         }
       }
     };
-    
+
     initLocation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Manejar selección de provincia
-  const handleProvinceSelect = useCallback((provinceName: string) => {
-    // Actualizar ubicación inmediatamente
-    updateLocation({
-      province: provinceName,
-      canton: null,
-      district: null,
-      coordinates: undefined,
-      address: provinceName,
-      searchText: provinceName,
-    });
-    
-    // Navegar a cantones
-    setNavigation({
-      step: 'canton',
-      selectedProvince: provinceName,
-      selectedCanton: null,
-    });
-  }, [updateLocation]);
-
-  // Manejar selección de cantón
-  const handleCantonSelect = useCallback((cantonName: string) => {
-    const { selectedProvince } = navigation;
-    
-    if (selectedProvince) {
+  const handleProvinceSelect = useCallback(
+    (provinceName: string) => {
       // Actualizar ubicación inmediatamente
       updateLocation({
-        province: selectedProvince,
-        canton: cantonName,
+        province: provinceName,
+        canton: null,
         district: null,
         coordinates: undefined,
-        address: `${cantonName}, ${selectedProvince}`,
-        searchText: `${cantonName}, ${selectedProvince}`,
+        address: provinceName,
+        searchText: provinceName,
       });
-    }
-    
-    // Navegar a distritos
-    setNavigation((prev) => ({
-      ...prev,
-      step: 'district',
-      selectedCanton: cantonName,
-    }));
-  }, [navigation, updateLocation]);
 
-  // Manejar selección de distrito
-  const handleDistrictSelect = useCallback((districtName: string) => {
-    const { selectedProvince, selectedCanton } = navigation;
-
-    if (selectedProvince && selectedCanton) {
-      // Actualizar ubicación con distrito completo
-      updateLocation({
-        province: selectedProvince,
-        canton: selectedCanton,
-        district: districtName,
-        coordinates: undefined,
-        address: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
-        searchText: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
-      });
-      onClose();
+      // Navegar a cantones
       setNavigation({
-        step: 'province',
-        selectedProvince: null,
+        step: 'canton',
+        selectedProvince: provinceName,
         selectedCanton: null,
       });
-    }
-  }, [navigation, updateLocation, onClose]);
+    },
+    [updateLocation],
+  );
+
+  // Manejar selección de cantón
+  const handleCantonSelect = useCallback(
+    (cantonName: string) => {
+      const { selectedProvince } = navigation;
+
+      if (selectedProvince) {
+        // Actualizar ubicación inmediatamente
+        updateLocation({
+          province: selectedProvince,
+          canton: cantonName,
+          district: null,
+          coordinates: undefined,
+          address: `${cantonName}, ${selectedProvince}`,
+          searchText: `${cantonName}, ${selectedProvince}`,
+        });
+      }
+
+      // Navegar a distritos
+      setNavigation((prev) => ({
+        ...prev,
+        step: 'district',
+        selectedCanton: cantonName,
+      }));
+    },
+    [navigation, updateLocation],
+  );
+
+  // Manejar selección de distrito
+  const handleDistrictSelect = useCallback(
+    (districtName: string) => {
+      const { selectedProvince, selectedCanton } = navigation;
+
+      if (selectedProvince && selectedCanton) {
+        // Actualizar ubicación con distrito completo
+        updateLocation({
+          province: selectedProvince,
+          canton: selectedCanton,
+          district: districtName,
+          coordinates: undefined,
+          address: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
+          searchText: `${districtName}, ${selectedCanton}, ${selectedProvince}`,
+        });
+        onClose();
+        setNavigation({
+          step: 'province',
+          selectedProvince: null,
+          selectedCanton: null,
+        });
+      }
+    },
+    [navigation, updateLocation, onClose],
+  );
 
   // Manejar retroceso
   const handleBack = useCallback(() => {
@@ -215,19 +236,19 @@ export const LocationDropdown = memo(function LocationDropdown({ visible, onClos
   // Obtener datos a mostrar según el paso
   const getCurrentData = () => {
     if (isLoading) return [];
-    
+
     if (navigation.step === 'province') {
-      return filteredProvinces.map(p => ({ id: p.id, name: p.name }));
+      return filteredProvinces.map((p) => ({ id: p.id, name: p.name }));
     }
-    
+
     if (navigation.step === 'canton' && navigation.selectedProvince) {
-      return getCantons(navigation.selectedProvince).map(c => ({ id: c.id, name: c.name }));
+      return getCantons(navigation.selectedProvince).map((c) => ({ id: c.id, name: c.name }));
     }
 
     if (navigation.step === 'district' && navigation.selectedCanton) {
-      return getDistricts(navigation.selectedCanton).map(d => ({ id: d.id, name: d.name }));
+      return getDistricts(navigation.selectedCanton).map((d) => ({ id: d.id, name: d.name }));
     }
-    
+
     return [];
   };
 
@@ -248,14 +269,12 @@ export const LocationDropdown = memo(function LocationDropdown({ visible, onClos
   const showBackButton = navigation.step !== 'province';
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={handleClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <Pressable style={styles.overlay} onPress={handleClose}>
-        <Pressable style={[styles.container, { backgroundColor: colors.background.primary }]} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={[styles.container, { backgroundColor: colors.background.primary }]}
+          onPress={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.medium }]}>
             {showBackButton ? (
@@ -273,23 +292,31 @@ export const LocationDropdown = memo(function LocationDropdown({ visible, onClos
 
           {/* Botón de ubicación actual */}
           <View style={styles.currentLocationSection}>
-            <View style={[styles.searchButton, {
-              backgroundColor: colors.background.secondary,
-              borderColor: colors.border.medium,
-            }]}>
+            <View
+              style={[
+                styles.searchButton,
+                {
+                  backgroundColor: colors.background.secondary,
+                  borderColor: colors.border.medium,
+                },
+              ]}
+            >
               <MapPin size={18} color={colors.text.secondary} />
-              <Text style={[styles.searchButtonText, { color: colors.text.primary }]} numberOfLines={1}>
+              <Text
+                style={[styles.searchButtonText, { color: colors.text.primary }]}
+                numberOfLines={1}
+              >
                 {getButtonText()}
               </Text>
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
                 styles.actionButton,
                 {
                   backgroundColor: colors.background.secondary,
                   borderColor: colors.border.medium,
-                }
+                },
               ]}
               onPress={handleClearLocation}
               activeOpacity={0.7}
@@ -297,13 +324,15 @@ export const LocationDropdown = memo(function LocationDropdown({ visible, onClos
               <XCircle size={18} color={colors.text.secondary} />
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
                 styles.actionButton,
                 {
-                  backgroundColor: loadingLocation ? colors.background.tertiary : colors.primary[500],
+                  backgroundColor: loadingLocation
+                    ? colors.background.tertiary
+                    : colors.primary[500],
                   borderColor: loadingLocation ? colors.border.medium : colors.primary[500],
-                }
+                },
               ]}
               onPress={handleDetectLocation}
               disabled={loadingLocation}
@@ -347,24 +376,26 @@ export const LocationDropdown = memo(function LocationDropdown({ visible, onClos
               </View>
             )}
 
-            {!isLoading && hasData && currentData.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.listItem,
-                  {
-                    backgroundColor: colors.background.secondary,
-                    borderColor: colors.border.light,
-                  }
-                ]}
-                onPress={() => handleItemSelect(item.name)}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.listItemText, { color: colors.text.primary }]}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {!isLoading &&
+              hasData &&
+              currentData.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.listItem,
+                    {
+                      backgroundColor: colors.background.secondary,
+                      borderColor: colors.border.light,
+                    },
+                  ]}
+                  onPress={() => handleItemSelect(item.name)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.listItemText, { color: colors.text.primary }]}>
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
           </ScrollView>
         </Pressable>
       </Pressable>

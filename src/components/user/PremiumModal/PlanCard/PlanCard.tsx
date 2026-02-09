@@ -11,11 +11,7 @@ interface PlanCardProps {
   onSelect: () => void;
 }
 
-export const PlanCard = memo(function PlanCard({
-  plan,
-  isSelected,
-  onSelect,
-}: PlanCardProps) {
+export const PlanCard = memo(function PlanCard({ plan, isSelected, onSelect }: PlanCardProps) {
   const colors = useThemedColors();
   const isRecommended = plan.type === 'full_premium';
 
@@ -31,67 +27,34 @@ export const PlanCard = memo(function PlanCard({
               ? colors.primary[900] + '20'
               : colors.primary[50]
             : colors.background.primary,
-          borderColor: isSelected
-            ? colors.primary[500]
-            : colors.border.light,
+          borderColor: isSelected ? colors.primary[500] : colors.border.light,
         },
       ]}
       onPress={onSelect}
     >
       {/* Badge recomendado */}
       {isRecommended && (
-        <View
-          style={[
-            styles.recommendedBadge,
-            { backgroundColor: colors.warning },
-          ]}
-        >
+        <View style={[styles.recommendedBadge, { backgroundColor: colors.warning }]}>
           <Text style={styles.recommendedText}>RECOMENDADO</Text>
         </View>
       )}
 
       <View style={styles.planHeader}>
         <View style={styles.planHeaderLeft}>
-          <Text
-            style={[
-              styles.planName,
-              { color: colors.text.primary },
-            ]}
-          >
-            {plan.name}
-          </Text>
+          <Text style={[styles.planName, { color: colors.text.primary }]}>{plan.name}</Text>
         </View>
-        <Text
-          style={[
-            styles.planPrice,
-            { color: colors.primary[500] },
-          ]}
-        >
-          {plan.price}
-        </Text>
+        <Text style={[styles.planPrice, { color: colors.primary[500] }]}>{plan.price}</Text>
       </View>
 
-      <Text
-        style={[styles.planDescription, { color: colors.text.secondary }]}
-      >
+      <Text style={[styles.planDescription, { color: colors.text.secondary }]}>
         {plan.description}
       </Text>
 
-      <View
-        style={[
-          styles.planFeatures,
-          { borderTopColor: colors.border.light },
-        ]}
-      >
+      <View style={[styles.planFeatures, { borderTopColor: colors.border.light }]}>
         {plan.features.map((feature: string, index: number) => (
           <View key={index} style={styles.planFeatureItem}>
             <Check size={16} color={colors.success} strokeWidth={2.5} />
-            <Text
-              style={[
-                styles.planFeatureText,
-                { color: colors.text.secondary },
-              ]}
-            >
+            <Text style={[styles.planFeatureText, { color: colors.text.secondary }]}>
               {feature}
             </Text>
           </View>
@@ -100,12 +63,7 @@ export const PlanCard = memo(function PlanCard({
 
       {/* Indicador de selección */}
       {isSelected && (
-        <View
-          style={[
-            styles.selectionIndicator,
-            { backgroundColor: colors.primary[500] },
-          ]}
-        >
+        <View style={[styles.selectionIndicator, { backgroundColor: colors.primary[500] }]}>
           <Check size={20} color="#ffffff" strokeWidth={3} />
         </View>
       )}

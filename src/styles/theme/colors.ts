@@ -14,8 +14,8 @@ export const colors = {
 
   // Dark mode colors (GitHub/VS Code inspired)
   dark: {
-    text: '#e6edf3',           // Texto principal claro
-    background: '#0d1117',     // Fondo principal muy oscuro
+    text: '#e6edf3', // Texto principal claro
+    background: '#0d1117', // Fondo principal muy oscuro
     tint: tintColorDark,
     icon: '#8b949e',
     tabIconDefault: '#8b949e',
@@ -95,8 +95,8 @@ export const colors = {
 
   // Colores de promociones/badges
   promo: {
-    badge: '#fbbf24',       // Amarillo del badge
-    badgeText: '#000000',   // Texto del badge
+    badge: '#fbbf24', // Amarillo del badge
+    badgeText: '#000000', // Texto del badge
     combo: {
       light: { bg: '#ede9fe', text: '#6d28d9' },
       dark: { bg: 'rgba(139, 92, 246, 0.2)', text: '#a78bfa' },

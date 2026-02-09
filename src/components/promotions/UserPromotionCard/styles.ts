@@ -6,131 +6,131 @@ import { colors, spacing, typography } from '@/styles/theme';
  * Basado en el diseño de BusinessCard con full-size image y overlay
  */
 export const styles = StyleSheet.create({
-    card: {
-        borderRadius: spacing.md,
-        borderWidth: 1,
-        overflow: 'hidden',
-        marginBottom: spacing.md,
-        minHeight: 280,
-        justifyContent: 'flex-end',
-        elevation: 2,
-    },
-    heroFull: {
-        ...StyleSheet.absoluteFillObject,
-        width: '100%',
-        height: '100%',
-    },
-    heroPlaceholder: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    badgeContainer: {
-        position: 'absolute',
-        top: spacing.sm + 4,
-        left: spacing.sm + 4,
-        zIndex: 10,
-    },
-    topRightBadges: {
-        position: 'absolute',
-        top: spacing.sm + 4,
-        right: spacing.sm + 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
-        zIndex: 10,
-    },
-    gradientOverlay: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-        zIndex: 4,
-    },
-    contentWrapper: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 15,
-    },
-    content: {
-        paddingHorizontal: spacing.md,
-        paddingBottom: spacing.md + 4,
-        paddingTop: spacing.lg,
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-between',
-    },
-    infoColumn: {
-        flex: 1,
-        gap: 4,
-    },
-    titleSection: {
-        gap: 2,
-    },
-    title: {
-        fontSize: typography.sizes.base,
-        fontWeight: typography.fontWeights.bold,
-        color: colors.text.inverse,
-    },
-    businessName: {
-        fontSize: typography.sizes.xs,
-        color: 'rgba(255,255,255,0.85)',
-        marginTop: 2,
-    },
-    dateRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
-    },
-    dateText: {
-        fontSize: typography.sizes.xs,
-        color: 'rgba(255,255,255,0.9)',
-    },
-    expiredBadge: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: 2,
-        borderRadius: spacing.sm,
-        marginLeft: spacing.xs,
-    },
-    expiredText: {
-        fontSize: 10,
-        fontWeight: typography.fontWeights.semibold,
-        color: colors.text.inverse,
-    },
-    actions: {
-        flexDirection: 'column',
-        gap: spacing.sm,
-    },
-    actionButton: {
-        width: 42,
-        height: 42,
-        borderRadius: 21,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 4,
-    },
-    editButton: {
-        backgroundColor: colors.background.primary,
-    },
-    deleteButton: {
-        backgroundColor: 'rgba(239, 68, 68, 0.95)',
-    },
-    moderationNoteContainer: {
-        marginHorizontal: spacing.md,
-        marginBottom: spacing.md,
-        padding: spacing.sm,
-        borderWidth: 1,
-        borderRadius: 8,
-    },
-    moderationNoteLabel: {
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.fontWeights.semibold,
-        marginBottom: spacing.xs,
-    },
-    moderationNoteText: {
-        fontSize: typography.sizes.sm,
-        lineHeight: 18,
-    },
+  card: {
+    borderRadius: spacing.md,
+    borderWidth: 1,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+    minHeight: 280,
+    justifyContent: 'flex-end',
+    elevation: 2,
+  },
+  heroFull: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  heroPlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeContainer: {
+    position: 'absolute',
+    top: spacing.sm + 4,
+    left: spacing.sm + 4,
+    zIndex: 10,
+  },
+  topRightBadges: {
+    position: 'absolute',
+    top: spacing.sm + 4,
+    right: spacing.sm + 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    zIndex: 10,
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: 0,
+    zIndex: 4,
+  },
+  contentWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 15,
+  },
+  content: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md + 4,
+    paddingTop: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  infoColumn: {
+    flex: 1,
+    gap: 4,
+  },
+  titleSection: {
+    gap: 2,
+  },
+  title: {
+    fontSize: typography.sizes.base,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.inverse,
+  },
+  businessName: {
+    fontSize: typography.sizes.xs,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 2,
+  },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  dateText: {
+    fontSize: typography.sizes.xs,
+    color: 'rgba(255,255,255,0.9)',
+  },
+  expiredBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: spacing.sm,
+    marginLeft: spacing.xs,
+  },
+  expiredText: {
+    fontSize: 10,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text.inverse,
+  },
+  actions: {
+    flexDirection: 'column',
+    gap: spacing.sm,
+  },
+  actionButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+  },
+  editButton: {
+    backgroundColor: colors.background.primary,
+  },
+  deleteButton: {
+    backgroundColor: 'rgba(239, 68, 68, 0.95)',
+  },
+  moderationNoteContainer: {
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    padding: spacing.sm,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  moderationNoteLabel: {
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.fontWeights.semibold,
+    marginBottom: spacing.xs,
+  },
+  moderationNoteText: {
+    fontSize: typography.sizes.sm,
+    lineHeight: 18,
+  },
 });

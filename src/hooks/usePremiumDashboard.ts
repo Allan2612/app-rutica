@@ -8,7 +8,8 @@ import { getUserBusinessesFavoriteStats } from '@/services/premiumDashboard.serv
 
 export const premiumDashboardKeys = {
   all: ['premium', 'dashboard'] as const,
-  stats: (userId: string, businessId: string | null, days: number) => [...premiumDashboardKeys.all, 'stats', userId, businessId, days] as const,
+  stats: (userId: string, businessId: string | null, days: number) =>
+    [...premiumDashboardKeys.all, 'stats', userId, businessId, days] as const,
 };
 
 // ============================================

@@ -8,9 +8,7 @@ interface StepIndicatorProps {
   currentStep: 'plans' | 'business' | 'entity' | 'payment';
 }
 
-export const StepIndicator = memo(function StepIndicator({
-  currentStep,
-}: StepIndicatorProps) {
+export const StepIndicator = memo(function StepIndicator({ currentStep }: StepIndicatorProps) {
   const colors = useThemedColors();
 
   // Determinar el label del paso 2 basado en el flujo actual
@@ -21,7 +19,8 @@ export const StepIndicator = memo(function StepIndicator({
 
   // Determinar qué pasos están completados
   // Los pasos intermedios son business o entity
-  const isStep1Completed = currentStep === 'business' || currentStep === 'entity' || currentStep === 'payment';
+  const isStep1Completed =
+    currentStep === 'business' || currentStep === 'entity' || currentStep === 'payment';
   const isStep2Active = currentStep === 'business' || currentStep === 'entity';
   const isStep2Completed = currentStep === 'payment';
 
@@ -42,7 +41,9 @@ export const StepIndicator = memo(function StepIndicator({
                     ? colors.background.tertiary
                     : colors.background.primary,
               borderColor:
-                currentStep === 'plans' || isStep1Completed ? colors.primary[500] : colors.border.medium,
+                currentStep === 'plans' || isStep1Completed
+                  ? colors.primary[500]
+                  : colors.border.medium,
             },
           ]}
         >
@@ -62,7 +63,12 @@ export const StepIndicator = memo(function StepIndicator({
         <Text
           style={[
             styles.stepLabel,
-            { color: currentStep === 'plans' || isStep1Completed ? colors.primary[500] : colors.text.tertiary },
+            {
+              color:
+                currentStep === 'plans' || isStep1Completed
+                  ? colors.primary[500]
+                  : colors.text.tertiary,
+            },
           ]}
         >
           Plan
@@ -111,7 +117,9 @@ export const StepIndicator = memo(function StepIndicator({
         <Text
           style={[
             styles.stepLabel,
-            { color: isStep2Active || isStep2Completed ? colors.primary[500] : colors.text.tertiary },
+            {
+              color: isStep2Active || isStep2Completed ? colors.primary[500] : colors.text.tertiary,
+            },
           ]}
         >
           {step2Label}

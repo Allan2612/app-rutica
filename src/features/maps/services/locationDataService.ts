@@ -52,7 +52,8 @@ export class LocationDataService {
       // 1. Cargar provincias con sus relaciones
       const { data: provincesData, error: provincesError } = await supabase
         .from('provinces')
-        .select(`
+        .select(
+          `
           id_prv,
           name_prv,
           cantons (
@@ -63,7 +64,8 @@ export class LocationDataService {
               name_dst
             )
           )
-        `)
+        `,
+        )
         .order('name_prv', { ascending: true });
 
       if (provincesError || !provincesData || provincesData.length === 0) {
@@ -103,7 +105,7 @@ export class LocationDataService {
    */
   private static processNormalizedLocations(
     provincesData: any[],
-    districtCoordinates: Map<string, { lat: number; lng: number }>
+    districtCoordinates: Map<string, { lat: number; lng: number }>,
   ): ProcessedLocations {
     const provinces: Province[] = [];
     const cantons: Canton[] = [];
@@ -130,7 +132,7 @@ export class LocationDataService {
           if (canton.districts && Array.isArray(canton.districts)) {
             canton.districts.forEach((district: any) => {
               const coords = districtCoordinates.get(district.id_dst);
-              
+
               // Agregar distrito
               districts.push({
                 id: district.id_dst,

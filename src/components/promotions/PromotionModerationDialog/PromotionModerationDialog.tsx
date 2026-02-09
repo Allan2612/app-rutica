@@ -1,5 +1,14 @@
 import { memo, useState, useCallback } from 'react';
-import { View, Text, TextInput, Pressable, Modal, ActivityIndicator, ScrollView, Switch } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Modal,
+  ActivityIndicator,
+  ScrollView,
+  Switch,
+} from 'react-native';
 import { Check, X, AlertTriangle, Eye, EyeOff, MessageSquare } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import type { ModerationStatus } from '@/types/enums';
@@ -78,9 +87,7 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
             <AlertTriangle size={24} color={colors.warning} />
-            <Text style={[styles.title, { color: colors.text.primary }]}>
-              Gestionar Promoción
-            </Text>
+            <Text style={[styles.title, { color: colors.text.primary }]}>Gestionar Promoción</Text>
           </View>
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -89,27 +96,52 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
               <Text style={[styles.promoName, { color: colors.text.primary }]}>
                 {promotionName}
               </Text>
-              <Text style={[styles.promoType, { color: colors.text.secondary }]}>
-                Promoción
-              </Text>
+              <Text style={[styles.promoType, { color: colors.text.secondary }]}>Promoción</Text>
             </View>
 
             {/* Visibility Toggle Section */}
-            <View style={[styles.section, { backgroundColor: colors.background.secondary, borderRadius: 12, padding: 16, marginBottom: 16 }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <View
+              style={[
+                styles.section,
+                {
+                  backgroundColor: colors.background.secondary,
+                  borderRadius: 12,
+                  padding: 16,
+                  marginBottom: 16,
+                },
+              ]}
+            >
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
+              >
                 {effectiveIsActive ? (
                   <Eye size={20} color={colors.success} />
                 ) : (
                   <EyeOff size={20} color={colors.error} />
                 )}
-                <Text style={[styles.sectionTitle, { color: colors.text.primary, marginBottom: 0 }]}>
+                <Text
+                  style={[styles.sectionTitle, { color: colors.text.primary, marginBottom: 0 }]}
+                >
                   Visibilidad
                 </Text>
               </View>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <View style={{ flex: 1, marginRight: 12 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text.primary, marginBottom: 2 }}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '600',
+                      color: colors.text.primary,
+                      marginBottom: 2,
+                    }}
+                  >
                     {effectiveIsActive ? 'Activa (Visible)' : 'Inactiva (Oculta)'}
                   </Text>
                   <Text style={{ fontSize: 12, color: colors.text.secondary }}>
@@ -127,7 +159,16 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
               </View>
 
               {activeChanged && (
-                <View style={{ marginTop: 12, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.warning, alignSelf: 'flex-start' }}>
+                <View
+                  style={{
+                    marginTop: 12,
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 8,
+                    backgroundColor: colors.warning,
+                    alignSelf: 'flex-start',
+                  }}
+                >
                   <Text style={{ fontSize: 12, fontWeight: '600', color: '#fff' }}>
                     Cambio pendiente: {isActive ? 'Activar' : 'Desactivar'}
                   </Text>
@@ -143,20 +184,40 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
               <Text style={[styles.currentStatus, { color: colors.text.secondary }]}>
                 Actual:{' '}
                 <Text style={{ fontWeight: '600', textTransform: 'capitalize' }}>
-                  {currentModerationStatus === 'pending' ? 'Pendiente' : currentModerationStatus === 'approved' ? 'Aprobado' : 'Rechazado'}
+                  {currentModerationStatus === 'pending'
+                    ? 'Pendiente'
+                    : currentModerationStatus === 'approved'
+                      ? 'Aprobado'
+                      : 'Rechazado'}
                 </Text>
               </Text>
 
               {/* Show existing moderation note */}
               {currentModerationNote && (
-                <View style={{ padding: 12, borderRadius: 8, backgroundColor: colors.background.tertiary, marginBottom: 12 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                <View
+                  style={{
+                    padding: 12,
+                    borderRadius: 8,
+                    backgroundColor: colors.background.tertiary,
+                    marginBottom: 12,
+                  }}
+                >
+                  <View
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}
+                  >
                     <MessageSquare size={14} color={colors.warning} />
                     <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.secondary }}>
                       Nota anterior:
                     </Text>
                   </View>
-                  <Text style={{ fontSize: 13, lineHeight: 18, fontStyle: 'italic', color: colors.text.primary }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      lineHeight: 18,
+                      fontStyle: 'italic',
+                      color: colors.text.primary,
+                    }}
+                  >
                     {currentModerationNote}
                   </Text>
                 </View>
@@ -168,12 +229,14 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
                     styles.statusButton,
                     moderationStatus === 'approved' && styles.statusButtonActive,
                     {
-                      backgroundColor: moderationStatus === 'approved'
-                        ? colors.success
-                        : pressed
-                          ? colors.background.tertiary
-                          : colors.background.secondary,
-                      borderColor: moderationStatus === 'approved' ? colors.success : colors.border.light,
+                      backgroundColor:
+                        moderationStatus === 'approved'
+                          ? colors.success
+                          : pressed
+                            ? colors.background.tertiary
+                            : colors.background.secondary,
+                      borderColor:
+                        moderationStatus === 'approved' ? colors.success : colors.border.light,
                     },
                   ]}
                   onPress={() =>
@@ -199,22 +262,21 @@ export const PromotionModerationDialog = memo(function PromotionModerationDialog
                     styles.statusButton,
                     moderationStatus === 'rejected' && styles.statusButtonActive,
                     {
-                      backgroundColor: moderationStatus === 'rejected'
-                        ? colors.error
-                        : pressed
-                          ? colors.background.tertiary
-                          : colors.background.secondary,
-                      borderColor: moderationStatus === 'rejected' ? colors.error : colors.border.light,
+                      backgroundColor:
+                        moderationStatus === 'rejected'
+                          ? colors.error
+                          : pressed
+                            ? colors.background.tertiary
+                            : colors.background.secondary,
+                      borderColor:
+                        moderationStatus === 'rejected' ? colors.error : colors.border.light,
                     },
                   ]}
                   onPress={() =>
                     setModerationStatus(moderationStatus === 'rejected' ? null : 'rejected')
                   }
                 >
-                  <X
-                    size={18}
-                    color={moderationStatus === 'rejected' ? '#fff' : colors.error}
-                  />
+                  <X size={18} color={moderationStatus === 'rejected' ? '#fff' : colors.error} />
                   <Text
                     style={[
                       styles.statusButtonText,

@@ -8,7 +8,7 @@ interface AccessibleModalProps extends ModalProps {
 /**
  * Modal accesible que maneja correctamente el foco para evitar
  * warnings de aria-hidden en React Native Web.
- * 
+ *
  * Este componente:
  * 1. Mueve el foco al contenido del modal cuando se abre
  * 2. Restaura el foco al elemento anterior cuando se cierra
@@ -36,7 +36,7 @@ export const AccessibleModal = memo(function AccessibleModal({
       const timeoutId = setTimeout(() => {
         // Buscar el primer elemento focusable dentro del modal
         const focusableElements = document.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
         const modalFocusables = Array.from(focusableElements).filter((el) => {
           // Verificar si el elemento está dentro de un modal visible
@@ -59,12 +59,15 @@ export const AccessibleModal = memo(function AccessibleModal({
   }, [visible]);
 
   // Manejar tecla Escape
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'Escape' && visible && onRequestClose) {
-      // Crear un evento sintético vacío para satisfacer la firma
-      onRequestClose({} as NativeSyntheticEvent<unknown>);
-    }
-  }, [visible, onRequestClose]);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && visible && onRequestClose) {
+        // Crear un evento sintético vacío para satisfacer la firma
+        onRequestClose({} as NativeSyntheticEvent<unknown>);
+      }
+    },
+    [visible, onRequestClose],
+  );
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;

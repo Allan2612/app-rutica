@@ -33,10 +33,12 @@ import {
 async function fetchBusinessVerifications(
   status: ModerationStatus | 'all',
   search: string,
-  limit: number
+  limit: number,
 ): Promise<BusinessVerificationRequest[]> {
   // Obtener el usuario actual
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const userId = user?.id;
 
   // Verificar si el usuario es admin
@@ -53,7 +55,8 @@ async function fetchBusinessVerifications(
 
   let query = supabase
     .from('businesses')
-    .select(`
+    .select(
+      `
       id_bus,
       name_bus,
       description_bus,
@@ -94,7 +97,8 @@ async function fetchBusinessVerifications(
         last_name1_prf,
         last_name2_prf
       )
-    `)
+    `,
+    )
     .order('created_at_bus', { ascending: false });
 
   // IMPORTANTE: Si el usuario NO es admin, filtrar solo sus propios negocios
@@ -128,12 +132,16 @@ async function fetchBusinessVerifications(
   return (filteredData || []).map((item: any) => {
     const images = item.business_images || [];
     const sortedImages = [...images].sort(
-      (a: any, b: any) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0)
+      (a: any, b: any) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0),
     );
 
     // Priorizar cover > logo > primera imagen
-    const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'cover');
-    const logoImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_bim) === 'logo');
+    const coverImage = sortedImages.find(
+      (img: any) => getImageTypeFromPath(img.path_bim) === 'cover',
+    );
+    const logoImage = sortedImages.find(
+      (img: any) => getImageTypeFromPath(img.path_bim) === 'logo',
+    );
     const primaryImage = coverImage || logoImage || sortedImages[0];
 
     // All images with URLs
@@ -183,11 +191,12 @@ async function fetchBusinessVerifications(
 async function fetchEventVerifications(
   status: ModerationStatus | 'all',
   search: string,
-  limit: number
+  limit: number,
 ): Promise<EventVerificationRequest[]> {
   let query = supabase
     .from('events')
-    .select(`
+    .select(
+      `
       id_evt,
       name_evt,
       description_evt,
@@ -234,7 +243,8 @@ async function fetchEventVerifications(
         last_name1_prf,
         last_name2_prf
       )
-    `)
+    `,
+    )
     .order('created_at_evt', { ascending: false })
     .limit(limit);
 
@@ -256,10 +266,12 @@ async function fetchEventVerifications(
   return (data || []).map((item: any) => {
     const images = item.event_images || [];
     const sortedImages = [...images].sort(
-      (a: any, b: any) => (a.sort_order_eim || 0) - (b.sort_order_eim || 0)
+      (a: any, b: any) => (a.sort_order_eim || 0) - (b.sort_order_eim || 0),
     );
 
-    const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_eim) === 'cover');
+    const coverImage = sortedImages.find(
+      (img: any) => getImageTypeFromPath(img.path_eim) === 'cover',
+    );
     const primaryImage = coverImage || sortedImages[0];
 
     // All images with URLs
@@ -315,11 +327,12 @@ async function fetchEventVerifications(
 async function fetchAttractionVerifications(
   status: ModerationStatus | 'all',
   search: string,
-  limit: number
+  limit: number,
 ): Promise<AttractionVerificationRequest[]> {
   let query = supabase
     .from('attractions')
-    .select(`
+    .select(
+      `
       id_atr,
       name_atr,
       description_atr,
@@ -356,7 +369,8 @@ async function fetchAttractionVerifications(
         last_name1_prf,
         last_name2_prf
       )
-    `)
+    `,
+    )
     .order('created_at_atr', { ascending: false })
     .limit(limit);
 
@@ -378,10 +392,12 @@ async function fetchAttractionVerifications(
   return (data || []).map((item: any) => {
     const images = item.attraction_images || [];
     const sortedImages = [...images].sort(
-      (a: any, b: any) => (a.sort_order_aim || 0) - (b.sort_order_aim || 0)
+      (a: any, b: any) => (a.sort_order_aim || 0) - (b.sort_order_aim || 0),
     );
 
-    const coverImage = sortedImages.find((img: any) => getImageTypeFromPath(img.path_aim) === 'cover');
+    const coverImage = sortedImages.find(
+      (img: any) => getImageTypeFromPath(img.path_aim) === 'cover',
+    );
     const primaryImage = coverImage || sortedImages[0];
 
     // All images with URLs
@@ -427,11 +443,12 @@ async function fetchAttractionVerifications(
 async function fetchPromotionVerifications(
   status: ModerationStatus | 'all',
   search: string,
-  limit: number
+  limit: number,
 ): Promise<PromotionVerificationRequest[]> {
   let query = supabase
     .from('promotions')
-    .select(`
+    .select(
+      `
       id_prm,
       title_prm,
       description_prm,
@@ -488,7 +505,8 @@ async function fetchPromotionVerifications(
           price_prd
         )
       )
-    `)
+    `,
+    )
     .order('created_at_prm', { ascending: false })
     .limit(limit);
 
@@ -586,7 +604,7 @@ async function fetchPromotionVerifications(
  * Get all verification requests with filters
  */
 export async function getPendingVerifications(
-  filters: VerificationFilters = {}
+  filters: VerificationFilters = {},
 ): Promise<VerificationRequest[]> {
   const { type = 'all', status = 'pending', search = '', page = 1, limit = 50 } = filters;
   const offset = (page - 1) * limit;
@@ -636,10 +654,22 @@ export async function getPendingVerifications(
 export async function getVerificationStats(): Promise<VerificationStats> {
   // Traer registros con status 'pending' o NULL (que se tratan como pending)
   const [businesses, events, attractions, promotions] = await Promise.all([
-    supabase.from('businesses').select('id_bus, moderation_status_bus').or('moderation_status_bus.eq.pending,moderation_status_bus.is.null'),
-    supabase.from('events').select('id_evt, moderation_status_evt').or('moderation_status_evt.eq.pending,moderation_status_evt.is.null'),
-    supabase.from('attractions').select('id_atr, moderation_status_atr').or('moderation_status_atr.eq.pending,moderation_status_atr.is.null'),
-    supabase.from('promotions').select('id_prm, moderation_status_prm').or('moderation_status_prm.eq.pending,moderation_status_prm.is.null'),
+    supabase
+      .from('businesses')
+      .select('id_bus, moderation_status_bus')
+      .or('moderation_status_bus.eq.pending,moderation_status_bus.is.null'),
+    supabase
+      .from('events')
+      .select('id_evt, moderation_status_evt')
+      .or('moderation_status_evt.eq.pending,moderation_status_evt.is.null'),
+    supabase
+      .from('attractions')
+      .select('id_atr, moderation_status_atr')
+      .or('moderation_status_atr.eq.pending,moderation_status_atr.is.null'),
+    supabase
+      .from('promotions')
+      .select('id_prm, moderation_status_prm')
+      .or('moderation_status_prm.eq.pending,moderation_status_prm.is.null'),
   ]);
 
   const pendingByType = {
@@ -650,7 +680,11 @@ export async function getVerificationStats(): Promise<VerificationStats> {
   };
 
   return {
-    totalPending: pendingByType.business + pendingByType.event + pendingByType.attraction + pendingByType.promotion,
+    totalPending:
+      pendingByType.business +
+      pendingByType.event +
+      pendingByType.attraction +
+      pendingByType.promotion,
     pendingByType,
   };
 }
@@ -662,7 +696,9 @@ export async function updateModerationStatus(data: UpdateModerationData): Promis
   const { id, type, status, note, isActive } = data;
 
   // Get current user for reviewed_by field
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('No autenticado');
 
   const reviewedAt = new Date().toISOString();
@@ -772,7 +808,7 @@ export async function updateModerationStatus(data: UpdateModerationData): Promis
 export async function toggleEntityActive(
   id: string,
   type: VerificationEntityType,
-  isActive: boolean
+  isActive: boolean,
 ): Promise<void> {
   return updateModerationStatus({ id, type, isActive });
 }
@@ -782,7 +818,7 @@ export async function toggleEntityActive(
  */
 export async function getVerificationDetail(
   id: string,
-  type: VerificationEntityType
+  type: VerificationEntityType,
 ): Promise<VerificationRequest | null> {
   let requests: VerificationRequest[] = [];
 

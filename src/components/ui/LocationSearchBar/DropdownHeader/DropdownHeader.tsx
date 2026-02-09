@@ -10,30 +10,29 @@ export interface DropdownHeaderProps {
   onClose: () => void;
 }
 
-export const DropdownHeader = memo(function DropdownHeader({ 
-  searchText, 
-  onSearchChange, 
-  onClose 
+export const DropdownHeader = memo(function DropdownHeader({
+  searchText,
+  onSearchChange,
+  onClose,
 }: DropdownHeaderProps) {
   const colors = useThemedColors();
-  
+
   return (
     <View style={[styles.container, { borderBottomColor: colors.border.medium }]}>
       <Text style={[styles.title, { color: colors.text.primary }]}>Seleccionar ubicación</Text>
-      
-      <TouchableOpacity 
-        onPress={onClose} 
-        style={styles.closeButton}
-        activeOpacity={0.7}
-      >
+
+      <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
         <X size={24} color={colors.text.primary} />
       </TouchableOpacity>
 
       <TextInput
-        style={[styles.searchInput, { 
-          backgroundColor: colors.background.tertiary,
-          color: colors.text.primary,
-        }]}
+        style={[
+          styles.searchInput,
+          {
+            backgroundColor: colors.background.tertiary,
+            color: colors.text.primary,
+          },
+        ]}
         placeholder="Buscar provincia, cantón o distrito..."
         placeholderTextColor={colors.text.tertiary}
         value={searchText}

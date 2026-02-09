@@ -61,24 +61,16 @@ export const EventDetailView = memo(function EventDetailView({
     >
       {/* Main Image */}
       {request.imageUrl ? (
-        <Image
-          source={{ uri: request.imageUrl }}
-          style={styles.coverImage}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: request.imageUrl }} style={styles.coverImage} resizeMode="cover" />
       ) : (
         <View style={[styles.imagePlaceholder, { backgroundColor: colors.background.tertiary }]}>
           <CalendarDays size={48} color={colors.text.tertiary} />
-          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>
-            Sin imagen
-          </Text>
+          <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>Sin imagen</Text>
         </View>
       )}
 
       {/* Name */}
-      <Text style={[styles.entityName, { color: colors.text.primary }]}>
-        {request.name}
-      </Text>
+      <Text style={[styles.entityName, { color: colors.text.primary }]}>{request.name}</Text>
 
       {/* Description */}
       {request.description && (
@@ -90,13 +82,13 @@ export const EventDetailView = memo(function EventDetailView({
       {/* Status Row */}
       <View style={styles.statusRow}>
         <StatusBadge status={request.moderationStatus} size="md" />
-        <View style={[
-          styles.activeIndicator,
-          { backgroundColor: request.isActive ? colors.success : colors.error }
-        ]}>
-          <Text style={styles.activeIndicatorText}>
-            {request.isActive ? 'Visible' : 'Oculto'}
-          </Text>
+        <View
+          style={[
+            styles.activeIndicator,
+            { backgroundColor: request.isActive ? colors.success : colors.error },
+          ]}
+        >
+          <Text style={styles.activeIndicatorText}>{request.isActive ? 'Visible' : 'Oculto'}</Text>
         </View>
       </View>
 
@@ -112,18 +104,12 @@ export const EventDetailView = memo(function EventDetailView({
       )}
 
       {/* Date Range - Important for Events */}
-      <InfoCard
-        icon={<Clock size={18} color={colors.warning} />}
-        title="Fecha y Hora del Evento"
-      >
+      <InfoCard icon={<Clock size={18} color={colors.warning} />} title="Fecha y Hora del Evento">
         <DateRangeDisplay startAt={metadata.startAt} endAt={metadata.endAt} />
       </InfoCard>
 
       {/* Price Info */}
-      <InfoCard
-        icon={<DollarSign size={18} color={colors.success} />}
-        title="Precio"
-      >
+      <InfoCard icon={<DollarSign size={18} color={colors.success} />} title="Precio">
         <View style={styles.priceContainer}>
           {metadata.isFree ? (
             <View style={[styles.freeBadge, { backgroundColor: colors.success }]}>
@@ -168,10 +154,7 @@ export const EventDetailView = memo(function EventDetailView({
 
       {/* Categories */}
       {metadata.categoriesNames.length > 0 && (
-        <InfoCard
-          icon={<Tag size={18} color={colors.primary[500]} />}
-          title="Categorías"
-        >
+        <InfoCard icon={<Tag size={18} color={colors.primary[500]} />} title="Categorías">
           <CategoryChips categories={metadata.categoriesNames} />
         </InfoCard>
       )}
@@ -186,19 +169,13 @@ export const EventDetailView = memo(function EventDetailView({
       )}
 
       {/* Contact Info */}
-      <ContactInfo
-        phone={metadata.phone}
-        email={metadata.email}
-        website={metadata.website}
-      />
+      <ContactInfo phone={metadata.phone} email={metadata.email} website={metadata.website} />
 
       {/* Social Links */}
       <SocialLinksDisplay socialLinks={metadata.socialLinks} />
 
       {/* Image Gallery */}
-      {request.images.length > 0 && (
-        <ImageGallery images={request.images} />
-      )}
+      {request.images.length > 0 && <ImageGallery images={request.images} />}
 
       {/* Moderation Note */}
       <ModerationNote note={request.moderationNote} />

@@ -62,11 +62,7 @@ export async function getMyProfileWithPremium(): Promise<ProfileWithPremium> {
  * Obtiene un perfil por su ID
  */
 export async function getProfileById(userId: string): Promise<Profile> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id_prf', userId)
-    .single();
+  const { data, error } = await supabase.from('profiles').select('*').eq('id_prf', userId).single();
 
   if (error) throw error;
   return data as Profile;
@@ -181,7 +177,7 @@ export async function setProfileActiveStatus(userId: string, isActive: boolean):
 export async function createPremiumSubscription(
   userId: string,
   paymentReference?: string,
-  paymentNote?: string
+  paymentNote?: string,
 ): Promise<ProfilePremium> {
   const { data, error } = await supabase
     .from('profile_premium')
@@ -201,10 +197,7 @@ export async function createPremiumSubscription(
  * Elimina la suscripción premium de un usuario
  */
 export async function removePremiumSubscription(userId: string): Promise<void> {
-  const { error } = await supabase
-    .from('profile_premium')
-    .delete()
-    .eq('profile_id_ppm', userId);
+  const { error } = await supabase.from('profile_premium').delete().eq('profile_id_ppm', userId);
 
   if (error) throw error;
 }

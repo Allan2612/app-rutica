@@ -1,8 +1,23 @@
 import { memo, useState, useEffect, useMemo, useCallback } from 'react';
-import { ActivityIndicator, ScrollView, RefreshControl, View, useWindowDimensions, Pressable, Text } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  RefreshControl,
+  View,
+  useWindowDimensions,
+  Pressable,
+  Text,
+} from 'react-native';
 import { Search, SlidersHorizontal, Store } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { TabSelector, TabOption, SearchFilterModal, SearchFilters, LocationSectionHeader, NoLocalResultsPlaceholder } from '@/components/ui';
+import {
+  TabSelector,
+  TabOption,
+  SearchFilterModal,
+  SearchFilters,
+  LocationSectionHeader,
+  NoLocalResultsPlaceholder,
+} from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses, BusinessListItem } from '@/features/business/hooks/useBusinesses';
 import { usePromotions } from '@/features/promotions/hooks';
@@ -103,13 +118,13 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   // Dividir negocios por ubicación
   const businessSplit = useMemo(
     () => splitItemsByLocation(businesses, locationFilter),
-    [businesses, locationFilter]
+    [businesses, locationFilter],
   );
 
   // Dividir promociones por ubicación (usan locationLabel del negocio asociado)
   const promotionSplit = useMemo(
     () => splitItemsByLocation(promotions, locationFilter),
-    [promotions, locationFilter]
+    [promotions, locationFilter],
   );
 
   // Estado para controlar el pull-to-refresh manualmente
@@ -132,7 +147,11 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   const hasActiveFilters =
     currentFilters.searchText !== '' ||
     currentFilters.categoryIds.length > 0 ||
-    Boolean(currentFilters.location?.province || currentFilters.location?.canton || currentFilters.location?.district);
+    Boolean(
+      currentFilters.location?.province ||
+      currentFilters.location?.canton ||
+      currentFilters.location?.district,
+    );
 
   const handleApplyFilters = (filters: SearchFilters) => {
     if (activeTab === 'commerces') {
@@ -158,9 +177,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       style={[
         styles.searchButton,
         {
-          backgroundColor: hasActiveFilters
-            ? colors.primary[500]
-            : colors.background.secondary,
+          backgroundColor: hasActiveFilters ? colors.primary[500] : colors.background.secondary,
         },
       ]}
     >
@@ -173,69 +190,105 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   );
 
   // Renderizar grid de negocios sin FlatList (para usar dentro de ScrollView con secciones)
-  const renderBusinessGrid = useCallback((items: BusinessListItem[]) => (
-    <View style={{
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      paddingHorizontal: spacing.md,
-      gap: spacing.sm,
-      paddingBottom: spacing.sm,
-    }}>
-      {items.map((item) => (
-        <View key={item.id} style={{
-          width: numColumns === 1 ? '100%' : numColumns === 2 ? '48.5%' : '32%',
-          marginBottom: spacing.xs,
-        }}>
-          <BusinessCard
-            id={item.id}
-            name={item.name}
-            categoryNames={item.categoryNames}
-            categoryIds={item.categoryIds}
-            locationLabel={item.locationLabel}
-            imageUrl={item.imageUrl ?? undefined}
-            logoUrl={item.logoUrl ?? undefined}
-            rating={item.rating}
-            reviewCount={item.reviewCount}
-            isApproved={item.isApproved}
-            hasActivePromotions={item.hasActivePromotions}
-            onPress={() => handleBusinessPress(item.id)}
-          />
-        </View>
-      ))}
-    </View>
-  ), [numColumns, handleBusinessPress]);
+  const renderBusinessGrid = useCallback(
+    (items: BusinessListItem[]) => (
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          paddingHorizontal: spacing.md,
+          gap: spacing.sm,
+          paddingBottom: spacing.sm,
+        }}
+      >
+        {items.map((item) => (
+          <View
+            key={item.id}
+            style={{
+              width: numColumns === 1 ? '100%' : numColumns === 2 ? '48.5%' : '32%',
+              marginBottom: spacing.xs,
+            }}
+          >
+            <BusinessCard
+              id={item.id}
+              name={item.name}
+              categoryNames={item.categoryNames}
+              categoryIds={item.categoryIds}
+              locationLabel={item.locationLabel}
+              imageUrl={item.imageUrl ?? undefined}
+              logoUrl={item.logoUrl ?? undefined}
+              rating={item.rating}
+              reviewCount={item.reviewCount}
+              isApproved={item.isApproved}
+              hasActivePromotions={item.hasActivePromotions}
+              onPress={() => handleBusinessPress(item.id)}
+            />
+          </View>
+        ))}
+      </View>
+    ),
+    [numColumns, handleBusinessPress],
+  );
 
   // Renderizar grid de promociones sin FlatList
-  const renderPromotionGrid = useCallback((items: PromotionListItem[]) => (
-    <View style={{
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      paddingHorizontal: spacing.md,
-      gap: spacing.sm,
-      paddingBottom: spacing.sm,
-    }}>
-      {items.map((item) => (
-        <View key={item.id} style={{
-          width: numColumns === 1 ? '100%' : numColumns === 2 ? '48.5%' : '32%',
-          marginBottom: spacing.xs,
-        }}>
-          <PromotionPublicCard
-            promotion={item}
-            onPress={handlePromotionPress}
-          />
-        </View>
-      ))}
-    </View>
-  ), [numColumns, handlePromotionPress]);
+  const renderPromotionGrid = useCallback(
+    (items: PromotionListItem[]) => (
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          paddingHorizontal: spacing.md,
+          gap: spacing.sm,
+          paddingBottom: spacing.sm,
+        }}
+      >
+        {items.map((item) => (
+          <View
+            key={item.id}
+            style={{
+              width: numColumns === 1 ? '100%' : numColumns === 2 ? '48.5%' : '32%',
+              marginBottom: spacing.xs,
+            }}
+          >
+            <PromotionPublicCard promotion={item} onPress={handlePromotionPress} />
+          </View>
+        ))}
+      </View>
+    ),
+    [numColumns, handlePromotionPress],
+  );
 
   // Vista vacía genérica
   const renderEmpty = (message: string) => (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing['2xl'], paddingHorizontal: spacing.lg }}>
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: spacing['2xl'],
+        paddingHorizontal: spacing.lg,
+      }}
+    >
       <Store size={48} color={colors.text.tertiary} strokeWidth={1.5} />
-      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text.primary, textAlign: 'center', marginTop: spacing.sm }}>
+      <Text
+        style={{
+          fontSize: 14,
+          fontWeight: '600',
+          color: colors.text.primary,
+          textAlign: 'center',
+          marginTop: spacing.sm,
+        }}
+      >
         {message}
       </Text>
-      <Text style={{ fontSize: 12, color: colors.text.secondary, textAlign: 'center', marginTop: spacing.xs }}>
+      <Text
+        style={{
+          fontSize: 12,
+          color: colors.text.secondary,
+          textAlign: 'center',
+          marginTop: spacing.xs,
+        }}
+      >
         Intenta ajustar los filtros de búsqueda
       </Text>
     </View>

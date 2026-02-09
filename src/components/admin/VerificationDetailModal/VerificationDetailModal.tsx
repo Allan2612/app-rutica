@@ -4,7 +4,16 @@
 // ============================================
 
 import { memo, useCallback } from 'react';
-import { View, Text, Pressable, Modal, StyleSheet, Dimensions, Platform, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  Modal,
+  StyleSheet,
+  Dimensions,
+  Platform,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import {
@@ -44,7 +53,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
         onToggleActive(request.id, request.type, isActive);
       }
     },
-    [request, onToggleActive]
+    [request, onToggleActive],
   );
 
   if (!request) return null;
@@ -98,10 +107,8 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
         <TouchableWithoutFeedback onPress={onClose}>
           <View style={styles.overlayBackground} />
         </TouchableWithoutFeedback>
-        
-        <View 
-          style={[styles.modalContainer, { backgroundColor: colors.background.primary }]}
-        >
+
+        <View style={[styles.modalContainer, { backgroundColor: colors.background.primary }]}>
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
             <Text style={[styles.title, { color: colors.text.primary }]}>
@@ -130,9 +137,7 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
               style={({ pressed }) => [
                 styles.button,
                 {
-                  backgroundColor: pressed
-                    ? colors.primary[600]
-                    : colors.primary[500],
+                  backgroundColor: pressed ? colors.primary[600] : colors.primary[500],
                 },
               ]}
             >

@@ -45,21 +45,21 @@ export const GuestCTA = memo(function GuestCTA({
         </View>
 
         <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
-        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-          {subtitle}
-        </Text>
+        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>{subtitle}</Text>
 
         <View style={[styles.benefits, { borderColor: colors.border.light }]}>
-          <Text style={[styles.benefitText, { color: colors.text.secondary }]}>• Publica y edita negocios</Text>
-          <Text style={[styles.benefitText, { color: colors.text.secondary }]}>• Crea promociones para atraer clientes</Text>
-          <Text style={[styles.benefitText, { color: colors.text.secondary }]}>• Administra eventos y atracciones</Text>
+          <Text style={[styles.benefitText, { color: colors.text.secondary }]}>
+            • Publica y edita negocios
+          </Text>
+          <Text style={[styles.benefitText, { color: colors.text.secondary }]}>
+            • Crea promociones para atraer clientes
+          </Text>
+          <Text style={[styles.benefitText, { color: colors.text.secondary }]}>
+            • Administra eventos y atracciones
+          </Text>
         </View>
 
-        <AuthButton
-          title={ctaLabel}
-          onPress={handleLogin}
-          style={styles.ctaButton}
-        />
+        <AuthButton title={ctaLabel} onPress={handleLogin} style={styles.ctaButton} />
       </View>
     </View>
   );

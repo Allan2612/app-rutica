@@ -6,32 +6,28 @@ import { getShortLocationLabel } from '@/utils/splitItemsByLocation';
 import { styles } from '../styles';
 
 interface AttractionFooterProps {
-    locationLabel?: string | null;
-    hasLocation: boolean;
-    onLocationPress: () => void;
+  locationLabel?: string | null;
+  hasLocation: boolean;
+  onLocationPress: () => void;
 }
 
 export const AttractionFooter = memo(function AttractionFooter({
-    locationLabel,
-    hasLocation,
-    onLocationPress,
+  locationLabel,
+  hasLocation,
+  onLocationPress,
 }: AttractionFooterProps) {
-    const colors = useThemedColors();
+  const colors = useThemedColors();
 
-    return (
-        <View style={[styles.footer, { borderTopColor: colors.border.light }]}>
-            {locationLabel && (
-                <Pressable
-                    style={styles.footerItem}
-                    onPress={onLocationPress}
-                    disabled={!hasLocation}
-                >
-                    <MapPin size={14} color={colors.primary[500]} />
-                    <Text style={[styles.footerText, { color: colors.primary[500] }]}>
-                        {getShortLocationLabel(locationLabel) ?? locationLabel}
-                    </Text>
-                </Pressable>
-            )}
-        </View>
-    );
+  return (
+    <View style={[styles.footer, { borderTopColor: colors.border.light }]}>
+      {locationLabel && (
+        <Pressable style={styles.footerItem} onPress={onLocationPress} disabled={!hasLocation}>
+          <MapPin size={14} color={colors.primary[500]} />
+          <Text style={[styles.footerText, { color: colors.primary[500] }]}>
+            {getShortLocationLabel(locationLabel) ?? locationLabel}
+          </Text>
+        </Pressable>
+      )}
+    </View>
+  );
 });
