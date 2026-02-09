@@ -95,19 +95,21 @@ export const MapScreen = memo(function MapScreen() {
     });
   }, [isMapLoaded, selectedTypes, updateMapFilters]);
 
+  // Coordenadas con fallback al centro de Costa Rica
+  const mapCoords = coordinates ?? { latitude: 9.9281, longitude: -84.0907 };
+
   // Generar HTML solo una vez con TODOS los marcadores
   const mapHTML = useMemo(() => {
-    if (!coordinates || allMarkers.length === 0) return '';
     return generateExploreMapHTML({
-      userLatitude: coordinates.latitude,
-      userLongitude: coordinates.longitude,
+      userLatitude: mapCoords.latitude,
+      userLongitude: mapCoords.longitude,
       markers: allMarkers,
       theme: colors.isDark ? 'dark' : 'light',
-      zoom: 13,
-      showUserMarker: showUserLocation,
+      zoom: coordinates ? 13 : 8,
+      showUserMarker: showUserLocation && !!coordinates,
       initialSelectedTypes: selectedTypes,
     });
-  }, [coordinates, allMarkers, colors.isDark]);
+  }, [mapCoords, allMarkers, colors.isDark]);
 
   const handleMessage = useCallback((event: WebViewMessageEvent | MessageEvent) => {
     try {
@@ -127,10 +129,8 @@ export const MapScreen = memo(function MapScreen() {
   }, [handleMessage]);
 
   if (error && !coordinates) return <MapError error={error} onRetry={retry} />;
-  if (loading || !coordinates || (markersLoading && allMarkers.length === 0)) {
-    return (
-      <MapLoading message={markersLoading ? 'Cargando marcadores...' : 'Preparando mapa...'} />
-    );
+  if (loading) {
+    return <MapLoading message="Preparando mapa..." />;
   }
 
   const showOverlay = !isMapLoaded || markersLoading;

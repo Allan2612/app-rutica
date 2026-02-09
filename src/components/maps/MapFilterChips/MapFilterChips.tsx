@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Compass, Calendar, Store, MapPin, Check, type LucideIcon } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { MARKER_COLORS, USER_MARKER_COLOR, type MarkerType } from '@/features/maps/types';
 import { spacing, typography } from '@/styles/theme';
@@ -8,13 +8,13 @@ import { spacing, typography } from '@/styles/theme';
 export interface MarkerFilter {
   type: MarkerType;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: LucideIcon;
 }
 
 const FILTER_OPTIONS: MarkerFilter[] = [
-  { type: 'attraction', label: 'Atracciones', icon: 'compass' },
-  { type: 'event', label: 'Eventos', icon: 'calendar' },
-  { type: 'business', label: 'Negocios', icon: 'storefront' },
+  { type: 'attraction', label: 'Atracciones', icon: Compass },
+  { type: 'event', label: 'Eventos', icon: Calendar },
+  { type: 'business', label: 'Negocios', icon: Store },
 ];
 
 interface MapFilterChipsProps {
@@ -58,13 +58,13 @@ export const MapFilterChips = memo(function MapFilterChips({
             onPress={() => handlePress(filter.type)}
             activeOpacity={0.7}
           >
-            <Ionicons name={filter.icon} size={14} color={isSelected ? '#ffffff' : markerColor} />
+            <filter.icon size={14} color={isSelected ? '#ffffff' : markerColor} strokeWidth={2.5} />
             <Text
               style={[styles.chipText, { color: isSelected ? '#ffffff' : colors.text.primary }]}
             >
               {filter.label}
             </Text>
-            {isSelected && <Ionicons name="checkmark" size={12} color="#ffffff" />}
+            {isSelected && <Check size={12} color="#ffffff" strokeWidth={2.5} />}
           </TouchableOpacity>
         );
       })}
@@ -81,17 +81,17 @@ export const MapFilterChips = memo(function MapFilterChips({
         onPress={onToggleUserLocation}
         activeOpacity={0.7}
       >
-        <Ionicons
-          name="location"
+        <MapPin
           size={14}
           color={showUserLocation ? '#ffffff' : USER_MARKER_COLOR}
+          strokeWidth={2.5}
         />
         <Text
           style={[styles.chipText, { color: showUserLocation ? '#ffffff' : colors.text.primary }]}
         >
           Mi ubicación
         </Text>
-        {showUserLocation && <Ionicons name="checkmark" size={12} color="#ffffff" />}
+        {showUserLocation && <Check size={12} color="#ffffff" strokeWidth={2.5} />}
       </TouchableOpacity>
     </>
   );
