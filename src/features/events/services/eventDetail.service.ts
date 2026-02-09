@@ -47,6 +47,7 @@ export interface EventDetailData {
     reviewCount: number;
     isApproved: boolean;
     createdAt: string;
+    createdBy: string | null;
 }
 
 // ============================================
@@ -68,6 +69,7 @@ export async function getEventDetail(eventId: string): Promise<EventDetailData |
         .from('events')
         .select(`
             id_evt,
+            created_by_evt,
             name_evt,
             description_evt,
             start_at_evt,
@@ -197,5 +199,6 @@ export async function getEventDetail(eventId: string): Promise<EventDetailData |
         reviewCount: (data as any).reviews_count_evt ?? 0,
         isApproved: (data as any).moderation_status_evt === 'approved',
         createdAt: (data as any).created_at_evt,
+        createdBy: (data as any).created_by_evt ?? null,
     };
 }

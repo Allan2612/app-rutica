@@ -9,7 +9,7 @@ import {
     useDeleteEventReview,
 } from '@/features/events/hooks/useEventReviews';
 
-export function useEventReviewsActions(eventId: string, onCloseModal: () => void) {
+export function useEventReviewsActions(eventId: string, ownerId: string, onCloseModal: () => void) {
     const { user } = useAuthStore();
 
     const { data: reviews, isLoading: isLoadingReviews } = useEventReviews(eventId);
@@ -19,7 +19,8 @@ export function useEventReviewsActions(eventId: string, onCloseModal: () => void
     const updateReview = useUpdateEventReview();
     const deleteReview = useDeleteEventReview();
 
-    const canWriteReview = !!user && !userReview;
+    const isOwner = !!user && !!ownerId && user.id === ownerId;
+    const canWriteReview = !!user && !userReview && !isOwner;
     const hasReviews = reviews && reviews.length > 0;
     const isSubmitting = createReview.isPending || updateReview.isPending;
     const isDeleting = deleteReview.isPending;

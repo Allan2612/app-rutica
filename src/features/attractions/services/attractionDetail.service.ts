@@ -32,6 +32,7 @@ export interface AttractionDetailData {
     reviewCount: number;
     isApproved: boolean;
     createdAt: string;
+    createdBy: string | null;
 }
 
 // ============================================
@@ -92,6 +93,7 @@ export async function getAttractionDetail(
         .select(
             `
       id_atr,
+      submitted_by_atr,
       name_atr,
       description_atr,
       moderation_status_atr,
@@ -196,5 +198,6 @@ export async function getAttractionDetail(
         reviewCount: data.reviews_count_atr ?? 0,
         isApproved: data.moderation_status_atr === 'approved',
         createdAt: data.created_at_atr,
+        createdBy: (data as any).submitted_by_atr ?? null,
     };
 }

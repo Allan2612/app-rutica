@@ -1,8 +1,8 @@
-import { memo } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { Calendar, Users, Coins, MapPin, Star, ExternalLink } from 'lucide-react-native';
+import { memo, useState } from 'react';
+import { View, Text, Image, Pressable } from 'react-native';
+import { Calendar, Users, Coins, MapPin } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { styles } from './styles';
 
 interface EventHeaderProps {
@@ -16,12 +16,9 @@ interface EventHeaderProps {
     price: number | null;
     currency: string | null;
     capacity: number | null;
-    rating: number;
-    reviewCount: number;
     locationLabel: string | null;
-    latitude: number | null;
-    longitude: number | null;
-    onOpenMaps: () => void;
+    isApproved?: boolean;
+    authorName?: string | null;
 }
 
 function formatEventDate(startAt: string, endAt: string): string {
@@ -57,89 +54,110 @@ export const EventHeader = memo(({
     price,
     currency,
     capacity,
-    rating,
-    reviewCount,
     locationLabel,
-    latitude,
-    longitude,
-    onOpenMaps,
+    isApproved = false,
+    authorName,
 }: EventHeaderProps) => {
     const colors = useThemedColors();
+    const [expandedDescription, setExpandedDescription] = useState(false);
+
+    const shouldTruncate = description && description.length > 200;
+    const displayDescription = shouldTruncate && !expandedDescription
+        ? `${description.substring(0, 200)}...`
+        : description;
 
     return (
-        <>
-            {/* Categories */}
-            <View style={styles.categoriesRow}>
-                {categoryNames.map((catName, idx) => {
-                    const catId = categoryIds[idx];
-                    const colorScheme = getCategoryColorScheme(catId);
-                    return (
-                        <View key={catId} style={[styles.categoryBadge, { backgroundColor: colorScheme.backgroundColor }]}>
-                            <Text style={[styles.categoryText, { color: colorScheme.textColor }]}>{catName}</Text>
-                        </View>
-                    );
-                })}
-            </View>
-
-            {/* Title */}
-            <Text style={[styles.title, { color: colors.text.primary }]}>{name}</Text>
-
-            {/* Description */}
-            {description && (
-                <Text style={[styles.descriptionText, { color: colors.text.secondary }]} numberOfLines={3}>
-                    {description}
-                </Text>
-            )}
-
-            {/* Date */}
-            <View style={styles.infoRow}>
-                <Calendar size={18} color={colors.primary[500]} />
-                <Text style={[styles.infoText, { color: colors.text.secondary }]}>
-                    {formatEventDate(startAt, endAt)}
-                </Text>
-            </View>
-
-            {/* Price */}
-            <View style={styles.infoRow}>
-                <Coins size={18} color={isFree ? '#22c55e' : colors.primary[500]} />
-                <Text style={[styles.infoText, { color: isFree ? '#22c55e' : colors.text.secondary }]}>
-                    {isFree ? 'Entrada gratuita' : `${currency ?? '₡'}${price?.toLocaleString()}`}
-                </Text>
-            </View>
-
-            {/* Capacity */}
-            {capacity && (
-                <View style={styles.infoRow}>
-                    <Users size={18} color={colors.text.tertiary} />
-                    <Text style={[styles.infoText, { color: colors.text.secondary }]}>
-                        Capacidad: {capacity} personas
-                    </Text>
-                </View>
-            )}
-
-            {/* Rating */}
-            {rating > 0 && (
-                <View style={styles.infoRow}>
-                    <Star size={18} color="#facc15" fill="#facc15" />
-                    <Text style={[styles.infoText, { color: colors.text.secondary }]}>
-                        {rating.toFixed(1)} ({reviewCount})
-                    </Text>
-                </View>
-            )}
-
-            {/* Location */}
-            {locationLabel && (
-                <Pressable style={styles.infoRow} onPress={onOpenMaps}>
-                    <MapPin size={18} color={colors.primary[500]} />
-                    <Text style={[styles.locationText, { color: colors.text.secondary }]}>
-                        {locationLabel}
-                    </Text>
-                    {latitude && longitude && (
-                        <ExternalLink size={14} color={colors.primary[500]} />
+        <View style={styles.header}>
+            <View style={styles.infoSection}>
+                {/* Name + Verification */}
+                <View style={styles.nameRow}>
+                    <Text style={[styles.name, { color: colors.text.primary }]}>{name}</Text>
+                    {isApproved && (
+                        <Image
+                            source={require('../../../../assets/verification.png')}
+                            style={styles.verificationIcon}
+                            resizeMode="contain"
+                        />
                     )}
-                </Pressable>
-            )}
-        </>
+                </View>
+
+                {/* Description */}
+                {description && (
+                    <View style={styles.descriptionContainer}>
+                        <Text style={[styles.description, { color: colors.text.primary }]}>
+                            {displayDescription}
+                        </Text>
+                        {shouldTruncate && (
+                            <Pressable onPress={() => setExpandedDescription(!expandedDescription)}>
+                                <Text style={[styles.readMoreText, { color: colors.primary[500] }]}>
+                                    {expandedDescription ? 'Ver menos' : 'Ver más'}
+                                </Text>
+                            </Pressable>
+                        )}
+                    </View>
+                )}
+
+                {/* Categories */}
+                {categoryNames.length > 0 && (
+                    <View style={styles.categoriesRow}>
+                        {categoryNames.map((catName, idx) => (
+                            <CategoryChip
+                                key={categoryIds[idx] || idx}
+                                categoryId={categoryIds[idx]}
+                                categoryName={catName}
+                                variant="small"
+                            />
+                        ))}
+                    </View>
+                )}
+
+                {/* Info Pills */}
+                <View style={styles.infoPills}>
+                    {/* Date */}
+                    <View style={[styles.infoPill, { backgroundColor: colors.background.tertiary }]}>
+                        <Calendar size={16} color={colors.primary[500]} />
+                        <Text style={[styles.infoPillText, { color: colors.text.secondary }]}>
+                            {formatEventDate(startAt, endAt)}
+                        </Text>
+                    </View>
+
+                    {/* Price */}
+                    <View style={[styles.infoPill, { backgroundColor: isFree ? '#f0fdf4' : colors.background.tertiary }]}>
+                        <Coins size={16} color={isFree ? '#22c55e' : colors.primary[500]} />
+                        <Text style={[styles.infoPillText, { color: isFree ? '#22c55e' : colors.text.secondary }]}>
+                            {isFree ? 'Entrada gratuita' : `${currency ?? '₡'}${price?.toLocaleString()}`}
+                        </Text>
+                    </View>
+
+                    {/* Capacity */}
+                    {capacity && (
+                        <View style={[styles.infoPill, { backgroundColor: colors.background.tertiary }]}>
+                            <Users size={16} color={colors.text.tertiary} />
+                            <Text style={[styles.infoPillText, { color: colors.text.secondary }]}>
+                                {capacity} personas
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                {/* Location */}
+                {locationLabel && (
+                    <View style={styles.locationRow}>
+                        <MapPin size={18} color={colors.primary[500]} />
+                        <Text style={[styles.locationText, { color: colors.primary[500] }]}>
+                            {locationLabel}
+                        </Text>
+                    </View>
+                )}
+
+                {/* Author */}
+                {authorName && (
+                    <Text style={[styles.authorText, { color: colors.text.tertiary }]}>
+                        Organizado por {authorName}
+                    </Text>
+                )}
+            </View>
+        </View>
     );
 });
 

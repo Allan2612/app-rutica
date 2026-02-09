@@ -8,6 +8,15 @@ export const styles = StyleSheet.create({
     scrollContent: {
         paddingBottom: spacing.xl,
     },
+    contentContainer: {
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing.sm,
+    },
+    mainContent: {
+        maxWidth: 800,
+        width: '100%',
+        alignSelf: 'center',
+    },
     loader: {
         flex: 1,
         justifyContent: 'center',
@@ -33,92 +42,5 @@ export const styles = StyleSheet.create({
     retryText: {
         fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.semibold,
-    },
-    backButton: {
-        position: 'absolute',
-        top: spacing.md,
-        left: spacing.md,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    contentContainer: {
-        paddingHorizontal: spacing.xl,
-        paddingTop: spacing.lg,
-    },
-    mainContent: {
-        maxWidth: 800,
-        width: '100%',
-        alignSelf: 'center',
-    },
-    categoriesRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: spacing.xs,
-        marginBottom: spacing.sm,
-    },
-    categoryBadge: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.xs,
-        borderRadius: spacing.lg,
-    },
-    categoryText: {
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.fontWeights.medium,
-    },
-    title: {
-        fontSize: typography.sizes['2xl'],
-        fontWeight: typography.fontWeights.bold,
-        marginBottom: spacing.xs,
-    },
-    ratingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
-        marginBottom: spacing.sm,
-    },
-    ratingText: {
-        fontSize: typography.sizes.sm,
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
-        marginBottom: spacing.md,
-    },
-    locationText: {
-        fontSize: typography.sizes.sm,
-        flex: 1,
-    },
-    descriptionSection: {
-        marginTop: spacing.md,
-        paddingTop: spacing.md,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(0,0,0,0.05)',
-    },
-    sectionTitle: {
-        fontSize: typography.sizes.lg,
-        fontWeight: typography.fontWeights.semibold,
-        marginBottom: spacing.sm,
-    },
-    descriptionText: {
-        fontSize: typography.sizes.base,
-        lineHeight: 24,
-    },
-    readMoreText: {
-        fontSize: typography.sizes.sm,
-        fontWeight: typography.fontWeights.medium,
-        marginTop: spacing.xs,
-    },
-    authorText: {
-        fontSize: typography.sizes.xs,
-        marginTop: spacing.sm,
     },
 });

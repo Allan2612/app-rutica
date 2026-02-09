@@ -12,12 +12,14 @@ interface EventReviewsSectionProps {
     eventId: string;
     eventName: string;
     eventImage?: string;
+    ownerId?: string | null;
 }
 
 export const EventReviewsSection = memo(function EventReviewsSection({
     eventId,
     eventName,
     eventImage,
+    ownerId,
 }: EventReviewsSectionProps) {
     const colors = useThemedColors();
 
@@ -37,7 +39,7 @@ export const EventReviewsSection = memo(function EventReviewsSection({
         isDeleting,
         handleSubmitReview,
         handleDeleteReview,
-    } = useEventReviewsActions(eventId, closeModal);
+    } = useEventReviewsActions(eventId, ownerId ?? '', closeModal);
 
     const handleOpenModal = useCallback(() => setIsModalVisible(true), []);
     const handleOpenDeleteDialog = useCallback(() => setIsDeleteDialogVisible(true), []);

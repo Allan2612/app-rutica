@@ -16,19 +16,19 @@ export const SupportScreen = memo(function SupportScreen() {
   }, []);
 
   const handleEmail = useCallback(() => {
-    Linking.openURL('mailto:soporte@rutica.com');
+    Linking.openURL('mailto:rutica.app@gmail.com');
   }, []);
 
-  const handlePhone = useCallback(() => {
-    Linking.openURL('tel:+50612345678');
+  const handlePhone = useCallback((phone: string) => () => {
+    Linking.openURL(`tel:${phone}`);
   }, []);
 
-  const handleWhatsApp = useCallback(() => {
+  const handleWhatsApp = useCallback((phoneNumber: string) => () => {
     // Formato: https://wa.me/PHONENUMBER?text=MESSAGE
     // Número sin espacios ni caracteres especiales
-    const phoneNumber = '50612345678';
+    const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
     const message = encodeURIComponent('Hola, necesito ayuda con Rutica');
-    Linking.openURL(`https://wa.me/${phoneNumber}?text=${message}`);
+    Linking.openURL(`https://wa.me/${cleanPhone}?text=${message}`);
   }, []);
 
   return (
@@ -68,35 +68,63 @@ export const SupportScreen = memo(function SupportScreen() {
                     Correo electrónico
                   </Text>
                   <Text style={[styles.contactValue, { color: colors.text.primary }]}>
-                    soporte@rutica.com
+                    rutica.app@gmail.com
                   </Text>
                 </View>
               </Pressable>
 
               <View style={[styles.divider, { backgroundColor: colors.border.light }]} />
 
-              <Pressable style={styles.contactItem} onPress={handlePhone}>
+              <Pressable style={styles.contactItem} onPress={handlePhone('+50684501389')}>
                 <Phone color={colors.primary[500]} size={20} />
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.contactLabel, { color: colors.text.tertiary }]}>
-                    Teléfono
+                    Teléfono 1
                   </Text>
                   <Text style={[styles.contactValue, { color: colors.text.primary }]}>
-                    +506 1234-5678
+                    +506 8450-1389
                   </Text>
                 </View>
               </Pressable>
 
               <View style={[styles.divider, { backgroundColor: colors.border.light }]} />
 
-              <Pressable style={styles.contactItem} onPress={handleWhatsApp}>
+              <Pressable style={styles.contactItem} onPress={handlePhone('+50687077994')}>
+                <Phone color={colors.primary[500]} size={20} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.contactLabel, { color: colors.text.tertiary }]}>
+                    Teléfono 2
+                  </Text>
+                  <Text style={[styles.contactValue, { color: colors.text.primary }]}>
+                    +506 8707-7994
+                  </Text>
+                </View>
+              </Pressable>
+
+              <View style={[styles.divider, { backgroundColor: colors.border.light }]} />
+
+              <Pressable style={styles.contactItem} onPress={handleWhatsApp('+50684501389')}>
                 <MessageCircle color={colors.primary[500]} size={20} />
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.contactLabel, { color: colors.text.tertiary }]}>
-                    WhatsApp
+                    WhatsApp 1
                   </Text>
                   <Text style={[styles.contactValue, { color: colors.text.primary }]}>
-                    +506 1234-5678
+                    +506 8450-1389
+                  </Text>
+                </View>
+              </Pressable>
+
+              <View style={[styles.divider, { backgroundColor: colors.border.light }]} />
+
+              <Pressable style={styles.contactItem} onPress={handleWhatsApp('+50687077994')}>
+                <MessageCircle color={colors.primary[500]} size={20} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.contactLabel, { color: colors.text.tertiary }]}>
+                    WhatsApp 2
+                  </Text>
+                  <Text style={[styles.contactValue, { color: colors.text.primary }]}>
+                    +506 8707-7994
                   </Text>
                 </View>
               </Pressable>

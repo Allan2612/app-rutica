@@ -2,13 +2,17 @@
  * Pantalla de detalle de atracción
  */
 import { memo, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking, Platform, Modal, Image } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ArrowLeft, Mountain, X } from 'lucide-react-native';
+import { ArrowLeft, Mountain } from 'lucide-react-native';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useAttractionDetail } from '@/features/attractions/hooks';
-import { GenericCarousel } from '@/components/ui';
-import { BusinessGallery } from '@/components/business';
+import {
+    BusinessGallery,
+    CoverImage,
+    ImageViewerModal,
+    BusinessMap,
+} from '@/components/business';
 import { AttractionHeader, AttractionReviewsSection } from '@/components/attractions';
 import { styles } from '@/features/attractions/screens/AttractionDetailScreen/styles';
 
@@ -16,34 +20,20 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
     const colors = useThemedColors();
     const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
     const { data: attraction, isLoading, error, refetch } = useAttractionDetail(id);
-    const [expandedImage, setExpandedImage] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-    // Refrescar datos cuando la pantalla recibe foco
     useRefreshOnFocus(refetch);
 
     const handleClose = () => {
-        // Si viene del mapa, regresar al mapa
         if (from === 'maps') {
             router.replace('/(app)/(tabs)/maps');
             return;
         }
-        // Intentar regresar normalmente
         if (router.canGoBack()) {
             router.back();
         } else {
             router.replace('/(app)/(tabs)/attractions');
         }
-    };
-
-    const handleOpenMaps = () => {
-        if (!attraction?.latitude || !attraction?.longitude) return;
-        const label = encodeURIComponent(attraction.name);
-        const url = Platform.select({
-            ios: `http://maps.apple.com/?q=${label}&ll=${attraction.latitude},${attraction.longitude}`,
-            android: `geo:${attraction.latitude},${attraction.longitude}?q=${attraction.latitude},${attraction.longitude}(${label})`,
-            default: `https://www.google.com/maps/search/?api=1&query=${attraction.latitude},${attraction.longitude}`,
-        });
-        Linking.openURL(url);
     };
 
     if (isLoading) {
@@ -75,29 +65,34 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
     return (
         <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {attraction.coverImage && (
-                    <GenericCarousel
-                        items={[attraction.coverImage]}
-                        renderItem={(image) => (
-                            <Image
-                                source={{ uri: image }}
-                                style={{ width: '100%', aspectRatio: 16 / 9, maxHeight: 280 }}
-                                resizeMode="cover"
-                            />
-                        )}
-                        showNavigation={false}
-                        showIndicators={false}
-                        autoScroll={false}
-                    />
-                )}
+                {/* Cover Image con rating */}
+                <CoverImage
+                    coverImage={attraction.coverImage}
+                    rating={attraction.rating}
+                    reviewCount={attraction.reviewCount}
+                    onCoverPress={setSelectedImage}
+                />
 
+                {/* Back Button */}
                 <Pressable
-                    style={({ pressed }) => [styles.backButton, { backgroundColor: colors.background.primary, opacity: pressed ? 0.7 : 1 }]}
+                    style={({ pressed }) => ({
+                        position: 'absolute',
+                        top: 16,
+                        left: 16,
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        backgroundColor: colors.background.primary,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        opacity: pressed ? 0.7 : 1,
+                    })}
                     onPress={handleClose}
                 >
                     <ArrowLeft size={24} color={colors.text.primary} />
                 </Pressable>
 
+                {/* Main Content */}
                 <View style={styles.contentContainer}>
                     <View style={styles.mainContent}>
                         <AttractionHeader
@@ -105,24 +100,25 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
                             description={attraction.description}
                             categoryIds={attraction.categoryIds}
                             categoryNames={attraction.categoryNames}
-                            rating={attraction.rating}
-                            reviewCount={attraction.reviewCount}
                             locationLabel={attraction.locationLabel}
-                            latitude={attraction.latitude}
-                            longitude={attraction.longitude}
-                            onOpenMaps={handleOpenMaps}
+                            isApproved={attraction.isApproved}
+                            authorName={attraction.authorName}
                         />
 
-                        {attraction.authorName && (
-                            <Text style={[styles.authorText, { color: colors.text.tertiary }]}>
-                                Publicado por {attraction.authorName}
-                            </Text>
-                        )}
-
+                        {/* Gallery */}
                         {attraction.galleryImages.length > 0 && (
                             <BusinessGallery
                                 images={attraction.galleryImages}
-                                onImagePress={(imageUrl) => setExpandedImage(imageUrl)}
+                                onImagePress={setSelectedImage}
+                            />
+                        )}
+
+                        {/* Map Section */}
+                        {attraction.latitude && attraction.longitude && (
+                            <BusinessMap
+                                latitude={attraction.latitude}
+                                longitude={attraction.longitude}
+                                businessName={attraction.name}
                             />
                         )}
 
@@ -131,41 +127,18 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
                             attractionId={id}
                             attractionName={attraction.name}
                             attractionImage={attraction.coverImage ?? undefined}
+                            ownerId={attraction.createdBy}
                         />
                     </View>
                 </View>
             </ScrollView>
 
-            <Modal
-                visible={expandedImage !== null}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setExpandedImage(null)}
-            >
-                <Pressable
-                    style={{
-                        flex: 1,
-                        backgroundColor: 'rgba(0,0,0,0.9)',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                    onPress={() => setExpandedImage(null)}
-                >
-                    <Pressable
-                        style={{ position: 'absolute', top: 50, right: 20, zIndex: 10 }}
-                        onPress={() => setExpandedImage(null)}
-                    >
-                        <X size={32} color="#FFFFFF" />
-                    </Pressable>
-                    {expandedImage && (
-                        <Image
-                            source={{ uri: expandedImage }}
-                            style={{ width: '95%', height: '80%' }}
-                            resizeMode="contain"
-                        />
-                    )}
-                </Pressable>
-            </Modal>
+            {/* Image Viewer Modal */}
+            <ImageViewerModal
+                visible={selectedImage !== null}
+                imageUri={selectedImage}
+                onClose={() => setSelectedImage(null)}
+            />
         </View>
     );
 });

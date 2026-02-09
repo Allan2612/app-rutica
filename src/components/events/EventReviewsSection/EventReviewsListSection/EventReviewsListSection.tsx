@@ -1,7 +1,9 @@
 import { memo, useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { EventReviewItem } from '@/components/events/EventPost';
+import { useAuthStore } from '@/store';
+import { ReviewCard } from '@/components/business/ReviewCard';
+import { useToggleEventReviewLike } from '@/features/events/hooks/useToggleEventReviewLike';
 import { styles } from '../styles';
 import type { EventReviewDisplay } from '@/services/eventReviews.service';
 
@@ -27,41 +29,33 @@ export const EventReviewsList = memo(function EventReviewsList({
     onWriteReview,
 }: EventReviewsListProps) {
     const colors = useThemedColors();
+    const currentUser = useAuthStore((state) => state.user);
+    const toggleLike = useToggleEventReviewLike();
 
-    const getInitials = useCallback((name: string) => {
-        return name
-            .split(' ')
-            .map((word) => word[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2);
-    }, []);
-
-    const getTimeAgo = useCallback((dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffMs = now.getTime() - date.getTime();
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        const diffMonths = Math.floor(diffDays / 30);
-
-        if (diffDays === 0) return 'Hoy';
-        if (diffDays === 1) return 'Ayer';
-        if (diffDays < 7) return `Hace ${diffDays} días`;
-        if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
-        if (diffMonths === 1) return 'Hace 1 mes';
-        if (diffMonths < 12) return `Hace ${diffMonths} meses`;
-        return `Hace ${Math.floor(diffMonths / 12)} años`;
-    }, []);
+    const handleLikeToggle = useCallback((reviewId: string) => {
+        if (!currentUser?.id) return;
+        toggleLike.mutate({ reviewId, userId: currentUser.id });
+    }, [toggleLike, currentUser?.id]);
 
     return (
         <View style={styles.reviewsList}>
             {/* User's review first if exists */}
             {userReview && (
-                <EventReviewItem
-                    review={userReview}
+                <ReviewCard
+                    id={userReview.id}
+                    authorName={userReview.authorName}
+                    authorId={userReview.userId}
+                    rating={userReview.rating}
+                    comment={userReview.comment}
+                    createdAt={userReview.createdAt}
+                    likesCount={userReview.likesCount}
+                    isLikedByUser={userReview.isLikedByUser}
                     isOwner={true}
                     onEdit={onEdit}
                     onDelete={onDelete}
+                    isDeleting={isDeleting}
+                    onLikeToggle={handleLikeToggle}
+                    isLikeToggling={toggleLike.isPending}
                 />
             )}
 
@@ -69,12 +63,20 @@ export const EventReviewsList = memo(function EventReviewsList({
             {reviews
                 .filter((review) => review.userId !== currentUserId)
                 .map((review) => (
-                    <EventReviewItem
+                    <ReviewCard
                         key={review.id}
-                        review={review}
-                        isOwner={false}
+                        id={review.id}
+                        authorName={review.authorName}
+                        authorId={review.userId}
+                        rating={review.rating}
+                        comment={review.comment}
+                        createdAt={review.createdAt}
+                        likesCount={review.likesCount}
+                        isLikedByUser={review.isLikedByUser}
                         onEdit={() => {}}
                         onDelete={() => {}}
+                        onLikeToggle={handleLikeToggle}
+                        isLikeToggling={toggleLike.isPending}
                     />
                 ))}
 

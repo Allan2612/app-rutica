@@ -1,8 +1,8 @@
 import { memo, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { MapPin, Star, ExternalLink } from 'lucide-react-native';
+import { View, Text, Image, Pressable } from 'react-native';
+import { MapPin } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { getCategoryColorScheme } from '@/utils/categoryColors';
+import { CategoryChip } from '@/components/ui/CategoryChip';
 import { styles } from './styles';
 
 interface AttractionHeaderProps {
@@ -10,12 +10,9 @@ interface AttractionHeaderProps {
     description: string | null;
     categoryIds: string[];
     categoryNames: string[];
-    rating: number;
-    reviewCount: number;
     locationLabel: string | null;
-    latitude: number | null;
-    longitude: number | null;
-    onOpenMaps: () => void;
+    isApproved?: boolean;
+    authorName?: string | null;
 }
 
 export const AttractionHeader = memo(({
@@ -23,12 +20,9 @@ export const AttractionHeader = memo(({
     description,
     categoryIds,
     categoryNames,
-    rating,
-    reviewCount,
     locationLabel,
-    latitude,
-    longitude,
-    onOpenMaps,
+    isApproved = false,
+    authorName,
 }: AttractionHeaderProps) => {
     const colors = useThemedColors();
     const [expandedDescription, setExpandedDescription] = useState(false);
@@ -39,62 +33,68 @@ export const AttractionHeader = memo(({
         : description;
 
     return (
-        <>
-            {/* Categories */}
-            <View style={styles.categoriesRow}>
-                {categoryNames.map((catName, idx) => {
-                    const catId = categoryIds[idx];
-                    const colorScheme = getCategoryColorScheme(catId);
-                    return (
-                        <View key={catId} style={[styles.categoryBadge, { backgroundColor: colorScheme.backgroundColor }]}>
-                            <Text style={[styles.categoryText, { color: colorScheme.textColor }]}>{catName}</Text>
-                        </View>
-                    );
-                })}
+        <View style={styles.header}>
+            <View style={styles.infoSection}>
+                {/* Name + Verification */}
+                <View style={styles.nameRow}>
+                    <Text style={[styles.name, { color: colors.text.primary }]}>{name}</Text>
+                    {isApproved && (
+                        <Image
+                            source={require('../../../../assets/verification.png')}
+                            style={styles.verificationIcon}
+                            resizeMode="contain"
+                        />
+                    )}
+                </View>
+
+                {/* Description */}
+                {description && (
+                    <View style={styles.descriptionContainer}>
+                        <Text style={[styles.description, { color: colors.text.primary }]}>
+                            {displayDescription}
+                        </Text>
+                        {shouldTruncate && (
+                            <Pressable onPress={() => setExpandedDescription(!expandedDescription)}>
+                                <Text style={[styles.readMoreText, { color: colors.primary[500] }]}>
+                                    {expandedDescription ? 'Ver menos' : 'Ver más'}
+                                </Text>
+                            </Pressable>
+                        )}
+                    </View>
+                )}
+
+                {/* Categories */}
+                {categoryNames.length > 0 && (
+                    <View style={styles.categoriesRow}>
+                        {categoryNames.map((catName, idx) => (
+                            <CategoryChip
+                                key={categoryIds[idx] || idx}
+                                categoryId={categoryIds[idx]}
+                                categoryName={catName}
+                                variant="small"
+                            />
+                        ))}
+                    </View>
+                )}
+
+                {/* Location */}
+                {locationLabel && (
+                    <View style={styles.locationRow}>
+                        <MapPin size={18} color={colors.primary[500]} />
+                        <Text style={[styles.locationText, { color: colors.primary[500] }]}>
+                            {locationLabel}
+                        </Text>
+                    </View>
+                )}
+
+                {/* Author */}
+                {authorName && (
+                    <Text style={[styles.authorText, { color: colors.text.tertiary }]}>
+                        Publicado por {authorName}
+                    </Text>
+                )}
             </View>
-
-            {/* Title */}
-            <Text style={[styles.title, { color: colors.text.primary }]}>{name}</Text>
-
-            {/* Description */}
-            {description && (
-                <View style={styles.descriptionSection}>
-                    <Text style={[styles.descriptionText, { color: colors.text.secondary }]}>
-                        {displayDescription}
-                    </Text>
-                    {shouldTruncate && (
-                        <Pressable onPress={() => setExpandedDescription(!expandedDescription)}>
-                            <Text style={[styles.readMoreText, { color: colors.primary[500] }]}>
-                                {expandedDescription ? 'Ver menos' : 'Ver más'}
-                            </Text>
-                        </Pressable>
-                    )}
-                </View>
-            )}
-
-            {/* Rating */}
-            {rating > 0 && (
-                <View style={styles.ratingRow}>
-                    <Star size={16} color="#facc15" fill="#facc15" />
-                    <Text style={[styles.ratingText, { color: colors.text.secondary }]}>
-                        {rating.toFixed(1)} ({reviewCount})
-                    </Text>
-                </View>
-            )}
-
-            {/* Location */}
-            {locationLabel && (
-                <Pressable style={styles.locationRow} onPress={onOpenMaps}>
-                    <MapPin size={16} color={colors.primary[500]} />
-                    <Text style={[styles.locationText, { color: colors.text.secondary }]}>
-                        {locationLabel}
-                    </Text>
-                    {latitude && longitude && (
-                        <ExternalLink size={14} color={colors.primary[500]} />
-                    )}
-                </Pressable>
-            )}
-        </>
+        </View>
     );
 });
 

@@ -9,7 +9,7 @@ import {
     useDeleteAttractionReview,
 } from '@/features/attractions/hooks/useAttractionReviews';
 
-export function useAttractionReviewsActions(attractionId: string, onCloseModal: () => void) {
+export function useAttractionReviewsActions(attractionId: string, ownerId: string, onCloseModal: () => void) {
     const { user } = useAuthStore();
 
     const { data: reviews, isLoading: isLoadingReviews } = useAttractionReviews(attractionId);
@@ -19,7 +19,8 @@ export function useAttractionReviewsActions(attractionId: string, onCloseModal: 
     const updateReview = useUpdateAttractionReview();
     const deleteReview = useDeleteAttractionReview();
 
-    const canWriteReview = !!user && !userReview;
+    const isOwner = !!user && !!ownerId && user.id === ownerId;
+    const canWriteReview = !!user && !userReview && !isOwner;
     const hasReviews = reviews && reviews.length > 0;
     const isSubmitting = createReview.isPending || updateReview.isPending;
     const isDeleting = deleteReview.isPending;

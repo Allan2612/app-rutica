@@ -70,7 +70,12 @@ export const LoginScreen = memo(function LoginScreen() {
       footer={
         <Text style={[sharedStyles.footerText, { color: colors.text.tertiary }]}>
           Al iniciar sesión, aceptas nuestros{' '}
-          <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>Términos y Condiciones</Text>
+          <Text
+            style={[sharedStyles.footerLink, { color: colors.primary[500] }]}
+            onPress={() => router.push('/(auth)/terms')}
+          >
+            Términos y Condiciones
+          </Text>
         </Text>
       }
     >

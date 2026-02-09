@@ -24,6 +24,9 @@ interface ReviewCardProps {
     onEdit?: () => void;
     onDelete?: () => void;
     isDeleting?: boolean;
+    /** Optional external like toggle – when provided, overrides the internal business-like hook */
+    onLikeToggle?: (reviewId: string) => void;
+    isLikeToggling?: boolean;
 }
 
 export const ReviewCard = memo(function ReviewCard({
@@ -39,11 +42,13 @@ export const ReviewCard = memo(function ReviewCard({
     onEdit,
     onDelete,
     isDeleting = false,
+    onLikeToggle,
+    isLikeToggling = false,
 }: ReviewCardProps) {
     const colors = useThemedColors();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const currentUser = useAuthStore((state) => state.user);
-    const toggleLike = useToggleReviewLike();
+    const internalToggleLike = useToggleReviewLike();
 
     // Verificar si el usuario es admin
     const [userProfile, setUserProfile] = React.useState<any>(null);
@@ -58,6 +63,8 @@ export const ReviewCard = memo(function ReviewCard({
     const userIsAdmin = isAdmin(userProfile);
     const canEditOrDelete = isOwner || userIsAdmin;
 
+    const likeIsPending = onLikeToggle ? isLikeToggling : internalToggleLike.isPending;
+
     const handleLikePress = useCallback(() => {
         if (!isAuthenticated) {
             Toast.show({
@@ -69,8 +76,12 @@ export const ReviewCard = memo(function ReviewCard({
             });
             return;
         }
-        toggleLike.mutate(id);
-    }, [id, isAuthenticated, toggleLike]);
+        if (onLikeToggle) {
+            onLikeToggle(id);
+        } else {
+            internalToggleLike.mutate(id);
+        }
+    }, [id, isAuthenticated, onLikeToggle, internalToggleLike]);
 
     const renderStars = () => {
         const stars = [];
@@ -121,7 +132,7 @@ export const ReviewCard = memo(function ReviewCard({
                     <Pressable
                         style={styles.likeButton}
                         onPress={handleLikePress}
-                        disabled={toggleLike.isPending}
+                        disabled={likeIsPending}
                     >
                         <ThumbsUp
                             size={18}

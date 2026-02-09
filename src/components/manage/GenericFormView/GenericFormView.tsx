@@ -101,11 +101,11 @@ export const GenericFormView = memo(function GenericFormView({
                     {children}
 
                     <FormActions
-                        onCancel={onCancel}
+                        onCancel={handleSafeBack}
                         onSubmit={onSubmit}
                         isSubmitting={isSubmitting}
                         submitLabel={submitLabel}
-                        hasChanges={hasChanges}
+                        hasChanges={false}
                     />
                 </View>
             </ScrollView>

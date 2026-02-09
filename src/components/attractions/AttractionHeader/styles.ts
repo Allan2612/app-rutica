@@ -1,62 +1,67 @@
 import { StyleSheet } from 'react-native';
-import { spacing, typography } from '@/styles/theme';
+import { spacing, typography, colors } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
-    categoriesRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: spacing.xs,
-        marginBottom: spacing.sm,
-    },
-    categoryBadge: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.xs,
-        borderRadius: spacing.lg,
-    },
-    categoryText: {
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.fontWeights.medium,
-    },
-    title: {
-        fontSize: typography.sizes['2xl'],
-        fontWeight: typography.fontWeights.bold,
-        marginBottom: spacing.xs,
-    },
-    ratingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
-        marginBottom: spacing.sm,
-    },
-    ratingText: {
-        fontSize: typography.sizes.sm,
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
+    header: {
         marginBottom: spacing.md,
     },
-    locationText: {
-        fontSize: typography.sizes.sm,
+    infoSection: {
         flex: 1,
+        alignItems: 'center',
     },
-    descriptionSection: {
-        marginTop: spacing.xs,
+    nameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+    },
+    name: {
+        fontSize: typography.sizes['3xl'],
+        fontWeight: typography.fontWeights.bold,
+        marginBottom: spacing.sm,
+        letterSpacing: -0.5,
+        textAlign: 'center',
+    },
+    verificationIcon: {
+        width: 24,
+        height: 24,
         marginBottom: spacing.sm,
     },
-    sectionTitle: {
-        fontSize: typography.sizes.lg,
-        fontWeight: typography.fontWeights.semibold,
-        marginBottom: spacing.sm,
+    descriptionContainer: {
+        marginBottom: spacing.lg,
+        alignItems: 'center',
     },
-    descriptionText: {
+    description: {
         fontSize: typography.sizes.base,
         lineHeight: 24,
+        opacity: 0.9,
+        textAlign: 'center',
     },
     readMoreText: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.medium,
         marginTop: spacing.xs,
+    },
+    categoriesRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.sm,
+        marginBottom: spacing.md,
+        justifyContent: 'center',
+    },
+    locationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        marginTop: spacing.xs,
+    },
+    locationText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.fontWeights.medium,
+    },
+    authorText: {
+        fontSize: typography.sizes.xs,
+        marginTop: spacing.sm,
+        textAlign: 'center',
     },
 });

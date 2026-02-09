@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { View, Text, ScrollView, Switch, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { Moon, Sun, Bell, Globe, Info } from 'lucide-react-native';
+import { Moon, Sun, Globe, Info } from 'lucide-react-native';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
 import { BackButton } from '@/components/ui';
@@ -69,38 +69,6 @@ export const SettingsScreen = memo(function SettingsScreen() {
                   onValueChange={handleToggleTheme}
                   trackColor={{ false: colors.border.medium, true: colors.primary[500] }}
                   thumbColor="#ffffff"
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Notificaciones */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>
-              Notificaciones
-            </Text>
-            <View style={[styles.card, {
-              backgroundColor: colors.background.primary,
-              borderColor: colors.border.light,
-            }]}>
-              <View style={styles.settingRow}>
-                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <Bell color={colors.text.primary} size={20} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
-                      Notificaciones Push
-                    </Text>
-                    <Text style={[styles.settingDescription, { color: colors.text.secondary }]}>
-                      Recibir notificaciones de la app
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={false}
-                  onValueChange={() => { }}
-                  trackColor={{ false: colors.border.medium, true: colors.primary[500] }}
-                  thumbColor="#ffffff"
-                  disabled
                 />
               </View>
             </View>
