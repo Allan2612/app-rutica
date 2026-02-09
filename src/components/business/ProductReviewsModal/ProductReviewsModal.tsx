@@ -14,6 +14,7 @@ interface ProductReviewsModalProps {
     productId: string;
     productName: string;
     productImage?: string;
+    isOwnProduct?: boolean;
     onClose: () => void;
 }
 
@@ -22,6 +23,7 @@ export const ProductReviewsModal = memo(function ProductReviewsModal({
     productId,
     productName,
     productImage,
+    isOwnProduct = false,
     onClose,
 }: ProductReviewsModalProps) {
     const colors = useThemedColors();
@@ -91,7 +93,7 @@ export const ProductReviewsModal = memo(function ProductReviewsModal({
                                     <Text style={[styles.emptyText, { color: colors.text.tertiary }]}>
                                         Sin opiniones aún. ¡Sé el primero en compartir tu experiencia con este producto!
                                     </Text>
-                                    {userId && (
+                                    {userId && !isOwnProduct && (
                                         <Pressable
                                             style={[styles.writeButton, { backgroundColor: colors.primary[500] }]}
                                             onPress={handleWriteReview}
@@ -127,8 +129,8 @@ export const ProductReviewsModal = memo(function ProductReviewsModal({
                                             />
                                         ))}
 
-                                    {/* Write Review Button (only for users without review) */}
-                                    {userId && !userReview && (
+                                    {/* Write Review Button (only for users without review and not own product) */}
+                                    {userId && !userReview && !isOwnProduct && (
                                         <Pressable
                                             style={[styles.writeButtonOutline, { borderColor: colors.primary[500] }]}
                                             onPress={handleWriteReview}

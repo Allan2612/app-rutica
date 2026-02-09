@@ -60,7 +60,7 @@ export interface PromotionCategoryMap {
 export interface CategoryOption {
   id: string;
   name: string;
-  parentId?: string | null;
+  parentId: string | null;
 }
 
 /**
@@ -83,6 +83,7 @@ export function categoryToOption(category: Category): CategoryOption {
   return {
     id: category.id_cat,
     name: category.name_cat,
+    parentId: category.parent_id_cat,
   };
 }
 

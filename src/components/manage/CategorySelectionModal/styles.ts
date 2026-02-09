@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
     },
     confirmButtonText: {
         color: '#fff',
-        fontSize: typography.sizes.md,
+        fontSize: typography.sizes.base,
         fontWeight: typography.fontWeights.semibold,
     },
     content: {

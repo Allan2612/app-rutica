@@ -29,8 +29,13 @@ export function useUserActiveSubscriptions() {
   const userId = useAuthStore((state) => state.user?.id);
 
   return useQuery({
-    queryKey: userSubscriptionKeys.active(userId ?? ''),
-    queryFn: () => getUserActiveSubscriptions(userId!),
+    queryKey: userSubscriptionKeys.active(userId || 'anonymous'),
+    queryFn: () => {
+      if (!userId) {
+        return Promise.resolve([]);
+      }
+      return getUserActiveSubscriptions(userId);
+    },
     enabled: !!userId,
     // staleTime: 0 (usa configuración global para siempre refetch en foco)
   });
@@ -43,8 +48,13 @@ export function useUserSubscriptionSummary() {
   const userId = useAuthStore((state) => state.user?.id);
 
   return useQuery({
-    queryKey: userSubscriptionKeys.summary(userId ?? ''),
-    queryFn: () => getUserSubscriptionSummary(userId!),
+    queryKey: userSubscriptionKeys.summary(userId || 'anonymous'),
+    queryFn: () => {
+      if (!userId) {
+        return Promise.resolve({ hasActiveSubscriptions: false, activeCount: 0, subscriptions: [] });
+      }
+      return getUserSubscriptionSummary(userId);
+    },
     enabled: !!userId,
     // staleTime: 0 (usa configuración global para siempre refetch en foco)
   });
@@ -72,8 +82,13 @@ export function useUserSubscriptionDetails() {
   const userId = useAuthStore((state) => state.user?.id);
 
   return useQuery({
-    queryKey: userSubscriptionKeys.details(userId ?? ''),
-    queryFn: () => getUserSubscriptionDetails(userId!),
+    queryKey: userSubscriptionKeys.details(userId || 'anonymous'),
+    queryFn: () => {
+      if (!userId) {
+        return Promise.resolve([]);
+      }
+      return getUserSubscriptionDetails(userId);
+    },
     enabled: !!userId,
     // staleTime: 0 (usa configuración global para siempre refetch en foco)
   });

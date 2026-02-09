@@ -128,8 +128,8 @@ export const BusinessCard = memo(function BusinessCard({
                 style={[
                   styles.favoriteButton,
                   {
-                    backgroundColor: isFavorite ? 'rgba(239, 68, 68, 0.95)' : 'rgba(255,255,255,0.92)',
-                    borderColor: colors.border.medium,
+                    backgroundColor: isFavorite ? 'rgba(239, 68, 68, 0.9)' : 'rgba(255, 255, 255, 0.25)',
+                    borderColor: isFavorite ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.3)',
                   }
                 ]}
                 onPress={handleToggleFavorite}
@@ -137,8 +137,9 @@ export const BusinessCard = memo(function BusinessCard({
               >
                 <Heart
                   size={16}
-                  color={isFavorite ? '#ffffff' : '#ef4444'}
+                  color={isFavorite ? '#ffffff' : '#ffffff'}
                   fill={isFavorite ? '#ffffff' : 'transparent'}
+                  strokeWidth={2}
                 />
               </Pressable>
             )}

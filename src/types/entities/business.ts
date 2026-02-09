@@ -150,6 +150,7 @@ export interface BusinessDetailForEdit {
   logoUrl: string | null;
   coverUrl: string | null;
   galleryUrls: string[];
+  isActive?: boolean;
 }
 
 /**

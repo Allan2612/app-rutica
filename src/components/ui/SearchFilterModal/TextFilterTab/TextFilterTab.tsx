@@ -82,7 +82,7 @@ export const TextFilterTab = memo(function TextFilterTab({
                         webStyles.inputWeb as object,
                         { color: colors.text.primary },
                     ]}
-                    autoFocus
+                    autoFocus={false}
                     returnKeyType="search"
                 />
                 {localValue.length > 0 && (

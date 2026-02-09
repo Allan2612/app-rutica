@@ -130,6 +130,8 @@ export async function getUserAttractionReview(
         comment: review.comment_arv,
         createdAt: review.created_at_arv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 
@@ -199,6 +201,8 @@ export async function createAttractionReview(
         comment: review.comment_arv,
         createdAt: review.created_at_arv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 
@@ -263,6 +267,8 @@ export async function updateAttractionReview(
         comment: review.comment_arv,
         createdAt: review.created_at_arv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 
@@ -318,8 +324,8 @@ async function updateAttractionRating(attractionId: string): Promise<void> {
                 reviews_count_atr: reviewCount,
             };
 
-            const { error: updateError } = await supabase
-                .from('attractions')
+            const { error: updateError } = await (supabase
+                .from('attractions') as any)
                 .update(updatePayload)
                 .eq('id_atr', attractionId);
 

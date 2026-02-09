@@ -111,10 +111,6 @@ export const styles = StyleSheet.create({
         marginTop: spacing.sm,
         gap: spacing.xs,
     },
-    ratingText: {
-        fontSize: typography.sizes.sm,
-        fontWeight: typography.fontWeights.medium,
-    },
     contactSection: {
         marginTop: spacing.sm,
         paddingTop: spacing.sm,

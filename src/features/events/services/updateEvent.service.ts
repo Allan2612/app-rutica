@@ -33,6 +33,7 @@ export interface EventDetailForEdit {
     categoryIds: string[];
     // Location hierarchy (V3)
     districtId: string | null;
+    country: string | null;
     province: string | null;
     canton: string | null;
     district: string | null;
@@ -59,6 +60,7 @@ export interface EventDetailForEdit {
     // Images
     coverUrl: string | null;
     galleryUrls: string[];
+    isActive: boolean;
 }
 
 export interface UpdateEventData {
@@ -129,7 +131,8 @@ export async function getEventById(
             contact_email_evt,
             website_evt,
             ticket_url_evt,
-            social_links_evt
+            social_links_evt,
+            is_active_evt
         `)
         .eq('id_evt', eventId)
         .single();
@@ -245,6 +248,8 @@ export async function getEventById(
         tiktok: (socialLinks as any).tiktok ?? null,
         coverUrl,
         galleryUrls,
+        isActive: (eventData as any).is_active_evt ?? true,
+        country: 'Costa Rica',
     };
 }
 
@@ -396,11 +401,34 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
             await supabase.from('event_images').delete().in('id_eim', idsToDelete);
         }
 
-        // Subir solo las imágenes nuevas
-        // El sort_order empieza después de las existentes
-        const startIndex = existingGalleryUrls.length;
+        // Reindexar imágenes existentes que se mantienen
+        const keptImages = currentGallery.filter((currentImg: any) => {
+            const currentUrl = getImageUrl(BUCKET_NAME, currentImg.path_eim);
+            return existingGalleryUrls.includes(currentUrl);
+        });
+
+        // Actualizar sort_order de las imágenes existentes según su posición en el array del formulario
+        for (const keptImg of keptImages) {
+            const currentUrl = getImageUrl(BUCKET_NAME, keptImg.path_eim);
+            const newIndex = existingGalleryUrls.indexOf(currentUrl);
+            if (newIndex !== -1) {
+                const newSortOrder = newIndex + 1; // Galería empieza en 1
+                if (newSortOrder !== keptImg.sort_order_eim) {
+                    await (supabase
+                        .from('event_images') as any)
+                        .update({ sort_order_eim: newSortOrder })
+                        .eq('id_eim', keptImg.id_eim);
+                }
+            }
+        }
+
+        // Subir nuevas imágenes con sort_order correcto según su posición final
         for (let i = 0; i < newGalleryUris.length; i++) {
-            await uploadImage(newGalleryUris[i], eventId, 'gallery', startIndex + i + 1);
+            const newUri = newGalleryUris[i];
+            // Encontrar la posición de esta nueva imagen en el array completo
+            const positionInFullArray = data.galleryImages.indexOf(newUri);
+            const newSortOrder = positionInFullArray + 1; // Galería empieza en 1
+            await uploadImage(newUri, eventId, 'gallery', newSortOrder);
         }
     }
 }

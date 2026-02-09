@@ -59,8 +59,8 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   }, [location?.province, location?.canton, location?.district]);
 
   useEffect(() => {
-    setAttractionFilters(prev => ({ ...prev, location: locationFilter }));
-    setEventFilters(prev => ({ ...prev, location: locationFilter }));
+    setAttractionFilters((prev: SearchFilters) => ({ ...prev, location: locationFilter }));
+    setEventFilters((prev: SearchFilters) => ({ ...prev, location: locationFilter }));
   }, [locationFilter]);
 
   const colors = useThemedColors();

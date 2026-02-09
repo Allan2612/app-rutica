@@ -129,7 +129,7 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
                         <BusinessPromotionsCarousel businessId={business.id} />
 
                         {/* Products Section */}
-                        <BusinessProducts businessId={business.id} onImagePress={setSelectedImage} />
+                        <BusinessProducts businessId={business.id} ownerId={business.ownerId} onImagePress={setSelectedImage} />
 
                         {/* Map Section */}
                         {business.latitude && business.longitude && (

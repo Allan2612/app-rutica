@@ -41,6 +41,9 @@ export interface CreateBusinessInput {
 export interface BusinessListFilters {
   searchText?: string;
   categoryIds?: string[];
+  province?: string;
+  canton?: string;
+  district?: string;
 }
 
 export interface BusinessListRecord {
@@ -83,27 +86,27 @@ export async function uploadImageToStorage(
   fileName: string
 ): Promise<string> {
   try {
-    let blob: Blob;
+    let fileData: Blob | ArrayBuffer;
 
     // Detectar si es web (blob URI) o mobile (file URI)
     if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
       const response = await fetch(imageUri);
-      blob = await response.blob();
+      fileData = await response.blob();
     } else {
       // Leer archivo como base64 (mobile)
       const base64Data = await FileSystem.readAsStringAsync(imageUri, {
         encoding: 'base64',
       });
 
-      // Crear Blob desde base64
+      // Crear ArrayBuffer desde base64 para React Native
       const byteCharacters = atob(base64Data);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const fileExt = fileName.split('.').pop() || 'jpg';
-      blob = new Blob([byteArray], { type: `image/${fileExt}` });
+      // Usar ArrayBuffer directamente en lugar de Blob para React Native
+      fileData = byteArray.buffer;
     }
 
     // Obtener extensión
@@ -113,7 +116,7 @@ export async function uploadImageToStorage(
     // Subir a Supabase
     const { data, error } = await supabase.storage
       .from(BUCKET_IMAGES)
-      .upload(filePath, blob, {
+      .upload(filePath, fileData, {
         contentType: `image/${fileExt}`,
         upsert: false,
       });

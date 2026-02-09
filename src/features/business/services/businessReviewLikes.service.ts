@@ -44,7 +44,7 @@ export async function addReviewLike(reviewId: string, userId: string): Promise<b
         .insert({
             review_id_brl: reviewId,
             user_id_brl: userId,
-        });
+        } as any);
 
     if (error) {
         console.error('[businessReviewLikes] Error adding like:', error.message);

@@ -108,11 +108,16 @@ export interface AttractionDetailForEdit {
   description: string | null;
   categoryIds: string[];
   districtId: string | null;
+  province?: string | null;
+  canton?: string | null;
+  district?: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
   coverImageUrl: string | null;
+  coverUrl?: string | null;
   galleryUrls: string[];
+  isActive?: boolean;
 }
 
 /**

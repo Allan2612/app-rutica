@@ -20,7 +20,7 @@ export function useProfilePhoto(userId: string | undefined): string | null {
           .from('profiles')
           .select('profile_photo_path_prf')
           .eq('id_prf', userId)
-          .single();
+          .single() as { data: any; error: any };
 
         if (error || !profile?.profile_photo_path_prf) {
           setPhotoUrl(null);

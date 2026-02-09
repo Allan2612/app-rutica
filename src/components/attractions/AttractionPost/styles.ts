@@ -85,10 +85,6 @@ export const styles = StyleSheet.create({
         gap: spacing.xs - 2,
         marginTop: spacing.xs + 2,
     },
-    ratingText: {
-        fontSize: typography.sizes.sm,
-        fontWeight: typography.fontWeights.semibold,
-    },
     reviewCountText: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.normal,

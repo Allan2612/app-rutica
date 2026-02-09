@@ -22,6 +22,7 @@ interface ProductCardProps {
     promotions?: PromotionListItem[];
     rating?: number;
     reviewCount?: number;
+    isOwnProduct?: boolean;
     onImagePress?: (imageUrl: string) => void;
 }
 
@@ -38,6 +39,7 @@ export const ProductCard = memo(function ProductCard({
     promotions,
     rating = 0,
     reviewCount = 0,
+    isOwnProduct = false,
     onImagePress,
 }: ProductCardProps) {
     const colors = useThemedColors();
@@ -209,6 +211,7 @@ export const ProductCard = memo(function ProductCard({
                 productId={productId}
                 productName={name}
                 productImage={images[0]}
+                isOwnProduct={isOwnProduct}
                 onClose={() => setShowReviewsModal(false)}
             />
         </View>

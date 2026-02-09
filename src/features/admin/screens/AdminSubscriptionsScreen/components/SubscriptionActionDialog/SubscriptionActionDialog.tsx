@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { View, Text, TextInput, Pressable, Modal } from 'react-native';
 import { X, CheckCircle, XCircle, AlertTriangle } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import type { ProfileSubscriptionWithDetails } from '../../../services/adminSubscriptions.service';
+import type { ProfileSubscriptionWithDetails } from '../../../../services/adminSubscriptions.service';
 import { styles } from './styles';
 import { getUserName } from '../common/subscriptionHelpers';
 

@@ -4,7 +4,7 @@ import { Crown, Clock, CheckCircle, XCircle, User } from 'lucide-react-native';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useThemedColors } from '@/hooks';
-import type { ProfileSubscriptionWithDetails } from '../../../services/adminSubscriptions.service';
+import type { ProfileSubscriptionWithDetails } from '../../../../services/adminSubscriptions.service';
 import { styles } from './styles';
 import { statusConfig, getUserName } from '../common/subscriptionHelpers';
 

@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { Crown } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { SubscriptionRequestCard } from '../SubscriptionRequestCard';
-import type { ProfileSubscriptionWithDetails } from '../../../services/adminSubscriptions.service';
+import type { ProfileSubscriptionWithDetails } from '../../../../services/adminSubscriptions.service';
 import { styles } from './styles';
 
 interface SubscriptionListProps {

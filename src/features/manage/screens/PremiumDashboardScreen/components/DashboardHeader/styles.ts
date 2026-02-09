@@ -3,7 +3,7 @@ import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
     header: {
-        paddingHorizontal: spacing.lg,
+        paddingHorizontal: spacing.sm,
         paddingTop: spacing.lg,
         paddingBottom: spacing.md,
         width: '100%',
@@ -36,21 +36,24 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         marginTop: spacing.md,
         borderRadius: 12,
-        padding: 4,
-        gap: 4,
+        padding: 2,
+        gap: 2,
     },
     tab: {
         flex: 1,
         paddingVertical: spacing.sm,
-        paddingHorizontal: spacing.md,
+        paddingHorizontal: 4,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        flexDirection: 'row',
+        gap: 4,
     },
     tabActive: {},
     tabText: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.fontWeights.medium,
+        flexShrink: 1,
     },
     tabTextActive: {
         fontWeight: typography.fontWeights.bold,

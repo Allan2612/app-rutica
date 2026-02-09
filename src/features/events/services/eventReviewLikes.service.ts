@@ -44,7 +44,7 @@ export async function addEventReviewLike(reviewId: string, userId: string): Prom
         .insert({
             review_id_erl: reviewId,
             user_id_erl: userId,
-        });
+        } as any);
 
     if (error) {
         console.error('[eventReviewLikes] Error adding like:', error.message);

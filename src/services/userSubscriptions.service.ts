@@ -43,6 +43,12 @@ interface SubscriptionQueryResult {
 export async function getUserActiveSubscriptions(
   userId: string
 ): Promise<UserActiveSubscription[]> {
+  // Validar que userId sea válido
+  if (!userId || userId === 'undefined' || userId === 'null') {
+    console.warn('[userSubscriptions] Invalid userId provided:', userId);
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('profile_subscriptions')
     .select(`
@@ -111,6 +117,12 @@ export async function hasActiveSubscription(
   userId: string,
   subscriptionType: SubscriptionType
 ): Promise<boolean> {
+  // Validar que userId sea válido
+  if (!userId || userId === 'undefined' || userId === 'null') {
+    console.warn('[userSubscriptions] Invalid userId provided:', userId);
+    return false;
+  }
+
   const { count, error } = await supabase
     .from('profile_subscriptions')
     .select('id_psub', { count: 'exact', head: true })
@@ -175,6 +187,12 @@ export interface UserSubscriptionDetail {
 export async function getUserSubscriptionDetails(
   userId: string
 ): Promise<UserSubscriptionDetail[]> {
+  // Validar que userId sea válido
+  if (!userId || userId === 'undefined' || userId === 'null') {
+    console.warn('[userSubscriptions] Invalid userId provided:', userId);
+    return [];
+  }
+
   // 1. Obtener suscripciones aprobadas del usuario con precio
   const { data: subscriptionsData, error: subError } = await supabase
     .from('profile_subscriptions')

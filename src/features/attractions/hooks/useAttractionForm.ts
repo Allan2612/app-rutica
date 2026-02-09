@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useCategories } from '@/hooks/useCategories';
 import { useCreateAttraction } from './useCreateAttraction';
@@ -64,6 +64,9 @@ export function useAttractionForm(attractionId?: string) {
     const [originalData, setOriginalData] = useState<FormData>(initialFormData);
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Ref para evitar que se recarguen los datos al refrescar la query
+    const dataLoadedRef = useRef(false);
 
     // Detectar si hay cambios en el formulario
     const hasChanges = useMemo(() => {
@@ -72,7 +75,8 @@ export function useAttractionForm(attractionId?: string) {
 
     // Cargar datos de la atracción cuando estemos en modo edición
     useEffect(() => {
-        if (attraction && attractionId) {
+        // Solo cargar los datos una vez, cuando attraction esté disponible por primera vez
+        if (attraction && attractionId && !dataLoadedRef.current) {
             const loadedData: FormData = {
                 name: attraction.name,
                 description: attraction.description || '',
@@ -98,6 +102,7 @@ export function useAttractionForm(attractionId?: string) {
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
+            dataLoadedRef.current = true;
         }
     }, [attraction, attractionId]);
 

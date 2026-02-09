@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useCategories } from '@/hooks/useCategories';
@@ -40,13 +40,17 @@ export function useBusinessForm(businessId: string) {
 
     const [originalData, setOriginalData] = useState(formData);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    
+    // Ref para evitar que se recarguen los datos al refrescar la query
+    const dataLoadedRef = useRef(false);
 
     const hasChanges = useMemo(() => {
         return JSON.stringify(formData) !== JSON.stringify(originalData);
     }, [formData, originalData]);
 
     useEffect(() => {
-        if (business) {
+        // Solo cargar los datos una vez, cuando business esté disponible por primera vez
+        if (business && !dataLoadedRef.current) {
             const loadedData = {
                 name: business.name,
                 description: business.description || '',
@@ -73,6 +77,7 @@ export function useBusinessForm(businessId: string) {
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
+            dataLoadedRef.current = true;
         }
     }, [business]);
 

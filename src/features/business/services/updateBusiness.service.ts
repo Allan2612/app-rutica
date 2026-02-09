@@ -66,12 +66,13 @@ async function uploadImage(
     sortOrder: number
 ): Promise<string> {
     try {
-        let blob: Blob;
+        let fileData: Blob | ArrayBuffer;
 
         if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
             const response = await fetch(imageUri);
-            blob = await response.blob();
+            fileData = await response.blob();
         } else {
+            // Para React Native, usar ArrayBuffer directamente
             const base64Data = await FileSystem.readAsStringAsync(imageUri, {
                 encoding: 'base64',
             });
@@ -82,7 +83,8 @@ async function uploadImage(
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
             }
             const byteArray = new Uint8Array(byteNumbers);
-            blob = new Blob([byteArray], { type: 'image/jpeg' });
+            // Usar ArrayBuffer directamente en lugar de Blob para React Native
+            fileData = byteArray.buffer;
         }
 
         // Estructura: {businessId}/logo-{uuid}.jpg, {businessId}/cover-{uuid}.jpg, {businessId}/gallery-{uuid}.jpg
@@ -96,7 +98,7 @@ async function uploadImage(
 
         const { error } = await supabase.storage
             .from(BUCKET_NAME)
-            .upload(filePath, blob, {
+            .upload(filePath, fileData, {
                 contentType: 'image/jpeg',
                 upsert: false, // No sobrescribir, cada imagen tiene UUID único
             });
@@ -251,6 +253,7 @@ export async function getBusinessForEdit(
         name: (businessData as any).name_bus,
         description: (businessData as any).description_bus,
         categoryIds,
+        districtId: (locationData as any)?.district_id_loc ?? null,
         country: countryName,
         province: provinceName,
         canton: cantonName,
@@ -405,14 +408,33 @@ export async function updateBusinessComplete(
                 await supabase.from('business_images').delete().in('id_bim', idsToDelete);
             }
 
-            // Subir nuevas imágenes
-            // El límite real de cuota se aplica en el UI (MultipleImagePicker)
-            // Aquí subimos todas las imágenes nuevas proporcionadas
-            const remainingCount = currentGallery.length - imagesToDelete.length;
+            // Reindexar imágenes existentes según su nueva posición en el array
+            const keptImages = currentGallery.filter((img: any) => {
+                const url = getImageUrl(img.path_bim);
+                return existingUrls.includes(url);
+            });
 
+            for (const keptImg of keptImages) {
+                const url = getImageUrl(keptImg.path_bim);
+                const newIndex = existingUrls.indexOf(url);
+                if (newIndex !== -1) {
+                    const newSortOrder = newIndex + 2; // Galería empieza en 2 (0=logo, 1=cover)
+                    if (newSortOrder !== keptImg.sort_order_bim) {
+                        await (supabase
+                            .from('business_images') as any)
+                            .update({ sort_order_bim: newSortOrder })
+                            .eq('id_bim', keptImg.id_bim);
+                    }
+                }
+            }
+
+            // Subir nuevas imágenes con sort_order basado en su posición final
             for (let i = 0; i < newUris.length; i++) {
                 try {
-                    await uploadImage(newUris[i], businessId, 'gallery', 2 + remainingCount + i);
+                    const newUri = newUris[i];
+                    const positionInFullArray = data.galleryUris.indexOf(newUri);
+                    const newSortOrder = positionInFullArray + 2; // Galería empieza en 2
+                    await uploadImage(newUri, businessId, 'gallery', newSortOrder);
                 } catch (error) {
                     console.error(`Error subiendo galería ${i}:`, error);
                 }

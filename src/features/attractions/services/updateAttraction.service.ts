@@ -29,6 +29,7 @@ export interface AttractionDetailForEdit {
     longitude: number;
     coverUrl: string | null;
     galleryUrls: string[];
+    isActive: boolean;
 }
 
 export interface UpdateAttractionData {
@@ -91,6 +92,7 @@ export async function getAttractionById(
         description_atr: string | null;
         submitted_by_atr: string | null;
         location_id_atr: string | null;
+        is_active_atr: boolean;
         locations: {
             district_id_loc: string | null;
             address_loc: string | null;
@@ -128,6 +130,7 @@ export async function getAttractionById(
       description_atr,
       submitted_by_atr,
       location_id_atr,
+      is_active_atr,
       locations!attractions_location_id_atr_fkey (
         district_id_loc,
         address_loc,
@@ -199,6 +202,7 @@ export async function getAttractionById(
         longitude: location?.longitude_loc ?? 0,
         coverUrl: coverImage ? getImageUrl(coverImage.path_aim) : null,
         galleryUrls: galleryImages.map((img) => getImageUrl(img.path_aim)),
+        isActive: attractionData.is_active_atr,
     };
 }
 
@@ -362,10 +366,32 @@ async function handleImageUpdates(
             }
         }
 
-        // Subir nuevas
-        const startIndex = existingGalleryUrls.length;
+        // Reindexar imágenes existentes según su nueva posición en el array
+        const keptImages = currentGallery.filter((img) => {
+            const imgUrl = getImageUrl(img.path_aim);
+            return existingGalleryUrls.includes(imgUrl);
+        });
+
+        for (const keptImg of keptImages) {
+            const imgUrl = getImageUrl(keptImg.path_aim);
+            const newIndex = existingGalleryUrls.indexOf(imgUrl);
+            if (newIndex !== -1) {
+                const newSortOrder = newIndex + 1; // Galería empieza en 1
+                if (newSortOrder !== keptImg.sort_order_aim) {
+                    await (supabase
+                        .from('attraction_images') as any)
+                        .update({ sort_order_aim: newSortOrder })
+                        .eq('id_aim', keptImg.id_aim);
+                }
+            }
+        }
+
+        // Subir nuevas imágenes con sort_order basado en su posición final
         for (let i = 0; i < newGalleryUris.length; i++) {
-            await uploadImage(newGalleryUris[i], attractionId, 'gallery', startIndex + i + 1);
+            const newUri = newGalleryUris[i];
+            const positionInFullArray = data.galleryImages.indexOf(newUri);
+            const newSortOrder = positionInFullArray + 1; // Galería empieza en 1
+            await uploadImage(newUri, attractionId, 'gallery', newSortOrder);
         }
     }
 }

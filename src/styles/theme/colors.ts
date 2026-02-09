@@ -41,6 +41,8 @@ export const colors = {
   warning: '#f59e0b',
   error: '#ef4444',
   info: '#3b82f6',
+  danger: '#dc2626',
+  alert: '#f97316',
 
   // Background colors
   background: {

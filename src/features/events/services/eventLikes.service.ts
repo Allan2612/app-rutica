@@ -44,7 +44,7 @@ export async function addEventLike(eventId: string, userId: string): Promise<boo
         .insert({
             event_id_elk: eventId,
             user_id_elk: userId,
-        });
+        } as any);
 
     if (error) {
         console.error('[eventLikes] Error adding like:', error.message);

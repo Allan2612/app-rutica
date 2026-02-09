@@ -44,7 +44,7 @@ export async function addAttractionReviewLike(reviewId: string, userId: string):
         .insert({
             review_id_arl: reviewId,
             user_id_arl: userId,
-        });
+        } as any);
 
     if (error) {
         console.error('[attractionReviewLikes] Error adding like:', error.message);

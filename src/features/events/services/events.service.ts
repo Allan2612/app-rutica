@@ -14,6 +14,9 @@ export interface EventListFilters {
     searchText?: string;
     categoryIds?: string[];
     upcoming?: boolean;
+    province?: string;
+    canton?: string;
+    district?: string;
 }
 
 export interface EventListRecord {

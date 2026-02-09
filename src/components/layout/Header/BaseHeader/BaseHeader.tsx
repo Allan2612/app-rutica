@@ -50,16 +50,16 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
   }, []);
 
   const getLocationText = () => {
-    if (!location) return 'Ubicación';
+    if (!location) return 'Costa Rica';
     
     // En mobile mostrar solo distrito o cantón
     if (isMobile) {
-      return location.district || location.canton || location.province || 'Ubicación';
+      return location.district || location.canton || location.province || 'Costa Rica';
     }
     
     // En pantallas grandes mostrar todo
     const parts = [location.district, location.canton, location.province].filter(Boolean);
-    return parts.length > 0 ? parts.join(', ') : 'Ubicación';
+    return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
   };
 
   if (!fontsLoaded) {

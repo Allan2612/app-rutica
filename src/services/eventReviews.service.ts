@@ -113,6 +113,8 @@ export async function getUserEventReview(
         comment: review.comment_erv,
         createdAt: review.created_at_erv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 
@@ -173,6 +175,8 @@ export async function createEventReview(
         comment: review.comment_erv,
         createdAt: review.created_at_erv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 
@@ -225,6 +229,8 @@ export async function updateEventReview(
         comment: review.comment_erv,
         createdAt: review.created_at_erv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 
@@ -243,9 +249,9 @@ export async function deleteEventReview(reviewId: string, eventId: string): Prom
 
 async function updateEventRating(eventId: string): Promise<void> {
     // Intentar usar la función RPC con SECURITY DEFINER
-    const { error: rpcError } = await supabase.rpc('update_event_rating', {
+    const { error: rpcError } = await supabase.rpc('update_event_rating' as any, {
         p_event_id: eventId
-    });
+    } as any);
 
     // Si el RPC funciona, terminamos aquí
     if (!rpcError) {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useCategories } from '@/hooks/useCategories';
 import { useCreateEvent } from './useCreateEvent';
@@ -37,6 +37,10 @@ interface FormData {
     instagram: string;
     tiktok: string;
     isActive: boolean;
+    country: string | null;
+    province: string | null;
+    canton: string | null;
+    district: string | null;
 }
 
 const initialFormData: FormData = {
@@ -62,6 +66,10 @@ const initialFormData: FormData = {
     instagram: '',
     tiktok: '',
     isActive: true,
+    country: null,
+    province: null,
+    canton: null,
+    district: null,
 };
 
 export function useEventForm(eventId?: string) {
@@ -75,6 +83,9 @@ export function useEventForm(eventId?: string) {
     const [originalData, setOriginalData] = useState<FormData>(initialFormData);
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Ref para evitar que se recarguen los datos al refrescar la query
+    const dataLoadedRef = useRef(false);
 
     // Detectar si hay cambios en el formulario
     const hasChanges = useMemo(() => {
@@ -83,8 +94,9 @@ export function useEventForm(eventId?: string) {
 
     // Cargar datos del evento cuando estemos en modo edición
     useEffect(() => {
-        if (event && eventId) {
-            const loadedData = {
+        // Solo cargar los datos una vez, cuando event esté disponible por primera vez
+        if (event && eventId && !dataLoadedRef.current) {
+            const loadedData: FormData = {
                 name: event.name,
                 description: event.description || '',
                 selectedCategoryIds: event.categoryIds,
@@ -110,9 +122,14 @@ export function useEventForm(eventId?: string) {
                 instagram: event.instagram || '',
                 tiktok: event.tiktok || '',
                 isActive: event.isActive ?? true,
+                country: event.country || null,
+                province: event.province || null,
+                canton: event.canton || null,
+                district: event.district || null,
             };
             setFormData(loadedData);
             setOriginalData(loadedData);
+            dataLoadedRef.current = true;
         }
     }, [event, eventId]);
 
@@ -200,7 +217,10 @@ export function useEventForm(eventId?: string) {
                 categoryIds: formData.selectedCategoryIds,
                 coverUri: formData.coverUri,
                 galleryUris: formData.galleryUris,
-                districtId: formData.districtId!,
+                country: formData.country || 'Costa Rica',
+                province: formData.province || '',
+                canton: formData.canton || '',
+                district: formData.district || '',
                 address: formData.address ?? undefined,
                 latitude: formData.coordinates!.latitude,
                 longitude: formData.coordinates!.longitude,

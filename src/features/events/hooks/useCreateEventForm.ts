@@ -29,6 +29,7 @@ interface FormData {
     facebook: string;
     instagram: string;
     tiktok: string;
+    isActive: boolean;
 }
 
 interface FormErrors {
@@ -62,6 +63,7 @@ const initialFormData: FormData = {
     facebook: '',
     instagram: '',
     tiktok: '',
+    isActive: true,
 };
 
 export function useCreateEventForm() {

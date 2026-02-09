@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { spacing, typography } from '@/styles/theme';
 
 export const styles = StyleSheet.create({
@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     },
     summaryCard: {
         flex: 1,
-        minWidth: 100,
+        minWidth: Platform.select({ web: 100, default: 250 }),
         borderRadius: 16,
         borderWidth: 1,
         padding: spacing.lg,

@@ -60,8 +60,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   }, [location?.province, location?.canton, location?.district]);
 
   useEffect(() => {
-    setCommerceFilters(prev => ({ ...prev, location: locationFilter }));
-    setPromotionFilters(prev => ({ ...prev, location: locationFilter }));
+    setCommerceFilters((prev: SearchFilters) => ({ ...prev, location: locationFilter }));
+    setPromotionFilters((prev: SearchFilters) => ({ ...prev, location: locationFilter }));
   }, [locationFilter]);
 
   const { width } = useWindowDimensions();

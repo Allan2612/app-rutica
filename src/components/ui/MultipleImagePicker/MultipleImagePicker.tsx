@@ -29,20 +29,24 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
             return;
         }
 
+        const availableSlots = maxImages - images.length;
+
         try {
             setIsLoading(true);
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ['images'],
-                allowsEditing: true,
-                aspect: [4, 3],
+                allowsMultipleSelection: true,
                 quality: 0.8,
+                selectionLimit: availableSlots, // Limitar según espacios disponibles
             });
 
-            if (!result.canceled && result.assets[0]) {
-                onImagesChange([...images, result.assets[0].uri]);
+            if (!result.canceled && result.assets.length > 0) {
+                // Tomar solo las imágenes que caben en los espacios disponibles
+                const newImages = result.assets.slice(0, availableSlots).map(asset => asset.uri);
+                onImagesChange([...images, ...newImages]);
             }
         } catch (error) {
-            Alert.alert('Error', 'No se pudo seleccionar la imagen');
+            Alert.alert('Error', 'No se pudo seleccionar las imágenes');
         } finally {
             setIsLoading(false);
         }
@@ -52,13 +56,16 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
         onImagesChange(images.filter((_, i) => i !== index));
     };
 
+    const availableSlots = maxImages - images.length;
+    const addButtonText = availableSlots === 1 ? 'Agregar' : `Agregar (hasta ${availableSlots})`;
+
     return (
         <View style={styles.container}>
             <Text style={[styles.label, { color: colors.text.primary }]}>{label}</Text>
 
             <View style={styles.gridContainer}>
                 {images.map((uri, index) => (
-                    <View key={`${uri}-${index}`} style={styles.imageWrapper}>
+                    <View key={uri} style={styles.imageWrapper}>
                         <Image source={{ uri }} style={styles.image} resizeMode="cover" />
 
                         <View style={[styles.orderBadge, { backgroundColor: colors.primary[500] }]}>
@@ -92,7 +99,7 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
                         ) : (
                             <>
                                 <Plus color={colors.text.tertiary} size={32} strokeWidth={1.5} />
-                                <Text style={[styles.addText, { color: colors.text.tertiary }]}>Agregar</Text>
+                                <Text style={[styles.addText, { color: colors.text.tertiary }]}>{addButtonText}</Text>
                             </>
                         )}
                     </Pressable>

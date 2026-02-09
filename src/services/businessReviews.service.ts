@@ -204,6 +204,8 @@ export async function createBusinessReview(
         comment: review.comment_brv,
         createdAt: review.created_at_brv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 
@@ -268,6 +270,8 @@ export async function updateBusinessReview(
         comment: review.comment_brv,
         createdAt: review.created_at_brv,
         authorName,
+        likesCount: 0,
+        isLikedByUser: false,
     };
 }
 

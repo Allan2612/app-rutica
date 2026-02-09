@@ -46,7 +46,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                     >
                         <Heart
                             color={activeTab === 'favorites' ? colors.primary[500] : colors.text.tertiary}
-                            size={18}
+                            size={16}
                             strokeWidth={2}
                             fill={activeTab === 'favorites' ? colors.primary[500] : 'transparent'}
                         />
@@ -56,6 +56,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                                 { color: activeTab === 'favorites' ? colors.primary[500] : colors.text.tertiary },
                                 activeTab === 'favorites' && styles.tabTextActive,
                             ]}
+                            numberOfLines={1}
                         >
                             Favoritos
                         </Text>
@@ -71,7 +72,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                     >
                         <MousePointerClick
                             color={activeTab === 'contacts' ? colors.primary[500] : colors.text.tertiary}
-                            size={18}
+                            size={16}
                             strokeWidth={2}
                         />
                         <Text
@@ -80,6 +81,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                                 { color: activeTab === 'contacts' ? colors.primary[500] : colors.text.tertiary },
                                 activeTab === 'contacts' && styles.tabTextActive,
                             ]}
+                            numberOfLines={1}
                         >
                             Interacciones
                         </Text>
@@ -95,7 +97,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                     >
                         <Star
                             color={activeTab === 'reviews' ? colors.primary[500] : colors.text.tertiary}
-                            size={18}
+                            size={16}
                             strokeWidth={2}
                             fill={activeTab === 'reviews' ? colors.primary[500] : 'transparent'}
                         />
@@ -105,6 +107,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                                 { color: activeTab === 'reviews' ? colors.primary[500] : colors.text.tertiary },
                                 activeTab === 'reviews' && styles.tabTextActive,
                             ]}
+                            numberOfLines={1}
                         >
                             Reseñas
                         </Text>

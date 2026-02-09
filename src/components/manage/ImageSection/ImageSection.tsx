@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SingleImagePicker, MultipleImagePicker } from '@/components/ui';
 import { useThemedColors } from '@/hooks';
 import { formSectionStyles } from '@/styles/form-section-styles';
@@ -105,20 +106,28 @@ export const ImageSection = memo(function ImageSection({
 
             {/* Banner de upsell para galería premium */}
             {shouldShowUpsell && handlePremiumPress && (
-                <View style={{
-                    backgroundColor: colors.primary[50],
-                    borderRadius: 12,
-                    padding: 16,
-                    marginTop: 12,
-                    borderWidth: 1,
-                    borderColor: colors.primary[200],
-                }}>
+                <LinearGradient
+                    colors={
+                        colors.isDark
+                            ? [colors.primary[800], colors.primary[600]]
+                            : [colors.primary[700], colors.primary[500]]
+                    }
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{
+                        borderRadius: 12,
+                        padding: 16,
+                        marginTop: 12,
+                        borderWidth: 1,
+                        borderColor: colors.primary[400],
+                    }}
+                >
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                        <Ionicons name="images" size={24} color={colors.primary[600]} />
+                        <Ionicons name="images" size={24} color={colors.isDark ? colors.text.primary : colors.text.inverse} />
                         <Text style={{
                             fontSize: 16,
                             fontWeight: '600',
-                            color: colors.primary[700],
+                            color: colors.isDark ? colors.text.primary : colors.text.inverse,
                             marginLeft: 8,
                         }}>
                             ¡Amplía tu galería!
@@ -126,7 +135,7 @@ export const ImageSection = memo(function ImageSection({
                     </View>
                     <Text style={{
                         fontSize: 14,
-                        color: colors.text.secondary,
+                        color: colors.isDark ? colors.text.primary : colors.text.inverse,
                         marginBottom: 12,
                         lineHeight: 20,
                     }}>
@@ -135,13 +144,17 @@ export const ImageSection = memo(function ImageSection({
                     <Pressable
                         onPress={handlePremiumPress}
                         style={({ pressed }) => ({
-                            backgroundColor: pressed ? colors.primary[600] : colors.primary[500],
+                            backgroundColor: pressed 
+                                ? (colors.isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.3)')
+                                : (colors.isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.25)'),
                             borderRadius: 8,
                             paddingVertical: 10,
                             paddingHorizontal: 16,
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            borderWidth: 1,
+                            borderColor: colors.isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.4)',
                         })}
                     >
                         <Ionicons name="star" size={18} color="#fff" style={{ marginRight: 6 }} />
@@ -149,7 +162,7 @@ export const ImageSection = memo(function ImageSection({
                             Comprar {premiumPackageName}
                         </Text>
                     </Pressable>
-                </View>
+                </LinearGradient>
             )}
         </View>
     );

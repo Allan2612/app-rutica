@@ -31,11 +31,11 @@ export async function uploadImage(
     imageUri: string,
     fileName: string
 ): Promise<string> {
-    let blob: Blob;
+    let fileData: Blob | ArrayBuffer;
 
     if (Platform.OS === 'web' || imageUri.startsWith('blob:')) {
         const response = await fetch(imageUri);
-        blob = await response.blob();
+        fileData = await response.blob();
     } else {
         const base64Data = await FileSystem.readAsStringAsync(imageUri, {
             encoding: 'base64',
@@ -47,14 +47,14 @@ export async function uploadImage(
             byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
         const byteArray = new Uint8Array(byteNumbers);
-        const fileExt = fileName.split('.').pop() || 'jpg';
-        blob = new Blob([byteArray], { type: `image/${fileExt}` });
+        // Usar ArrayBuffer directamente en lugar de Blob para React Native
+        fileData = byteArray.buffer;
     }
 
     const fileExt = fileName.split('.').pop() || 'jpg';
     const filePath = `${businessId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-    const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, blob, {
+    const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, fileData, {
         contentType: `image/${fileExt}`,
         upsert: false,
     });

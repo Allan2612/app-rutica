@@ -81,7 +81,7 @@ export async function createProductReview(
             user_id_prv: userId,
             rating_prv: rating,
             comment_prv: comment || null,
-        });
+        } as any);
 
     if (error) {
         console.error('[productReviews] Error creating review:', error.message);
@@ -94,9 +94,9 @@ export async function createProductReview(
 
 async function updateProductRating(productId: string): Promise<void> {
     // Intentar usar la función RPC con SECURITY DEFINER
-    const { error: rpcError } = await supabase.rpc('update_product_rating', {
+    const { error: rpcError } = await supabase.rpc('update_product_rating' as any, {
         p_product_id: productId
-    });
+    } as any);
 
     // Si el RPC funciona, terminamos aquí
     if (!rpcError) {
@@ -121,8 +121,8 @@ async function updateProductRating(productId: string): Promise<void> {
         ? reviewsData!.reduce((sum, r) => sum + (r.rating_prv ?? 0), 0) / reviewCount
         : 0;
 
-    await supabase
-        .from('products')
+    await (supabase
+        .from('products') as any)
         .update({
             avg_rating_prd: Math.round(avgRating * 10) / 10,
             reviews_count_prd: reviewCount,
@@ -135,8 +135,8 @@ export async function updateProductReview(
     rating: number,
     comment?: string
 ): Promise<boolean> {
-    const { error } = await supabase
-        .from('product_reviews')
+    const { error } = await (supabase
+        .from('product_reviews') as any)
         .update({
             rating_prv: rating,
             comment_prv: comment || null,

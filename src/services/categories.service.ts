@@ -56,7 +56,7 @@ export async function getCategoriesRaw(): Promise<Category[]> {
 export async function getCategoryById(id: string): Promise<CategoryOption | null> {
     const { data, error } = await supabase
         .from('categories')
-        .select('id_cat, name_cat')
+        .select('id_cat, name_cat, parent_id_cat')
         .eq('id_cat', id)
         .single();
 
@@ -68,6 +68,7 @@ export async function getCategoryById(id: string): Promise<CategoryOption | null
     return {
         id: category.id_cat,
         name: category.name_cat,
+        parentId: category.parent_id_cat,
     };
 }
 
@@ -77,7 +78,7 @@ export async function getCategoryById(id: string): Promise<CategoryOption | null
 export async function searchCategories(searchTerm: string): Promise<CategoryOption[]> {
     const { data, error } = await supabase
         .from('categories')
-        .select('id_cat, name_cat')
+        .select('id_cat, name_cat, parent_id_cat')
         .ilike('name_cat', `%${searchTerm}%`)
         .order('name_cat', { ascending: true })
         .limit(20);
@@ -89,5 +90,6 @@ export async function searchCategories(searchTerm: string): Promise<CategoryOpti
     return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
         id: row.id_cat,
         name: row.name_cat,
+        parentId: row.parent_id_cat,
     }));
 }

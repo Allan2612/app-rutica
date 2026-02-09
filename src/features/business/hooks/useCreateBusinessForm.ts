@@ -25,6 +25,7 @@ interface FormData {
     coverUri: string | null;
     galleryUris: string[];
     isActive: boolean;
+    districtId: string | null;
 }
 
 interface FormErrors {
@@ -53,6 +54,7 @@ const initialFormData: FormData = {
     coverUri: null,
     galleryUris: [],
     isActive: true,
+    districtId: null,
 };
 
 export function useCreateBusinessForm() {

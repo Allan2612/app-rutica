@@ -13,6 +13,9 @@ const STORAGE_BUCKET = 'attractions-images';
 export interface AttractionListFilters {
     searchText?: string;
     categoryIds?: string[];
+    province?: string;
+    canton?: string;
+    district?: string;
 }
 
 export interface AttractionListRecord {

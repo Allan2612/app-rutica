@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Package } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
+import { useAuthStore } from '@/store';
 import { useBusinessProducts } from '@/features/products/hooks/useBusinessProducts';
 import { useBusinessActivePromotions } from '@/features/promotions/hooks';
 import { getAllActivePromotions, isComboPromotion } from '@/utils';
@@ -11,11 +12,13 @@ import { styles } from './styles';
 
 interface BusinessProductsProps {
     businessId: string;
+    ownerId?: string;
     onImagePress?: (imageUrl: string) => void;
 }
 
-export const BusinessProducts = memo(function BusinessProducts({ businessId, onImagePress }: BusinessProductsProps) {
+export const BusinessProducts = memo(function BusinessProducts({ businessId, ownerId, onImagePress }: BusinessProductsProps) {
     const colors = useThemedColors();
+    const { user } = useAuthStore();
     const { data: products = [], isLoading } = useBusinessProducts(businessId, true); // Solo productos activos en muro público
     const { data: promotions = [] } = useBusinessActivePromotions(businessId);
 
@@ -98,6 +101,7 @@ export const BusinessProducts = memo(function BusinessProducts({ businessId, onI
                             rating={item.data.rating}
                             reviewCount={item.data.reviewCount}
                             promotions={promotions}
+                            isOwnProduct={!!ownerId && ownerId === user?.id}
                             onImagePress={onImagePress}
                         />
                     );

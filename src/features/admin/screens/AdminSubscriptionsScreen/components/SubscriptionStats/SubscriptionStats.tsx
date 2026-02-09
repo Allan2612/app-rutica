@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import type { SubscriptionStats as StatsType } from '../../../services/adminSubscriptions.service';
+import type { SubscriptionStats as StatsType } from '../../../../services/adminSubscriptions.service';
 import { styles } from './styles';
 
 interface SubscriptionStatsProps {
