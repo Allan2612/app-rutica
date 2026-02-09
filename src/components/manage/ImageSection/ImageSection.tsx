@@ -83,6 +83,7 @@ export const ImageSection = memo(function ImageSection({
           label="Logo"
           helperText="Imagen cuadrada que representa tu negocio"
           aspectRatio={[1, 1]}
+          cropShape="rect"
         />
       )}
 
