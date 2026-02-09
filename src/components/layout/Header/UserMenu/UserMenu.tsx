@@ -1,10 +1,19 @@
 import { memo, useCallback } from 'react';
-import { View, Text, Pressable, Modal } from 'react-native';
+import { View, Text, Pressable, Modal, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { User, LogOut, Settings, UserCircle, HelpCircle, Heart } from 'lucide-react-native';
+import {
+  User,
+  LogOut,
+  Settings,
+  UserCircle,
+  HelpCircle,
+  Heart,
+  Download,
+} from 'lucide-react-native';
 import { useAuthStore } from '@/store';
 import { useThemedColors, useProfilePhoto } from '@/hooks';
+import { triggerDownload, hasDownloadAvailable } from '@/utils/appDownload';
 import { styles } from './styles';
 
 interface UserMenuProps {
@@ -59,6 +68,13 @@ export const UserMenu = memo(function UserMenu({
     onClose();
     router.push('/(app)/logout');
   }, [onClose]);
+
+  const handleDownload = useCallback(() => {
+    triggerDownload();
+    onClose();
+  }, [onClose]);
+
+  const showDownload = Platform.OS === 'web' && hasDownloadAvailable();
 
   if (!visible) return null;
 
@@ -130,6 +146,15 @@ export const UserMenu = memo(function UserMenu({
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Soporte</Text>
               </Pressable>
 
+              {showDownload && (
+                <Pressable style={styles.menuItem} onPress={handleDownload}>
+                  <Download color={colors.primary[500]} size={20} />
+                  <Text style={[styles.menuItemText, { color: colors.text.primary }]}>
+                    Descargar App
+                  </Text>
+                </Pressable>
+              )}
+
               <View style={[styles.menuDivider, { backgroundColor: colors.border.light }]} />
 
               <Pressable style={styles.menuItemDanger} onPress={handleLogout}>
@@ -165,6 +190,15 @@ export const UserMenu = memo(function UserMenu({
                 <HelpCircle color={colors.primary[500]} size={20} />
                 <Text style={[styles.menuItemText, { color: colors.text.primary }]}>Soporte</Text>
               </Pressable>
+
+              {showDownload && (
+                <Pressable style={styles.menuItem} onPress={handleDownload}>
+                  <Download color={colors.primary[500]} size={20} />
+                  <Text style={[styles.menuItemText, { color: colors.text.primary }]}>
+                    Descargar App
+                  </Text>
+                </Pressable>
+              )}
             </>
           )}
         </View>
