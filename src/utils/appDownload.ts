@@ -9,7 +9,7 @@
 
 // URL del APK para Android (URL pública de EAS Artifacts)
 export const ANDROID_APK_URL =
-  'https://expo.dev/artifacts/eas/nETnpkWxVFEdXMvVu5yV6.apk';
+  'https://expo.dev/artifacts/eas/dFqPHVAXp1vhWbAz5tkDNp.apk';
 
 // URL de la App Store para iOS (actualizar cuando esté publicada)
 export const IOS_APP_STORE_URL = '';
