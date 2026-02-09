@@ -5,7 +5,7 @@
  */
 
 import { memo } from 'react';
-import { View, Text, useWindowDimensions } from 'react-native';
+import { View, Text, useWindowDimensions, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { MapPin } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -41,8 +41,9 @@ export const HeroWelcome = memo(function HeroWelcome({
     return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
   };
 
-  // Si hay error o no carga, usar fuente por defecto
-  const useFallbackFont = !fontsLoaded || fontError;
+  // En web la fuente se precarga via HTML
+  const caveatFont = Platform.select({ web: 'Caveat', default: 'Caveat_700Bold' });
+  const useFallbackFont = Platform.OS !== 'web' && (!fontsLoaded || !!fontError);
 
   const locationText = getLocationText();
 
@@ -75,7 +76,7 @@ export const HeroWelcome = memo(function HeroWelcome({
             <Text
               style={[
                 styles.brandName,
-                useFallbackFont ? { fontWeight: '700' } : { fontFamily: 'Caveat_700Bold' },
+                useFallbackFont ? { fontWeight: '700' } : { fontFamily: caveatFont, fontWeight: '700' as any },
                 { color: colors.primary[500] },
               ]}
             >

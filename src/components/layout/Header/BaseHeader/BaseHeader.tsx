@@ -62,9 +62,12 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
     return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
   };
 
-  if (!fontsLoaded) {
+  // En web la fuente se precarga via HTML, en native esperamos useFonts
+  if (!fontsLoaded && Platform.OS !== 'web') {
     return null;
   }
+
+  const caveatFont = Platform.select({ web: 'Caveat', default: 'Caveat_700Bold' });
 
   const headerShadow = showBorder
     ? Platform.select({
@@ -100,11 +103,10 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
             cachePolicy="memory-disk"
           />
           <Text
-            style={
-              fontsLoaded
-                ? [styles.logoText, { fontFamily: 'Caveat_700Bold', color: colors.primary[500] }]
-                : [styles.logoText, { color: colors.primary[500] }]
-            }
+            style={[
+              styles.logoText,
+              { fontFamily: caveatFont, fontWeight: '700' as any, color: colors.primary[500] },
+            ]}
           >
             Rutica
           </Text>
