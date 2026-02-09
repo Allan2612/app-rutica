@@ -5,3 +5,4 @@ export * from './formatters';
 export * from './permissionHelpers';
 export * from './splitItemsByLocation';
 export * from './appDownload';
+export * from './authRedirect';

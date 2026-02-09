@@ -3,6 +3,7 @@ import { UserRole } from '@/types/enums';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuthRedirectUrl } from '@/utils/authRedirect';
 
 const PROFILE_IMAGES_BUCKET = 'profiles-images';
 const PENDING_PROFILE_PHOTO_KEY = 'pending_profile_photo';
@@ -71,6 +72,7 @@ export async function signUp(input: SignUpInput) {
         phone: phone || null,
         role: role,
       },
+      emailRedirectTo: getAuthRedirectUrl('/'),
     },
   });
 

@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
 import { supabase } from '@/lib/supabase/client';
 import { useThemedColors } from '@/hooks';
+import { getAuthRedirectUrl } from '@/utils/authRedirect';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
 
 export const RecoverScreen = memo(function RecoverScreen() {
@@ -28,7 +29,7 @@ export const RecoverScreen = memo(function RecoverScreen() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'http://localhost:8081/reset-password',
+        redirectTo: getAuthRedirectUrl('/reset-password'),
       });
 
       if (error) throw error;
