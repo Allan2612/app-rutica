@@ -1,4 +1,5 @@
 import { Tabs, usePathname, useRouter } from 'expo-router';
+import { Platform } from 'react-native';
 import { Home, Landmark, Map, Store, Wrench } from 'lucide-react-native';
 import { HeaderWithSearch } from '@/components/layout';
 import { useThemedColors } from '@/hooks';
@@ -24,11 +25,16 @@ export default function TabsLayout() {
           : {
               backgroundColor: colors.background.primary,
               borderTopWidth: 0,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 3,
-              elevation: 8,
+              ...Platform.select({
+                web: { boxShadow: '0px -2px 3px rgba(0, 0, 0, 0.05)' } as any,
+                default: {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: -2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 3,
+                  elevation: 8,
+                },
+              }),
             },
       }}
     >

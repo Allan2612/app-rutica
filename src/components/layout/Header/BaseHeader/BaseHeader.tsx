@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, LogIn, MapPin } from 'lucide-react-native';
@@ -63,20 +63,29 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
   };
 
   if (!fontsLoaded) {
-    return <Text>Cargando...</Text>;
+    return null;
   }
+
+  const headerShadow = showBorder
+    ? Platform.select({
+        web: { boxShadow: '0px 2px 3px rgba(0, 0, 0, 0.05)' } as any,
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 3,
+          elevation: 4,
+        },
+      })
+    : {};
 
   return (
     <SafeAreaView
       style={[
         {
           backgroundColor: colors.background.primary,
-          borderBottomWidth: showBorder ? 0 : 0,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: showBorder ? 0.05 : 0,
-          shadowRadius: 3,
-          elevation: showBorder ? 4 : 0,
+          borderBottomWidth: 0,
+          ...headerShadow,
         },
       ]}
       edges={['top']}
