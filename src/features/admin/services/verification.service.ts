@@ -840,11 +840,3 @@ export async function getVerificationDetail(
   return requests.find((r) => r.id === id) || null;
 }
 
-// Re-export types for backwards compatibility
-export type {
-  VerificationEntityType,
-  VerificationRequest,
-  VerificationFilters,
-  VerificationStats,
-  UpdateModerationData,
-} from '../types';

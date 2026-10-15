@@ -2,7 +2,7 @@ import { memo, useState, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { Search, X, Store, CalendarDays, Landmark, Tag } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import type { VerificationEntityType } from '@/features/admin/services/verification.service';
+import type { VerificationEntityType } from '@/features/admin/types';
 import type { ModerationStatus } from '@/types/enums';
 import { styles } from './styles';
 
