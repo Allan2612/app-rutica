@@ -26,9 +26,11 @@ export function setupReactQueryFocusManager() {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0, // Los datos siempre se consideran stale - siempre refetch en foco
+      // 30 s: evita volver a pedir todo en cada cambio de tab (E1). Las mutaciones
+      // invalidan sus queries, así que lo editado se ve al instante igual.
+      staleTime: 30 * 1000,
       gcTime: 10 * 60 * 1000, // 10 minutos - mantener en cache para navegación rápida
-      retry: 3,
+      retry: 2,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnWindowFocus: true, // Refetch cuando la app vuelve al foco
       refetchOnMount: true, // Refetch cuando el componente se monta (si stale)
