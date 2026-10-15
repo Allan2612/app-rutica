@@ -25,18 +25,26 @@ interface LocationActions {
 }
 
 /**
- * Selectores computados
+ * Selectores derivados.
+ *
+ * No se usan getters dentro del store: Zustand mezcla el estado con Object.assign, que
+ * evalúa los getters con el estado ANTERIOR y los deja congelados como valores fijos.
+ * Usar: useLocationStore(selectHasLocation)
  */
-interface LocationSelectors {
-  hasLocation: boolean;
-  hasCoordinates: boolean;
-  hasAdministrativeLocation: boolean;
-}
+type LocationStoreState = { location: LocationState | null };
+
+export const selectHasLocation = (s: LocationStoreState) =>
+  Boolean(s.location?.province || s.location?.canton || s.location?.district || s.location?.coordinates);
+
+export const selectHasCoordinates = (s: LocationStoreState) =>
+  Boolean(s.location?.coordinates?.latitude && s.location?.coordinates?.longitude);
+
+export const selectHasAdministrativeLocation = (s: LocationStoreState) =>
+  Boolean(s.location?.province || s.location?.canton || s.location?.district);
 
 type LocationStore = {
   location: LocationState | null;
-} & LocationActions &
-  LocationSelectors;
+} & LocationActions;
 
 /**
  * Store global de ubicación usando Zustand
@@ -46,7 +54,8 @@ type LocationStore = {
  * import { useLocationStore } from '@/store';
  *
  * function MyComponent() {
- *   const { location, hasLocation } = useLocationStore();
+ *   const location = useLocationStore((s) => s.location);
+ *   const hasLocation = useLocationStore(selectHasLocation);
  *   const { setLocation, clearLocation } = useLocationStore();
  *
  *   // Establecer ubicación completa
@@ -73,24 +82,6 @@ type LocationStore = {
 export const useLocationStore = create<LocationStore>((set, get) => ({
   // Estado inicial
   location: null,
-
-  // Selectores computados (se recalculan automáticamente)
-  get hasLocation() {
-    const { location } = get();
-    return Boolean(
-      location?.province || location?.canton || location?.district || location?.coordinates,
-    );
-  },
-
-  get hasCoordinates() {
-    const { location } = get();
-    return Boolean(location?.coordinates?.latitude && location?.coordinates?.longitude);
-  },
-
-  get hasAdministrativeLocation() {
-    const { location } = get();
-    return Boolean(location?.province || location?.canton || location?.district);
-  },
 
   // Acciones
   /**

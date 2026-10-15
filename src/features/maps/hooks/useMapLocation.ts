@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useLocationStore } from '@/store';
+import { useLocationStore, selectHasCoordinates } from '@/store';
 import { useUserLocation } from './useUserLocation';
 
 interface UseMapLocationOptions {
@@ -8,7 +8,9 @@ interface UseMapLocationOptions {
 
 export function useMapLocation(options: UseMapLocationOptions = {}) {
   const { enableAutoDetect = true } = options;
-  const { location: storedLocation, hasCoordinates, updatePartialLocation } = useLocationStore();
+  const storedLocation = useLocationStore((s) => s.location);
+  const hasCoordinates = useLocationStore(selectHasCoordinates);
+  const updatePartialLocation = useLocationStore((s) => s.updatePartialLocation);
 
   const shouldDetect = enableAutoDetect && !hasCoordinates;
 

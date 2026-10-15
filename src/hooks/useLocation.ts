@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useLocationStore, LocationState } from '@/store';
+import { useLocationStore, selectHasLocation, LocationState } from '@/store';
 
 /**
  * Hook para gestionar la ubicación del usuario con sincronización
@@ -21,7 +21,8 @@ import { useLocationStore, LocationState } from '@/store';
  * ```
  */
 export function useLocation() {
-  const { location, setLocation, clearLocation, hasLocation } = useLocationStore();
+  const { location, setLocation, clearLocation } = useLocationStore();
+  const hasLocation = useLocationStore(selectHasLocation);
 
   /**
    * Actualiza la ubicación en el store global
