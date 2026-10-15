@@ -2,6 +2,7 @@
  * Estilos y scripts para el mapa de exploración
  */
 import type { MarkerType } from '@/features/maps/types';
+import { ESC_FUNCTION_JS } from '@/utils/htmlEscape';
 
 export interface ThemeColors {
   backgroundColor: string;
@@ -237,6 +238,7 @@ export function generateMapScript(options: MapScriptOptions): string {
 
   return `
         (function() {
+            ${ESC_FUNCTION_JS}
             var markers = ${markersJSON};
             var MARKER_COLORS = ${markerColorsJSON};
             var USER_MARKER_COLOR = '${userMarkerColor}';
@@ -370,11 +372,12 @@ export function generateMapScript(options: MapScriptOptions): string {
                 var color = MARKER_COLORS[m.type] || '#6b7280';
                 var icon = createMarkerIcon(color);
                 var label = TYPE_LABELS[m.type] || m.type;
-                var route = TYPE_ROUTES[m.type] + '/' + m.id + '?from=maps';
+                var safeId = /^[0-9a-f-]{36}$/i.test(String(m.id)) ? m.id : '';
+                var route = TYPE_ROUTES[m.type] + '/' + safeId + '?from=maps';
                 
                 var popupContent = '<div class="marker-popup">' +
-                    '<span class="type-badge" style="background:' + color + ';">' + label + '</span>' +
-                    '<h3>' + m.name + '</h3>' +
+                    '<span class="type-badge" style="background:' + esc(color) + ';">' + esc(label) + '</span>' +
+                    '<h3>' + esc(m.name) + '</h3>' +
                     '<a href="#" onclick="navigateTo(\\'' + route + '\\'); return false;">Ver más</a>' +
                 '</div>';
                 

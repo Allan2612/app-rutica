@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Toast from 'react-native-toast-message';
@@ -27,6 +27,8 @@ export const LocationPickerMap = memo(function LocationPickerMap({
   onLocationChange,
   onLoadEnd,
 }: LocationPickerMapProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
   const showError = useCallback((message: string) => {
     Toast.show({
       type: 'error',
@@ -84,6 +86,7 @@ export const LocationPickerMap = memo(function LocationPickerMap({
     if (Platform.OS !== 'web') return;
 
     const listener = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) return;
       const data = parseMessage(event.data);
       if (data) handleMapMessage(data);
     };
@@ -98,8 +101,10 @@ export const LocationPickerMap = memo(function LocationPickerMap({
   if (Platform.OS === 'web') {
     return (
       <iframe
+        ref={iframeRef}
         key={mapKey}
         srcDoc={mapHTML}
+        sandbox="allow-scripts"
         style={{
           width: '100%',
           height: '100%',
