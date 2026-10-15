@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/lib/supabase/client';
+import { buildIlikeOr } from '@/utils/searchFilters';
 import type { Database } from '@/lib/supabase/database.types';
 import type { PromotionListItem } from '@/types/entities';
 import { getImageUrl } from './promotions.helpers';
@@ -168,7 +169,7 @@ export async function getPublicPromotions(
   // Filtrar por texto
   if (searchText && searchText.trim().length > 0) {
     const term = searchText.trim();
-    query = query.or(`title_prm.ilike.%${term}%,description_prm.ilike.%${term}%`);
+    query = query.or(buildIlikeOr(['title_prm', 'description_prm'], term));
   }
 
   // Ordenar por placement_score (relevancia) y fecha de inicio
