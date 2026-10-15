@@ -76,6 +76,7 @@ export function AttractionPost({
     user?.id ?? null,
     selectedReviewId,
     selectedReviewUserId,
+    showReviews || isModalVisible || isDeleteDialogVisible,
   );
 
   const hasLocation = !!(latitude && longitude);
@@ -163,8 +164,8 @@ export function AttractionPost({
       <ReviewsSectionControls
         attractionId={attractionId}
         attractionName={name}
-        hasReviews={hasReviews ?? false}
-        reviewCount={reviews.length}
+        hasReviews={showReviews ? (hasReviews ?? false) : reviewCount > 0}
+        reviewCount={showReviews ? reviews.length : reviewCount}
         showReviews={showReviews}
         isAuthenticated={!!user}
         hasUserReview={!!userReview}
@@ -198,30 +199,35 @@ export function AttractionPost({
         />
       )}
 
-      <ReviewModal
-        visible={isModalVisible}
-        onClose={() => {
-          setIsModalVisible(false);
-          setSelectedReviewId(null);
-          setSelectedReviewUserId(null);
-        }}
-        onSubmit={handleSubmit}
-        businessName={name}
-        businessLogo={imageUrls[0]}
-        existingRating={selectedReview?.rating}
-        existingComment={selectedReview?.comment}
-        isEditMode={!!selectedReview}
-        isLoading={isSubmitting}
-      />
+      {/* Montar los modales solo cuando se usan: en un feed largo eran decenas montados */}
+      {isModalVisible && (
+        <ReviewModal
+          visible={isModalVisible}
+          onClose={() => {
+            setIsModalVisible(false);
+            setSelectedReviewId(null);
+            setSelectedReviewUserId(null);
+          }}
+          onSubmit={handleSubmit}
+          businessName={name}
+          businessLogo={imageUrls[0]}
+          existingRating={selectedReview?.rating}
+          existingComment={selectedReview?.comment}
+          isEditMode={!!selectedReview}
+          isLoading={isSubmitting}
+        />
+      )}
 
-      <ConfirmDeleteDialog
-        visible={isDeleteDialogVisible}
-        entityName="Mi reseña"
-        entityType="reseña"
-        onConfirm={handleDelete}
-        onCancel={() => setIsDeleteDialogVisible(false)}
-        isDeleting={isDeleting}
-      />
+      {isDeleteDialogVisible && (
+        <ConfirmDeleteDialog
+          visible={isDeleteDialogVisible}
+          entityName="Mi reseña"
+          entityType="reseña"
+          onConfirm={handleDelete}
+          onCancel={() => setIsDeleteDialogVisible(false)}
+          isDeleting={isDeleting}
+        />
+      )}
     </Pressable>
   );
 }

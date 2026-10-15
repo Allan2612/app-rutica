@@ -13,9 +13,11 @@ export function useAttractionPostReviews(
   userId: string | null,
   selectedReviewId: string | null,
   selectedReviewUserId: string | null,
+  /** Solo cargar reseñas cuando el post está expandido o hay un modal abierto (E2) */
+  active: boolean = true,
 ) {
-  const { data: reviews = [] } = useAttractionReviews(attractionId);
-  const { data: userReview } = useUserAttractionReview(attractionId, userId);
+  const { data: reviews = [] } = useAttractionReviews(attractionId, active);
+  const { data: userReview } = useUserAttractionReview(attractionId, userId, active);
 
   const createReview = useCreateAttractionReview();
   const updateReview = useUpdateAttractionReview();

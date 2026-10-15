@@ -12,21 +12,25 @@ import {
 const EVENT_REVIEWS_KEY = 'event-reviews';
 const USER_EVENT_REVIEW_KEY = 'user-event-review';
 
-export function useEventReviews(eventId: string) {
+export function useEventReviews(eventId: string, enabled: boolean = true) {
   const userId = useAuthStore((state) => state.user?.id);
 
   return useQuery<EventReviewDisplay[]>({
     queryKey: [EVENT_REVIEWS_KEY, eventId, userId],
     queryFn: () => getEventReviews(eventId, userId),
-    enabled: !!eventId,
+    enabled: enabled && !!eventId,
   });
 }
 
-export function useUserEventReview(eventId: string, userId: string | null) {
+export function useUserEventReview(
+  eventId: string,
+  userId: string | null,
+  enabled: boolean = true,
+) {
   return useQuery<EventReviewDisplay | null>({
     queryKey: [USER_EVENT_REVIEW_KEY, eventId, userId],
     queryFn: () => getUserEventReview(eventId, userId!),
-    enabled: !!eventId && !!userId,
+    enabled: enabled && !!eventId && !!userId,
   });
 }
 
