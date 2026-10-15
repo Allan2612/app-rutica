@@ -7,7 +7,15 @@ import { styles } from './styles';
 interface ConfirmDeleteDialogProps {
   visible: boolean;
   entityName: string;
-  entityType: 'negocio' | 'evento' | 'atracción' | 'producto' | 'promoción' | 'reseña' | 'opinión';
+  entityType:
+    | 'negocio'
+    | 'evento'
+    | 'atracción'
+    | 'producto'
+    | 'promoción'
+    | 'reseña'
+    | 'opinión'
+    | 'cuenta';
   onConfirm: () => void;
   onCancel: () => void;
   isDeleting?: boolean;
@@ -82,6 +90,13 @@ export const ConfirmDeleteDialog = memo(function ConfirmDeleteDialog({
       title: 'Eliminar opinión',
       description: 'Se eliminará tu opinión sobre este producto. Esta acción no se puede deshacer.',
       buttonText: 'Eliminar opinión',
+      deletingText: 'Eliminando...',
+    },
+    cuenta: {
+      title: 'Eliminar mi cuenta',
+      description:
+        'Se eliminarán tu perfil, reseñas, favoritos y todo el contenido que publicaste (negocios, productos, eventos, atracciones y promociones).',
+      buttonText: 'Eliminar mi cuenta',
       deletingText: 'Eliminando...',
     },
   };

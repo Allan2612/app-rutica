@@ -200,3 +200,20 @@ export async function getCurrentSession() {
   if (error) throw error;
   return session;
 }
+
+/**
+ * Elimina la cuenta del usuario autenticado y todo su contenido (RPC delete_my_account,
+ * ver docs/base-de-datos/migraciones/2026-10-15_auditoria.sql §15). Requisito de
+ * Google Play / App Store y derecho de supresión (Ley 8968).
+ */
+export async function deleteMyAccount(): Promise<void> {
+  const { error } = await (supabase as any).rpc('delete_my_account');
+  if (error) {
+    if (error.code === 'PGRST202') {
+      throw new Error('La eliminación de cuentas aún no está habilitada. Escríbenos a rutica.app@gmail.com');
+    }
+    throw new Error('No se pudo eliminar la cuenta. Intenta de nuevo o escríbenos a rutica.app@gmail.com');
+  }
+  // La sesión ya no es válida: limpiar el storage local
+  await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+}
