@@ -9,7 +9,7 @@ import { View, Text, Pressable, useWindowDimensions, Platform } from 'react-nati
 import { Image } from 'expo-image';
 import { MapPin } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
+import { brandFont } from '@/styles/theme';
 import { router } from 'expo-router';
 import { useThemedColors } from '@/hooks';
 import { useAuthStore, useLocationStore } from '@/store';
@@ -32,7 +32,6 @@ export const HeroWelcome = memo(function HeroWelcome({
   const { user } = useAuthStore();
   const { location } = useLocationStore();
   const { width } = useWindowDimensions();
-  const [fontsLoaded, fontError] = useFonts({ Caveat_700Bold });
 
   const isMobile = width < 768;
 
@@ -46,9 +45,6 @@ export const HeroWelcome = memo(function HeroWelcome({
     return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
   };
 
-  // En web la fuente se precarga via HTML
-  const caveatFont = Platform.select({ web: 'Caveat', default: 'Caveat_700Bold' });
-  const useFallbackFont = Platform.OS !== 'web' && (!fontsLoaded || !!fontError);
 
   const locationText = getLocationText();
 
@@ -81,7 +77,7 @@ export const HeroWelcome = memo(function HeroWelcome({
             <Text
               style={[
                 styles.brandName,
-                useFallbackFont ? { fontWeight: '700' } : { fontFamily: caveatFont, fontWeight: '700' as any },
+                brandFont,
                 { color: colors.primary[500] },
               ]}
             >

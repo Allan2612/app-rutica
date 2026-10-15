@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
+import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
 import { Platform, StatusBar, View, Text } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -16,8 +17,21 @@ setupReanimatedConfig();
 
 // Configurar React Query focus manager para React Native
 setupReactQueryFocusManager();
+
+// Mantener el splash hasta que la fuente de marca esté lista (evita el salto del header)
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
 export default function RootLayout() {
   useDeepLinkHandler();
+
+  // Fuente de marca: embebida en el build nativo (app.json → expo-font) y registrada aquí
+  // una sola vez. Si falla la carga se sigue con la fuente del sistema.
+  const [fontsLoaded, fontError] = useFonts({ Caveat_700Bold });
+  const fontsReady = fontsLoaded || !!fontError;
+
+  useEffect(() => {
+    if (fontsReady) SplashScreen.hideAsync().catch(() => {});
+  }, [fontsReady]);
 
   // Inicializar el store de autenticación y ubicaciones
   useEffect(() => {
@@ -91,6 +105,8 @@ export default function RootLayout() {
       cleanup();
     };
   }, []);
+
+  if (!fontsReady) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

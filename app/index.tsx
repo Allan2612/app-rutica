@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View, Text, Pressable, Platform } from 'react-native';
 import { Image } from 'expo-image';
-import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
+import { brandFont } from '@/styles/theme';
 import { useAuthStore } from '@/store';
 import { useThemedColors } from '@/hooks';
 import { MapBackground } from '@/components/ui';
@@ -10,9 +10,6 @@ import { MapBackground } from '@/components/ui';
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
   const themedColors = useThemedColors();
-  const [fontsLoaded] = useFonts({
-    Caveat_700Bold,
-  });
 
   useEffect(() => {
     // Si ya está autenticado, redirigir a home
@@ -59,10 +56,7 @@ export default function Index() {
           style={[
             styles.title,
             { color: themedColors.primary[500] },
-            (fontsLoaded || Platform.OS === 'web') && {
-              fontFamily: Platform.select({ web: 'Caveat', default: 'Caveat_700Bold' }),
-              fontWeight: '700' as any,
-            },
+            brandFont,
           ]}
         >
           Bienvenido a Rutica
