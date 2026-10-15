@@ -17,6 +17,7 @@ export interface SignUpInput {
   phone?: string;
   role: UserRole;
   profilePhotoUri?: string; // URI local de la foto de perfil
+  termsVersion: string; // versión de Términos/Privacidad aceptada (L-04)
 }
 
 /**
@@ -58,7 +59,8 @@ async function uploadProfilePhoto(userId: string, imageUri: string): Promise<str
 }
 
 export async function signUp(input: SignUpInput) {
-  const { email, password, firstName, lastName1, lastName2, phone, role, profilePhotoUri } = input;
+  const { email, password, firstName, lastName1, lastName2, phone, role, profilePhotoUri, termsVersion } =
+    input;
 
   // 1. Crear usuario en auth - El trigger handle_new_user() crea el perfil automáticamente
   const { data, error } = await supabase.auth.signUp({
@@ -71,6 +73,8 @@ export async function signUp(input: SignUpInput) {
         last_name2: lastName2 || null,
         phone: phone || null,
         role: role,
+        // El trigger de profiles guarda la versión aceptada y la fecha
+        terms_version: termsVersion,
       },
       emailRedirectTo: getAuthRedirectUrl('/'),
     },
