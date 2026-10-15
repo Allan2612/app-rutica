@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
-import { SUBSCRIPTION_PLANS } from '@/types/entities';
+import { usePlanCatalog } from '@/features/user/hooks/usePlanCatalog';
 import type { SubscriptionType } from '@/types/enums';
 import { PlanCard } from '../PlanCard';
 import { styles } from './styles';
@@ -17,14 +17,16 @@ export const PlansStep = memo(function PlansStep({
   onSelectPlan,
   isBuyer = false,
 }: PlansStepProps) {
+  // Planes y precios desde la tabla `subscription` (lo que configura el admin)
+  const { plans: planCatalog } = usePlanCatalog();
   const colors = useThemedColors();
 
   // Separar planes en paquetes y mensualidades
   const { packages, monthly } = useMemo(() => {
-    const packages = SUBSCRIPTION_PLANS.filter((plan) => !plan.isMonthly);
-    const monthly = SUBSCRIPTION_PLANS.filter((plan) => plan.isMonthly);
+    const packages = planCatalog.filter((plan) => !plan.isMonthly);
+    const monthly = planCatalog.filter((plan) => plan.isMonthly);
     return { packages, monthly };
-  }, []);
+  }, [planCatalog]);
 
   return (
     <View style={styles.plansContainer}>

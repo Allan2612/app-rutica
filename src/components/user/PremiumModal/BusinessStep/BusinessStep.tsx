@@ -3,7 +3,7 @@ import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-nati
 import { Building2, Check, Store, Package } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useUserBusinesses } from '@/features/business/hooks';
-import { SUBSCRIPTION_PLANS } from '@/types/entities';
+import { usePlanCatalog } from '@/features/user/hooks/usePlanCatalog';
 import type { SubscriptionType } from '@/types/enums';
 import type { BusinessSelections } from '../usePremiumModal';
 import { styles } from './styles';
@@ -19,6 +19,8 @@ export const BusinessStep = memo(function BusinessStep({
   businessSelections,
   onSelectBusiness,
 }: BusinessStepProps) {
+  // Planes y precios desde la tabla `subscription` (lo que configura el admin)
+  const { plans: planCatalog } = usePlanCatalog();
   const colors = useThemedColors();
   const { data: businesses = [], isLoading } = useUserBusinesses();
 
@@ -54,7 +56,7 @@ export const BusinessStep = memo(function BusinessStep({
       </Text>
 
       {businessRequiredPlans.map((planType) => {
-        const plan = SUBSCRIPTION_PLANS.find((p) => p.type === planType);
+        const plan = planCatalog.find((p) => p.type === planType);
         if (!plan) return null;
 
         const selectedBusinessId = businessSelections[planType];

@@ -4,7 +4,7 @@ import { MapPin, Calendar, Check, Compass, ImagePlus } from 'lucide-react-native
 import { useThemedColors } from '@/hooks';
 import { useUserAttractions } from '@/features/attractions/hooks';
 import { useUserEvents } from '@/features/events/hooks';
-import { SUBSCRIPTION_PLANS } from '@/types/entities';
+import { usePlanCatalog } from '@/features/user/hooks/usePlanCatalog';
 import type { SubscriptionType } from '@/types/enums';
 import type { EntitySelections } from '../usePremiumModal';
 import { styles } from './styles';
@@ -28,6 +28,8 @@ export const EntityStep = memo(function EntityStep({
   entitySelections,
   onSelectEntity,
 }: EntityStepProps) {
+  // Planes y precios desde la tabla `subscription` (lo que configura el admin)
+  const { plans: planCatalog } = usePlanCatalog();
   const colors = useThemedColors();
 
   const { data: attractions = [], isLoading: isLoadingAttractions } = useUserAttractions();
@@ -72,7 +74,7 @@ export const EntityStep = memo(function EntityStep({
       </Text>
 
       {entityRequiredPlans.map((planType) => {
-        const plan = SUBSCRIPTION_PLANS.find((p) => p.type === planType);
+        const plan = planCatalog.find((p) => p.type === planType);
         const config = PLAN_ENTITY_CONFIG[planType];
         if (!plan || !config) return null;
 

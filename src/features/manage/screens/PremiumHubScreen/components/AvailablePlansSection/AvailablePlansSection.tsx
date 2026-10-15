@@ -11,7 +11,7 @@ import {
   Check,
 } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { SUBSCRIPTION_PLANS } from '@/types/entities';
+import { usePlanCatalog } from '@/features/user/hooks/usePlanCatalog';
 import type { SubscriptionType } from '@/types/enums';
 import { styles } from './styles';
 
@@ -42,18 +42,20 @@ interface AvailablePlansSectionProps {
 export const AvailablePlansSection = memo(function AvailablePlansSection({
   onBuyPress,
 }: AvailablePlansSectionProps) {
+  // Planes y precios desde la tabla `subscription` (lo que configura el admin)
+  const { plans: planCatalog } = usePlanCatalog();
   const colors = useThemedColors();
 
   // Separar paquetes de pago único vs mensualidades
-  const packagePlans = SUBSCRIPTION_PLANS.filter(
+  const packagePlans = planCatalog.filter(
     (plan) => !plan.isMonthly && plan.type !== 'gallery_events',
   );
-  const galleryEventsPlan = SUBSCRIPTION_PLANS.find((plan) => plan.type === 'gallery_events');
-  const monthlyPlans = SUBSCRIPTION_PLANS.filter((plan) => plan.isMonthly);
+  const galleryEventsPlan = planCatalog.find((plan) => plan.type === 'gallery_events');
+  const monthlyPlans = planCatalog.filter((plan) => plan.isMonthly);
   const fullPremiumPlan = monthlyPlans.find((plan) => plan.type === 'full_premium');
   const dashboardPlan = monthlyPlans.find((plan) => plan.type === 'dashboard');
 
-  const renderPlanCard = (plan: (typeof SUBSCRIPTION_PLANS)[0], isFeatured: boolean = false) => {
+  const renderPlanCard = (plan: (typeof planCatalog)[number], isFeatured: boolean = false) => {
     const Icon = PLAN_ICONS[plan.type] || Tag;
     const colorConfig = PLAN_COLORS[plan.type] || PLAN_COLORS.promotions;
 
