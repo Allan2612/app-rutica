@@ -319,7 +319,7 @@ export async function updateBusinessComplete(
 
     if ((business as any).location_id_bus) {
       // Actualizar ubicación existente
-      await (supabase as any)
+      const { error: locUpdateError } = await (supabase as any)
         .from('locations')
         .update({
           district_id_loc: districtId,
@@ -328,6 +328,8 @@ export async function updateBusinessComplete(
           longitude_loc: data.longitude,
         })
         .eq('id_loc', (business as any).location_id_bus);
+
+      if (locUpdateError) throw locUpdateError;
     } else {
       // Crear nueva ubicación
       const newLocationId = generateUUID();

@@ -277,7 +277,7 @@ export async function updateEventComplete(
 
   // 1. Actualizar ubicación (V3: solo district_id, address y coordenadas)
   if (event.location_id_evt) {
-    await (supabase as any)
+    const { error: locationError } = await (supabase as any)
       .from('locations')
       .update({
         district_id_loc: data.districtId,
@@ -286,6 +286,8 @@ export async function updateEventComplete(
         longitude_loc: data.longitude,
       })
       .eq('id_loc', event.location_id_evt);
+
+    if (locationError) throw locationError;
   }
 
   // 2. Actualizar social links
