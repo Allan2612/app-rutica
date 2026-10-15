@@ -129,7 +129,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
     } finally {
       setLoading(false);
     }
-  }, [email, password, confirmPassword, firstName, lastName1, lastName2, phone, role]);
+  }, [email, password, confirmPassword, firstName, lastName1, lastName2, phone, role, profilePhoto]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
