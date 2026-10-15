@@ -39,6 +39,7 @@ export const ReviewsList = memo(function ReviewsList({
           rating={userReview.rating}
           comment={userReview.comment}
           createdAt={userReview.createdAt}
+          moderatedAt={userReview.moderatedAt}
           likesCount={userReview.likesCount}
           isLikedByUser={userReview.isLikedByUser}
           isOwner={true}
@@ -60,6 +61,7 @@ export const ReviewsList = memo(function ReviewsList({
             rating={review.rating}
             comment={review.comment}
             createdAt={review.createdAt}
+            moderatedAt={review.moderatedAt}
             likesCount={review.likesCount}
             isLikedByUser={review.isLikedByUser}
             onEdit={() => onEdit(review.id, review.userId)}

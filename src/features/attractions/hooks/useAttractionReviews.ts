@@ -57,6 +57,10 @@ export function useCreateAttractionReview() {
       return createAttractionReview(attractionId, userId, rating, comment);
     },
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+      queryClient.invalidateQueries({ queryKey: ['attraction-detail', variables.attractionId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: [ATTRACTION_REVIEWS_KEY, variables.attractionId],
       });
@@ -90,6 +94,10 @@ export function useUpdateAttractionReview() {
       return updateAttractionReview(reviewId, rating, comment);
     },
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+      queryClient.invalidateQueries({ queryKey: ['attraction-detail', variables.attractionId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: [ATTRACTION_REVIEWS_KEY, variables.attractionId],
       });
@@ -119,6 +127,10 @@ export function useDeleteAttractionReview() {
       return deleteAttractionReview(reviewId, attractionId);
     },
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+      queryClient.invalidateQueries({ queryKey: ['attraction-detail', variables.attractionId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: [ATTRACTION_REVIEWS_KEY, variables.attractionId],
       });

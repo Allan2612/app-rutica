@@ -1,4 +1,5 @@
 import { memo, useCallback } from 'react';
+import { ModeratedBadge } from '@/components/ui/ModeratedBadge';
 import * as React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Star, Edit3, Trash2, ThumbsUp } from 'lucide-react-native';
@@ -7,7 +8,6 @@ import { useThemedColors } from '@/hooks';
 import { useAuthStore } from '@/store';
 import { useIsAttractionReviewLiked } from '@/features/attractions/hooks/useAttractionReviewLikes';
 import { useToggleAttractionReviewLike } from '@/features/attractions/hooks/useToggleAttractionReviewLike';
-import { isAdmin } from '@/types/entities';
 import { styles } from '../styles';
 import type { AttractionReviewDisplay } from '@/services/attractionReviews.service';
 
@@ -34,21 +34,8 @@ export const ReviewItem = memo(function ReviewItem({
   const isLiked = useIsAttractionReviewLiked(review.id);
   const toggleLike = useToggleAttractionReviewLike();
 
-  // Verificar si el usuario es admin
-  const [userProfile, setUserProfile] = React.useState<any>(null);
-  React.useEffect(() => {
-    if (currentUser?.id) {
-      import('@/lib/supabase/client').then(({ supabase }) => {
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id_prf', currentUser.id)
-          .single()
-          .then(({ data }) => setUserProfile(data));
-      });
-    }
-  }, [currentUser?.id]);
-  const userIsAdmin = isAdmin(userProfile);
+  // El rol ya está en authStore (antes se consultaba el perfil completo por cada reseña)
+  const userIsAdmin = useAuthStore((state) => state.role === 'admin');
   const canEditOrDelete = isOwner || userIsAdmin;
 
   const handleLikePress = useCallback(() => {
@@ -98,6 +85,7 @@ export const ReviewItem = memo(function ReviewItem({
         </View>
         {canEditOrDelete && <ReviewActions onEdit={onEdit} onDelete={onDelete} />}
       </View>
+      <ModeratedBadge moderatedAt={review.moderatedAt} />
       {review.comment && (
         <Text style={[styles.reviewComment, { color: colors.text.secondary }]}>
           {review.comment}

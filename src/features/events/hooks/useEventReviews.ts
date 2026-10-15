@@ -46,6 +46,10 @@ export function useCreateEventReview() {
       comment?: string;
     }) => createEventReview(eventId, userId, rating, comment),
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['event-detail', variables.eventId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: [EVENT_REVIEWS_KEY, variables.eventId],
       });
@@ -74,6 +78,10 @@ export function useUpdateEventReview() {
       userId: string;
     }) => updateEventReview(reviewId, rating, comment),
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['event-detail', variables.eventId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({ queryKey: [EVENT_REVIEWS_KEY, variables.eventId] });
       queryClient.invalidateQueries({
         queryKey: [USER_EVENT_REVIEW_KEY, variables.eventId, variables.userId],
@@ -96,6 +104,10 @@ export function useDeleteEventReview() {
       userId: string;
     }) => deleteEventReview(reviewId, eventId),
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['event-detail', variables.eventId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({ queryKey: [EVENT_REVIEWS_KEY, variables.eventId] });
       queryClient.invalidateQueries({
         queryKey: [USER_EVENT_REVIEW_KEY, variables.eventId, variables.userId],

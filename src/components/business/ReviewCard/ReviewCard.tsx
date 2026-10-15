@@ -1,4 +1,5 @@
 import { memo, useCallback } from 'react';
+import { ModeratedBadge } from '@/components/ui/ModeratedBadge';
 import * as React from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
 import { Star, Pencil, Trash2, ThumbsUp } from 'lucide-react-native';
@@ -8,7 +9,6 @@ import { useAuthStore } from '@/store';
 import { useToggleReviewLike } from '@/features/business/hooks/useToggleReviewLike';
 import { formatDate, DATE_FORMAT_OPTIONS } from '@/utils';
 import { colors as themeColors } from '@/styles/theme/colors';
-import { isAdmin } from '@/types/entities';
 import { styles } from './styles';
 
 interface ReviewCardProps {
@@ -18,6 +18,8 @@ interface ReviewCardProps {
   rating: number;
   comment: string | null;
   createdAt: string;
+  /** Fecha de edición por un admin (muestra "Editada por moderación") */
+  moderatedAt?: string | null;
   likesCount: number;
   isLikedByUser: boolean;
   isOwner?: boolean;
@@ -36,6 +38,7 @@ export const ReviewCard = memo(function ReviewCard({
   rating,
   comment,
   createdAt,
+  moderatedAt,
   likesCount,
   isLikedByUser,
   isOwner = false,
@@ -50,21 +53,8 @@ export const ReviewCard = memo(function ReviewCard({
   const currentUser = useAuthStore((state) => state.user);
   const internalToggleLike = useToggleReviewLike();
 
-  // Verificar si el usuario es admin
-  const [userProfile, setUserProfile] = React.useState<any>(null);
-  React.useEffect(() => {
-    if (currentUser?.id) {
-      import('@/lib/supabase/client').then(({ supabase }) => {
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id_prf', currentUser.id)
-          .single()
-          .then(({ data }) => setUserProfile(data));
-      });
-    }
-  }, [currentUser?.id]);
-  const userIsAdmin = isAdmin(userProfile);
+  // El rol ya está en authStore (antes se consultaba el perfil completo por cada reseña)
+  const userIsAdmin = useAuthStore((state) => state.role === 'admin');
   const canEditOrDelete = isOwner || userIsAdmin;
 
   const likeIsPending = onLikeToggle ? isLikeToggling : internalToggleLike.isPending;
@@ -123,6 +113,8 @@ export const ReviewCard = memo(function ReviewCard({
           {formatDate(createdAt, DATE_FORMAT_OPTIONS.full)}
         </Text>
       </View>
+
+      <ModeratedBadge moderatedAt={moderatedAt} />
 
       {/* Comment */}
       {comment && <Text style={[styles.comment, { color: colors.text.secondary }]}>{comment}</Text>}
