@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { buildSocialLinks, toSafeWebsiteUrl } from '@/utils/externalLinks';
 import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
@@ -450,9 +451,7 @@ export async function updateBusinessComplete(
 
     // 4. Preparar social links
     const socialLinks: Record<string, string> = {};
-    if (data.facebook) socialLinks.facebook = data.facebook;
-    if (data.instagram) socialLinks.instagram = data.instagram;
-    if (data.tiktok) socialLinks.tiktok = data.tiktok;
+    Object.assign(socialLinks, buildSocialLinks(data));
 
     // 5. Actualizar negocio
     const updateFields: any = {
@@ -460,7 +459,7 @@ export async function updateBusinessComplete(
       description_bus: data.description ?? null,
       contact_phone_bus: data.phone ?? null,
       contact_email_bus: data.email ?? null,
-      website_bus: data.website ?? null,
+      website_bus: toSafeWebsiteUrl(data.website),
       social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
       moderation_status_bus: 'pending',
     };

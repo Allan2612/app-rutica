@@ -6,6 +6,13 @@ import { useTrackContactClick } from '@/hooks/useContactClicks';
 import { SocialButtons, SocialType } from '../SocialButtons';
 import { styles } from './styles';
 import type { ContactType } from '@/services/contactClicks.service';
+import {
+  toSafeMailtoUrl,
+  toSafeSocialUrl,
+  toSafeTelUrl,
+  toSafeWebsiteUrl,
+  type SocialNetwork,
+} from '@/utils/externalLinks';
 
 interface ContactSectionProps {
   businessId?: string; // Opcional - solo se trackea si se proporciona
@@ -50,8 +57,9 @@ export const ContactSection = memo(
         if (businessId && socialType) {
           trackClick({ businessId, contactType: socialType as ContactType });
         }
-        // Ejecutar la acción original
-        onContactPress(url);
+        // Los links sociales vienen de la BD: se valida el dominio antes de abrir
+        const safeUrl = socialType ? toSafeSocialUrl(url, socialType as SocialNetwork) : null;
+        if (safeUrl) onContactPress(safeUrl);
       },
       [businessId, trackClick, onContactPress],
     );
@@ -80,7 +88,7 @@ export const ContactSection = memo(
                     borderColor: themedColors.border.medium,
                   },
                 ]}
-                onPress={() => handleContactPress(`tel:${phone}`, 'phone')}
+                onPress={() => handleContactPress(toSafeTelUrl(phone) ?? '', 'phone')}
               >
                 <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
                   <Phone size={18} color={themedColors.primary[500]} />
@@ -108,7 +116,7 @@ export const ContactSection = memo(
                     borderColor: themedColors.border.medium,
                   },
                 ]}
-                onPress={() => handleContactPress(`mailto:${email}`, 'email')}
+                onPress={() => handleContactPress(toSafeMailtoUrl(email) ?? '', 'email')}
               >
                 <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
                   <Mail size={18} color={themedColors.primary[500]} />
@@ -136,7 +144,7 @@ export const ContactSection = memo(
                     borderColor: themedColors.border.medium,
                   },
                 ]}
-                onPress={() => handleContactPress(website, 'website')}
+                onPress={() => handleContactPress(toSafeWebsiteUrl(website) ?? '', 'website')}
               >
                 <View style={[styles.contactIcon, { backgroundColor: themedColors.primary[50] }]}>
                   <Globe size={18} color={themedColors.primary[500]} />

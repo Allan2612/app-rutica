@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { buildSocialLinks, toSafeWebsiteUrl } from '@/utils/externalLinks';
 import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
@@ -159,9 +160,7 @@ export async function createBusinessComplete(
 
     // 4. Preparar social links
     const socialLinks: Record<string, string> = {};
-    if (data.facebook) socialLinks.facebook = data.facebook;
-    if (data.instagram) socialLinks.instagram = data.instagram;
-    if (data.tiktok) socialLinks.tiktok = data.tiktok;
+    Object.assign(socialLinks, buildSocialLinks(data));
 
     // 5. Generar ID del negocio
     const businessId = generateUUID();
@@ -175,7 +174,7 @@ export async function createBusinessComplete(
       location_id_bus: (location as any).id_loc,
       contact_phone_bus: data.phone ?? null,
       contact_email_bus: data.email ?? null,
-      website_bus: data.website ?? null,
+      website_bus: toSafeWebsiteUrl(data.website),
       social_links_bus: Object.keys(socialLinks).length > 0 ? socialLinks : null,
       is_active_bus: data.isActive ?? true,
     });

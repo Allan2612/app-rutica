@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { buildSocialLinks, toSafeWebsiteUrl } from '@/utils/externalLinks';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import {
@@ -150,9 +151,7 @@ export async function createEventComplete(userId: string, data: CreateEventData)
 
     // 2. Preparar social links
     const socialLinks: Record<string, string> = {};
-    if (data.facebook) socialLinks.facebook = data.facebook;
-    if (data.instagram) socialLinks.instagram = data.instagram;
-    if (data.tiktok) socialLinks.tiktok = data.tiktok;
+    Object.assign(socialLinks, buildSocialLinks(data));
 
     // 3. Crear evento
     const eventId = generateUUID();
@@ -170,7 +169,7 @@ export async function createEventComplete(userId: string, data: CreateEventData)
       capacity_evt: data.capacity ?? null,
       contact_phone_evt: data.phone ?? null,
       contact_email_evt: data.email ?? null,
-      website_evt: data.website ?? null,
+      website_evt: toSafeWebsiteUrl(data.website),
       ticket_url_evt: data.ticketUrl ?? null,
       social_links_evt: Object.keys(socialLinks).length > 0 ? socialLinks : null,
       moderation_status_evt: 'pending',
