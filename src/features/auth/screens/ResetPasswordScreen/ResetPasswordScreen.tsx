@@ -10,8 +10,23 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  // Solo se permite cambiar la contraseña desde el link de recuperación. Con una sesión
+  // normal (o robada) esta pantalla no debe poder cambiarla sin la contraseña actual.
+  const isRecoveryMode = useAuthStore((s) => s._isRecoveryMode);
 
   const handleResetPassword = useCallback(async () => {
+    if (!isRecoveryMode) {
+      Toast.show({
+        type: 'error',
+        text1: 'Enlace inválido o vencido',
+        text2: 'Solicita un nuevo correo de recuperación',
+        position: 'top',
+        visibilityTime: 4000,
+      });
+      router.replace('/(auth)/recover');
+      return;
+    }
+
     if (!password || !confirmPassword) {
       Toast.show({
         type: 'error',
@@ -80,7 +95,7 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
     } finally {
       setLoading(false);
     }
-  }, [password, confirmPassword]);
+  }, [password, confirmPassword, isRecoveryMode]);
 
   return (
     <AuthCard
