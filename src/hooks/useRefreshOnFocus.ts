@@ -19,7 +19,8 @@ export function useRefreshOnFocus<T>(
   minIntervalMs: number = 30 * 1000,
 ) {
   const isFirstMount = useRef(true);
-  const lastRefreshAt = useRef(Date.now());
+  // Se fija en el primer foco, no durante el render (Date.now() en render no es puro)
+  const lastRefreshAt = useRef(0);
   // Usar ref para almacenar la función refetch y evitar que sea dependencia del callback
   const refetchRef = useRef(refetch);
   refetchRef.current = refetch;
@@ -29,6 +30,7 @@ export function useRefreshOnFocus<T>(
       // No refrescar en el primer mount (React Query ya lo hace)
       if (isFirstMount.current) {
         isFirstMount.current = false;
+        lastRefreshAt.current = Date.now();
         return;
       }
 
