@@ -93,6 +93,16 @@ $$;
 -- 1. COLUMNAS NUEVAS Y DEFAULTS
 -- ============================================================================
 
+-- [deriva] La base de producción no tiene el estado de pago de las promociones (esquema-v3 sí).
+-- La app no implementa ese pago, así que se crea con 'paid' por defecto: las promociones se siguen
+-- mostrando como hoy y la política pública de abajo (payment_state_prm = 'paid') no las oculta.
+do $$ begin
+  create type public.payment_state as enum ('pending', 'paid', 'rejected');
+exception when duplicate_object then null;
+end $$;
+alter table public.promotions add column if not exists payment_state_prm public.payment_state not null default 'paid';
+alter table public.promotions add column if not exists payment_note_admin_prm text;
+
 -- [S-07] Bloqueo por admin, separado de is_active (que maneja el dueño)
 alter table public.businesses  add column if not exists is_blocked_bus boolean not null default false;
 alter table public.events      add column if not exists is_blocked_evt boolean not null default false;
@@ -294,6 +304,9 @@ begin
     ('promotion_scope_categories', 'promotions',  'id_prm', 'promotion_id_psc',   'moderation_status_prm')
   ) as t(child, parent, pk, fk, status)
   loop
+    if to_regclass('public.' || r.child) is null then
+      raise notice '[deriva] se omite %: no existe en esta base', r.child; continue;
+    end if;
     execute format('drop trigger if exists trg_mark_parent_pending on public.%I', r.child);
     execute format(
       'create trigger trg_mark_parent_pending after insert or update or delete on public.%I
@@ -718,6 +731,9 @@ begin
     ('product_reviews',    'id_prv', 'product_id_prv',    'user_id_prv', 'created_at_prv')
   ) as t(tbl, pk, ent, usr, created)
   loop
+    if to_regclass('public.' || r.tbl) is null then
+      raise notice '[deriva] se omite %: no existe en esta base', r.tbl; continue;
+    end if;
     execute format($f$
       with ranked as (
         select %1$I as id, row_number() over (partition by %2$I, %3$I order by %4$I desc nulls last, %1$I) as rn
@@ -746,6 +762,9 @@ begin
     ('attraction_reviews', 'rating_arv'), ('product_reviews', 'rating_prv')
   ) as t(tbl, col)
   loop
+    if to_regclass('public.' || r.tbl) is null then
+      raise notice '[deriva] se omite %: no existe en esta base', r.tbl; continue;
+    end if;
     execute format('alter table public.%I drop constraint if exists %I', r.tbl, r.tbl || '_rating_ck');
     execute format('alter table public.%I add constraint %I check (%I between 1 and 5) not valid', r.tbl, r.tbl || '_rating_ck', r.col);
     begin
@@ -927,6 +946,9 @@ begin
     ('attraction_review_likes', 'user_id_arl', 'false')
   ) as t(tbl, usr, owner_expr)
   loop
+    if to_regclass('public.' || r.tbl) is null then
+      raise notice '[deriva] se omite %: no existe en esta base', r.tbl; continue;
+    end if;
     execute format('drop policy if exists %I on public.%I', r.tbl || '_select_all', r.tbl);
     execute format('drop policy if exists %I on public.%I', r.tbl || '_select_own', r.tbl);
     execute format(
@@ -987,6 +1009,9 @@ begin
     ('product_review_interactions', 'user_id_pri')
   ) as t(tbl, usr)
   loop
+    if to_regclass('public.' || r.tbl) is null then
+      raise notice '[deriva] se omite %: no existe en esta base', r.tbl; continue;
+    end if;
     execute format('drop policy if exists %I on public.%I', r.tbl || '_insert_all', r.tbl);
     execute format(
       'create policy %I on public.%I for insert with check (%I is null or %I = auth.uid())',
@@ -1023,6 +1048,9 @@ begin
     ('profiles', 'first_name_prf', 80), ('profiles', 'last_name1_prf', 80), ('profiles', 'last_name2_prf', 80)
   ) as t(tbl, col, maxlen)
   loop
+    if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = r.tbl and column_name = r.col) then
+      raise notice '[deriva] se omite %.%: no existe en esta base', r.tbl, r.col; continue;
+    end if;
     execute format('alter table public.%I drop constraint if exists %I', r.tbl, r.col || '_len_ck');
     execute format('alter table public.%I add constraint %I check (char_length(%I) <= %s) not valid',
                    r.tbl, r.col || '_len_ck', r.col, r.maxlen);
@@ -1141,6 +1169,9 @@ begin
 exception when undefined_function then
   raise notice 'calculate_subscription_expiry no existe; se omite';
 end $$;
+
+-- PostgREST cachea el esquema: sin esto las RPC nuevas (get_like_counts, get_my_profile...) dan 404 hasta que se recarga
+notify pgrst, 'reload schema';
 
 commit;
 
