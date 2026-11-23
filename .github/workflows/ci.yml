@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, typecheck and DB migration test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      # Warnings are allowed; any ESLint error fails the build
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      # Applies the audit migration twice on PGlite and checks the security rules (see docs/base-de-datos/pruebas)
+      - name: DB migration test
+        run: |
+          npm i --no-save --no-audit --no-fund @electric-sql/pglite@0.3.6
+          node docs/base-de-datos/pruebas/test-migracion.mjs \
+            docs/base-de-datos/esquema-v3.sql \
+            docs/base-de-datos/migraciones/2026-10-15_auditoria.sql
