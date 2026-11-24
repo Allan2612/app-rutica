@@ -28,60 +28,55 @@ export function hasLocation(location?: LocationFilter | null): location is Locat
   return Boolean(location && (location.province || location.canton || location.district));
 }
 
-// shortcut: caché en memoria de 5 min por zona, y los IDs viajan en la URL (~37 caracteres cada uno).
-// Sirve hasta ~150 ubicaciones por zona; con más, pasar el filtro a una RPC o filtrar por distritos.
-const locationCache = new Map<string, { at: number; ids: string[] }>();
-const LOCATION_TTL = 5 * 60 * 1000;
+// Caché en memoria de 5 min por zona. Son IDs de distrito: dependen de la geografía (Costa Rica
+// tiene ~490 distritos; una provincia, ~120), no de cuántos comercios haya, así que la URL no crece.
+const districtCache = new Map<string, { at: number; ids: string[] }>();
+const DISTRICT_TTL = 5 * 60 * 1000;
 
 /**
- * Traduce provincia/cantón/distrito (nombres del locationStore) a los IDs de `locations`
- * de esa zona (5.15). Usa todos los niveles presentes porque hay distritos con el mismo
- * nombre en cantones distintos. Devuelve null si no hay zona.
+ * Traduce provincia/cantón/distrito (nombres del locationStore) a los IDs de `districts` de esa
+ * zona (5.15). Usa todos los niveles presentes porque hay distritos con el mismo nombre en
+ * cantones distintos. Devuelve null si no hay zona.
  */
-export async function resolveLocationIds(
+export async function resolveDistrictIds(
   location?: LocationFilter | null,
 ): Promise<string[] | null> {
   if (!hasLocation(location)) return null;
   const key = JSON.stringify([location.province, location.canton, location.district]);
-  const cached = locationCache.get(key);
-  if (cached && Date.now() - cached.at < LOCATION_TTL) return cached.ids;
+  const cached = districtCache.get(key);
+  if (cached && Date.now() - cached.at < DISTRICT_TTL) return cached.ids;
 
   let query = supabase
-    .from('locations')
-    .select(
-      'id_loc, districts!inner(name_dst, cantons!inner(name_ctn, provinces!inner(name_prv)))',
-    );
-  if (location.district) query = query.eq('districts.name_dst', location.district);
-  if (location.canton) query = query.eq('districts.cantons.name_ctn', location.canton);
-  if (location.province)
-    query = query.eq('districts.cantons.provinces.name_prv', location.province);
+    .from('districts')
+    .select('id_dst, cantons!inner(name_ctn, provinces!inner(name_prv))');
+  if (location.district) query = query.eq('name_dst', location.district);
+  if (location.canton) query = query.eq('cantons.name_ctn', location.canton);
+  if (location.province) query = query.eq('cantons.provinces.name_prv', location.province);
 
   const { data, error } = await query;
   if (error) throw error;
-  const ids = ((data ?? []) as { id_loc: string }[]).map((l) => l.id_loc);
-  locationCache.set(key, { at: Date.now(), ids });
+  const ids = ((data ?? []) as { id_dst: string }[]).map((d) => d.id_dst);
+  districtCache.set(key, { at: Date.now(), ids });
   return ids;
 }
 
+/** `!inner` para la relación con la ubicación solo cuando se filtra por zona. */
+export const locationJoin = (ids: string[] | null) => (ids ? '!inner' : '');
+
 /**
- * Aplica la zona a una consulta filtrando por la columna de ubicación (`location_id_*`).
- * Devuelve null cuando el resultado es vacío por definición (modo 'only' sin ubicaciones).
- * `referencedTable` es para filtrar por una tabla embebida con !inner (promociones → comercio).
+ * Aplica la zona filtrando por el distrito de la ubicación embebida (`path`, p. ej.
+ * 'locations.district_id_loc'); la relación debe pedirse con `locationJoin(ids)`.
+ * Devuelve null cuando el resultado es vacío por definición (modo 'only' sin distritos).
+ * Con zona, lo que no tiene ubicación no aparece en ninguna de las dos secciones.
  */
 export function applyLocation<Q>(
   query: Q,
-  column: string,
+  path: string,
   ids: string[] | null,
   mode: ListScope['locationMode'] = 'only',
-  referencedTable?: string,
 ): Q | null {
   if (ids === null) return query;
   const q = query as any;
-  const col = referencedTable ? `${referencedTable}.${column}` : column;
-  if (mode === 'only') return ids.length ? q.in(col, ids) : null;
-  if (!ids.length) return query;
-  return q.or(
-    `${column}.is.null,${column}.not.in.(${ids.join(',')})`,
-    referencedTable ? { referencedTable } : undefined,
-  );
+  if (mode === 'only') return ids.length ? q.in(path, ids) : null;
+  return ids.length ? q.not(path, 'in', `(${ids.join(',')})`) : query;
 }

@@ -53,6 +53,7 @@ interface AttractionRawData {
   avg_rating_atr: number;
   reviews_count_atr: number;
   created_at_atr: string;
+  submitted_by_atr: string | null;
   profiles: { first_name_prf: string; last_name1_prf: string } | null;
   attraction_category_map:
     | {
@@ -93,6 +94,7 @@ export async function getAttractionDetail(
       avg_rating_atr,
       reviews_count_atr,
       created_at_atr,
+      submitted_by_atr,
       profiles!attractions_submitted_by_atr_fkey (
         first_name_prf,
         last_name1_prf
@@ -133,15 +135,17 @@ export async function getAttractionDetail(
 
   // Procesar imágenes - V3: solo path, ordenar por sort_order
   const images = (data.attraction_images ?? [])
-    .sort((a: any, b: any) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0))
-    .filter((img: any) => img.path_aim)
-    .map((img: any) => getImageUrl(img.path_aim));
+    .sort((a, b) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0))
+    .filter((img) => img.path_aim)
+    .map((img) => getImageUrl(img.path_aim));
 
   // Procesar categorías
   const categories =
-    data.attraction_category_map?.map((m: any) => m.categories).filter(Boolean) ?? [];
-  const categoryNames = categories.map((c: any) => c.name_cat);
-  const categoryIds = categories.map((c: any) => c.id_cat);
+    data.attraction_category_map
+      ?.map((m) => m.categories)
+      .filter((c): c is NonNullable<typeof c> => !!c) ?? [];
+  const categoryNames = categories.map((c) => c.name_cat);
+  const categoryIds = categories.map((c) => c.id_cat);
 
   // Procesar ubicación - V3: jerarquía normalizada
   const location = data.locations as any;
@@ -164,16 +168,16 @@ export async function getAttractionDetail(
 
   // Separar portada de galería - V3: cover es el que tiene prefix 'cover' o sort_order 0
   const allImages = (data.attraction_images ?? [])
-    .sort((a: any, b: any) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0))
-    .filter((img: any) => img.path_aim);
+    .sort((a, b) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0))
+    .filter((img) => img.path_aim);
 
   const coverImg = allImages.find(
-    (img: any) => getImageTypeFromPath(img.path_aim) === 'cover' || img.sort_order_aim === 0,
+    (img) => getImageTypeFromPath(img.path_aim) === 'cover' || img.sort_order_aim === 0,
   );
-  const galleryImgs = allImages.filter((img: any) => img !== coverImg);
+  const galleryImgs = allImages.filter((img) => img !== coverImg);
 
   const coverImage = coverImg ? getImageUrl(coverImg.path_aim) : null;
-  const galleryImages = galleryImgs.map((img: any) => getImageUrl(img.path_aim));
+  const galleryImages = galleryImgs.map((img) => getImageUrl(img.path_aim));
 
   return {
     id: data.id_atr,
@@ -194,6 +198,6 @@ export async function getAttractionDetail(
     reviewCount: data.reviews_count_atr ?? 0,
     isApproved: data.moderation_status_atr === 'approved',
     createdAt: data.created_at_atr,
-    createdBy: (data as any).submitted_by_atr ?? null,
+    createdBy: data.submitted_by_atr ?? null,
   };
 }

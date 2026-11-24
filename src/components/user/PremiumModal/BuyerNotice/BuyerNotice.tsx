@@ -4,7 +4,11 @@ import { Info } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
-export const BuyerNotice = memo(function BuyerNotice() {
+export const BuyerNotice = memo(function BuyerNotice({
+  message = 'Debes tener un perfil de negocio para poder adquirir estos planes premium',
+}: {
+  message?: string;
+}) {
   const colors = useThemedColors();
 
   return (
@@ -18,9 +22,7 @@ export const BuyerNotice = memo(function BuyerNotice() {
       ]}
     >
       <Info size={20} color={colors.primary[500]} />
-      <Text style={[styles.buyerNoticeText, { color: colors.text.primary }]}>
-        Debes tener un perfil de negocio para poder adquirir estos planes premium
-      </Text>
+      <Text style={[styles.buyerNoticeText, { color: colors.text.primary }]}>{message}</Text>
     </View>
   );
 });

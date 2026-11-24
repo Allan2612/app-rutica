@@ -157,7 +157,7 @@ export async function getBusinessForEdit(
   if (!businessData) throw new Error('No se encontró el negocio');
 
   // Verificar permisos: debe ser el propietario O admin
-  const hasPermission = await canUserEdit(userId, (businessData as any).owner_id_bus);
+  const hasPermission = await canUserEdit(userId, businessData.owner_id_bus);
   if (!hasPermission) {
     throw new Error('No tienes permiso para editar este negocio');
   }
@@ -168,7 +168,7 @@ export async function getBusinessForEdit(
   let cantonName = '';
   let districtName = '';
 
-  if ((businessData as any).location_id_bus) {
+  if (businessData.location_id_bus) {
     // Cargar location con jerarquía completa
     const { data: loc } = await supabase
       .from('locations')
@@ -191,12 +191,12 @@ export async function getBusinessForEdit(
                 )
             `,
       )
-      .eq('id_loc', (businessData as any).location_id_bus)
+      .eq('id_loc', businessData.location_id_bus)
       .single();
 
     if (loc) {
       locationData = loc;
-      const district = (loc as any).districts;
+      const district = loc.districts;
       if (district) {
         districtName = district.name_dst || '';
         const canton = district.cantons;
@@ -221,10 +221,14 @@ export async function getBusinessForEdit(
     .eq('business_id_bcm', businessId);
 
   const categoryIds = (categoryMaps ?? [])
-    .map((bcm: any) => bcm.category_id_bcm)
+    .map((bcm) => bcm.category_id_bcm)
     .filter((id: string) => !!id);
 
-  const socialLinks = (businessData as any).social_links_bus || {};
+  const socialLinks = (businessData.social_links_bus ?? {}) as {
+    facebook?: string | null;
+    instagram?: string | null;
+    tiktok?: string | null;
+  };
 
   // Cargar imágenes desde business_images table
   const { data: businessImages, error: imagesError } = await supabase
@@ -242,7 +246,7 @@ export async function getBusinessForEdit(
   let coverUrl: string | null = null;
   const galleryUrls: string[] = [];
 
-  (businessImages || []).forEach((img: any) => {
+  (businessImages || []).forEach((img) => {
     const url = getImageUrl(img.path_bim);
     if (img.sort_order_bim === 0) {
       logoUrl = url;
@@ -254,24 +258,24 @@ export async function getBusinessForEdit(
   });
 
   return {
-    id: (businessData as any).id_bus,
-    name: (businessData as any).name_bus,
-    description: (businessData as any).description_bus,
+    id: businessData.id_bus,
+    name: businessData.name_bus ?? '',
+    description: businessData.description_bus,
     categoryIds,
-    districtId: (locationData as any)?.district_id_loc ?? null,
+    districtId: locationData?.district_id_loc ?? null,
     country: countryName,
     province: provinceName,
     canton: cantonName,
     district: districtName,
-    address: (locationData as any)?.address_loc ?? null,
-    latitude: (locationData as any)?.latitude_loc ?? 0,
-    longitude: (locationData as any)?.longitude_loc ?? 0,
-    phone: (businessData as any).contact_phone_bus,
-    email: (businessData as any).contact_email_bus,
-    website: (businessData as any).website_bus,
-    facebook: (socialLinks as any).facebook ?? null,
-    instagram: (socialLinks as any).instagram ?? null,
-    tiktok: (socialLinks as any).tiktok ?? null,
+    address: locationData?.address_loc ?? null,
+    latitude: locationData?.latitude_loc ?? 0,
+    longitude: locationData?.longitude_loc ?? 0,
+    phone: businessData.contact_phone_bus,
+    email: businessData.contact_email_bus,
+    website: businessData.website_bus,
+    facebook: socialLinks.facebook ?? null,
+    instagram: socialLinks.instagram ?? null,
+    tiktok: socialLinks.tiktok ?? null,
     logoUrl,
     coverUrl,
     galleryUrls,
@@ -299,7 +303,7 @@ export async function updateBusinessComplete(
     }
 
     // Verificar permisos: debe ser el propietario O admin
-    const hasPermission = await canUserEdit(userId, (business as any).owner_id_bus);
+    const hasPermission = await canUserEdit(userId, business.owner_id_bus);
     if (!hasPermission) {
       throw new Error('No tienes permiso para editar este negocio');
     }
@@ -318,7 +322,7 @@ export async function updateBusinessComplete(
 
     const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
 
-    if ((business as any).location_id_bus) {
+    if (business.location_id_bus) {
       // Actualizar ubicación existente
       const { error: locUpdateError } = await supabase
         .from('locations')
@@ -328,7 +332,7 @@ export async function updateBusinessComplete(
           latitude_loc: data.latitude,
           longitude_loc: data.longitude,
         })
-        .eq('id_loc', (business as any).location_id_bus);
+        .eq('id_loc', business.location_id_bus);
 
       if (locUpdateError) throw locUpdateError;
     } else {
@@ -359,7 +363,7 @@ export async function updateBusinessComplete(
       .eq('business_id_bim', businessId);
 
     // Logo (sort_order = 0)
-    const currentLogo = (currentImages as any)?.find((img: any) => img.sort_order_bim === 0);
+    const currentLogo = currentImages?.find((img) => img.sort_order_bim === 0);
 
     if (data.logoUri === null) {
       // Eliminar logo
@@ -377,7 +381,7 @@ export async function updateBusinessComplete(
     }
 
     // Cover (sort_order = 1)
-    const currentCover = (currentImages as any)?.find((img: any) => img.sort_order_bim === 1);
+    const currentCover = currentImages?.find((img) => img.sort_order_bim === 1);
 
     if (data.coverUri === null) {
       // Eliminar cover
@@ -396,26 +400,25 @@ export async function updateBusinessComplete(
 
     // Gallery (sort_order >= 2)
     if (data.galleryUris !== undefined) {
-      const currentGallery =
-        (currentImages as any)?.filter((img: any) => img.sort_order_bim > 1) || [];
+      const currentGallery = currentImages?.filter((img) => (img.sort_order_bim ?? 0) > 1) || [];
       const existingUrls = data.galleryUris.filter((uri) => !isNewImage(uri));
       const newUris = data.galleryUris.filter((uri) => isNewImage(uri));
 
       // Eliminar imágenes que ya no están
-      const imagesToDelete = currentGallery.filter((img: any) => {
+      const imagesToDelete = currentGallery.filter((img) => {
         const url = getImageUrl(img.path_bim);
         return !existingUrls.includes(url);
       });
 
       if (imagesToDelete.length > 0) {
-        const pathsToDelete = imagesToDelete.map((img: any) => img.path_bim);
-        const idsToDelete = imagesToDelete.map((img: any) => img.id_bim);
+        const pathsToDelete = imagesToDelete.map((img) => img.path_bim);
+        const idsToDelete = imagesToDelete.map((img) => img.id_bim);
         await supabase.storage.from(BUCKET_NAME).remove(pathsToDelete);
         await supabase.from('business_images').delete().in('id_bim', idsToDelete);
       }
 
       // Reindexar imágenes existentes según su nueva posición en el array
-      const keptImages = currentGallery.filter((img: any) => {
+      const keptImages = currentGallery.filter((img) => {
         const url = getImageUrl(img.path_bim);
         return existingUrls.includes(url);
       });

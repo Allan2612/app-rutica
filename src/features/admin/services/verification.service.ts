@@ -15,6 +15,7 @@ import type {
   VerificationFilters,
   VerificationStats,
   UpdateModerationData,
+  SocialLinks,
 } from '../types';
 import {
   STORAGE_BUCKETS,
@@ -122,37 +123,33 @@ async function fetchBusinessVerifications(
   // Si es admin, filtrar por status en JavaScript (para manejar casos donde RLS no filtra correctamente)
   let filteredData = data || [];
   if (isAdmin && status !== 'all') {
-    filteredData = filteredData.filter((item: any) => {
+    filteredData = filteredData.filter((item) => {
       const itemStatus = item.moderation_status_bus || 'pending'; // Si es null, tratarlo como pending
       return itemStatus === status;
     });
   }
 
-  return (filteredData || []).map((item: any) => {
+  return (filteredData || []).map((item) => {
     const images = item.business_images || [];
     const sortedImages = [...images].sort(
-      (a: any, b: any) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0),
+      (a, b) => (a.sort_order_bim || 0) - (b.sort_order_bim || 0),
     );
 
     // Priorizar cover > logo > primera imagen
-    const coverImage = sortedImages.find(
-      (img: any) => getImageTypeFromPath(img.path_bim) === 'cover',
-    );
-    const logoImage = sortedImages.find(
-      (img: any) => getImageTypeFromPath(img.path_bim) === 'logo',
-    );
+    const coverImage = sortedImages.find((img) => getImageTypeFromPath(img.path_bim) === 'cover');
+    const logoImage = sortedImages.find((img) => getImageTypeFromPath(img.path_bim) === 'logo');
     const primaryImage = coverImage || logoImage || sortedImages[0];
 
     // All images with URLs
-    const allImages = sortedImages.map((img: any) => ({
+    const allImages = sortedImages.map((img) => ({
       url: getImageUrl(STORAGE_BUCKETS.businesses, img.path_bim),
       type: getImageTypeFromPath(img.path_bim),
       sortOrder: img.sort_order_bim || 0,
     }));
 
     const categories = (item.business_category_map || [])
-      .map((bcm: any) => bcm.categories?.name_cat)
-      .filter(Boolean);
+      .map((bcm) => bcm.categories?.name_cat)
+      .filter((n): n is string => !!n);
 
     return {
       id: item.id_bus,
@@ -161,7 +158,7 @@ async function fetchBusinessVerifications(
       description: item.description_bus,
       ownerName: formatFullName(item.profiles, 'Propietario'),
       ownerEmail: '',
-      ownerId: item.owner_id_bus,
+      ownerId: item.owner_id_bus ?? '',
       imageUrl: primaryImage?.path_bim
         ? getImageUrl(STORAGE_BUCKETS.businesses, primaryImage.path_bim)
         : null,
@@ -169,13 +166,13 @@ async function fetchBusinessVerifications(
       moderationStatus: item.moderation_status_bus || 'pending',
       moderationNote: item.moderation_note_bus || null,
       isActive: item.is_active_bus ?? true,
-      createdAt: item.created_at_bus,
+      createdAt: item.created_at_bus ?? '',
       locationLabel: formatLocationFromHierarchy(item.locations),
       metadata: {
         phone: item.contact_phone_bus,
         email: item.contact_email_bus,
         website: item.website_bus,
-        socialLinks: item.social_links_bus || null,
+        socialLinks: (item.social_links_bus as SocialLinks | null) || null,
         categoriesNames: categories,
         avgRating: item.avg_rating_bus || 0,
         reviewsCount: item.reviews_count_bus || 0,
@@ -262,27 +259,25 @@ async function fetchEventVerifications(
     throw error;
   }
 
-  return (data || []).map((item: any) => {
+  return (data || []).map((item) => {
     const images = item.event_images || [];
     const sortedImages = [...images].sort(
-      (a: any, b: any) => (a.sort_order_eim || 0) - (b.sort_order_eim || 0),
+      (a, b) => (a.sort_order_eim || 0) - (b.sort_order_eim || 0),
     );
 
-    const coverImage = sortedImages.find(
-      (img: any) => getImageTypeFromPath(img.path_eim) === 'cover',
-    );
+    const coverImage = sortedImages.find((img) => getImageTypeFromPath(img.path_eim) === 'cover');
     const primaryImage = coverImage || sortedImages[0];
 
     // All images with URLs
-    const allImages = sortedImages.map((img: any) => ({
+    const allImages = sortedImages.map((img) => ({
       url: getImageUrl(STORAGE_BUCKETS.events, img.path_eim),
       type: getImageTypeFromPath(img.path_eim),
       sortOrder: img.sort_order_eim || 0,
     }));
 
     const categories = (item.event_category_map || [])
-      .map((ecm: any) => ecm.categories?.name_cat)
-      .filter(Boolean);
+      .map((ecm) => ecm.categories?.name_cat)
+      .filter((n): n is string => !!n);
 
     return {
       id: item.id_evt,
@@ -291,7 +286,7 @@ async function fetchEventVerifications(
       description: item.description_evt,
       ownerName: formatFullName(item.profiles, 'Creador'),
       ownerEmail: '',
-      ownerId: item.created_by_evt,
+      ownerId: item.created_by_evt ?? '',
       imageUrl: primaryImage?.path_eim
         ? getImageUrl(STORAGE_BUCKETS.events, primaryImage.path_eim)
         : null,
@@ -299,7 +294,7 @@ async function fetchEventVerifications(
       moderationStatus: item.moderation_status_evt || 'pending',
       moderationNote: item.moderation_note_evt || null,
       isActive: item.is_active_evt ?? true,
-      createdAt: item.created_at_evt,
+      createdAt: item.created_at_evt ?? '',
       locationLabel: formatLocationFromHierarchy(item.locations),
       metadata: {
         startAt: item.start_at_evt,
@@ -311,7 +306,7 @@ async function fetchEventVerifications(
         email: item.contact_email_evt,
         website: item.website_evt,
         ticketUrl: item.ticket_url_evt,
-        socialLinks: item.social_links_evt || null,
+        socialLinks: (item.social_links_evt as SocialLinks | null) || null,
         categoriesNames: categories,
         avgRating: item.avg_rating_evt || 0,
         reviewsCount: item.reviews_count_evt || 0,
@@ -388,27 +383,25 @@ async function fetchAttractionVerifications(
     throw error;
   }
 
-  return (data || []).map((item: any) => {
+  return (data || []).map((item) => {
     const images = item.attraction_images || [];
     const sortedImages = [...images].sort(
-      (a: any, b: any) => (a.sort_order_aim || 0) - (b.sort_order_aim || 0),
+      (a, b) => (a.sort_order_aim || 0) - (b.sort_order_aim || 0),
     );
 
-    const coverImage = sortedImages.find(
-      (img: any) => getImageTypeFromPath(img.path_aim) === 'cover',
-    );
+    const coverImage = sortedImages.find((img) => getImageTypeFromPath(img.path_aim) === 'cover');
     const primaryImage = coverImage || sortedImages[0];
 
     // All images with URLs
-    const allImages = sortedImages.map((img: any) => ({
+    const allImages = sortedImages.map((img) => ({
       url: getImageUrl(STORAGE_BUCKETS.attractions, img.path_aim),
       type: getImageTypeFromPath(img.path_aim),
       sortOrder: img.sort_order_aim || 0,
     }));
 
     const categories = (item.attraction_category_map || [])
-      .map((acm: any) => acm.categories?.name_cat)
-      .filter(Boolean);
+      .map((acm) => acm.categories?.name_cat)
+      .filter((n): n is string => !!n);
 
     return {
       id: item.id_atr,
@@ -417,7 +410,7 @@ async function fetchAttractionVerifications(
       description: item.description_atr,
       ownerName: formatFullName(item.profiles, 'Colaborador'),
       ownerEmail: '',
-      ownerId: item.submitted_by_atr,
+      ownerId: item.submitted_by_atr ?? '',
       imageUrl: primaryImage?.path_aim
         ? getImageUrl(STORAGE_BUCKETS.attractions, primaryImage.path_aim)
         : null,
@@ -425,7 +418,7 @@ async function fetchAttractionVerifications(
       moderationStatus: item.moderation_status_atr || 'pending',
       moderationNote: item.moderation_note_atr || null,
       isActive: item.is_active_atr ?? true,
-      createdAt: item.created_at_atr,
+      createdAt: item.created_at_atr ?? '',
       locationLabel: formatLocationFromHierarchy(item.locations),
       metadata: {
         categoriesNames: categories,
@@ -524,39 +517,39 @@ async function fetchPromotionVerifications(
     throw error;
   }
 
-  return (data || []).map((item: any) => {
+  return (data || []).map((item) => {
     const images = item.promotion_images || [];
-    const flyerImage = images.find((img: any) => getImageTypeFromPath(img.path_pim) === 'flyer');
+    const flyerImage = images.find((img) => getImageTypeFromPath(img.path_pim) === 'flyer');
     const primaryImage = flyerImage || images[0];
 
     const businessLocation = item.businesses?.locations;
 
     const categories = (item.promotion_scope_categories || [])
-      .map((psc: any) => psc.categories?.name_cat)
-      .filter(Boolean);
+      .map((psc) => psc.categories?.name_cat)
+      .filter((n): n is string => !!n);
 
     const promotionProducts = (item.promotion_products || [])
-      .map((pp: any) => ({
+      .map((pp) => ({
         productName: pp.products?.name_prd || 'Producto',
         price: pp.products?.price_prd,
       }))
-      .filter((p: any) => p.productName);
+      .filter((p) => p.productName);
 
     const comboItems = (item.promotion_combo_items || [])
-      .map((pci: any) => ({
+      .map((pci) => ({
         productName: pci.products?.name_prd || 'Producto',
         quantity: pci.quantity_pci,
         paidQuantity: pci.paid_quantity_pci,
         price: pci.products?.price_prd,
       }))
-      .filter((ci: any) => ci.productName);
+      .filter((ci) => ci.productName);
 
     const allImages = images
-      .map((img: any) => ({
-        type: getImageTypeFromPath(img.path_pim),
+      .map((img) => ({
+        type: getImageTypeFromPath(img.path_pim) ?? 'gallery',
         url: img.path_pim ? getImageUrl(STORAGE_BUCKETS.promotions, img.path_pim) : '',
       }))
-      .filter((img: any) => img.url);
+      .filter((img) => img.url);
 
     return {
       id: item.id_prm,
@@ -565,7 +558,7 @@ async function fetchPromotionVerifications(
       description: item.description_prm,
       ownerName: formatFullName(item.profiles, 'Usuario'),
       ownerEmail: '',
-      ownerId: item.created_by_prm,
+      ownerId: item.created_by_prm ?? '',
       imageUrl: primaryImage?.path_pim
         ? getImageUrl(STORAGE_BUCKETS.promotions, primaryImage.path_pim)
         : null,
@@ -573,12 +566,12 @@ async function fetchPromotionVerifications(
       moderationStatus: item.moderation_status_prm || 'pending',
       moderationNote: item.moderation_note_prm || null,
       isActive: item.is_active_prm ?? true,
-      createdAt: item.created_at_prm,
+      createdAt: item.created_at_prm ?? '',
       locationLabel: formatLocationFromHierarchy(businessLocation),
-      businessId: item.business_id_prm,
+      businessId: item.business_id_prm ?? '',
       metadata: {
-        businessId: item.business_id_prm,
-        businessName: item.businesses?.name_bus,
+        businessId: item.business_id_prm ?? '',
+        businessName: item.businesses?.name_bus ?? null,
         businessLocation: formatLocationFromHierarchy(businessLocation),
         discountType: item.discount_type_prm,
         discountValue: item.discount_value_prm || 0,

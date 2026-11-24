@@ -85,7 +85,8 @@ export const RegisterScreen = memo(function RegisterScreen() {
       Toast.show({
         type: 'error',
         text1: 'Falta tu aceptación',
-        text2: 'Debes aceptar los Términos y la Política de Privacidad',
+        text2:
+          'Confirma que tienes 12 años o más y aceptas los Términos y la Política de Privacidad',
         position: 'top',
         visibilityTime: 4000,
       });
@@ -390,7 +391,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
           onPress={() => setAcceptedTerms((v) => !v)}
           accessibilityRole="checkbox"
           accessibilityState={{ checked: acceptedTerms }}
-          accessibilityLabel="Acepto los Términos y Condiciones y la Política de Privacidad"
+          accessibilityLabel="Tengo 12 años o más y acepto los Términos y Condiciones y la Política de Privacidad"
           style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 }}
         >
           <View
@@ -408,7 +409,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
             {acceptedTerms && <Check size={14} color="#fff" strokeWidth={3} />}
           </View>
           <Text style={{ flex: 1, color: colors.text.secondary, fontSize: 13 }}>
-            Acepto los Términos y Condiciones y la Política de Privacidad
+            Tengo 12 años o más y acepto los Términos y Condiciones y la Política de Privacidad
           </Text>
         </Pressable>
 

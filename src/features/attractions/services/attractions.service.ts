@@ -1,4 +1,10 @@
-import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import {
+  applyLocation,
+  EMPTY_PAGE,
+  locationJoin,
+  pageRange,
+  resolveDistrictIds,
+} from '@/services/listQuery';
 import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
@@ -80,7 +86,7 @@ export async function getAttractionsList(
   filters: AttractionListFilters = {},
 ): Promise<Page<AttractionListRecord>> {
   const { searchText, categoryIds, page, location, locationMode } = filters;
-  const locationIds = await resolveLocationIds(location);
+  const districtIds = await resolveDistrictIds(location);
 
   let query = supabase.from('attractions').select(
     `
@@ -104,7 +110,7 @@ export async function getAttractionsList(
           name_cat
         )
       ),
-      locations!attractions_location_id_atr_fkey (
+      locations!attractions_location_id_atr_fkey${locationJoin(districtIds)} (
         address_loc,
         latitude_loc,
         longitude_loc,
@@ -139,7 +145,7 @@ export async function getAttractionsList(
     query = query.or(buildIlikeOr(['name_atr', 'description_atr'], term));
   }
 
-  const scoped = applyLocation(query, 'location_id_atr', locationIds, locationMode);
+  const scoped = applyLocation(query, 'locations.district_id_loc', districtIds, locationMode);
   if (!scoped) return EMPTY_PAGE;
 
   const [from, to] = pageRange(page);

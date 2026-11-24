@@ -12,6 +12,7 @@ import { EntityStep } from './EntityStep';
 import { PaymentStep } from './PaymentStep';
 import { ModalHeader } from './ModalHeader';
 import { BuyerNotice } from './BuyerNotice';
+import { PLANS_FOR_SALE, PLANS_NOT_FOR_SALE_MESSAGE } from '@/config/plans';
 import { ModalFooter } from './ModalFooter';
 import { ToastConfig } from './ToastConfig';
 import { usePremiumModal } from './usePremiumModal';
@@ -48,6 +49,8 @@ export const PremiumModal = memo(function PremiumModal({
 }: PremiumModalProps) {
   const colors = useThemedColors();
   const isBuyer = userRole === 'buyer';
+  // Solo lectura: compradores, o mientras la venta de planes esté apagada
+  const readOnly = isBuyer || !PLANS_FOR_SALE;
   // Los datos de pago vienen de public.app_settings: nunca se hardcodean en el bundle
   const { data: payment, isConfigured: paymentConfigured } = usePaymentSettings();
 
@@ -100,8 +103,8 @@ export const PremiumModal = memo(function PremiumModal({
     if (step === 'plans') {
       return (
         <PlansStep
-          selectedPlans={isBuyer ? [] : selectedPlans}
-          onSelectPlan={isBuyer ? () => {} : handleSelectPlan}
+          selectedPlans={readOnly ? [] : selectedPlans}
+          onSelectPlan={readOnly ? () => {} : handleSelectPlan}
           isBuyer={isBuyer}
         />
       );
@@ -174,14 +177,15 @@ export const PremiumModal = memo(function PremiumModal({
         <View style={[styles.modalContainer, { backgroundColor: colors.background.secondary }]}>
           <ModalHeader step={step} onClose={handleClose} />
 
-          {!isBuyer && <StepIndicator currentStep={step} />}
-          {isBuyer && <BuyerNotice />}
+          {!readOnly && <StepIndicator currentStep={step} />}
+          {!PLANS_FOR_SALE && <BuyerNotice message={PLANS_NOT_FOR_SALE_MESSAGE} />}
+          {PLANS_FOR_SALE && isBuyer && <BuyerNotice />}
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             {renderStepContent()}
           </ScrollView>
 
-          {!isBuyer && (
+          {!readOnly && (
             <ModalFooter
               step={step}
               selectedPlans={selectedPlans}

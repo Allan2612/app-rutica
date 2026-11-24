@@ -1,4 +1,10 @@
-import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import {
+  applyLocation,
+  EMPTY_PAGE,
+  locationJoin,
+  pageRange,
+  resolveDistrictIds,
+} from '@/services/listQuery';
 import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
@@ -228,7 +234,7 @@ export async function getBusinessList(
   filters: BusinessListFilters = {},
 ): Promise<Page<BusinessListRecord>> {
   const { searchText, categoryIds, page, location, locationMode } = filters;
-  const locationIds = await resolveLocationIds(location);
+  const districtIds = await resolveDistrictIds(location);
 
   const now = new Date().toISOString();
 
@@ -247,7 +253,7 @@ export async function getBusinessList(
           name_cat
         )
       ),
-      locations!location_id_bus (
+      locations!location_id_bus${locationJoin(districtIds)} (
         districts!district_id_loc (
           name_dst,
           cantons!canton_id_dst (
@@ -286,7 +292,7 @@ export async function getBusinessList(
     query = query.or(buildIlikeOr(['name_bus', 'description_bus'], term));
   }
 
-  const scoped = applyLocation(query, 'location_id_bus', locationIds, locationMode);
+  const scoped = applyLocation(query, 'locations.district_id_loc', districtIds, locationMode);
   if (!scoped) return EMPTY_PAGE;
 
   const [from, to] = pageRange(page);

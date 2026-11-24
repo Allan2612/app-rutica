@@ -478,7 +478,7 @@ function calculateRatingTrend(
         count: data.count,
         order: data.order,
       }))
-      .sort((a: any, b: any) => a.order - b.order)
+      .sort((a, b) => a.order - b.order)
       .map(({ order, ...rest }) => rest);
   }
 

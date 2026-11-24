@@ -59,23 +59,23 @@ export async function getBusinessMarkers(
 
   // Filtrar por bounds en el cliente
   let filteredData = (data || []).filter(
-    (item: any) => item.locations?.latitude_loc && item.locations?.longitude_loc,
+    (item) => item.locations?.latitude_loc && item.locations?.longitude_loc,
   );
 
   if (bounds) {
-    filteredData = filteredData.filter((item: any) => {
-      const lat = item.locations.latitude_loc;
-      const lng = item.locations.longitude_loc;
+    filteredData = filteredData.filter((item) => {
+      const lat = item.locations.latitude_loc ?? 0;
+      const lng = item.locations.longitude_loc ?? 0;
       return lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east;
     });
   }
 
-  const markers: MapMarker[] = filteredData.map((item: any) => ({
+  const markers: MapMarker[] = filteredData.map((item) => ({
     id: item.id_bus,
     type: 'business' as MarkerType,
-    name: item.name_bus,
-    latitude: item.locations.latitude_loc,
-    longitude: item.locations.longitude_loc,
+    name: item.name_bus ?? '',
+    latitude: item.locations.latitude_loc ?? 0,
+    longitude: item.locations.longitude_loc ?? 0,
   }));
 
   return {
@@ -120,23 +120,23 @@ export async function getAttractionMarkers(
 
   // Filtrar por bounds en el cliente ya que el filtro nested puede fallar
   let filteredData = (data || []).filter(
-    (item: any) => item.locations?.latitude_loc && item.locations?.longitude_loc,
+    (item) => item.locations?.latitude_loc && item.locations?.longitude_loc,
   );
 
   if (bounds) {
-    filteredData = filteredData.filter((item: any) => {
-      const lat = item.locations.latitude_loc;
-      const lng = item.locations.longitude_loc;
+    filteredData = filteredData.filter((item) => {
+      const lat = item.locations.latitude_loc ?? 0;
+      const lng = item.locations.longitude_loc ?? 0;
       return lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east;
     });
   }
 
-  const markers: MapMarker[] = filteredData.map((item: any) => ({
+  const markers: MapMarker[] = filteredData.map((item) => ({
     id: item.id_atr,
     type: 'attraction' as MarkerType,
-    name: item.name_atr,
-    latitude: item.locations.latitude_loc,
-    longitude: item.locations.longitude_loc,
+    name: item.name_atr ?? '',
+    latitude: item.locations.latitude_loc ?? 0,
+    longitude: item.locations.longitude_loc ?? 0,
   }));
 
   return {
@@ -184,23 +184,23 @@ export async function getEventMarkers(
 
   // Filtrar por bounds en el cliente ya que el filtro nested puede fallar
   let filteredData = (data || []).filter(
-    (item: any) => item.locations?.latitude_loc && item.locations?.longitude_loc,
+    (item) => item.locations?.latitude_loc && item.locations?.longitude_loc,
   );
 
   if (bounds) {
-    filteredData = filteredData.filter((item: any) => {
-      const lat = item.locations.latitude_loc;
-      const lng = item.locations.longitude_loc;
+    filteredData = filteredData.filter((item) => {
+      const lat = item.locations.latitude_loc ?? 0;
+      const lng = item.locations.longitude_loc ?? 0;
       return lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east;
     });
   }
 
-  const markers: MapMarker[] = filteredData.map((item: any) => ({
+  const markers: MapMarker[] = filteredData.map((item) => ({
     id: item.id_evt,
     type: 'event' as MarkerType,
-    name: item.name_evt,
-    latitude: item.locations.latitude_loc,
-    longitude: item.locations.longitude_loc,
+    name: item.name_evt ?? '',
+    latitude: item.locations.latitude_loc ?? 0,
+    longitude: item.locations.longitude_loc ?? 0,
   }));
 
   return {

@@ -61,18 +61,21 @@ export function getImageTypeFromPath(path: string): ImageType | undefined {
  * Incluye Provincia > Cantón > Distrito
  */
 export function formatLocationFromHierarchy(
-  location: {
-    address_loc?: string | null;
-    districts?: {
-      name_dst?: string;
-      cantons?: {
-        name_ctn?: string;
-        provinces?: {
-          name_prv?: string;
+  location:
+    | {
+        address_loc?: string | null;
+        districts?: {
+          name_dst?: string;
+          cantons?: {
+            name_ctn?: string;
+            provinces?: {
+              name_prv?: string;
+            };
+          };
         };
-      };
-    };
-  } | null,
+      }
+    | null
+    | undefined,
 ): string | null {
   if (!location?.districts) return null;
 

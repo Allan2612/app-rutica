@@ -120,8 +120,8 @@ export interface UserBusinessListItem {
   moderationStatus: ModerationStatus;
   moderationNote: string | null;
   isActive: boolean;
-  avgRating: number;
-  reviewsCount: number;
+  avgRating: number | null;
+  reviewsCount: number | null;
   createdAt: string;
 }
 

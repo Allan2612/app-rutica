@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Builder falso de PostgREST: registra cada llamada y devuelve filas fijas al hacer await
 const calls: [string, ...unknown[]][] = [];
-let rows: { id_loc: string }[] = [];
+let rows: { id_dst: string }[] = [];
 function fakeBuilder(): any {
   const b: any = {};
-  for (const m of ['from', 'select', 'eq', 'in', 'or']) {
+  for (const m of ['from', 'select', 'eq', 'in', 'not']) {
     b[m] = (...args: unknown[]) => {
       calls.push([m, ...args]);
       return b;
@@ -18,7 +18,7 @@ vi.mock('@/lib/supabase/client', () => ({
   supabase: { from: (t: string) => fakeBuilder().from(t) },
 }));
 
-const { applyLocation, hasLocation, pageRange, resolveLocationIds, PAGE_SIZE } =
+const { applyLocation, hasLocation, locationJoin, pageRange, resolveDistrictIds, PAGE_SIZE } =
   await import('@/services/listQuery');
 
 beforeEach(() => {
@@ -41,56 +41,54 @@ describe('hasLocation', () => {
   });
 });
 
-describe('applyLocation', () => {
-  it('sin zona no toca la consulta', () => {
-    const q = fakeBuilder();
-    expect(applyLocation(q, 'location_id_bus', null)).toBe(q);
-    expect(calls).toEqual([]);
-  });
-
-  it("'only' filtra por los ids; sin ids el resultado es vacío (null)", () => {
-    applyLocation(fakeBuilder(), 'location_id_bus', ['a', 'b'], 'only');
-    expect(calls).toEqual([['in', 'location_id_bus', ['a', 'b']]]);
-    expect(applyLocation(fakeBuilder(), 'location_id_bus', [], 'only')).toBeNull();
-  });
-
-  it("'exclude' deja pasar lo que no tiene ubicación", () => {
-    applyLocation(fakeBuilder(), 'location_id_evt', ['a', 'b'], 'exclude');
-    expect(calls).toEqual([
-      ['or', 'location_id_evt.is.null,location_id_evt.not.in.(a,b)', undefined],
-    ]);
-  });
-
-  it("'exclude' por tabla embebida (promociones → comercio)", () => {
-    applyLocation(fakeBuilder(), 'location_id_bus', ['a'], 'exclude', 'businesses');
-    expect(calls).toEqual([
-      [
-        'or',
-        'location_id_bus.is.null,location_id_bus.not.in.(a)',
-        { referencedTable: 'businesses' },
-      ],
-    ]);
+describe('locationJoin', () => {
+  it('pide la ubicación con !inner solo si hay zona', () => {
+    expect(locationJoin(null)).toBe('');
+    expect(locationJoin(['d1'])).toBe('!inner');
   });
 });
 
-describe('resolveLocationIds', () => {
+describe('applyLocation', () => {
+  const PATH = 'locations.district_id_loc';
+
+  it('sin zona no toca la consulta', () => {
+    const q = fakeBuilder();
+    expect(applyLocation(q, PATH, null)).toBe(q);
+    expect(calls).toEqual([]);
+  });
+
+  it("'only' filtra por los distritos; sin distritos el resultado es vacío (null)", () => {
+    applyLocation(fakeBuilder(), PATH, ['a', 'b'], 'only');
+    expect(calls).toEqual([['in', PATH, ['a', 'b']]]);
+    expect(applyLocation(fakeBuilder(), PATH, [], 'only')).toBeNull();
+  });
+
+  it("'exclude' deja afuera los distritos de la zona", () => {
+    applyLocation(fakeBuilder(), PATH, ['a', 'b'], 'exclude');
+    expect(calls).toEqual([['not', PATH, 'in', '(a,b)']]);
+  });
+
+  it("'exclude' sin distritos no filtra", () => {
+    const q = fakeBuilder();
+    expect(applyLocation(q, PATH, [], 'exclude')).toBe(q);
+    expect(calls).toEqual([]);
+  });
+});
+
+describe('resolveDistrictIds', () => {
   it('filtra por todos los niveles (hay distritos con el mismo nombre) y cachea', async () => {
-    rows = [{ id_loc: 'L1' }, { id_loc: 'L2' }];
+    rows = [{ id_dst: 'D1' }];
     const loc = { province: 'San José', canton: 'Pérez Zeledón', district: 'Daniel Flores' };
-    expect(await resolveLocationIds(loc)).toEqual(['L1', 'L2']);
+    expect(await resolveDistrictIds(loc)).toEqual(['D1']);
     const eqs = calls.filter((c) => c[0] === 'eq').map((c) => c[1]);
-    expect(eqs).toEqual([
-      'districts.name_dst',
-      'districts.cantons.name_ctn',
-      'districts.cantons.provinces.name_prv',
-    ]);
+    expect(eqs).toEqual(['name_dst', 'cantons.name_ctn', 'cantons.provinces.name_prv']);
 
     calls.length = 0;
-    expect(await resolveLocationIds(loc)).toEqual(['L1', 'L2']);
+    expect(await resolveDistrictIds(loc)).toEqual(['D1']);
     expect(calls).toEqual([]); // segunda vez sale de la caché
   });
 
   it('sin zona devuelve null', async () => {
-    expect(await resolveLocationIds(undefined)).toBeNull();
+    expect(await resolveDistrictIds(undefined)).toBeNull();
   });
 });
