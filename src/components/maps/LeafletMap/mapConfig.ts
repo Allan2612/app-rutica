@@ -11,9 +11,16 @@ export const COSTA_RICA_BOUNDS = {
   west: -85.95,
 };
 
+// Teselas de OpenStreetMap: no piden clave (CARTO empezó a exigir API key en 2026 y devolvía
+// imágenes "API KEY REQUIRED" con estado 200, así que el respaldo por error nunca se activaba).
+// El modo oscuro se logra con un filtro CSS sobre las teselas (DARK_TILE_FILTER).
+export const OSM_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+export const DARK_TILE_FILTER = 'invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9)';
+
 // Atribuciones
-export const PRIMARY_ATTRIBUTION = '© OpenStreetMap contributors | © CartoDB';
-export const FALLBACK_ATTRIBUTION = '© OpenStreetMap contributors';
+export const PRIMARY_ATTRIBUTION =
+  '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+export const FALLBACK_ATTRIBUTION = PRIMARY_ATTRIBUTION;
 
 /**
  * Obtiene los colores del tema para el mapa
@@ -42,15 +49,6 @@ export function getMapThemeColors(theme: 'light' | 'dark'): MapThemeColors {
 /**
  * Obtiene las URLs de los tiles según el tema
  */
-export function getMapTileUrls(theme: 'light' | 'dark'): MapTileUrls {
-  const isDark = theme === 'dark';
-
-  return {
-    primary: isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    details: isDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' : null,
-    labels: isDark ? 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png' : null,
-    fallback: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  };
+export function getMapTileUrls(_theme: 'light' | 'dark'): MapTileUrls {
+  return { primary: OSM_TILE_URL, details: null, labels: null, fallback: OSM_TILE_URL };
 }
