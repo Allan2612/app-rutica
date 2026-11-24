@@ -1,4 +1,5 @@
 import { memo, useState, useCallback } from 'react';
+import { firstError, newPasswordSchema, PASSWORD_MIN_LENGTH } from '@/utils/validation';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { AuthCard, AuthInput, AuthButton } from '@/components/auth';
@@ -38,22 +39,12 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
       return;
     }
 
-    if (password !== confirmPassword) {
+    const invalid = firstError(newPasswordSchema, { password, confirmPassword });
+    if (invalid) {
       Toast.show({
         type: 'error',
-        text1: 'Contraseñas no coinciden',
-        text2: 'Las contraseñas deben ser iguales',
-        position: 'top',
-        visibilityTime: 3000,
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      Toast.show({
-        type: 'error',
-        text1: 'Contraseña muy corta',
-        text2: 'Debe tener al menos 6 caracteres',
+        text1: 'Revisa la contraseña',
+        text2: invalid,
         position: 'top',
         visibilityTime: 3000,
       });
@@ -104,7 +95,7 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
     >
       <AuthInput
         label="Nueva contraseña"
-        placeholder="Mínimo 6 caracteres"
+        placeholder={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres`}
         secureTextEntry
         value={password}
         onChangeText={setPassword}

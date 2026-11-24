@@ -1,4 +1,5 @@
 import { memo, useState, useCallback } from 'react';
+import { firstError, registerSchema } from '@/utils/validation';
 import {
   Text,
   View,
@@ -61,11 +62,19 @@ export const RegisterScreen = memo(function RegisterScreen() {
   }, []);
 
   const handleRegister = useCallback(async () => {
-    if (!email || !password || !firstName || !lastName1 || !confirmPassword) {
+    const invalid = firstError(registerSchema, {
+      firstName,
+      lastName1,
+      email,
+      phone,
+      password,
+      confirmPassword,
+    });
+    if (invalid) {
       Toast.show({
         type: 'error',
-        text1: 'Campos incompletos',
-        text2: 'Por favor completa todos los campos obligatorios',
+        text1: 'Revisa el formulario',
+        text2: invalid,
         position: 'top',
         visibilityTime: 4000,
       });
@@ -77,28 +86,6 @@ export const RegisterScreen = memo(function RegisterScreen() {
         type: 'error',
         text1: 'Falta tu aceptación',
         text2: 'Debes aceptar los Términos y la Política de Privacidad',
-        position: 'top',
-        visibilityTime: 4000,
-      });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Toast.show({
-        type: 'error',
-        text1: 'Contraseñas no coinciden',
-        text2: 'La contraseña y la confirmación deben ser iguales',
-        position: 'top',
-        visibilityTime: 4000,
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      Toast.show({
-        type: 'error',
-        text1: 'Contraseña muy corta',
-        text2: 'Debe tener al menos 6 caracteres',
         position: 'top',
         visibilityTime: 4000,
       });
