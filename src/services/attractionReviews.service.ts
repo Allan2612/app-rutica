@@ -11,7 +11,8 @@ const api = createReviewsApi({
   entityKey: 'attractionId',
 });
 
-export const getAttractionReviews = (attractionId: string, userId?: string) => api.list(attractionId, userId);
+export const getAttractionReviews = (attractionId: string, userId?: string, page = 0) =>
+  api.list(attractionId, userId, page);
 export const getUserAttractionReview = (attractionId: string, userId: string) =>
   api.getForUser(attractionId, userId);
 export const createAttractionReview = (
@@ -23,4 +24,5 @@ export const createAttractionReview = (
 export const updateAttractionReview = (reviewId: string, rating: number, comment?: string) =>
   api.update(reviewId, rating, comment);
 // El promedio de la atracción lo recalcula el trigger trg_recalc_rating
-export const deleteAttractionReview = (reviewId: string, _attractionId: string) => api.remove(reviewId);
+export const deleteAttractionReview = (reviewId: string, _attractionId: string) =>
+  api.remove(reviewId);

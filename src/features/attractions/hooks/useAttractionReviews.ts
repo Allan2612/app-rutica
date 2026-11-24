@@ -8,6 +8,7 @@ import {
   type AttractionReviewDisplay,
 } from '@/services/attractionReviews.service';
 import { useAuthStore } from '@/store';
+import { usePagedList } from '@/hooks/usePagedList';
 
 const ATTRACTION_REVIEWS_KEY = 'attraction-reviews';
 const USER_ATTRACTION_REVIEW_KEY = 'user-attraction-review';
@@ -18,11 +19,11 @@ const USER_ATTRACTION_REVIEW_KEY = 'user-attraction-review';
 export function useAttractionReviews(attractionId: string, enabled: boolean = true) {
   const userId = useAuthStore((state) => state.user?.id);
 
-  return useQuery<AttractionReviewDisplay[]>({
-    queryKey: [ATTRACTION_REVIEWS_KEY, attractionId, userId],
-    queryFn: () => getAttractionReviews(attractionId, userId),
-    enabled: enabled && !!attractionId,
-  });
+  return usePagedList(
+    [ATTRACTION_REVIEWS_KEY, attractionId, userId],
+    (page) => getAttractionReviews(attractionId, userId, page),
+    { enabled: enabled && !!attractionId },
+  );
 }
 
 /**

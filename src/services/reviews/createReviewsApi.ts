@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from '@/services/contentModeration.service';
 import { getLikeCounts, getUserLikedIds } from '@/services/likeCounts.service';
 import { formatPersonName } from '@/utils/formatters';
+import { pageRange, type Page } from '@/services/listQuery';
 
 /**
  * Fábrica de servicios de reseñas para negocio, evento y atracción.
@@ -84,14 +85,17 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
   }
 
   return {
-    async list(entityId: string, userId?: string): Promise<Display<K>[]> {
-      const { data, error } = await (supabase as any)
+    async list(entityId: string, userId?: string, page = 0): Promise<Page<Display<K>>> {
+      const [from, to] = pageRange(page);
+      const { data, error, count } = await (supabase as any)
         .from(cfg.table)
-        .select(select)
+        .select(select, { count: 'exact' })
         .eq(cfg.entityColumn, entityId)
-        .order(c('created_at'), { ascending: false });
+        .order(c('created_at'), { ascending: false })
+        .order(c('id'), { ascending: true })
+        .range(from, to);
       if (error) throw error;
-      return withLikes(data ?? [], userId);
+      return { rows: await withLikes(data ?? [], userId), total: count ?? 0 };
     },
 
     async getForUser(entityId: string, userId: string): Promise<Display<K> | null> {
@@ -106,7 +110,12 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
       return (await withLikes([data], userId))[0];
     },
 
-    async create(entityId: string, userId: string, rating: number, comment?: string): Promise<Display<K>> {
+    async create(
+      entityId: string,
+      userId: string,
+      rating: number,
+      comment?: string,
+    ): Promise<Display<K>> {
       if (comment) validateReviewContent(comment);
       const { data, error } = await (supabase as any)
         .from(cfg.table)

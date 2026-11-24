@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { LoadMoreButton , GenericCarousel } from '@/components/ui';
 import { Pressable, View, Dimensions, Platform } from 'react-native';
 import { Mountain } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { GenericCarousel } from '@/components/ui';
 import { ReviewModal } from '@/components/business/ReviewModal';
 import { ConfirmDeleteDialog } from '@/components/manage/ConfirmDeleteDialog';
 import { useAuthStore } from '@/store';
@@ -65,6 +65,7 @@ export function AttractionPost({
 
   const {
     reviews,
+    reviewsPager,
     userReview,
     hasReviews,
     isSubmitting,
@@ -174,29 +175,32 @@ export function AttractionPost({
       />
 
       {showReviews && (
-        <ReviewsList
-          reviews={reviews}
-          currentUserId={user?.id ?? null}
-          isAuthenticated={!!user}
-          hasUserReview={!!userReview}
-          onEdit={(reviewId, userId) => {
-            setSelectedReviewId(reviewId);
-            setSelectedReviewUserId(userId);
-            setIsModalVisible(true);
-          }}
-          onDelete={(reviewId, userId) => {
-            setSelectedReviewId(reviewId);
-            setSelectedReviewUserId(userId);
-            setIsDeleteDialogVisible(true);
-          }}
-          onWriteReview={() => {
-            setSelectedReviewId(null);
-            setSelectedReviewUserId(null);
-            setIsModalVisible(true);
-          }}
-          getInitials={getInitials}
-          getTimeAgo={getTimeAgoForReview}
-        />
+        <>
+          <ReviewsList
+            reviews={reviews}
+            currentUserId={user?.id ?? null}
+            isAuthenticated={!!user}
+            hasUserReview={!!userReview}
+            onEdit={(reviewId, userId) => {
+              setSelectedReviewId(reviewId);
+              setSelectedReviewUserId(userId);
+              setIsModalVisible(true);
+            }}
+            onDelete={(reviewId, userId) => {
+              setSelectedReviewId(reviewId);
+              setSelectedReviewUserId(userId);
+              setIsDeleteDialogVisible(true);
+            }}
+            onWriteReview={() => {
+              setSelectedReviewId(null);
+              setSelectedReviewUserId(null);
+              setIsModalVisible(true);
+            }}
+            getInitials={getInitials}
+            getTimeAgo={getTimeAgoForReview}
+          />
+          <LoadMoreButton {...reviewsPager} entityLabel="reseñas" />
+        </>
       )}
 
       {/* Montar los modales solo cuando se usan: en un feed largo eran decenas montados */}

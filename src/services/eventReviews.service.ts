@@ -11,10 +11,16 @@ const api = createReviewsApi({
   entityKey: 'eventId',
 });
 
-export const getEventReviews = (eventId: string, userId?: string) => api.list(eventId, userId);
-export const getUserEventReview = (eventId: string, userId: string) => api.getForUser(eventId, userId);
-export const createEventReview = (eventId: string, userId: string, rating: number, comment?: string) =>
-  api.create(eventId, userId, rating, comment);
+export const getEventReviews = (eventId: string, userId?: string, page = 0) =>
+  api.list(eventId, userId, page);
+export const getUserEventReview = (eventId: string, userId: string) =>
+  api.getForUser(eventId, userId);
+export const createEventReview = (
+  eventId: string,
+  userId: string,
+  rating: number,
+  comment?: string,
+) => api.create(eventId, userId, rating, comment);
 export const updateEventReview = (reviewId: string, rating: number, comment?: string) =>
   api.update(reviewId, rating, comment);
 // El promedio del evento lo recalcula el trigger trg_recalc_rating

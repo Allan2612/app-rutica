@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { LoadMoreButton } from '@/components/ui';
 import { Pressable, View } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import { ReviewModal } from '@/components/business/ReviewModal';
@@ -59,6 +60,7 @@ export function EventPost({
 
   const {
     reviews,
+    reviewsPager,
     userReview,
     hasReviews,
     isSubmitting,
@@ -173,23 +175,26 @@ export function EventPost({
       />
 
       {showReviews && (
-        <EventReviewsList
-          reviews={reviews}
-          currentUserId={userId}
-          isAuthenticated={isAuthenticated}
-          hasUserReview={!!userReview}
-          onEdit={(reviewId, reviewUserId) => {
-            setSelectedReviewId(reviewId);
-            setSelectedReviewUserId(reviewUserId);
-            setShowReviewModal(true);
-          }}
-          onDelete={(reviewId, reviewUserId) => {
-            setSelectedReviewId(reviewId);
-            setSelectedReviewUserId(reviewUserId);
-            setShowDeleteConfirm(true);
-          }}
-          onWriteReview={handleWriteReview}
-        />
+        <>
+          <EventReviewsList
+            reviews={reviews}
+            currentUserId={userId}
+            isAuthenticated={isAuthenticated}
+            hasUserReview={!!userReview}
+            onEdit={(reviewId, reviewUserId) => {
+              setSelectedReviewId(reviewId);
+              setSelectedReviewUserId(reviewUserId);
+              setShowReviewModal(true);
+            }}
+            onDelete={(reviewId, reviewUserId) => {
+              setSelectedReviewId(reviewId);
+              setSelectedReviewUserId(reviewUserId);
+              setShowDeleteConfirm(true);
+            }}
+            onWriteReview={handleWriteReview}
+          />
+          <LoadMoreButton {...reviewsPager} entityLabel="reseñas" />
+        </>
       )}
 
       {showReviewModal && (

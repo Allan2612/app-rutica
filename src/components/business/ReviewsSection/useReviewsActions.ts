@@ -12,7 +12,13 @@ import {
 export function useReviewsActions(businessId: string, ownerId: string, onCloseModal: () => void) {
   const { user, role } = useAuthStore();
 
-  const { data: reviews, isLoading: isLoadingReviews } = useBusinessReviews(businessId);
+  const reviewsQuery = useBusinessReviews(businessId);
+  const { data: reviews, isLoading: isLoadingReviews } = reviewsQuery;
+  const reviewsPager = {
+    hasMore: reviewsQuery.hasNextPage,
+    isLoading: reviewsQuery.isFetchingNextPage,
+    onPress: reviewsQuery.fetchNextPage,
+  };
   const { data: userReview } = useUserBusinessReview(businessId, user?.id ?? null);
 
   const createReview = useCreateBusinessReview();
@@ -112,6 +118,7 @@ export function useReviewsActions(businessId: string, ownerId: string, onCloseMo
   );
 
   return {
+    reviewsPager,
     user,
     reviews: reviews ?? [],
     userReview: userReview ?? null,

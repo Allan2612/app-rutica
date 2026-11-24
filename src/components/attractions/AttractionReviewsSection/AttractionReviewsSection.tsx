@@ -1,4 +1,5 @@
 import { useState, useCallback, memo } from 'react';
+import { LoadMoreButton } from '@/components/ui';
 import { View, Text } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import { ReviewModal } from '@/components/business/ReviewModal';
@@ -31,6 +32,7 @@ export const AttractionReviewsSection = memo(function AttractionReviewsSection({
   const {
     user,
     reviews,
+    reviewsPager,
     userReview,
     isLoadingReviews,
     canWriteReview,
@@ -60,16 +62,19 @@ export const AttractionReviewsSection = memo(function AttractionReviewsSection({
           onWriteReview={handleOpenModal}
         />
       ) : (
-        <AttractionReviewsList
-          reviews={reviews}
-          userReview={userReview}
-          currentUserId={user?.id ?? null}
-          canWriteReview={canWriteReview}
-          isDeleting={isDeleting}
-          onEdit={handleOpenModal}
-          onDelete={handleOpenDeleteDialog}
-          onWriteReview={handleOpenModal}
-        />
+        <>
+          <AttractionReviewsList
+            reviews={reviews}
+            userReview={userReview}
+            currentUserId={user?.id ?? null}
+            canWriteReview={canWriteReview}
+            isDeleting={isDeleting}
+            onEdit={handleOpenModal}
+            onDelete={handleOpenDeleteDialog}
+            onWriteReview={handleOpenModal}
+          />
+          <LoadMoreButton {...reviewsPager} entityLabel="reseñas" />
+        </>
       )}
 
       {/* Review Modal */}

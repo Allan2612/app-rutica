@@ -1,4 +1,5 @@
 import { memo, useState, useCallback } from 'react';
+import { LoadMoreButton } from '@/components/ui';
 import { Modal, View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
@@ -35,6 +36,7 @@ export const ProductReviewsModal = memo(function ProductReviewsModal({
 
   const {
     reviews,
+    reviewsPager,
     userReview,
     isLoading,
     isSubmitting,
@@ -124,6 +126,7 @@ export const ProductReviewsModal = memo(function ProductReviewsModal({
                         onDelete={() => {}}
                       />
                     ))}
+                  <LoadMoreButton {...reviewsPager} entityLabel="reseñas" />
 
                   {/* Write Review Button (only for users without review and not own product) */}
                   {userId && !userReview && !isOwnProduct && (

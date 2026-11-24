@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
 import type { Database } from '@/lib/supabase/database.types';
+import { pageRange, type Page } from '@/services/listQuery';
 
 export interface ProductReviewDisplay {
   id: string;
@@ -20,8 +21,12 @@ type ProductReviewWithProfile = ProductReviewRow & {
   profiles: Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf' | 'profile_photo_path_prf'> | null;
 };
 
-export async function getProductReviews(productId: string): Promise<ProductReviewDisplay[]> {
-  const { data, error } = await supabase
+export async function getProductReviews(
+  productId: string,
+  page = 0,
+): Promise<Page<ProductReviewDisplay>> {
+  const [from, to] = pageRange(page);
+  const { data, error, count } = await supabase
     .from('product_reviews')
     .select(
       `
@@ -37,16 +42,16 @@ export async function getProductReviews(productId: string): Promise<ProductRevie
                 profile_photo_path_prf
             )
         `,
+      { count: 'exact' },
     )
     .eq('product_id_prv', productId)
-    .order('created_at_prv', { ascending: false });
+    .order('created_at_prv', { ascending: false })
+    .order('id_prv', { ascending: true })
+    .range(from, to);
 
-  if (error) {
-    console.error('[productReviews] Error fetching reviews:', error.message);
-    return [];
-  }
+  if (error) throw error;
 
-  return ((data as unknown as ProductReviewWithProfile[]) ?? []).map((review) => {
+  const rows = ((data as unknown as ProductReviewWithProfile[]) ?? []).map((review) => {
     const profile = review.profiles;
     const firstName = profile?.first_name_prf ?? '';
     const lastName = profile?.last_name1_prf ?? '';
@@ -71,6 +76,8 @@ export async function getProductReviews(productId: string): Promise<ProductRevie
       authorPhotoUrl,
     };
   });
+
+  return { rows, total: count ?? 0 };
 }
 
 export async function createProductReview(
@@ -96,7 +103,6 @@ export async function createProductReview(
   // El trigger se encarga de actualizar el rating automáticamente
   return true;
 }
-
 
 export async function updateProductReview(
   reviewId: string,

@@ -16,7 +16,13 @@ export function useAttractionPostReviews(
   /** Solo cargar reseñas cuando el post está expandido o hay un modal abierto (E2) */
   active: boolean = true,
 ) {
-  const { data: reviews = [] } = useAttractionReviews(attractionId, active);
+  const reviewsQuery = useAttractionReviews(attractionId, active);
+  const reviews = reviewsQuery.data;
+  const reviewsPager = {
+    hasMore: reviewsQuery.hasNextPage,
+    isLoading: reviewsQuery.isFetchingNextPage,
+    onPress: reviewsQuery.fetchNextPage,
+  };
   const { data: userReview } = useUserAttractionReview(attractionId, userId, active);
 
   const createReview = useCreateAttractionReview();
@@ -119,6 +125,7 @@ export function useAttractionPostReviews(
   }, [selectedReviewId, selectedReviewUserId, userId, userReview, attractionId, deleteReview]);
 
   return {
+    reviewsPager,
     reviews: reviews ?? [],
     userReview,
     hasReviews,
