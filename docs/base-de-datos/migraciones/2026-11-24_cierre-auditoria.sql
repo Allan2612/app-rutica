@@ -10,6 +10,42 @@
 begin;
 
 -- ============================================================================
+-- 0. [H-34] Políticas heredadas que abrían escrituras a cualquier usuario con sesión
+-- ============================================================================
+-- Las políticas se combinan con OR: estas anulaban a las de dueño que ya existen
+-- (business_images_*_owner, locations_update_owner, *_storage_*_owner). Con ellas,
+-- cualquier cuenta podía borrar o reemplazar las fotos de cualquier comercio y mover
+-- la ubicación de cualquier comercio, evento o atracción.
+drop policy if exists business_images_table_insert on public.business_images;
+drop policy if exists business_images_table_update on public.business_images;
+drop policy if exists business_images_table_delete on public.business_images;
+drop policy if exists locations_update_policy on public.locations;
+drop policy if exists locations_insert_policy on public.locations; -- duplica locations_insert_authenticated
+drop policy if exists business_images_authenticated_insert on storage.objects;
+drop policy if exists business_images_authenticated_update on storage.objects;
+drop policy if exists business_images_authenticated_delete on storage.objects;
+
+-- La app crea provincia/cantón/distrito si la geocodificación trae uno nuevo, así que la
+-- inserción en el catálogo sigue abierta, pero solo para cuentas activas.
+alter policy countries_insert_policy on public.countries with check ((select public.is_active_user()));
+alter policy provinces_insert_policy on public.provinces with check ((select public.is_active_user()));
+alter policy cantons_insert_policy on public.cantons with check ((select public.is_active_user()));
+alter policy districts_insert_policy on public.districts with check ((select public.is_active_user()));
+
+-- Fotos de perfil: solo en la carpeta propia (<uid>/...), como ya hacen la app y el resto
+-- de políticas del bucket.
+do $$
+begin
+  if exists (select 1 from pg_policies where schemaname = 'storage' and policyname = 'profiles_images_insert_own') then
+    alter policy profiles_images_insert_own on storage.objects with check (
+      bucket_id = 'profiles-images'
+      and (select auth.uid()) is not null
+      and (storage.foldername(name))[1] = (select auth.uid())::text
+    );
+  end if;
+end $$;
+
+-- ============================================================================
 -- 1. [1.24] RLS: (select auth.uid()) en lugar de auth.uid()
 -- ============================================================================
 -- auth.uid(), auth.role(), auth.jwt() e is_admin() no dependen de la fila. Envueltos en
