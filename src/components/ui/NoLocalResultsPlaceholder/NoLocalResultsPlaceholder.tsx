@@ -2,7 +2,7 @@
  * NoLocalResultsPlaceholder Component
  * Shown when there are no items matching the selected location.
  * Themed, with animated-feel icon and helpful message.
- * Supports compact mode for home carousel sections.
+ * Compact mode (home carousels): one quiet line, the carousel of other places follows.
  */
 
 import { memo } from 'react';
@@ -34,18 +34,10 @@ export const NoLocalResultsPlaceholder = memo(function NoLocalResultsPlaceholder
   if (compact) {
     return (
       <View style={styles.compactContainer}>
-        <View style={[styles.compactIconCircle, { backgroundColor: iconBg }]}>
-          <MapPinOff size={16} color={accentColor} strokeWidth={1.75} />
-        </View>
+        <MapPinOff size={14} color={accentColor} strokeWidth={2} />
         <Text style={[styles.compactText, { color: colors.text.secondary }]}>
-          No hay {entityLabel} en {locationName}
+          Sin {entityLabel} en {locationName} todavía · te mostramos otros lugares
         </Text>
-        <View style={[styles.compactHint, { backgroundColor: iconBg }]}>
-          <Navigation size={10} color={accentColor} strokeWidth={2} />
-          <Text style={[styles.compactHintText, { color: colors.text.tertiary }]}>
-            Mira otros lugares abajo
-          </Text>
-        </View>
       </View>
     );
   }

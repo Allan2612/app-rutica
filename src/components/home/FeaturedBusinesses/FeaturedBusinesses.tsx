@@ -141,12 +141,14 @@ export const FeaturedBusinesses = memo(function FeaturedBusinesses({
 
           {others.length > 0 && (
             <>
-              <LocationSectionHeader
-                type="others"
-                count={others.length}
-                entityLabel="comercios"
-                compact
-              />
+              {local.length > 0 && (
+                <LocationSectionHeader
+                  type="others"
+                  count={others.length}
+                  entityLabel="comercios"
+                  compact
+                />
+              )}
               {renderCarousel(others)}
             </>
           )}
