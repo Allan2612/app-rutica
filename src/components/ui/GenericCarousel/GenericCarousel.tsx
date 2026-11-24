@@ -146,6 +146,8 @@ function SimpleMobileCarousel<T>({
         {/* Botón Anterior */}
         {showNavigation && items.length > 1 && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Anterior"
             style={[
               styles.navButton,
               styles.navButtonLeft,
@@ -160,6 +162,8 @@ function SimpleMobileCarousel<T>({
         {/* Botón Siguiente */}
         {showNavigation && items.length > 1 && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Siguiente"
             style={[
               styles.navButton,
               styles.navButtonRight,
@@ -209,6 +213,8 @@ function SimpleMobileCarousel<T>({
             onPress={() => setExpandedImage(null)}
           >
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
               style={{ position: 'absolute', top: 50, right: 20, zIndex: 10 }}
               onPress={() => setExpandedImage(null)}
             >
@@ -316,6 +322,8 @@ function ReanimatedCarousel<T>({
         {/* Botón Anterior */}
         {showNavigation && items.length > 1 && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Anterior"
             style={[
               styles.navButton,
               styles.navButtonLeft,
@@ -330,6 +338,8 @@ function ReanimatedCarousel<T>({
         {/* Botón Siguiente */}
         {showNavigation && items.length > 1 && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Siguiente"
             style={[
               styles.navButton,
               styles.navButtonRight,
@@ -379,6 +389,8 @@ function ReanimatedCarousel<T>({
             onPress={() => setExpandedImage(null)}
           >
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
               style={{ position: 'absolute', top: 50, right: 20, zIndex: 10 }}
               onPress={() => setExpandedImage(null)}
             >

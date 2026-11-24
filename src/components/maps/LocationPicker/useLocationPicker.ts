@@ -47,7 +47,7 @@ export function useLocationPicker({
   const [mapKey, setMapKey] = useState(0);
   const hasInitializedFromProps = useRef(false);
   const hasRequestedAutoLocation = useRef(false);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isProcessingRef = useRef(false);
   const { reverseGeocode } = useReverseGeocode();
 

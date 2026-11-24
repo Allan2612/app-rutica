@@ -1,5 +1,8 @@
+import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
+import { publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -11,12 +14,9 @@ const STORAGE_BUCKET = 'attractions-images';
 // Types
 // ============================================
 
-export interface AttractionListFilters {
+export interface AttractionListFilters extends ListScope {
   searchText?: string;
   categoryIds?: string[];
-  province?: string;
-  canton?: string;
-  district?: string;
 }
 
 export interface AttractionListRecord {
@@ -69,19 +69,7 @@ export interface AttractionListRecord {
 // ============================================
 
 export function getImageUrl(path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- * Path format: <entity_id>/<prefix>-<uuid>.ext
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
+  return publicStorageUrl(STORAGE_BUCKET, path);
 }
 
 // ============================================
@@ -90,10 +78,12 @@ function getImageTypeFromPath(path: string): string {
 
 export async function getAttractionsList(
   filters: AttractionListFilters = {},
-): Promise<AttractionListRecord[]> {
-  const { searchText, categoryIds, province, canton, district } = filters;
+): Promise<Page<AttractionListRecord>> {
+  const { searchText, categoryIds, page, location, locationMode } = filters;
+  const locationIds = await resolveLocationIds(location);
 
-  let query = supabase.from('attractions').select(`
+  let query = supabase.from('attractions').select(
+    `
       id_atr,
       name_atr,
       description_atr,
@@ -132,7 +122,9 @@ export async function getAttractionsList(
         path_aim,
         sort_order_aim
       )
-    `);
+    `,
+    { count: 'exact' },
+  );
 
   // Solo atracciones aprobadas y activas
   query = query.eq('moderation_status_atr', 'approved').eq('is_active_atr', true);
@@ -142,28 +134,22 @@ export async function getAttractionsList(
     query = query.in('attraction_category_map.category_id_acm', categoryIds);
   }
 
-  // Filtrar por ubicación (nivel más granular tiene prioridad)
-  if (district) {
-    query = query.eq('locations.districts.name_dst', district);
-  } else if (canton) {
-    query = query.eq('locations.districts.cantons.name_ctn', canton);
-  } else if (province) {
-    query = query.eq('locations.districts.cantons.provinces.name_prv', province);
-  }
-
   if (searchText && searchText.trim().length > 0) {
     const term = searchText.trim();
     query = query.or(buildIlikeOr(['name_atr', 'description_atr'], term));
   }
 
-  query = query.order('created_at_atr', { ascending: false });
+  const scoped = applyLocation(query, 'location_id_atr', locationIds, locationMode);
+  if (!scoped) return EMPTY_PAGE;
 
-  const { data, error } = await query;
+  const [from, to] = pageRange(page);
+  const paged = scoped
+    .order('created_at_atr', { ascending: false })
+    .order('id_atr', { ascending: true })
+    .range(from, to);
 
-  if (error) {
-    console.error('[getAttractionsList] Error:', error);
-    return [];
-  }
+  const { data, error, count } = await paged;
+  if (error) throw error;
 
-  return (data ?? []) as unknown as AttractionListRecord[];
+  return { rows: (data ?? []) as AttractionListRecord[], total: count ?? 0 };
 }

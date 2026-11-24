@@ -53,6 +53,8 @@ export const CategorySelectionModal = memo(function CategorySelectionModal({
           <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
             <View style={styles.headerLeft}>
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
                 onPress={handleCancel}
                 style={({ pressed }) => [styles.closeButton, { opacity: pressed ? 0.6 : 1 }]}
               >

@@ -114,10 +114,20 @@ function ReviewActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () 
 
   return (
     <View style={styles.reviewActions}>
-      <Pressable style={styles.reviewActionButton} onPress={onEdit}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Editar"
+        style={styles.reviewActionButton}
+        onPress={onEdit}
+      >
         <Edit3 size={16} color={colors.primary[500]} />
       </Pressable>
-      <Pressable style={styles.reviewActionButton} onPress={onDelete}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Eliminar"
+        style={styles.reviewActionButton}
+        onPress={onDelete}
+      >
         <Trash2 size={16} color="#dc2626" />
       </Pressable>
     </View>

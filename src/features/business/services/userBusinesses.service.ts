@@ -7,7 +7,7 @@ import { canUserEdit } from '@/utils/permissionHelpers';
 const BUCKET_NAME = 'business-images';
 
 export async function getUserBusinesses(userId: string): Promise<UserBusinessListItem[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `
@@ -106,7 +106,7 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
 
 export async function deleteUserBusiness(businessId: string, userId: string): Promise<void> {
   // 1. Verificar permisos
-  const { data: business, error: businessError } = await (supabase as any)
+  const { data: business, error: businessError } = await supabase
     .from('businesses')
     .select('owner_id_bus, location_id_bus')
     .eq('id_bus', businessId)
@@ -177,7 +177,7 @@ export async function getBusinessById(
   businessId: string,
   userId: string,
 ): Promise<BusinessDetailForEdit> {
-  const { data: businessData, error: businessError } = await (supabase as any)
+  const { data: businessData, error: businessError } = await supabase
     .from('businesses')
     .select(
       `
@@ -213,7 +213,7 @@ export async function getBusinessById(
   let districtName = '';
 
   if ((businessData as any).location_id_bus) {
-    const { data: loc } = await (supabase as any)
+    const { data: loc } = await supabase
       .from('locations')
       .select('district_id_loc, address_loc, latitude_loc, longitude_loc')
       .eq('id_loc', (businessData as any).location_id_bus)
@@ -223,7 +223,7 @@ export async function getBusinessById(
 
     // Cargar jerarquía de ubicación
     if (districtId) {
-      const { data: district } = await (supabase as any)
+      const { data: district } = await supabase
         .from('districts')
         .select('name_dst, canton_id_dst')
         .eq('id_dst', districtId)
@@ -232,7 +232,7 @@ export async function getBusinessById(
       if (district) {
         districtName = (district as any).name_dst;
 
-        const { data: canton } = await (supabase as any)
+        const { data: canton } = await supabase
           .from('cantons')
           .select('name_ctn, province_id_ctn')
           .eq('id_ctn', (district as any).canton_id_dst)
@@ -241,7 +241,7 @@ export async function getBusinessById(
         if (canton) {
           cantonName = (canton as any).name_ctn;
 
-          const { data: province } = await (supabase as any)
+          const { data: province } = await supabase
             .from('provinces')
             .select('name_prv, country_id_prv')
             .eq('id_prv', (canton as any).province_id_ctn)
@@ -250,7 +250,7 @@ export async function getBusinessById(
           if (province) {
             provinceName = (province as any).name_prv;
 
-            const { data: country } = await (supabase as any)
+            const { data: country } = await supabase
               .from('countries')
               .select('name_cnt')
               .eq('id_cnt', (province as any).country_id_prv)
@@ -265,13 +265,13 @@ export async function getBusinessById(
     }
   }
 
-  const { data: images } = await (supabase as any)
+  const { data: images } = await supabase
     .from('business_images')
     .select('id_bim, path_bim, sort_order_bim')
     .eq('business_id_bim', businessId)
     .order('sort_order_bim', { ascending: true });
 
-  const { data: categoryMaps } = await (supabase as any)
+  const { data: categoryMaps } = await supabase
     .from('business_category_map')
     .select('category_id_bcm')
     .eq('business_id_bcm', businessId);

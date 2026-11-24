@@ -15,7 +15,7 @@ export async function getUserLikedAttractionIds(userId: string): Promise<string[
     return [];
   }
 
-  return data.map((item: any) => item.attraction_id_alk);
+  return data.map((item) => item.attraction_id_alk);
 }
 
 /**
@@ -46,7 +46,7 @@ export async function addAttractionLike(attractionId: string, userId: string): P
   const { error } = await supabase.from('attraction_likes').insert({
     attraction_id_alk: attractionId,
     user_id_alk: userId,
-  } as any);
+  });
 
   if (error) {
     console.error('[attractionLikes] Error adding like:', error.message);

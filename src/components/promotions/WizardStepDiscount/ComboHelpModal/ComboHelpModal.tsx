@@ -31,6 +31,8 @@ export const ComboHelpModal = memo(function ComboHelpModal({
               </Text>
             </View>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
               onPress={onClose}
               style={({ pressed }) => [
                 styles.closeButton,

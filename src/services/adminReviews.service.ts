@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import { supabase, getSessionUser } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import type { ReviewType, ReviewFilters, AdminReviewDisplay } from '@/features/admin/types';
 
@@ -6,9 +6,7 @@ import type { ReviewType, ReviewFilters, AdminReviewDisplay } from '@/features/a
  * Verifica si el usuario actual es administrador
  */
 async function isUserAdmin(): Promise<boolean> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return false;
 
   const { data, error } = await supabase
@@ -324,7 +322,7 @@ export async function deleteReviewAsAdmin(
 
       if (!error) {
         // Actualizar el promedio de rating
-        const { error: rpcError } = await (supabase as any).rpc('update_attraction_rating', {
+        const { error: rpcError } = await supabase.rpc('update_attraction_rating', {
           p_attraction_id: contentId,
         });
         if (rpcError) {
@@ -338,7 +336,7 @@ export async function deleteReviewAsAdmin(
 
       if (!error) {
         // Actualizar el promedio de rating
-        const { error: rpcError } = await (supabase as any).rpc('update_business_rating', {
+        const { error: rpcError } = await supabase.rpc('update_business_rating', {
           p_business_id: contentId,
         });
         if (rpcError) {
@@ -352,7 +350,7 @@ export async function deleteReviewAsAdmin(
 
       if (!error) {
         // Actualizar el promedio de rating
-        const { error: rpcError } = await (supabase as any).rpc('update_event_rating', {
+        const { error: rpcError } = await supabase.rpc('update_event_rating', {
           p_event_id: contentId,
         });
         if (rpcError) {
@@ -400,7 +398,7 @@ export async function updateReviewAsAdmin(
 
       if (!error) {
         // Actualizar el promedio de rating
-        const { error: rpcError } = await (supabase as any).rpc('update_attraction_rating', {
+        const { error: rpcError } = await supabase.rpc('update_attraction_rating', {
           p_attraction_id: contentId,
         });
         if (rpcError) {
@@ -419,7 +417,7 @@ export async function updateReviewAsAdmin(
 
       if (!error) {
         // Actualizar el promedio de rating
-        const { error: rpcError } = await (supabase as any).rpc('update_business_rating', {
+        const { error: rpcError } = await supabase.rpc('update_business_rating', {
           p_business_id: contentId,
         });
         if (rpcError) {
@@ -438,7 +436,7 @@ export async function updateReviewAsAdmin(
 
       if (!error) {
         // Actualizar el promedio de rating
-        const { error: rpcError } = await (supabase as any).rpc('update_event_rating', {
+        const { error: rpcError } = await supabase.rpc('update_event_rating', {
           p_event_id: contentId,
         });
         if (rpcError) {
@@ -457,7 +455,7 @@ export async function updateReviewAsAdmin(
 
       if (!error) {
         // Actualizar el promedio de rating
-        const { error: rpcError } = await (supabase as any).rpc('update_product_rating', {
+        const { error: rpcError } = await supabase.rpc('update_product_rating', {
           p_product_id: contentId,
         });
         if (rpcError) {

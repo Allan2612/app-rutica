@@ -31,6 +31,8 @@ export const DeleteProductDialog = memo(function DeleteProductDialog({
             <Text style={[styles.title, { color: colors.text.primary }]}>Eliminar producto</Text>
             {!isDeleting && (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
                 onPress={onCancel}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.7 : 1,

@@ -136,6 +136,8 @@ export const ComboSelection = memo(function ComboSelection({
             <Text style={[styles.quantityLabel, { color: colors.text.primary }]}>Lleva</Text>
             <View style={[styles.quantityPill, { backgroundColor: colors.background.tertiary }]}>
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Quitar"
                 style={styles.pillButton}
                 onPress={() => {
                   const newQty = quantity - 1;
@@ -156,6 +158,8 @@ export const ComboSelection = memo(function ComboSelection({
                 </Text>
               </View>
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Agregar"
                 style={styles.pillButton}
                 onPress={() => onUpdateComboItem(product.id, quantity + 1, paidQuantity)}
               >
@@ -170,6 +174,8 @@ export const ComboSelection = memo(function ComboSelection({
               <Text style={[styles.quantityLabel, { color: colors.text.primary }]}>Paga</Text>
               <View style={[styles.quantityPill, { backgroundColor: colors.background.tertiary }]}>
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Quitar"
                   style={styles.pillButton}
                   onPress={() => {
                     const currentPaid = paidQuantity ?? quantity;
@@ -190,6 +196,8 @@ export const ComboSelection = memo(function ComboSelection({
                   </Text>
                 </View>
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Agregar"
                   style={styles.pillButton}
                   onPress={() => {
                     const currentPaid = paidQuantity ?? quantity;
@@ -242,6 +250,8 @@ export const ComboSelection = memo(function ComboSelection({
         )}
         <Pressable
           onPress={() => setIsHelpModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Cómo armar un combo"
           style={({ pressed }) => [
             styles.helpButton,
             {

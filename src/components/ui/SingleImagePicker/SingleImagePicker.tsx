@@ -93,6 +93,8 @@ export const SingleImagePicker = memo(function SingleImagePicker({
         <View style={styles.imageContainer}>
           <Image source={{ uri: imageUri }} style={styles.image} resizeMode="contain" />
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar"
             style={[styles.removeButton, { backgroundColor: 'rgba(0,0,0,0.7)' }]}
             onPress={handleRemoveImage}
           >

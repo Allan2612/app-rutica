@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import { supabase, getSessionUser } from '@/lib/supabase/client';
 import type { ProfileSubscription, Subscription, Profile } from '@/types/entities';
 import type { SubscriptionStatus } from '@/types/enums';
 
@@ -134,9 +134,7 @@ export interface SubscriptionApprovalResult {
 export async function approveSubscription(
   subscriptionId: string,
 ): Promise<SubscriptionApprovalResult> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -219,9 +217,7 @@ export async function rejectSubscription(
   subscriptionId: string,
   rejectionReason?: string,
 ): Promise<SubscriptionRejectionResult> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 

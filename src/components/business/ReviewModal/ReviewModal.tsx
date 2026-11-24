@@ -81,7 +81,12 @@ export const ReviewModal = memo(function ReviewModal({
               <Text style={[styles.title, { color: colors.text.primary }]}>
                 {isEditMode ? 'Editar reseña' : 'Escribir reseña'}
               </Text>
-              <Pressable onPress={handleCancel} style={styles.closeButton}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
+                onPress={handleCancel}
+                style={styles.closeButton}
+              >
                 <X size={24} color={colors.text.tertiary} />
               </Pressable>
             </View>

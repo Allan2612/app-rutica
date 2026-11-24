@@ -103,7 +103,7 @@ async function uploadImage(
     if (error) throw error;
 
     // Registrar en business_images
-    const { error: insertError } = await (supabase as any).from('business_images').insert({
+    const { error: insertError } = await supabase.from('business_images').insert({
       id_bim: generateUUID(),
       business_id_bim: businessId,
       path_bim: filePath,
@@ -144,7 +144,7 @@ export async function createBusinessComplete(
     const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
 
     // 3. Crear registro en locations con las coordenadas
-    const { data: location, error: locationError } = await (supabase as any)
+    const { data: location, error: locationError } = await supabase
       .from('locations')
       .insert({
         id_loc: generateUUID(),
@@ -166,12 +166,12 @@ export async function createBusinessComplete(
     const businessId = generateUUID();
 
     // 6. Crear negocio primero
-    const { error: businessError } = await (supabase as any).from('businesses').insert({
+    const { error: businessError } = await supabase.from('businesses').insert({
       id_bus: businessId,
       owner_id_bus: userId,
       name_bus: data.name,
       description_bus: data.description ?? null,
-      location_id_bus: (location as any).id_loc,
+      location_id_bus: location.id_loc,
       contact_phone_bus: data.phone ?? null,
       contact_email_bus: data.email ?? null,
       website_bus: toSafeWebsiteUrl(data.website),
@@ -219,7 +219,7 @@ export async function createBusinessComplete(
         category_id_bcm: catId,
       }));
 
-      const { error: categoryError } = await (supabase as any)
+      const { error: categoryError } = await supabase
         .from('business_category_map')
         .insert(categoryMaps);
 

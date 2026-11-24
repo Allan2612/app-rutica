@@ -121,5 +121,41 @@ export function formatPersonName(
   lastName?: string | null,
   fallback = 'Usuario',
 ): string {
-  return [firstName, lastName].filter((p) => p && p.trim()).join(' ').trim() || fallback;
+  return (
+    [firstName, lastName]
+      .filter((p) => p && p.trim())
+      .join(' ')
+      .trim() || fallback
+  );
+}
+
+/** Iniciales de un nombre ("Ana María Soto" → "AM"); tolera espacios dobles y nombres vacíos. */
+export function getNameInitials(name: string | null | undefined): string {
+  const parts = (name ?? '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return (parts[0] ?? '?').substring(0, 2).toUpperCase();
+}
+
+/** "Ahora", "Hace 5 min", "Hace 3h", "Hace 2d" o la fecha corta. */
+export function getTimeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const diffMs = Date.now() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  if (diffMins < 1) return 'Ahora';
+  if (diffMins < 60) return `Hace ${diffMins} min`;
+  if (diffHours < 24) return `Hace ${diffHours}h`;
+  if (diffDays < 7) return `Hace ${diffDays}d`;
+  return date.toLocaleDateString('es-CR', { day: 'numeric', month: 'short' });
+}
+
+/** "Hoy", "Ayer", "Hace N días" o la fecha corta (reseñas). */
+export function getDaysAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const diffDays = Math.floor((Date.now() - date.getTime()) / 86400000);
+  if (diffDays < 1) return 'Hoy';
+  if (diffDays === 1) return 'Ayer';
+  if (diffDays < 7) return `Hace ${diffDays} días`;
+  return date.toLocaleDateString('es-CR', { day: 'numeric', month: 'short' });
 }

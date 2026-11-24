@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { Edit2, MapPin, Store, Trash2, Eye, EyeOff } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
@@ -55,7 +56,7 @@ export const UserBusinessCard = memo(function UserBusinessCard({
             <Image
               source={{ uri: logoUrl || imageUrl || '' }}
               style={styles.image}
-              resizeMode="cover"
+              contentFit="cover"
             />
           ) : (
             <View style={styles.imagePlaceholder}>

@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
-import { View, Text, Image, Dimensions } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { Building2, Calendar, Tag } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useUserBusinesses } from '@/features/business/hooks';
@@ -24,7 +25,7 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
 
   // Get selected business name
   const businessName = useMemo(() => {
-    const business = businesses.find((b: any) => b.id === formData.businessId);
+    const business = businesses.find((b) => b.id === formData.businessId);
     return business?.name || 'Sin negocio';
   }, [businesses, formData.businessId]);
 

@@ -59,7 +59,12 @@ export const SubscriptionActionDialog = memo(function SubscriptionActionDialog({
               )}
             </View>
 
-            <Pressable style={styles.closeButton} onPress={handleClose}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
+              style={styles.closeButton}
+              onPress={handleClose}
+            >
               <X size={20} color={colors.text.tertiary} />
             </Pressable>
           </View>

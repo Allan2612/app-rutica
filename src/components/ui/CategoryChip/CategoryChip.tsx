@@ -90,6 +90,8 @@ export const CategoryChip = memo(function CategoryChip({
       </Text>
       {removable && onRemove && (
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar"
           onPress={onRemove}
           hitSlop={8}
           style={({ pressed }) => ({

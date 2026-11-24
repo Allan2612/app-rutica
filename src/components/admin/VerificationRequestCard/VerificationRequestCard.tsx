@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import {
   Check,
   Store,
@@ -80,7 +81,7 @@ export const VerificationRequestCard = memo(function VerificationRequestCard({
         {/* Imagen */}
         <View style={[styles.imageContainer, { backgroundColor: colors.background.tertiary }]}>
           {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+            <Image source={{ uri: imageUrl }} style={styles.image} contentFit="cover" />
           ) : (
             <View style={styles.imagePlaceholder}>
               <Icon color={colors.text.tertiary} size={28} strokeWidth={1.5} />

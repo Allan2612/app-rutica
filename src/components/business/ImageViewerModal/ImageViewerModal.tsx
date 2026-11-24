@@ -13,7 +13,12 @@ export const ImageViewerModal = memo(({ visible, imageUri, onClose }: ImageViewe
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalContainer}>
-        <Pressable style={styles.closeButton} onPress={onClose}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar"
+          style={styles.closeButton}
+          onPress={onClose}
+        >
           <X size={32} color="#fff" strokeWidth={2.5} />
         </Pressable>
 

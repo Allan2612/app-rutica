@@ -28,7 +28,7 @@ export const contactClicksKeys = {
  * Hook para obtener las opciones de negocios del usuario
  */
 export function useUserBusinessOptions() {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   return useQuery({
     queryKey: contactClicksKeys.businessOptions(user?.id ?? ''),
@@ -43,7 +43,7 @@ export function useUserBusinessOptions() {
  * @param businessId - Si se proporciona, filtra solo por ese negocio. Si es null, muestra todos.
  */
 export function useContactClicksStats(days: ContactPeriod = 30, businessId: string | null = null) {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   return useQuery({
     queryKey: contactClicksKeys.stats(user?.id ?? '', days, businessId),
@@ -57,7 +57,7 @@ export function useContactClicksStats(days: ContactPeriod = 30, businessId: stri
  * Hook para registrar un click de contacto
  */
 export function useTrackContactClick() {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -2,6 +2,7 @@
  * Genera los estilos CSS para el mapa Leaflet
  */
 import type { MapThemeColors } from './types';
+import { DARK_TILE_FILTER } from './mapConfig';
 
 /**
  * Genera CSS base del mapa
@@ -91,7 +92,7 @@ export function generateDarkModeStyles(colors: MapThemeColors): string {
         text-underline-offset: 2px;
     }
     .leaflet-pane.leaflet-tile-pane img {
-        filter: contrast(1.07) brightness(5) saturate(1.05);
+        filter: ${DARK_TILE_FILTER};
     }`;
 }
 

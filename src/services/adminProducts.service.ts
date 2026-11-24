@@ -1,18 +1,17 @@
-import { supabase } from '@/lib/supabase/client';
+import { supabase, getSessionUser } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import type {
   AdminProductListItem,
   ProductsFilters,
   ProductsStats,
 } from '@/types/entities/product';
+import { publicStorageUrl } from '@/utils/storage';
 
 /**
  * Verifica si el usuario actual es administrador
  */
 async function isUserAdmin(): Promise<boolean> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return false;
 
   const { data: profile } = await (supabase
@@ -24,12 +23,8 @@ async function isUserAdmin(): Promise<boolean> {
   return profile?.role_prf === 'admin' && profile?.is_active_prf === true;
 }
 
-/**
- * Obtiene la URL pública de una imagen del storage
- */
 function getImageUrl(bucket: string, path: string): string {
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(bucket, path);
 }
 
 /**

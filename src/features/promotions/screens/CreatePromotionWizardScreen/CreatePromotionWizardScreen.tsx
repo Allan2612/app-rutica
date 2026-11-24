@@ -106,7 +106,7 @@ export const CreatePromotionWizardScreen = memo(function CreatePromotionWizardSc
           router.replace('/(app)/(tabs)/manage/promotions');
         }, 1500);
       },
-      onError: (error: any) => {
+      onError: (error) => {
         Toast.show({
           type: 'error',
           text1: 'Error al crear promoción',

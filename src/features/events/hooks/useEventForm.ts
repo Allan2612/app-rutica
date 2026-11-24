@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { contactSchema, fieldErrors } from '@/utils/validation';
+import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 import { useCategories } from '@/hooks/useCategories';
 import { useCreateEvent } from './useCreateEvent';
@@ -7,6 +9,9 @@ import type { CreateEventData } from '../services/createEvent.service';
 import type { UpdateEventData } from '../services/updateEvent.service';
 
 interface FormErrors {
+  phone?: string;
+  email?: string;
+  website?: string;
   name?: string;
   categories?: string;
   location?: string;
@@ -212,6 +217,20 @@ export function useEventForm(eventId?: string) {
 
     if (!formData.isFree && (!formData.price || parseFloat(formData.price) <= 0)) {
       newErrors.pricing = 'El precio debe ser mayor a 0';
+    }
+
+    // Formato de contacto (6.11): opcional, pero válido si se llena
+    Object.assign(newErrors, fieldErrors(contactSchema, formData));
+
+    const firstMessage = Object.values(newErrors).find(Boolean);
+    if (firstMessage) {
+      Toast.show({
+        type: 'error',
+        text1: 'Revisa el formulario',
+        text2: firstMessage,
+        position: 'top',
+        visibilityTime: 3500,
+      });
     }
 
     setErrors(newErrors);

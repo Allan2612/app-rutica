@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   checks:
-    name: Lint, typecheck and DB migration test
+    name: Lint, typecheck, tests and DB migration test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -30,10 +30,17 @@ jobs:
 
       - run: npm run typecheck
 
-      # Applies the audit migration twice on PGlite and checks the security rules (see docs/base-de-datos/pruebas)
+      # Unit tests (vitest): validation, helpers, list paging/location filter
+      - run: npm test
+
+      # The number of explicit `any` may only go down (7.6)
+      - run: node scripts/check-any.mjs
+
+      # Applies each migration twice on PGlite and checks the security rules (see docs/base-de-datos/pruebas)
       - name: DB migration test
         run: |
           npm i --no-save --no-audit --no-fund @electric-sql/pglite@0.3.6
           node docs/base-de-datos/pruebas/test-migracion.mjs \
             docs/base-de-datos/esquema-v3.sql \
-            docs/base-de-datos/migraciones/2026-10-15_auditoria.sql
+            docs/base-de-datos/migraciones/2026-10-15_auditoria.sql \
+            docs/base-de-datos/migraciones/2026-11-24_cierre-auditoria.sql

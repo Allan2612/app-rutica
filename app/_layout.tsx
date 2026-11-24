@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store';
 import { useLocationDataStore } from '@/store/locationDataStore';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { setupReanimatedConfig } from '@/lib/reanimated';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 // Configurar Reanimated una sola vez al inicio
 setupReanimatedConfig();
@@ -26,6 +27,8 @@ export default function RootLayout() {
 
   // Fuente de marca: embebida en el build nativo (app.json → expo-font) y registrada aquí
   // una sola vez. Si falla la carga se sigue con la fuente del sistema.
+  // Carga el tema guardado y sigue el tema del sistema, una vez para toda la app (5.9)
+  useColorScheme();
   const [fontsLoaded, fontError] = useFonts({ Caveat_700Bold });
   const fontsReady = fontsLoaded || !!fontError;
 

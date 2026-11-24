@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, type ReactElement } from 'react';
 import { FlatList, RefreshControl, Text, View, ActivityIndicator } from 'react-native';
 import { useThemedColors } from '@/hooks';
 import { EventPost } from '@/components/events/EventPost';
@@ -10,6 +10,9 @@ interface EventsListProps {
   isLoading?: boolean;
   isRefreshing?: boolean;
   onRefresh?: () => void;
+  /** Paginación (5.14): se llama al acercarse al final */
+  onEndReached?: () => void;
+  footer?: ReactElement | null;
   onEventPress?: (id: string) => void;
   emptyMessage?: string;
 }
@@ -19,6 +22,8 @@ export const EventsList = memo(function EventsList({
   isLoading = false,
   isRefreshing = false,
   onRefresh,
+  onEndReached,
+  footer,
   onEventPress,
   emptyMessage = 'No hay eventos disponibles',
 }: EventsListProps) {
@@ -42,6 +47,9 @@ export const EventsList = memo(function EventsList({
 
   return (
     <FlatList
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={footer}
       data={events}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (

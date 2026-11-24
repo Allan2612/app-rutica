@@ -1,64 +1,13 @@
 import { supabase } from '@/lib/supabase/client';
-import type { Profile, ProfileUpdate, ProfileWithPremium, ProfilePremium } from '@/types/entities';
-import type { UserRole } from '@/types/enums';
+import type { Profile, ProfileUpdate } from '@/types/entities';
 
-// Columnas de profiles que anon y authenticated pueden leer (migración 2026-10-15_auditoria, sección 6)
+// Columnas de profiles que anon y authenticated pueden leer (migración 2026-10-15_auditoria, sección 6).
+// El perfil propio completo (con teléfono) sale de la RPC get_my_profile (authStore).
 const PUBLIC_PROFILE_COLUMNS =
   'id_prf, first_name_prf, last_name1_prf, last_name2_prf, role_prf, is_active_prf, profile_photo_path_prf, created_at_prf, updated_at_prf';
 
-// ============================================
-// Queries
-// ============================================
-
 /**
- * Obtiene el perfil del usuario autenticado
- */
-export async function getMyProfile(): Promise<Profile> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error('No authenticated user');
-
-  // El perfil propio completo se lee por RPC: la tabla solo expone columnas públicas (S-05)
-  const { data, error } = await (supabase as any).rpc('get_my_profile').single();
-
-  if (error) throw error;
-  return data as Profile;
-}
-
-/**
- * Obtiene el perfil del usuario autenticado con información premium
- */
-export async function getMyProfileWithPremium(): Promise<ProfileWithPremium> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error('No authenticated user');
-
-  // Obtener perfil
-  const { data: profile, error: profileError } = await (supabase as any)
-    .rpc('get_my_profile')
-    .single();
-
-  if (profileError) throw profileError;
-
-  // Obtener premium si existe
-  const { data: premium } = await supabase
-    .from('profile_premium')
-    .select('*')
-    .eq('profile_id_ppm', user.id)
-    .maybeSingle();
-
-  return {
-    ...(profile as Profile),
-    premium: premium as ProfilePremium | null,
-  };
-}
-
-/**
- * Obtiene un perfil por su ID
+ * Obtiene un perfil por su ID (solo columnas públicas)
  */
 export async function getProfileById(userId: string): Promise<Profile> {
   const { data, error } = await supabase
@@ -72,63 +21,7 @@ export async function getProfileById(userId: string): Promise<Profile> {
 }
 
 /**
- * Obtiene un perfil con información premium por su ID
- */
-export async function getProfileWithPremiumById(userId: string): Promise<ProfileWithPremium> {
-  // Obtener perfil
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select(PUBLIC_PROFILE_COLUMNS)
-    .eq('id_prf', userId)
-    .single();
-
-  if (profileError) throw profileError;
-
-  // Obtener premium si existe
-  const { data: premium } = await supabase
-    .from('profile_premium')
-    .select('*')
-    .eq('profile_id_ppm', userId)
-    .maybeSingle();
-
-  return {
-    ...(profile as Profile),
-    premium: premium as ProfilePremium | null,
-  };
-}
-
-/**
- * Verifica si un usuario tiene suscripción premium activa
- */
-export async function checkPremiumStatus(userId: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('profile_premium')
-    .select('profile_id_ppm')
-    .eq('profile_id_ppm', userId)
-    .maybeSingle();
-
-  if (error) throw error;
-  return data !== null;
-}
-
-// ============================================
-// Mutations
-// ============================================
-
-/**
- * Actualiza el rol de un usuario (solo admin)
- */
-export async function updateUserRole(userId: string, role: UserRole): Promise<void> {
-  const { error } = await supabase
-    .from('profiles')
-    .update({ role_prf: role } as never)
-    .eq('id_prf', userId);
-
-  if (error) throw error;
-}
-
-/**
- * Actualiza el perfil de un usuario
+ * Actualiza el perfil de un usuario (RLS: solo el propio; rol y estado los protege la BD)
  */
 export async function updateProfile(userId: string, updates: ProfileUpdate): Promise<void> {
   const { error } = await supabase
@@ -138,69 +31,6 @@ export async function updateProfile(userId: string, updates: ProfileUpdate): Pro
       updated_at_prf: new Date().toISOString(),
     } as never)
     .eq('id_prf', userId);
-
-  if (error) throw error;
-}
-
-/**
- * Actualiza el perfil del usuario autenticado
- */
-export async function updateMyProfile(updates: ProfileUpdate): Promise<void> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error('No authenticated user');
-
-  await updateProfile(user.id, updates);
-}
-
-/**
- * Activa/desactiva un usuario (solo admin)
- */
-export async function setProfileActiveStatus(userId: string, isActive: boolean): Promise<void> {
-  const { error } = await supabase
-    .from('profiles')
-    .update({
-      is_active_prf: isActive,
-      updated_at_prf: new Date().toISOString(),
-    } as never)
-    .eq('id_prf', userId);
-
-  if (error) throw error;
-}
-
-// ============================================
-// Premium Management (Admin)
-// ============================================
-
-/**
- * Registra una suscripción premium para un usuario
- */
-export async function createPremiumSubscription(
-  userId: string,
-  paymentReference?: string,
-  paymentNote?: string,
-): Promise<ProfilePremium> {
-  const { data, error } = await supabase
-    .from('profile_premium')
-    .insert({
-      profile_id_ppm: userId,
-      payment_reference_ppm: paymentReference ?? null,
-      payment_note_ppm: paymentNote ?? null,
-    } as never)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data as ProfilePremium;
-}
-
-/**
- * Elimina la suscripción premium de un usuario
- */
-export async function removePremiumSubscription(userId: string): Promise<void> {
-  const { error } = await supabase.from('profile_premium').delete().eq('profile_id_ppm', userId);
 
   if (error) throw error;
 }

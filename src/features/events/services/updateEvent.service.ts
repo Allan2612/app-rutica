@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
+import { publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -91,8 +92,7 @@ export interface UpdateEventData {
 }
 
 function getImageUrl(bucket: string, path: string): string {
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(bucket, path);
 }
 
 /**
@@ -260,7 +260,7 @@ export async function updateEventComplete(
   userId: string,
   data: UpdateEventData,
 ): Promise<void> {
-  const { data: event } = await (supabase as any)
+  const { data: event } = await supabase
     .from('events')
     .select('created_by_evt, location_id_evt')
     .eq('id_evt', eventId)
@@ -278,7 +278,7 @@ export async function updateEventComplete(
 
   // 1. Actualizar ubicación (V3: solo district_id, address y coordenadas)
   if (event.location_id_evt) {
-    const { error: locationError } = await (supabase as any)
+    const { error: locationError } = await supabase
       .from('locations')
       .update({
         district_id_loc: data.districtId,
@@ -317,7 +317,7 @@ export async function updateEventComplete(
     updateFields.is_active_evt = data.isActive;
   }
 
-  await (supabase as any).from('events').update(updateFields).eq('id_evt', eventId);
+  await supabase.from('events').update(updateFields).eq('id_evt', eventId);
 
   // 4. Actualizar categorías
   await supabase.from('event_category_map').delete().eq('event_id_ecm', eventId);
@@ -328,7 +328,7 @@ export async function updateEventComplete(
       category_id_ecm: categoryId,
     }));
 
-    await (supabase as any).from('event_category_map').insert(categoryMaps);
+    await supabase.from('event_category_map').insert(categoryMaps);
   }
 
   // 5. Manejar imágenes si se proporcionan
@@ -484,7 +484,7 @@ async function uploadImage(
 
   if (uploadError) throw uploadError;
 
-  const { error: insertError } = await (supabase as any).from('event_images').insert({
+  const { error: insertError } = await supabase.from('event_images').insert({
     id_eim: generateUUID(),
     event_id_eim: eventId,
     path_eim: filePath,

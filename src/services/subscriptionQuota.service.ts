@@ -175,7 +175,7 @@ export async function incrementUsage(
     }
 
     const maxQuota = sub.subscription?.quota_sub ?? 0;
-    const currentUsed = (usage as any)?.used_count_sus ?? 0;
+    const currentUsed = usage?.used_count_sus ?? 0;
 
     // Si esta suscripción tiene cuota disponible
     if (currentUsed < maxQuota) {
@@ -199,7 +199,7 @@ export async function incrementUsage(
       throw new Error('Cuota excedida');
     }
 
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('subscription_usage')
       .update({ used_count_sus: newCount })
       .eq('id_sus', existingUsage.id_sus);
@@ -216,9 +216,7 @@ export async function incrementUsage(
       ...entityData,
     };
 
-    const { error: insertError } = await (supabase as any)
-      .from('subscription_usage')
-      .insert(insertData);
+    const { error: insertError } = await supabase.from('subscription_usage').insert(insertData);
 
     if (insertError) {
       console.error('Error inserting usage:', insertError);
@@ -254,12 +252,12 @@ export async function decrementUsage(
 
   if (usages && usages.length > 0) {
     const usage = usages[0];
-    const newCount = (usage as any).used_count_sus - 1;
+    const newCount = usage.used_count_sus - 1;
 
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('subscription_usage')
       .update({ used_count_sus: newCount })
-      .eq('id_sus', (usage as any).id_sus);
+      .eq('id_sus', usage.id_sus);
 
     if (updateError) throw updateError;
   }
@@ -325,7 +323,7 @@ export async function syncResourceUsage(
 
     // Actualizar si el valor cambió
     if (record.used_count_sus !== assignToThis) {
-      const { error: updateError } = await (supabase as any)
+      const { error: updateError } = await supabase
         .from('subscription_usage')
         .update({ used_count_sus: assignToThis })
         .eq('id_sus', record.id_sus);

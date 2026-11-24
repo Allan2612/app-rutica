@@ -28,7 +28,13 @@ export const ConfirmUpgradeToSellerDialog = memo(function ConfirmUpgradeToSeller
             <View style={[styles.iconWrapper, { backgroundColor: colors.primary[500] + '20' }]}>
               <Store color={colors.primary[500]} size={28} strokeWidth={2} />
             </View>
-            <Pressable style={styles.closeButton} onPress={onCancel} disabled={isUpgrading}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
+              style={styles.closeButton}
+              onPress={onCancel}
+              disabled={isUpgrading}
+            >
               <X color={colors.text.tertiary} size={24} />
             </Pressable>
           </View>

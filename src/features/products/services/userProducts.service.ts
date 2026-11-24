@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import { ProductListItem } from '@/types/entities/product';
+import { publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'product-images';
 
@@ -169,16 +170,16 @@ export async function getProduct(productId: string): Promise<any> {
     const imageUrls = (images || []).map((img: any) => getImageUrl(BUCKET_NAME, img.path_pim));
 
     const result = {
-      id: (product as any).id_prd,
-      businessId: (product as any).business_id_prd,
-      name: (product as any).name_prd,
-      description: (product as any).description_prd,
-      price: (product as any).price_prd,
-      currency: (product as any).currency_prd || 'CRC',
+      id: product.id_prd,
+      businessId: product.business_id_prd,
+      name: product.name_prd,
+      description: product.description_prd,
+      price: product.price_prd,
+      currency: product.currency_prd || 'CRC',
       categoryNames,
       categoryIds,
       images: imageUrls,
-      isActive: (product as any).is_active_prd,
+      isActive: product.is_active_prd,
     };
 
     return result;
@@ -205,7 +206,7 @@ export async function updateProduct(
 ): Promise<void> {
   try {
     // Verificar propiedad del producto
-    const { data: product, error: checkError } = await (supabase as any)
+    const { data: product, error: checkError } = await supabase
       .from('products')
       .select('business_id_prd')
       .eq('id_prd', productId)
@@ -231,7 +232,7 @@ export async function updateProduct(
       updateFields.is_active_prd = data.isActive;
     }
 
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('products')
       .update(updateFields)
       .eq('id_prd', productId);
@@ -251,7 +252,7 @@ export async function updateProduct(
         category_id_pcm: catId,
       }));
 
-      const { error: categoryError } = await (supabase as any)
+      const { error: categoryError } = await supabase
         .from('product_category_map')
         .insert(categoryMaps);
 
@@ -304,7 +305,7 @@ export async function updateProduct(
 export async function deleteProduct(productId: string, businessId: string): Promise<void> {
   try {
     // Verificar que el producto pertenece al negocio
-    const { data: product, error: checkError } = await (supabase as any)
+    const { data: product, error: checkError } = await supabase
       .from('products')
       .select('business_id_prd')
       .eq('id_prd', productId)
@@ -342,8 +343,7 @@ export async function deleteProduct(productId: string, businessId: string): Prom
 }
 
 function getImageUrl(bucket: string, filePath: string): string {
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return data.publicUrl;
+  return publicStorageUrl(bucket, filePath);
 }
 
 function generateUUID(): string {
@@ -380,7 +380,7 @@ async function uploadProductImage(
     }
 
     // Insertar registro en product_images
-    const { error: insertError } = await (supabase as any).from('product_images').insert({
+    const { error: insertError } = await supabase.from('product_images').insert({
       id_pim: generateUUID(),
       product_id_pim: productId,
       path_pim: filePath,
@@ -428,7 +428,7 @@ export async function createProductComplete(
       is_active_prd: data.isActive ?? true,
     };
 
-    const { error: productError } = await (supabase as any).from('products').insert(productData);
+    const { error: productError } = await supabase.from('products').insert(productData);
 
     if (productError) {
       throw productError;
@@ -441,7 +441,7 @@ export async function createProductComplete(
         category_id_pcm: catId,
       }));
 
-      const { error: categoryError } = await (supabase as any)
+      const { error: categoryError } = await supabase
         .from('product_category_map')
         .insert(categoryMaps);
 

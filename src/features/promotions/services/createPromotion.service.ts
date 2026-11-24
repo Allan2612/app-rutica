@@ -32,7 +32,7 @@ export async function createPromotionComplete(
       end_at_prm: data.endAt,
       moderation_status_prm: 'pending',
       is_active_prm: data.isActive ?? true,
-    } as any);
+    });
 
     if (promotionError) throw promotionError;
 

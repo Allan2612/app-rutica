@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { contactSchema, fieldErrors } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useCategories } from '@/hooks/useCategories';
@@ -27,6 +28,9 @@ interface FormData {
 }
 
 interface FormErrors {
+  phone?: string;
+  email?: string;
+  website?: string;
   name?: string;
   categories?: string;
   location?: string;
@@ -130,19 +134,26 @@ export function useCreateAttractionForm() {
         'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
     }
 
+    // Formato de contacto (6.11): opcional, pero válido si se llena
+    Object.assign(newErrors, fieldErrors(contactSchema, formData));
+
+    const firstMessage = Object.values(newErrors).find(Boolean);
+    if (firstMessage) {
+      Toast.show({
+        type: 'error',
+        text1: 'Revisa el formulario',
+        text2: firstMessage,
+        position: 'top',
+        visibilityTime: 3500,
+      });
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = useCallback(async () => {
     if (!validate()) {
-      Toast.show({
-        type: 'error',
-        text1: 'Formulario incompleto',
-        text2: 'Por favor completa todos los campos requeridos',
-        position: 'top',
-        visibilityTime: 3000,
-      });
       return;
     }
 

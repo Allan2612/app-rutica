@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -24,10 +25,10 @@ export interface UserEvent {
   moderation_note_evt: string | null;
   is_active_evt: boolean;
   created_at_evt: string;
-  event_images?: Array<{
+  event_images?: {
     path_eim: string;
     sort_order_eim: number;
-  }>;
+  }[];
   locations?: {
     address_loc: string | null;
     latitude_loc: number | null;
@@ -42,12 +43,12 @@ export interface UserEvent {
       };
     };
   } | null;
-  event_category_map?: Array<{
+  event_category_map?: {
     categories: {
       id_cat: string;
       name_cat: string;
     } | null;
-  }>;
+  }[];
 }
 
 // ============================================
@@ -55,9 +56,7 @@ export interface UserEvent {
 // ============================================
 
 export function getImageUrl(path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(STORAGE_BUCKET, path);
 }
 
 // ============================================

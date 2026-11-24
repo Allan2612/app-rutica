@@ -1,19 +1,29 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getProductReviews,
+  getUserProductReview,
   createProductReview,
   updateProductReview,
   deleteProductReview,
-  type ProductReviewDisplay,
 } from '@/services/productReviews.service';
+
+import { usePagedList } from '@/hooks/usePagedList';
 
 const PRODUCT_REVIEWS_KEY = 'product-reviews';
 
 export function useProductReviewsQuery(productId: string) {
-  return useQuery<ProductReviewDisplay[]>({
-    queryKey: [PRODUCT_REVIEWS_KEY, productId],
-    queryFn: () => getProductReviews(productId),
-    enabled: !!productId,
+  return usePagedList(
+    [PRODUCT_REVIEWS_KEY, productId],
+    (page) => getProductReviews(productId, page),
+    { enabled: !!productId },
+  );
+}
+
+export function useUserProductReviewQuery(productId: string, userId: string | null) {
+  return useQuery({
+    queryKey: [PRODUCT_REVIEWS_KEY, productId, 'mine', userId],
+    queryFn: () => getUserProductReview(productId, userId!),
+    enabled: !!productId && !!userId,
   });
 }
 

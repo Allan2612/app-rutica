@@ -7,29 +7,13 @@ import { useThemedColors } from '@/hooks';
 import { useAuthStore } from '@/store';
 import type { ProductReviewDisplay } from '@/services/productReviews.service';
 import { styles } from './styles';
+import { getNameInitials as getInitials, getDaysAgo as getTimeAgo } from '@/utils/formatters';
 
 interface ProductReviewItemProps {
   review: ProductReviewDisplay;
   isOwner: boolean;
   onEdit: () => void;
   onDelete: () => void;
-}
-
-function getInitials(name: string): string {
-  const parts = name.split(' ');
-  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  return name.substring(0, 2).toUpperCase();
-}
-
-function getTimeAgo(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / 86400000);
-  if (diffDays < 1) return 'Hoy';
-  if (diffDays === 1) return 'Ayer';
-  if (diffDays < 7) return `Hace ${diffDays} días`;
-  return date.toLocaleDateString('es-CR', { day: 'numeric', month: 'short' });
 }
 
 export const ProductReviewItem = memo(function ProductReviewItem({
@@ -85,10 +69,20 @@ export const ProductReviewItem = memo(function ProductReviewItem({
         </View>
         {canEditOrDelete && (
           <View style={styles.reviewActions}>
-            <Pressable style={styles.reviewActionButton} onPress={onEdit}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Editar"
+              style={styles.reviewActionButton}
+              onPress={onEdit}
+            >
               <Edit3 size={16} color={colors.primary[500]} />
             </Pressable>
-            <Pressable style={styles.reviewActionButton} onPress={onDelete}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Eliminar"
+              style={styles.reviewActionButton}
+              onPress={onDelete}
+            >
               <Trash2 size={16} color="#dc2626" />
             </Pressable>
           </View>

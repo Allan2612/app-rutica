@@ -1,5 +1,13 @@
 import { memo, useCallback, useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
+import { useShallow } from 'zustand/react/shallow';
+import {
+  View,
+  Text,
+  Pressable,
+  ActivityIndicator,
+  useWindowDimensions,
+  Platform,
+} from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, LogIn, MapPin } from 'lucide-react-native';
@@ -16,8 +24,14 @@ interface BaseHeaderProps {
 }
 
 export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHeaderProps) {
-  const { user, isLoading, isAuthenticated } = useAuthStore();
-  const { location } = useLocationStore();
+  const { user, isLoading, isAuthenticated } = useAuthStore(
+    useShallow((s) => ({
+      user: s.user,
+      isLoading: s.isLoading,
+      isAuthenticated: s.isAuthenticated,
+    })),
+  );
+  const location = useLocationStore((s) => s.location);
   const colors = useThemedColors();
   const profilePhotoUrl = useProfilePhoto(user?.id);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -59,7 +73,6 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
     return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
   };
 
-
   const headerShadow = showBorder
     ? Platform.select({
         web: { boxShadow: '0px 2px 3px rgba(0, 0, 0, 0.05)' } as any,
@@ -93,15 +106,7 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
             transition={200}
             cachePolicy="memory-disk"
           />
-          <Text
-            style={[
-              styles.logoText,
-              brandFont,
-              { color: colors.primary[500] },
-            ]}
-          >
-            Rutica
-          </Text>
+          <Text style={[styles.logoText, brandFont, { color: colors.primary[500] }]}>Rutica</Text>
         </Pressable>
 
         <View style={styles.rightControls}>

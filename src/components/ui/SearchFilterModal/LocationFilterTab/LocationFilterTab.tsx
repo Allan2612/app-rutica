@@ -218,7 +218,12 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
       {/* Header interno */}
       <View style={[styles.header, { borderBottomColor: colors.border.medium }]}>
         {showBackButton ? (
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Anterior"
+            onPress={handleBack}
+            style={styles.backButton}
+          >
             <ChevronLeft size={24} color={colors.text.primary} />
           </TouchableOpacity>
         ) : (
@@ -246,6 +251,8 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
         </View>
 
         <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Quitar ubicación"
           style={[
             styles.actionButton,
             {

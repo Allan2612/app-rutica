@@ -135,7 +135,7 @@ export async function createEventComplete(userId: string, data: CreateEventData)
     const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
 
     // 3. Crear ubicación con las coordenadas
-    const { data: location, error: locationError } = await (supabase as any)
+    const { data: location, error: locationError } = await supabase
       .from('locations')
       .insert({
         id_loc: generateUUID(),
@@ -155,7 +155,7 @@ export async function createEventComplete(userId: string, data: CreateEventData)
 
     // 3. Crear evento
     const eventId = generateUUID();
-    const { error: eventError } = await (supabase as any).from('events').insert({
+    const { error: eventError } = await supabase.from('events').insert({
       id_evt: eventId,
       created_by_evt: userId,
       name_evt: data.name,
@@ -185,7 +185,7 @@ export async function createEventComplete(userId: string, data: CreateEventData)
         category_id_ecm: catId,
       }));
 
-      const { error: categoryError } = await (supabase as any)
+      const { error: categoryError } = await supabase
         .from('event_category_map')
         .insert(categoryMaps);
 
@@ -202,7 +202,7 @@ export async function createEventComplete(userId: string, data: CreateEventData)
         (async () => {
           try {
             const filePath = await uploadImage(data.coverUri!, eventId, 'cover.jpg');
-            const { error: insertError } = await (supabase as any).from('event_images').insert({
+            const { error: insertError } = await supabase.from('event_images').insert({
               id_eim: generateUUID(),
               event_id_eim: eventId,
               path_eim: filePath,
@@ -222,7 +222,7 @@ export async function createEventComplete(userId: string, data: CreateEventData)
         (async () => {
           try {
             const filePath = await uploadImage(uri, eventId, `gallery-${index}.jpg`);
-            const { error: insertError } = await (supabase as any).from('event_images').insert({
+            const { error: insertError } = await supabase.from('event_images').insert({
               id_eim: generateUUID(),
               event_id_eim: eventId,
               path_eim: filePath,

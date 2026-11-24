@@ -27,7 +27,7 @@ export const FeaturedBusinesses = memo(function FeaturedBusinesses({
   isLoading = false,
 }: FeaturedBusinessesProps) {
   const colors = useThemedColors();
-  const { location } = useLocationStore();
+  const location = useLocationStore((s) => s.location);
 
   const locationFilter = useMemo(() => {
     if (!location) return null;

@@ -4,6 +4,7 @@
  */
 
 import { memo, useCallback } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { View, Text, Pressable, useWindowDimensions } from 'react-native';
 import { Store, ArrowRight, Sparkles } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,7 +15,9 @@ import { styles } from './styles';
 
 export const CallToAction = memo(function CallToAction() {
   const colors = useThemedColors();
-  const { isAuthenticated, role } = useAuthStore();
+  const { isAuthenticated, role } = useAuthStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, role: s.role })),
+  );
   const { width } = useWindowDimensions();
 
   const isMobile = width < 768;

@@ -6,6 +6,7 @@
 import { supabase } from '@/lib/supabase/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'promotions-images';
 
@@ -20,18 +21,8 @@ export function generateUUID(): string {
   });
 }
 
-/**
- * Obtiene la URL pública de una imagen en el storage
- */
 export function getImageUrl(bucket: string, filePath: string): string {
-  // Limpiar el path de cualquier prefijo no deseado
-  const cleanPath = filePath.replace(/^\/+/, '');
-
-  const { data } = supabase.storage.from(bucket).getPublicUrl(cleanPath);
-
-  // Retornar la URL directamente
-  // Supabase ya genera la URL correcta: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
-  return data.publicUrl;
+  return publicStorageUrl(bucket, filePath);
 }
 
 /**

@@ -284,7 +284,7 @@ export async function getPromotionById(
  */
 export async function deleteUserPromotion(promotionId: string, userId: string): Promise<void> {
   // 1. Verificar permisos y obtener businessId
-  const { data: promotion, error: fetchError } = await (supabase as any)
+  const { data: promotion, error: fetchError } = await supabase
     .from('promotions')
     .select('created_by_prm, business_id_prm')
     .eq('id_prm', promotionId)
@@ -336,7 +336,7 @@ export async function deleteUserPromotion(promotionId: string, userId: string): 
   }
 
   // 10. Sincronizar cuota de promociones para el negocio
-  await syncResourceUsage(userId, 'promotion', businessId, 'business');
+  if (businessId) await syncResourceUsage(userId, 'promotion', businessId, 'business');
 }
 
 // ============================================

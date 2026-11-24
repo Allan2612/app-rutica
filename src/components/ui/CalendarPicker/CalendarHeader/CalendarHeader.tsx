@@ -29,6 +29,8 @@ export const CalendarHeader = memo(function CalendarHeader({
   return (
     <View style={styles.header}>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Anterior"
         onPress={onPreviousMonth}
         style={[styles.navButton, !canGoPrevious && styles.navButtonDisabled]}
         disabled={!canGoPrevious}
@@ -46,7 +48,12 @@ export const CalendarHeader = memo(function CalendarHeader({
         <ChevronDown size={16} color={colors.text.secondary} />
       </Pressable>
 
-      <Pressable onPress={onNextMonth} style={styles.navButton}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Siguiente"
+        onPress={onNextMonth}
+        style={styles.navButton}
+      >
         <ChevronRight size={24} color={colors.text.primary} />
       </Pressable>
     </View>

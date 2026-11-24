@@ -135,7 +135,7 @@ export async function createAttractionComplete(
     const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
 
     // 3. Crear registro en locations con las coordenadas
-    const { data: location, error: locationError } = await (supabase as any)
+    const { data: location, error: locationError } = await supabase
       .from('locations')
       .insert({
         id_loc: generateUUID(),
@@ -157,7 +157,7 @@ export async function createAttractionComplete(
       submitted_by_atr: userId,
       name_atr: data.name,
       description_atr: data.description,
-      location_id_atr: (location as any).id_loc,
+      location_id_atr: location.id_loc,
       moderation_status_atr: 'pending',
       is_active_atr: data.isActive ?? true,
     } as never);

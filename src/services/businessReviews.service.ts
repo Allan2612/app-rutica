@@ -11,10 +11,16 @@ const api = createReviewsApi({
   entityKey: 'businessId',
 });
 
-export const getBusinessReviews = (businessId: string, userId?: string) => api.list(businessId, userId);
-export const getUserBusinessReview = (businessId: string, userId: string) => api.getForUser(businessId, userId);
-export const createBusinessReview = (businessId: string, userId: string, rating: number, comment?: string) =>
-  api.create(businessId, userId, rating, comment);
+export const getBusinessReviews = (businessId: string, userId?: string, page = 0) =>
+  api.list(businessId, userId, page);
+export const getUserBusinessReview = (businessId: string, userId: string) =>
+  api.getForUser(businessId, userId);
+export const createBusinessReview = (
+  businessId: string,
+  userId: string,
+  rating: number,
+  comment?: string,
+) => api.create(businessId, userId, rating, comment);
 export const updateBusinessReview = (reviewId: string, rating: number, comment?: string) =>
   api.update(reviewId, rating, comment);
 // El promedio del negocio lo recalcula el trigger trg_recalc_rating

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { contactSchema, fieldErrors } from '@/utils/validation';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useCategories } from '@/hooks/useCategories';
@@ -93,19 +94,26 @@ export function useBusinessForm(businessId: string) {
     if (formData.selectedCategoryIds.length === 0)
       newErrors.categories = 'Selecciona al menos una categoría';
     if (!formData.coordinates) newErrors.location = 'Selecciona una ubicación en el mapa';
+    // Formato de contacto (6.11): opcional, pero válido si se llena
+    Object.assign(newErrors, fieldErrors(contactSchema, formData));
+
+    const firstMessage = Object.values(newErrors).find(Boolean);
+    if (firstMessage) {
+      Toast.show({
+        type: 'error',
+        text1: 'Revisa el formulario',
+        text2: firstMessage,
+        position: 'top',
+        visibilityTime: 3500,
+      });
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validate()) {
-      Toast.show({
-        type: 'error',
-        text1: 'Campos incompletos',
-        text2: 'Por favor completa todos los campos obligatorios',
-        position: 'top',
-        visibilityTime: 3000,
-      });
       return;
     }
 

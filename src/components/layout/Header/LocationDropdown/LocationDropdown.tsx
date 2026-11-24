@@ -278,14 +278,24 @@ export const LocationDropdown = memo(function LocationDropdown({
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.medium }]}>
             {showBackButton ? (
-              <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Anterior"
+                onPress={handleBack}
+                style={styles.backButton}
+              >
                 <ChevronLeft size={24} color={colors.text.primary} />
               </TouchableOpacity>
             ) : (
               <View style={styles.backButton} />
             )}
             <Text style={[styles.headerTitle, { color: colors.text.primary }]}>{getTitle()}</Text>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
+              onPress={handleClose}
+              style={styles.closeButton}
+            >
               <X size={24} color={colors.text.secondary} />
             </TouchableOpacity>
           </View>
@@ -311,6 +321,8 @@ export const LocationDropdown = memo(function LocationDropdown({
             </View>
 
             <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Quitar ubicación"
               style={[
                 styles.actionButton,
                 {

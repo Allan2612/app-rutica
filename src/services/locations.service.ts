@@ -18,7 +18,7 @@ async function findOrCreateCountry(countryName: string): Promise<string> {
   const normalized = normalizeString(countryName);
 
   // Buscar país existente (comparación case-insensitive)
-  const { data: existing } = await (supabase as any)
+  const { data: existing } = await supabase
     .from('countries')
     .select('id_cnt')
     .ilike('name_cnt', countryName)
@@ -26,18 +26,18 @@ async function findOrCreateCountry(countryName: string): Promise<string> {
     .maybeSingle();
 
   if (existing) {
-    return (existing as any).id_cnt;
+    return existing.id_cnt;
   }
 
   // Crear nuevo país
-  const { data: newCountry, error } = await (supabase as any)
+  const { data: newCountry, error } = await supabase
     .from('countries')
     .insert({ name_cnt: countryName })
     .select('id_cnt')
     .single();
 
   if (error) throw error;
-  return (newCountry as any).id_cnt;
+  return newCountry.id_cnt;
 }
 
 /**
@@ -45,7 +45,7 @@ async function findOrCreateCountry(countryName: string): Promise<string> {
  */
 async function findOrCreateProvince(provinceName: string, countryId: string): Promise<string> {
   // Buscar provincia existente
-  const { data: existing } = await (supabase as any)
+  const { data: existing } = await supabase
     .from('provinces')
     .select('id_prv')
     .eq('country_id_prv', countryId)
@@ -54,11 +54,11 @@ async function findOrCreateProvince(provinceName: string, countryId: string): Pr
     .maybeSingle();
 
   if (existing) {
-    return (existing as any).id_prv;
+    return existing.id_prv;
   }
 
   // Crear nueva provincia
-  const { data: newProvince, error } = await (supabase as any)
+  const { data: newProvince, error } = await supabase
     .from('provinces')
     .insert({
       name_prv: provinceName,
@@ -68,7 +68,7 @@ async function findOrCreateProvince(provinceName: string, countryId: string): Pr
     .single();
 
   if (error) throw error;
-  return (newProvince as any).id_prv;
+  return newProvince.id_prv;
 }
 
 /**
@@ -76,7 +76,7 @@ async function findOrCreateProvince(provinceName: string, countryId: string): Pr
  */
 async function findOrCreateCanton(cantonName: string, provinceId: string): Promise<string> {
   // Buscar cantón existente
-  const { data: existing } = await (supabase as any)
+  const { data: existing } = await supabase
     .from('cantons')
     .select('id_ctn')
     .eq('province_id_ctn', provinceId)
@@ -85,11 +85,11 @@ async function findOrCreateCanton(cantonName: string, provinceId: string): Promi
     .maybeSingle();
 
   if (existing) {
-    return (existing as any).id_ctn;
+    return existing.id_ctn;
   }
 
   // Crear nuevo cantón
-  const { data: newCanton, error } = await (supabase as any)
+  const { data: newCanton, error } = await supabase
     .from('cantons')
     .insert({
       name_ctn: cantonName,
@@ -99,7 +99,7 @@ async function findOrCreateCanton(cantonName: string, provinceId: string): Promi
     .single();
 
   if (error) throw error;
-  return (newCanton as any).id_ctn;
+  return newCanton.id_ctn;
 }
 
 /**
@@ -107,7 +107,7 @@ async function findOrCreateCanton(cantonName: string, provinceId: string): Promi
  */
 async function findOrCreateDistrict(districtName: string, cantonId: string): Promise<string> {
   // Buscar distrito existente
-  const { data: existing } = await (supabase as any)
+  const { data: existing } = await supabase
     .from('districts')
     .select('id_dst')
     .eq('canton_id_dst', cantonId)
@@ -116,11 +116,11 @@ async function findOrCreateDistrict(districtName: string, cantonId: string): Pro
     .maybeSingle();
 
   if (existing) {
-    return (existing as any).id_dst;
+    return existing.id_dst;
   }
 
   // Crear nuevo distrito
-  const { data: newDistrict, error } = await (supabase as any)
+  const { data: newDistrict, error } = await supabase
     .from('districts')
     .insert({
       name_dst: districtName,
@@ -130,7 +130,7 @@ async function findOrCreateDistrict(districtName: string, cantonId: string): Pro
     .single();
 
   if (error) throw error;
-  return (newDistrict as any).id_dst;
+  return newDistrict.id_dst;
 }
 
 /**

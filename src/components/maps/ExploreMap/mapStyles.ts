@@ -3,6 +3,7 @@
  */
 import type { MarkerType } from '@/features/maps/types';
 import { ESC_FUNCTION_JS } from '@/utils/htmlEscape';
+import { OSM_TILE_URL, DARK_TILE_FILTER, PRIMARY_ATTRIBUTION } from '../LeafletMap/mapConfig';
 
 export interface ThemeColors {
   backgroundColor: string;
@@ -49,26 +50,14 @@ export function getThemeColors(theme: 'light' | 'dark'): ThemeColors {
  * Obtiene las URLs de los tiles según el tema
  * Usa la misma configuración que BusinessMap para consistencia
  */
-export function getTileUrl(theme: 'light' | 'dark'): TileUrls {
-  const isDark = theme === 'dark';
-  const attribution = '© OpenStreetMap contributors | © CartoDB';
-
-  if (isDark) {
-    return {
-      primary: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-      details: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      labels: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
-      fallback: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution,
-    };
-  }
-
+export function getTileUrl(_theme: 'light' | 'dark'): TileUrls {
+  // Misma fuente que LeafletMap (ver mapConfig): OSM sin clave; el oscuro es un filtro CSS
   return {
-    primary: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    primary: OSM_TILE_URL,
     details: null,
     labels: null,
-    fallback: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution,
+    fallback: OSM_TILE_URL,
+    attribution: PRIMARY_ATTRIBUTION.replace(/'/g, "\\'"),
   };
 }
 
@@ -199,7 +188,7 @@ export function generateMapStyles(colors: ThemeColors, isDark: boolean): string 
   // Filtro para mejorar contraste en modo oscuro (igual que BusinessMap)
   const tileFilter = isDark
     ? `.leaflet-pane.leaflet-tile-pane img {
-            filter: contrast(1.07) brightness(5) saturate(1.05);
+            filter: ${DARK_TILE_FILTER};
         }`
     : '';
 

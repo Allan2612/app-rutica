@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store';
+import { usePagedList } from '@/hooks/usePagedList';
 import {
   getEventReviews,
   getUserEventReview,
@@ -15,11 +16,11 @@ const USER_EVENT_REVIEW_KEY = 'user-event-review';
 export function useEventReviews(eventId: string, enabled: boolean = true) {
   const userId = useAuthStore((state) => state.user?.id);
 
-  return useQuery<EventReviewDisplay[]>({
-    queryKey: [EVENT_REVIEWS_KEY, eventId, userId],
-    queryFn: () => getEventReviews(eventId, userId),
-    enabled: enabled && !!eventId,
-  });
+  return usePagedList(
+    [EVENT_REVIEWS_KEY, eventId, userId],
+    (page) => getEventReviews(eventId, userId, page),
+    { enabled: enabled && !!eventId },
+  );
 }
 
 export function useUserEventReview(

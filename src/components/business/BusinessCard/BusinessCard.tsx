@@ -1,5 +1,6 @@
 import { memo, useCallback } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { Heart, MapPin, Star, Tag } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
@@ -65,7 +66,7 @@ export const BusinessCard = memo(function BusinessCard({
       disabled={!onPress}
     >
       {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
+        <Image source={{ uri: imageUrl }} style={styles.heroFull} contentFit="cover" />
       ) : (
         <View
           style={[
@@ -83,7 +84,7 @@ export const BusinessCard = memo(function BusinessCard({
             { backgroundColor: colors.background.primary, borderColor: colors.border.medium },
           ]}
         >
-          <Image source={{ uri: logoUrl }} style={styles.logoImage} resizeMode="cover" />
+          <Image source={{ uri: logoUrl }} style={styles.logoImage} contentFit="cover" />
         </View>
       ) : null}
 
@@ -114,7 +115,7 @@ export const BusinessCard = memo(function BusinessCard({
             <Image
               source={require('../../../../assets/verification.png')}
               style={styles.verificationIcon}
-              resizeMode="contain"
+              contentFit="contain"
             />
           )}
           {/* NEW: Promotion Badge */}
@@ -154,6 +155,8 @@ export const BusinessCard = memo(function BusinessCard({
             {/* Botón de favoritos */}
             {isAuthenticated && (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Favorito"
                 style={[
                   styles.favoriteButton,
                   {

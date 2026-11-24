@@ -38,6 +38,7 @@ export const styles = StyleSheet.create({
     marginTop: spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   likeButton: {
     flexDirection: 'row',

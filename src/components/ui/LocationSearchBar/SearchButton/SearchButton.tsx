@@ -66,6 +66,8 @@ export const SearchButton = memo(function SearchButton({
         ]}
         onPress={onLocationPress}
         disabled={loadingLocation}
+        accessibilityRole="button"
+        accessibilityLabel="Usar mi ubicación actual"
         activeOpacity={0.7}
       >
         <Locate size={18} color={loadingLocation ? colors.text.tertiary : colors.text.inverse} />

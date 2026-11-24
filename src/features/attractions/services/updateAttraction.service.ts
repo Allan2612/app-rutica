@@ -8,6 +8,7 @@ import {
 } from '@/services/locations.service';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
+import { getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -57,9 +58,7 @@ export interface UpdateAttractionData {
 // ============================================
 
 function getImageUrl(path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(STORAGE_BUCKET, path);
 }
 
 function isNewImage(uri: string | null | undefined): boolean {
@@ -68,15 +67,6 @@ function isNewImage(uri: string | null | undefined): boolean {
     !uri.includes('supabase.co') &&
     (uri.startsWith('file://') || uri.startsWith('blob:') || uri.startsWith('data:'))
   );
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
 }
 
 // ============================================
@@ -115,14 +105,18 @@ export async function getAttractionById(
         } | null;
       } | null;
     } | null;
-    attraction_images: Array<{
-      id_aim: string;
-      path_aim: string;
-      sort_order_aim: number;
-    }> | null;
-    attraction_category_map: Array<{
-      category_id_acm: string;
-    }> | null;
+    attraction_images:
+      | {
+          id_aim: string;
+          path_aim: string;
+          sort_order_aim: number;
+        }[]
+      | null;
+    attraction_category_map:
+      | {
+          category_id_acm: string;
+        }[]
+      | null;
   }
 
   const { data: attractionData, error: attractionError } = await supabase
@@ -235,7 +229,7 @@ export async function updateAttractionComplete(
   }
 
   // Verificar permisos: debe ser el colaborador O admin
-  const hasPermission = await canUserEdit(userId, (attraction as any).submitted_by_atr);
+  const hasPermission = await canUserEdit(userId, attraction.submitted_by_atr);
   if (!hasPermission) {
     throw new Error('No tienes permiso para editar esta atracción');
   }
@@ -256,7 +250,7 @@ export async function updateAttractionComplete(
   const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
 
   // 3. Actualizar ubicación
-  if ((attraction as any).location_id_atr) {
+  if (attraction.location_id_atr) {
     const { error: locationError } = await supabase
       .from('locations')
       .update({
@@ -265,7 +259,7 @@ export async function updateAttractionComplete(
         latitude_loc: data.latitude,
         longitude_loc: data.longitude,
       } as never)
-      .eq('id_loc', (attraction as any).location_id_atr);
+      .eq('id_loc', attraction.location_id_atr);
 
     if (locationError) throw locationError;
   }

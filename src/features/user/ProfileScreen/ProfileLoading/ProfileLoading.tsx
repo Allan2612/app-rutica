@@ -3,6 +3,8 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
 import { useThemedColors } from '@/hooks';
+import { GuestCTA } from '@/components/manage';
+import { useAuthStore } from '@/store';
 import styles from '../styles';
 
 interface ProfileLoadingProps {
@@ -15,8 +17,10 @@ export const ProfileLoading = memo(function ProfileLoading({
   error,
 }: ProfileLoadingProps) {
   const colors = useThemedColors();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  if (isLoading) {
+  // Con sesión pero sin perfil todavía, se sigue mostrando la carga
+  if (isLoading || (isAuthenticated && !error)) {
     return (
       <Screen>
         <BaseHeader />
@@ -44,5 +48,14 @@ export const ProfileLoading = memo(function ProfileLoading({
     );
   }
 
-  return null;
+  // Sin sesión no hay perfil: invitar a iniciar sesión en vez de dejar la pantalla en blanco
+  return (
+    <Screen>
+      <BaseHeader />
+      <GuestCTA
+        title="Inicia sesión para ver tu perfil"
+        subtitle="Edita tus datos, revisa tus planes y gestiona tu cuenta."
+      />
+    </Screen>
+  );
 });

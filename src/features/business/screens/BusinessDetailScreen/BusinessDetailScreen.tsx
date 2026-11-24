@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { ReportContentButton } from '@/components/ui';
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { openSafeUrl } from '@/utils/externalLinks';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -85,6 +86,8 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
 
         {/* Back Button */}
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Volver"
           style={({ pressed }) => ({
             position: 'absolute',
             top: 16,
@@ -159,6 +162,12 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
               businessId={business.id}
               businessName={business.name}
               businessLogo={business.logoUrl ?? undefined}
+              ownerId={business.ownerId}
+            />
+
+            <ReportContentButton
+              entityType="business"
+              entityId={business.id}
               ownerId={business.ownerId}
             />
           </View>

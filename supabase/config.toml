@@ -1,0 +1,9 @@
+# Solo lo necesario para desplegar las Edge Functions de este repo:
+#   npx supabase functions deploy email-paid email-subscription-status --remote --use-api
+project_id = "app-rutica"
+
+[functions.email-paid]
+verify_jwt = true
+
+[functions.email-subscription-status]
+verify_jwt = true

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { usePagedList } from '@/hooks/usePagedList';
 import { supabase } from '@/lib/supabase/client';
 import {
   AttractionListFilters,
@@ -90,34 +90,11 @@ export function useAttractions({
   enabled = true,
   ...filters
 }: AttractionListFilters & { enabled?: boolean } = {}) {
-  const { searchText = '', categoryIds = [], province, canton, district } = filters;
+  const { searchText = '', categoryIds = [], location = null, locationMode = 'only' } = filters;
+  const scope = { searchText, categoryIds, location, locationMode };
 
-  return useQuery({
-    queryKey: ['attractions', { searchText, categoryIds, province, canton, district }],
-    queryFn: () => getAttractionsList({ searchText, categoryIds }),
+  return usePagedList(['attractions', scope], (page) => getAttractionsList({ ...scope, page }), {
     enabled,
-    select: (rows) => {
-      let items = rows.map(mapAttractionToListItem);
-
-      // Filtrar por ubicación en JavaScript
-      if (district) {
-        items = items.filter((item) => {
-          const parts = item.locationLabel?.split(', ') || [];
-          return parts.some((part) => part.toLowerCase() === district.toLowerCase());
-        });
-      } else if (canton) {
-        items = items.filter((item) => {
-          const parts = item.locationLabel?.split(', ') || [];
-          return parts.some((part) => part.toLowerCase() === canton.toLowerCase());
-        });
-      } else if (province) {
-        items = items.filter((item) => {
-          const parts = item.locationLabel?.split(', ') || [];
-          return parts.some((part) => part.toLowerCase() === province.toLowerCase());
-        });
-      }
-
-      return items;
-    },
+    map: mapAttractionToListItem,
   });
 }

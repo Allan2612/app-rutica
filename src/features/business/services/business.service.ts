@@ -1,9 +1,12 @@
+import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
 import type { Database } from '@/lib/supabase/database.types';
 import { Business, BusinessWithRelations, Location } from '@/types/entities';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_LOGO = 'business-images';
 const BUCKET_IMAGES = 'business-images';
@@ -39,12 +42,9 @@ export interface CreateBusinessInput {
   imageUris?: string[];
 }
 
-export interface BusinessListFilters {
+export interface BusinessListFilters extends ListScope {
   searchText?: string;
   categoryIds?: string[];
-  province?: string;
-  canton?: string;
-  district?: string;
 }
 
 export interface BusinessListRecord {
@@ -141,7 +141,7 @@ export async function saveBusinessImageReference(
   filePath: string,
   sortOrder: number = 0,
 ): Promise<void> {
-  const { error } = await (supabase as any).from('business_images').insert({
+  const { error } = await supabase.from('business_images').insert({
     id_bim: generateUUID(),
     business_id_bim: businessId,
     path_bim: filePath,
@@ -154,13 +154,12 @@ export async function saveBusinessImageReference(
 }
 
 export function getImageUrl(filePath: string): string {
-  const { data } = supabase.storage.from(BUCKET_IMAGES).getPublicUrl(filePath);
-  return data.publicUrl;
+  return publicStorageUrl(BUCKET_IMAGES, filePath);
 }
 
 export async function createBusiness(input: CreateBusinessInput): Promise<Business> {
   // 1️⃣ Crear ubicación (V3: solo district_id, address y coordenadas)
-  const { data: location, error: locationError } = await (supabase as any)
+  const { data: location, error: locationError } = await supabase
     .from('locations')
     .insert({
       id_loc: generateUUID(),
@@ -175,14 +174,14 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   if (locationError) throw locationError;
 
   // 2️⃣ Crear comercio
-  const { data: business, error: businessError } = await (supabase as any)
+  const { data: business, error: businessError } = await supabase
     .from('businesses')
     .insert({
       id_bus: generateUUID(),
       owner_id_bus: input.ownerId,
       name_bus: input.name,
       description_bus: input.description ?? null,
-      location_id_bus: (location as any).id_loc,
+      location_id_bus: location.id_loc,
 
       whatsapp_phone_bus: input.whatsapp ?? null,
       contact_phone_bus: input.phone ?? null,
@@ -197,29 +196,25 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   if (businessError) throw businessError;
 
   // 3️⃣ Subir logo si existe (V3: sort_order=0 para logo)
-  if (input.logoUri && (business as any).id_bus) {
+  if (input.logoUri && business.id_bus) {
     try {
-      const logoPath = await uploadImageToStorage(
-        input.logoUri,
-        (business as any).id_bus,
-        'logo.png',
-      );
-      await saveBusinessImageReference((business as any).id_bus, logoPath, 0);
+      const logoPath = await uploadImageToStorage(input.logoUri, business.id_bus, 'logo.png');
+      await saveBusinessImageReference(business.id_bus, logoPath, 0);
     } catch (error) {
       // No lanzar error si falla el logo, continuar
     }
   }
 
   // 4️⃣ Subir imágenes del negocio si existen
-  if (input.imageUris && input.imageUris.length > 0 && (business as any).id_bus) {
+  if (input.imageUris && input.imageUris.length > 0 && business.id_bus) {
     try {
       for (let i = 0; i < input.imageUris.length; i++) {
         const imagePath = await uploadImageToStorage(
           input.imageUris[i],
-          (business as any).id_bus,
+          business.id_bus,
           `gallery-${i}.png`,
         );
-        await saveBusinessImageReference((business as any).id_bus, imagePath, i + 1);
+        await saveBusinessImageReference(business.id_bus, imagePath, i + 1);
       }
     } catch (error) {
       // No lanzar error si fallan las imágenes, continuar
@@ -231,12 +226,14 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
 
 export async function getBusinessList(
   filters: BusinessListFilters = {},
-): Promise<BusinessListRecord[]> {
-  const { searchText, categoryIds } = filters;
+): Promise<Page<BusinessListRecord>> {
+  const { searchText, categoryIds, page, location, locationMode } = filters;
+  const locationIds = await resolveLocationIds(location);
 
   const now = new Date().toISOString();
 
-  let query = (supabase as any).from('businesses').select(`
+  let query = supabase.from('businesses').select(
+    `
       id_bus,
       name_bus,
       description_bus,
@@ -265,7 +262,9 @@ export async function getBusinessList(
       promotions!business_id_prm (
         id_prm
       )
-    `);
+    `,
+    { count: 'exact' },
+  );
 
   // Solo negocios aprobados y activos
   query = query.eq('moderation_status_bus', 'approved').eq('is_active_bus', true);
@@ -287,19 +286,23 @@ export async function getBusinessList(
     query = query.or(buildIlikeOr(['name_bus', 'description_bus'], term));
   }
 
-  query = query.order('created_at_bus', { ascending: false });
+  const scoped = applyLocation(query, 'location_id_bus', locationIds, locationMode);
+  if (!scoped) return EMPTY_PAGE;
 
-  const { data, error } = await query;
+  const [from, to] = pageRange(page);
+  const paged = scoped
+    .order('created_at_bus', { ascending: false })
+    .order('id_bus', { ascending: true })
+    .range(from, to);
 
-  if (error) {
-    return [] as BusinessListRecord[];
-  }
+  const { data, error, count } = await paged;
+  if (error) throw error;
 
-  return (data ?? []) as unknown as BusinessListRecord[];
+  return { rows: (data ?? []) as BusinessListRecord[], total: count ?? 0 };
 }
 
 export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `
@@ -334,7 +337,7 @@ export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
 }
 
 export async function getBusinessesByOwner(ownerId: string) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `
@@ -353,7 +356,7 @@ export async function getBusinessesByOwner(ownerId: string) {
 }
 
 export async function getBusinessById(id: string): Promise<BusinessWithRelations> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `

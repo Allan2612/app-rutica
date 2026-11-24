@@ -29,3 +29,12 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     },
   },
 });
+
+/**
+ * Usuario de la sesión local, sin ir a la red (5.13). Sirve para saber "quién soy" en el
+ * cliente; la autorización real la hace RLS en el servidor con el JWT.
+ */
+export async function getSessionUser() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user ?? null;
+}

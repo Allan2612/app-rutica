@@ -28,7 +28,7 @@ export async function getCategories(): Promise<CategoryOption[]> {
 
   return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
     id: row.id_cat,
-    name: row.name_cat,
+    name: row.name_cat ?? '',
     parentId: row.parent_id_cat,
   }));
 }
@@ -48,7 +48,14 @@ export async function getCategoriesRaw(): Promise<Category[]> {
     return [];
   }
 
-  return data ?? [];
+  // La BD permite nulos en estas columnas; la app las trata con valores por defecto
+  return (data ?? []).map((c) => ({
+    ...c,
+    name_cat: c.name_cat ?? '',
+    created_at_cat: c.created_at_cat ?? '',
+    sort_order_cat: c.sort_order_cat ?? 0,
+    is_active_cat: c.is_active_cat ?? true,
+  }));
 }
 
 /**
@@ -68,7 +75,7 @@ export async function getCategoryById(id: string): Promise<CategoryOption | null
   const category = data as unknown as CategoryRow;
   return {
     id: category.id_cat,
-    name: category.name_cat,
+    name: category.name_cat ?? '',
     parentId: category.parent_id_cat,
   };
 }
@@ -90,7 +97,7 @@ export async function searchCategories(searchTerm: string): Promise<CategoryOpti
 
   return ((data as unknown as CategoryRow[]) ?? []).map((row) => ({
     id: row.id_cat,
-    name: row.name_cat,
+    name: row.name_cat ?? '',
     parentId: row.parent_id_cat,
   }));
 }

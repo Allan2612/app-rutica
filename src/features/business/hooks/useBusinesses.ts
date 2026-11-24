@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { usePagedList } from '@/hooks/usePagedList';
 import {
   BusinessListFilters,
   BusinessListRecord,
   getBusinessList,
   getImageUrl,
 } from '@/features/business/services';
+import { getImageTypeFromPath } from '@/utils/storage';
 
 export interface BusinessListItem {
   id: string;
@@ -19,16 +20,6 @@ export interface BusinessListItem {
   reviewCount: number;
   isApproved: boolean;
   hasActivePromotions: boolean;
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- * Path format: <business_id>/<prefix>-<timestamp>-<random>.<ext>
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
 }
 
 function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
@@ -88,37 +79,11 @@ export function useBusinesses({
   enabled = true,
   ...filters
 }: BusinessListFilters & { enabled?: boolean } = {}) {
-  const { searchText = '', categoryIds = [], province, canton, district } = filters;
+  const { searchText = '', categoryIds = [], location = null, locationMode = 'only' } = filters;
+  const scope = { searchText, categoryIds, location, locationMode };
 
-  return useQuery({
-    queryKey: ['businesses', { searchText, categoryIds, province, canton, district }],
-    queryFn: () => {
-      // No pasar filtros de ubicación al servicio, filtraremos en select
-      return getBusinessList({ searchText, categoryIds });
-    },
+  return usePagedList(['businesses', scope], (page) => getBusinessList({ ...scope, page }), {
     enabled,
-    select: (rows) => {
-      let items = rows.map(mapBusinessToListItem);
-
-      // Filtrar por ubicación en JavaScript
-      if (district) {
-        items = items.filter((item) => {
-          const parts = item.locationLabel?.split(', ') || [];
-          return parts.some((part) => part.toLowerCase() === district.toLowerCase());
-        });
-      } else if (canton) {
-        items = items.filter((item) => {
-          const parts = item.locationLabel?.split(', ') || [];
-          return parts.some((part) => part.toLowerCase() === canton.toLowerCase());
-        });
-      } else if (province) {
-        items = items.filter((item) => {
-          const parts = item.locationLabel?.split(', ') || [];
-          return parts.some((part) => part.toLowerCase() === province.toLowerCase());
-        });
-      }
-
-      return items;
-    },
+    map: mapBusinessToListItem,
   });
 }

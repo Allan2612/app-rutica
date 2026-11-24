@@ -2,12 +2,12 @@ import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'business-images';
 
 export function getImageUrl(filePath: string): string {
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-  return data.publicUrl;
+  return publicStorageUrl(BUCKET_NAME, filePath);
 }
 
 export function generateUUID(): string {

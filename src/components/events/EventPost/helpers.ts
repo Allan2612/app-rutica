@@ -1,4 +1,5 @@
 import { Linking, Platform } from 'react-native';
+import { getNameInitials as getInitials, getTimeAgo } from '@/utils/formatters';
 
 export function formatEventDate(startAt: string, endAt: string): string {
   const start = new Date(startAt);
@@ -59,29 +60,6 @@ export function formatPrice(
   }).format(price);
 }
 
-export function getTimeAgo(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'Ahora';
-  if (diffMins < 60) return `Hace ${diffMins} min`;
-  if (diffHours < 24) return `Hace ${diffHours}h`;
-  if (diffDays < 7) return `Hace ${diffDays}d`;
-  return date.toLocaleDateString('es-CR', { day: 'numeric', month: 'short' });
-}
-
-export function getInitials(name: string): string {
-  const parts = name.split(' ');
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  }
-  return name.substring(0, 2).toUpperCase();
-}
-
 export function openMaps(latitude: number, longitude: number, label?: string) {
   const encodedLabel = encodeURIComponent(label ?? 'Ubicación');
   const url = Platform.select({
@@ -101,3 +79,7 @@ export function extractSocialUsername(url: string): string {
   }
   return cleaned.replace('@', '') ? `@${cleaned.replace('@', '')}` : url;
 }
+
+export { getInitials };
+
+export { getTimeAgo };

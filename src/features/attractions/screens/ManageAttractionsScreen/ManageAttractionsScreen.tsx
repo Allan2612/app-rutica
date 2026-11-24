@@ -10,13 +10,12 @@ import { ConfirmDeleteDialog } from '@/components/manage';
 import { BackButton } from '@/components/ui';
 import { supabase } from '@/lib/supabase/client';
 import { styles } from './styles';
+import { publicStorageUrl } from '@/utils/storage';
 
 const STORAGE_BUCKET = 'attractions-images';
 
 function getImageUrl(path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(STORAGE_BUCKET, path);
 }
 
 export const ManageAttractionsScreen = memo(function ManageAttractionsScreen() {

@@ -1,3 +1,5 @@
+import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { ilikePattern } from '@/utils/searchFilters';
 
@@ -11,13 +13,10 @@ const BUCKET_NAME = 'events-images';
 // Types
 // ============================================
 
-export interface EventListFilters {
+export interface EventListFilters extends ListScope {
   searchText?: string;
   categoryIds?: string[];
   upcoming?: boolean;
-  province?: string;
-  canton?: string;
-  district?: string;
 }
 
 export interface EventListRecord {
@@ -89,10 +88,14 @@ export function getEventImageUrl(path: string): string {
 // Service Functions
 // ============================================
 
-export async function getEventsList(filters: EventListFilters = {}): Promise<EventListRecord[]> {
-  const { searchText, categoryIds, upcoming = true, province, canton, district } = filters;
+export async function getEventsList(
+  filters: EventListFilters = {},
+): Promise<Page<EventListRecord>> {
+  const { searchText, categoryIds, upcoming = true, page, location, locationMode } = filters;
+  const locationIds = await resolveLocationIds(location);
 
-  let query = supabase.from('events').select(`
+  let query = supabase.from('events').select(
+    `
             id_evt,
             name_evt,
             description_evt,
@@ -141,7 +144,9 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
                 path_eim,
                 sort_order_eim
             )
-        `);
+        `,
+    { count: 'exact' },
+  );
 
   // Solo eventos aprobados y activos
   query = query.eq('moderation_status_evt', 'approved').eq('is_active_evt', true);
@@ -149,15 +154,6 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
   // Filtrar solo eventos futuros o en curso
   if (upcoming) {
     query = query.gte('end_at_evt', new Date().toISOString());
-  }
-
-  // Filtrar por ubicación (nivel más granular tiene prioridad)
-  if (district) {
-    query = query.eq('locations.districts.name_dst', district);
-  } else if (canton) {
-    query = query.eq('locations.districts.cantons.name_ctn', canton);
-  } else if (province) {
-    query = query.eq('locations.districts.cantons.provinces.name_prv', province);
   }
 
   // Filtro por texto
@@ -174,23 +170,26 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
       .in('category_id_ecm', categoryIds);
 
     if (eventCategoryData && eventCategoryData.length > 0) {
-      const eventIds = [...new Set((eventCategoryData as any).map((ec: any) => ec.event_id_ecm))];
+      const eventIds = [...new Set(eventCategoryData.map((ec) => ec.event_id_ecm))];
       query = query.in('id_evt', eventIds);
     } else {
       // No hay eventos con esas categorías
-      return [];
+      return EMPTY_PAGE;
     }
   }
 
-  // Ordenar por fecha de inicio (próximos primero)
-  query = query.order('start_at_evt', { ascending: true });
+  const scoped = applyLocation(query, 'location_id_evt', locationIds, locationMode);
+  if (!scoped) return EMPTY_PAGE;
 
-  const { data, error } = await query;
+  // Próximos primero
+  const [from, to] = pageRange(page);
+  const paged = scoped
+    .order('start_at_evt', { ascending: true })
+    .order('id_evt', { ascending: true })
+    .range(from, to);
 
-  if (error) {
-    console.error('Error fetching events list:', error);
-    throw error;
-  }
+  const { data, error, count } = await paged;
+  if (error) throw error;
 
-  return data as unknown as EventListRecord[];
+  return { rows: (data ?? []) as EventListRecord[], total: count ?? 0 };
 }

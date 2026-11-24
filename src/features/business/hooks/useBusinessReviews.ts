@@ -5,9 +5,9 @@ import {
   createBusinessReview,
   updateBusinessReview,
   deleteBusinessReview,
-  type BusinessReviewDisplay,
 } from '@/services/businessReviews.service';
 import { useAuthStore } from '@/store';
+import { usePagedList } from '@/hooks/usePagedList';
 
 /**
  * Hook para obtener todas las reseñas de un negocio
@@ -15,11 +15,11 @@ import { useAuthStore } from '@/store';
 export function useBusinessReviews(businessId: string) {
   const userId = useAuthStore((state) => state.user?.id);
 
-  return useQuery({
-    queryKey: ['business-reviews', businessId, userId],
-    queryFn: () => getBusinessReviews(businessId, userId),
-    enabled: !!businessId,
-  });
+  return usePagedList(
+    ['business-reviews', businessId, userId],
+    (page) => getBusinessReviews(businessId, userId, page),
+    { enabled: !!businessId },
+  );
 }
 
 /**

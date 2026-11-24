@@ -1,15 +1,24 @@
 import { useCallback } from 'react';
 import Toast from 'react-native-toast-message';
-import { useProductReviewsQuery } from '@/features/products/hooks/useProductReviews';
 import {
+  useProductReviewsQuery,
+  useUserProductReviewQuery,
   useCreateProductReview,
   useUpdateProductReview,
   useDeleteProductReview,
 } from '@/features/products/hooks/useProductReviews';
 
 export function useProductReviews(productId: string, userId: string | null) {
-  const { data: allReviews = [], isLoading } = useProductReviewsQuery(productId);
-  const userReview = allReviews.find((r) => r.userId === userId) || null;
+  const reviewsQuery = useProductReviewsQuery(productId);
+  const { data: allReviews, isLoading } = reviewsQuery;
+  const reviewsPager = {
+    hasMore: reviewsQuery.hasNextPage,
+    isLoading: reviewsQuery.isFetchingNextPage,
+    onPress: reviewsQuery.fetchNextPage,
+  };
+  // La reseña propia se pide aparte: con paginación puede no estar en lo cargado
+  const { data: ownReview = null } = useUserProductReviewQuery(productId, userId);
+  const userReview = allReviews.find((r) => r.userId === userId) ?? ownReview;
   const reviews = allReviews;
 
   const createReview = useCreateProductReview();
@@ -92,6 +101,7 @@ export function useProductReviews(productId: string, userId: string | null) {
   }, [userReview, productId, deleteReview]);
 
   return {
+    reviewsPager,
     reviews,
     userReview,
     isLoading,

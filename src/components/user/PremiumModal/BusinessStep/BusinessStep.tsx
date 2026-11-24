@@ -71,7 +71,7 @@ export const BusinessStep = memo(function BusinessStep({
               Selecciona el negocio:
             </Text>
             <View style={styles.businessList}>
-              {businesses.map((business: any) => {
+              {businesses.map((business) => {
                 const isSelected = selectedBusinessId === business.id;
 
                 return (

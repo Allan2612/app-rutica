@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { contactSchema, fieldErrors } from '@/utils/validation';
+import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 import { useCategories } from '@/hooks/useCategories';
 import { useCreateAttraction } from './useCreateAttraction';
@@ -6,6 +8,9 @@ import { useAttractionById, useUpdateAttraction } from './useUpdateAttraction';
 import type { CreateAttractionData } from '../services/createAttraction.service';
 
 interface FormErrors {
+  phone?: string;
+  email?: string;
+  website?: string;
   name?: string;
   categories?: string;
   location?: string;
@@ -164,6 +169,20 @@ export function useAttractionForm(attractionId?: string) {
     } else if (!formData.country || !formData.province || !formData.canton || !formData.district) {
       newErrors.location =
         'Ubicación incompleta. Mueve el pin a una ciudad, distrito o pueblo específico';
+    }
+
+    // Formato de contacto (6.11): opcional, pero válido si se llena
+    Object.assign(newErrors, fieldErrors(contactSchema, formData));
+
+    const firstMessage = Object.values(newErrors).find(Boolean);
+    if (firstMessage) {
+      Toast.show({
+        type: 'error',
+        text1: 'Revisa el formulario',
+        text2: firstMessage,
+        position: 'top',
+        visibilityTime: 3500,
+      });
     }
 
     setErrors(newErrors);

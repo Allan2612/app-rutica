@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { Edit2, MapPin, Landmark, Trash2, Eye, EyeOff } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { StatusBadge } from '@/components/ui';
@@ -48,7 +49,7 @@ export const UserAttractionCard = memo(function UserAttractionCard({
         {/* Imagen */}
         <View style={[styles.imageContainer, { backgroundColor: colors.background.tertiary }]}>
           {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+            <Image source={{ uri: imageUrl }} style={styles.image} contentFit="cover" />
           ) : (
             <View style={styles.imagePlaceholder}>
               <Landmark color={colors.text.tertiary} size={32} strokeWidth={1.5} />

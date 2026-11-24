@@ -31,7 +31,7 @@ export function useResourceQuota({
   entityType,
   enabled = true,
 }: UseResourceQuotaOptions): UseResourceQuotaResult {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id;
 
   const queryKey = ['resourceQuota', resourceType, entityType, entityId, userId];
@@ -71,7 +71,7 @@ export function useResourceQuota({
  */
 export function useProductQuota(businessId: string, enabled = true) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id;
 
   const result = useResourceQuota({
@@ -98,7 +98,7 @@ export function useProductQuota(businessId: string, enabled = true) {
  */
 export function useBusinessGalleryQuota(businessId: string, enabled = true) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id;
 
   const result = useResourceQuota({
@@ -125,7 +125,7 @@ export function useBusinessGalleryQuota(businessId: string, enabled = true) {
  */
 export function useAttractionGalleryQuota(attractionId: string, enabled = true) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id;
 
   const result = useResourceQuota({
@@ -152,7 +152,7 @@ export function useAttractionGalleryQuota(attractionId: string, enabled = true) 
  */
 export function useEventGalleryQuota(eventId: string, enabled = true) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id;
 
   const result = useResourceQuota({
@@ -179,7 +179,7 @@ export function useEventGalleryQuota(eventId: string, enabled = true) {
  */
 export function usePromotionQuota(businessId: string, enabled = true) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id;
 
   const result = useResourceQuota({

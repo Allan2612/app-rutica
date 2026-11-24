@@ -2,7 +2,7 @@
 // Admin Verification Service - Refactored
 // ============================================
 
-import { supabase } from '@/lib/supabase/client';
+import { supabase, getSessionUser } from '@/lib/supabase/client';
 import { ilikePattern } from '@/utils/searchFilters';
 import type { ModerationStatus } from '@/types/enums';
 import type {
@@ -37,9 +37,7 @@ async function fetchBusinessVerifications(
   limit: number,
 ): Promise<BusinessVerificationRequest[]> {
   // Obtener el usuario actual
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   const userId = user?.id;
 
   // Verificar si el usuario es admin
@@ -697,9 +695,7 @@ export async function updateModerationStatus(data: UpdateModerationData): Promis
   const { id, type, status, note, isActive } = data;
 
   // Get current user for reviewed_by field
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) throw new Error('No autenticado');
 
   const reviewedAt = new Date().toISOString();
@@ -840,4 +836,3 @@ export async function getVerificationDetail(
 
   return requests.find((r) => r.id === id) || null;
 }
-

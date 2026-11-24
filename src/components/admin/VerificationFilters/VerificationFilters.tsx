@@ -86,7 +86,12 @@ export const VerificationFilters = memo(function VerificationFilters({
           returnKeyType="search"
         />
         {localSearch.length > 0 && (
-          <Pressable onPress={handleClearSearch} style={styles.clearButton}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Borrar búsqueda"
+            onPress={handleClearSearch}
+            style={styles.clearButton}
+          >
             <X color={colors.text.tertiary} size={18} strokeWidth={2} />
           </Pressable>
         )}

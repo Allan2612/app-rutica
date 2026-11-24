@@ -15,7 +15,22 @@ export function useDeepLinkHandler() {
       // Verificar si es un link de reset password
       if (url.includes('/reset-password') || url.includes('type=recovery')) {
         try {
-          // Extraer el token de acceso del URL
+          // Flujo nuevo (S-14): el correo trae ?token_hash=...&type=recovery y se canjea con
+          // verifyOtp. Los tokens nunca viajan en el fragmento de la URL.
+          const query = new URL(url).searchParams;
+          const tokenHash = query.get('token_hash');
+          if (tokenHash && query.get('type') === 'recovery') {
+            useAuthStore.getState().setRecoveryMode(true);
+            const { error } = await supabase.auth.verifyOtp({
+              token_hash: tokenHash,
+              type: 'recovery',
+            });
+            if (error) throw error;
+            router.replace('/(auth)/reset-password');
+            return;
+          }
+
+          // Flujo anterior (enlaces ya enviados): tokens en el fragmento
           const hashParams = new URL(url).hash.substring(1);
           const params = new URLSearchParams(hashParams);
           const accessToken = params.get('access_token');
@@ -35,9 +50,10 @@ export function useDeepLinkHandler() {
             // Redirigir a la pantalla de reset password
             router.replace('/(auth)/reset-password');
           }
-        } catch (error) {
-          // Error processing deep link - limpiar modo recovery
+        } catch {
+          // Enlace inválido o vencido: salir del modo recovery y volver a pedirlo
           useAuthStore.getState().setRecoveryMode(false);
+          router.replace('/(auth)/recover');
         }
       }
     };
@@ -47,9 +63,10 @@ export function useDeepLinkHandler() {
       const currentUrl = window.location.href;
       if (currentUrl.includes('/reset-password') || currentUrl.includes('type=recovery')) {
         const hash = window.location.hash;
-        if (hash && hash.includes('access_token')) {
+        const hasTokenHash = window.location.search.includes('token_hash=');
+        if (hasTokenHash || (hash && hash.includes('access_token'))) {
           handleDeepLink({ url: currentUrl });
-          // Limpiar el hash de la URL para que no se procese de nuevo
+          // Limpiar tokens de la URL para que no queden en el historial ni se procesen de nuevo
           window.history.replaceState(null, '', window.location.pathname);
         }
       }

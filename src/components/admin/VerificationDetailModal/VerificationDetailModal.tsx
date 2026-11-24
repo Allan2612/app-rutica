@@ -115,6 +115,8 @@ export const VerificationDetailModal = memo(function VerificationDetailModal({
               Información Detallada
             </Text>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
               onPress={onClose}
               style={({ pressed }) => [
                 styles.closeButton,

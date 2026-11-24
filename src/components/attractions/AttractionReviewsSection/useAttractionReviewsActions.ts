@@ -14,9 +14,15 @@ export function useAttractionReviewsActions(
   ownerId: string,
   onCloseModal: () => void,
 ) {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
-  const { data: reviews, isLoading: isLoadingReviews } = useAttractionReviews(attractionId);
+  const reviewsQuery = useAttractionReviews(attractionId);
+  const { data: reviews, isLoading: isLoadingReviews } = reviewsQuery;
+  const reviewsPager = {
+    hasMore: reviewsQuery.hasNextPage,
+    isLoading: reviewsQuery.isFetchingNextPage,
+    onPress: reviewsQuery.fetchNextPage,
+  };
   const { data: userReview } = useUserAttractionReview(attractionId, user?.id ?? null);
 
   const createReview = useCreateAttractionReview();
@@ -106,6 +112,7 @@ export function useAttractionReviewsActions(
   );
 
   return {
+    reviewsPager,
     user,
     reviews: reviews ?? [],
     userReview: userReview ?? null,

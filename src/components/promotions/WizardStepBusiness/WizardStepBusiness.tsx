@@ -83,7 +83,7 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
 
           <ScrollView style={styles.businessScroll} showsVerticalScrollIndicator={false}>
             <View style={styles.businessGrid}>
-              {businesses.map((business: any) => {
+              {businesses.map((business) => {
                 const isSelected = formData.businessId === business.id;
 
                 return (
@@ -227,7 +227,7 @@ export const WizardStepBusiness = memo(function WizardStepBusiness({
         userRole={profile?.role_prf || null}
         initialPlan="promotions"
         preSelectedBusinessId={formData.businessId || undefined}
-        preSelectedBusinessName={businesses.find((b: any) => b.id === formData.businessId)?.name}
+        preSelectedBusinessName={businesses.find((b) => b.id === formData.businessId)?.name}
       />
     </View>
   );

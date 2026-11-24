@@ -63,7 +63,12 @@ export const CategorySearchBar = memo(function CategorySearchBar({
           placeholderTextColor={colors.text.tertiary}
         />
         {localValue.length > 0 && (
-          <Pressable onPress={handleClear} style={styles.clearButton}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Borrar búsqueda"
+            onPress={handleClear}
+            style={styles.clearButton}
+          >
             <X size={18} color={colors.text.secondary} />
           </Pressable>
         )}

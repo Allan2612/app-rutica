@@ -73,6 +73,8 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
             </View>
 
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
               style={[styles.removeButton, { backgroundColor: 'rgba(0,0,0,0.7)' }]}
               onPress={() => handleRemoveImage(index)}
             >

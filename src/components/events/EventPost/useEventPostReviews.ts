@@ -16,7 +16,13 @@ export function useEventPostReviews(
   /** Solo cargar reseñas cuando el post está expandido o hay un modal abierto (E2) */
   active: boolean = true,
 ) {
-  const { data: reviews = [] } = useEventReviews(eventId, active);
+  const reviewsQuery = useEventReviews(eventId, active);
+  const reviews = reviewsQuery.data;
+  const reviewsPager = {
+    hasMore: reviewsQuery.hasNextPage,
+    isLoading: reviewsQuery.isFetchingNextPage,
+    onPress: reviewsQuery.fetchNextPage,
+  };
   const { data: userReview } = useUserEventReview(eventId, userId, active);
 
   const createReview = useCreateEventReview();
@@ -119,6 +125,7 @@ export function useEventPostReviews(
   }, [selectedReviewId, selectedReviewUserId, userId, userReview, eventId, deleteReview]);
 
   return {
+    reviewsPager,
     reviews: reviews ?? [],
     userReview,
     hasReviews,

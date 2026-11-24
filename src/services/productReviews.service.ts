@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
 import type { Database } from '@/lib/supabase/database.types';
+import { pageRange, type Page } from '@/services/listQuery';
 
 export interface ProductReviewDisplay {
   id: string;
@@ -20,57 +21,62 @@ type ProductReviewWithProfile = ProductReviewRow & {
   profiles: Pick<ProfileRow, 'first_name_prf' | 'last_name1_prf' | 'profile_photo_path_prf'> | null;
 };
 
-export async function getProductReviews(productId: string): Promise<ProductReviewDisplay[]> {
+const PRODUCT_REVIEW_SELECT = `
+  id_prv, product_id_prv, user_id_prv, rating_prv, comment_prv, created_at_prv,
+  profiles!product_reviews_user_id_prv_fkey ( first_name_prf, last_name1_prf, profile_photo_path_prf )
+`;
+
+function toDisplay(review: ProductReviewWithProfile): ProductReviewDisplay {
+  const profile = review.profiles;
+  const authorName =
+    [profile?.first_name_prf ?? '', profile?.last_name1_prf ?? ''].filter(Boolean).join(' ') ||
+    'Usuario';
+  return {
+    id: review.id_prv,
+    productId: review.product_id_prv ?? '',
+    userId: review.user_id_prv ?? '',
+    rating: review.rating_prv ?? 0,
+    comment: review.comment_prv,
+    createdAt: review.created_at_prv ?? '',
+    authorName,
+    authorPhotoUrl: profile?.profile_photo_path_prf
+      ? supabase.storage.from('profiles-images').getPublicUrl(profile.profile_photo_path_prf).data
+          .publicUrl
+      : null,
+  };
+}
+
+export async function getProductReviews(
+  productId: string,
+  page = 0,
+): Promise<Page<ProductReviewDisplay>> {
+  const [from, to] = pageRange(page);
+  const { data, error, count } = await supabase
+    .from('product_reviews')
+    .select(PRODUCT_REVIEW_SELECT, { count: 'exact' })
+    .eq('product_id_prv', productId)
+    .order('created_at_prv', { ascending: false })
+    .order('id_prv', { ascending: true })
+    .range(from, to);
+
+  if (error) throw error;
+  const rows = ((data as unknown as ProductReviewWithProfile[]) ?? []).map(toDisplay);
+  return { rows, total: count ?? 0 };
+}
+
+/** Reseña propia del usuario, aunque no esté en las páginas ya cargadas. */
+export async function getUserProductReview(
+  productId: string,
+  userId: string,
+): Promise<ProductReviewDisplay | null> {
   const { data, error } = await supabase
     .from('product_reviews')
-    .select(
-      `
-            id_prv,
-            product_id_prv,
-            user_id_prv,
-            rating_prv,
-            comment_prv,
-            created_at_prv,
-            profiles!product_reviews_user_id_prv_fkey (
-                first_name_prf,
-                last_name1_prf,
-                profile_photo_path_prf
-            )
-        `,
-    )
+    .select(PRODUCT_REVIEW_SELECT)
     .eq('product_id_prv', productId)
-    .order('created_at_prv', { ascending: false });
-
-  if (error) {
-    console.error('[productReviews] Error fetching reviews:', error.message);
-    return [];
-  }
-
-  return ((data as unknown as ProductReviewWithProfile[]) ?? []).map((review) => {
-    const profile = review.profiles;
-    const firstName = profile?.first_name_prf ?? '';
-    const lastName = profile?.last_name1_prf ?? '';
-    const authorName = [firstName, lastName].filter(Boolean).join(' ') || 'Usuario';
-
-    let authorPhotoUrl: string | null = null;
-    if (profile?.profile_photo_path_prf) {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('profiles-images').getPublicUrl(profile.profile_photo_path_prf);
-      authorPhotoUrl = publicUrl;
-    }
-
-    return {
-      id: review.id_prv,
-      productId: review.product_id_prv ?? '',
-      userId: review.user_id_prv ?? '',
-      rating: review.rating_prv ?? 0,
-      comment: review.comment_prv,
-      createdAt: review.created_at_prv,
-      authorName,
-      authorPhotoUrl,
-    };
-  });
+    .eq('user_id_prv', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? toDisplay(data as unknown as ProductReviewWithProfile) : null;
 }
 
 export async function createProductReview(
@@ -86,7 +92,7 @@ export async function createProductReview(
     user_id_prv: userId,
     rating_prv: rating,
     comment_prv: comment || null,
-  } as any);
+  });
 
   if (error) {
     console.error('[productReviews] Error creating review:', error.message);
@@ -96,7 +102,6 @@ export async function createProductReview(
   // El trigger se encarga de actualizar el rating automáticamente
   return true;
 }
-
 
 export async function updateProductReview(
   reviewId: string,

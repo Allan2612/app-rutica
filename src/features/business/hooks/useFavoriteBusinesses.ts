@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store';
 import { getImageUrl } from '../services';
 import type { BusinessListItem } from './useBusinesses';
+import { getImageTypeFromPath } from '@/utils/storage';
 
 interface FavoriteBusinessRecord {
   business_id_blk: string;
@@ -49,15 +50,6 @@ interface FavoriteBusinessRecord {
         }[]
       | null;
   } | null;
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
 }
 
 function mapFavoriteToBusinessItem(record: FavoriteBusinessRecord): BusinessListItem | null {
