@@ -529,7 +529,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
         initialSearchText={currentFilters.searchText}
         initialCategoryIds={currentFilters.categoryIds}
         placeholder={activeTab === 'commerces' ? 'Buscar comercios…' : 'Buscar promociones…'}
-        title={activeTab === 'commerces' ? 'Buscar Comercios' : 'Buscar Promociones'}
+        title={activeTab === 'commerces' ? 'Buscar comercios' : 'Buscar promociones'}
       />
     </View>
   );

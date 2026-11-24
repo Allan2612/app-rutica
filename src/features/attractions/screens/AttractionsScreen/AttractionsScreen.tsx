@@ -469,7 +469,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
         initialSearchText={currentFilters.searchText}
         initialCategoryIds={currentFilters.categoryIds}
         placeholder={activeTab === 'attractions' ? 'Buscar atracciones…' : 'Buscar eventos…'}
-        title={activeTab === 'attractions' ? 'Buscar Atracciones' : 'Buscar Eventos'}
+        title={activeTab === 'attractions' ? 'Buscar atracciones' : 'Buscar eventos'}
       />
     </View>
   );

@@ -1,14 +1,23 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { View, Text, Modal, Pressable, Platform, KeyboardAvoidingView } from 'react-native';
-import { X } from 'lucide-react-native';
+import {
+  View,
+  Text,
+  Modal,
+  Pressable,
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
+  TextInput,
+} from 'react-native';
+import { ChevronDown, ChevronUp, MapPin, Search, X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useLocationStore } from '@/store';
-import type { FilterTab, SearchFilters, HierarchicalCategoryOption } from '@/types/entities';
+import type { SearchFilters, HierarchicalCategoryOption } from '@/types/entities';
+import { getLocationDisplayName } from '@/utils/splitItemsByLocation';
+import { spacing, typography } from '@/styles/theme';
+import { CategoryPicker } from '../CategoryPicker';
 import { styles } from './styles';
-import { TabBar } from './TabBar';
-import { TextFilterTab } from './TextFilterTab';
-import { CategoryFilterTab } from './CategoryFilterTab';
 import { LocationFilterTab } from './LocationFilterTab';
 import { FooterActions } from './FooterActions';
 
@@ -31,10 +40,8 @@ export interface SearchFilterModalProps {
 export type { SearchFilters, HierarchicalCategoryOption };
 
 /**
- * Modal de filtros de búsqueda con 3 tabs:
- * - Texto: búsqueda por nombre/descripción
- * - Categorías: filtro por categorías con toggle de subcategorías
- * - Ubicación: filtro por provincia/cantón/distrito
+ * Modal de búsqueda y filtros: una sola hoja con búsqueda, categorías (agrupadas, todas a la
+ * vista) y zona. Antes eran tres pestañas que no dejaban ver los filtros juntos.
  */
 export function SearchFilterModal({
   visible,
@@ -52,8 +59,7 @@ export function SearchFilterModal({
     useShallow((s) => ({ location: s.location, clearLocation: s.clearLocation })),
   );
 
-  // Tab activo
-  const [activeTab, setActiveTab] = useState<FilterTab>('text');
+  const [showZone, setShowZone] = useState(false);
 
   // Estados de filtros
   const [searchText, setSearchText] = useState(initialSearchText);
@@ -64,7 +70,7 @@ export function SearchFilterModal({
     if (visible) {
       setSearchText(initialSearchText);
       setSelectedCategoryIds(initialCategoryIds);
-      setActiveTab('text');
+      setShowZone(false);
     }
     // Solo cuando visible cambia - no cuando cambian los valores iniciales mientras está abierto
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,26 +114,23 @@ export function SearchFilterModal({
     );
   }, [searchText, selectedCategoryIds, location]);
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'text':
-        return (
-          <TextFilterTab value={searchText} onChange={setSearchText} placeholder={placeholder} />
-        );
-      case 'categories':
-        return (
-          <CategoryFilterTab
-            categories={hierarchicalCategories}
-            selectedIds={selectedCategoryIds}
-            onChange={setSelectedCategoryIds}
-          />
-        );
-      case 'location':
-        return <LocationFilterTab />;
-      default:
-        return null;
-    }
-  };
+  const zoneName = getLocationDisplayName(location ?? null) || 'Todo Costa Rica';
+  const activeCount =
+    (searchText.trim() ? 1 : 0) +
+    selectedCategoryIds.length +
+    (location?.province || location?.canton || location?.district ? 1 : 0);
+
+  const sectionTitle = (text: string, extra?: string) => (
+    <Text
+      accessibilityRole="header"
+      style={{ fontSize: typography.sizes.base, fontWeight: '700', color: colors.text.primary }}
+    >
+      {text}
+      {extra ? (
+        <Text style={{ fontWeight: '400', color: colors.text.secondary }}>{`  ${extra}`}</Text>
+      ) : null}
+    </Text>
+  );
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -149,18 +152,107 @@ export function SearchFilterModal({
             </Pressable>
           </View>
 
-          {/* Tab Bar */}
-          <TabBar
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            showLocationTab={showLocationTab}
-          />
+          <ScrollView
+            style={styles.body}
+            contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: spacing.sm,
+                paddingHorizontal: spacing.md,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: colors.border.medium,
+              }}
+            >
+              <Search size={18} color={colors.text.tertiary} />
+              <TextInput
+                value={searchText}
+                onChangeText={setSearchText}
+                onSubmitEditing={handleApply}
+                returnKeyType="search"
+                placeholder={placeholder}
+                placeholderTextColor={colors.text.tertiary}
+                accessibilityLabel="Buscar por nombre o descripción"
+                autoCorrect={false}
+                style={{
+                  flex: 1,
+                  paddingVertical: 12,
+                  fontSize: typography.sizes.base,
+                  color: colors.text.primary,
+                }}
+              />
+              {searchText ? (
+                <Pressable
+                  onPress={() => setSearchText('')}
+                  accessibilityRole="button"
+                  accessibilityLabel="Borrar búsqueda"
+                  hitSlop={8}
+                >
+                  <X size={18} color={colors.text.tertiary} />
+                </Pressable>
+              ) : null}
+            </View>
 
-          {/* Tab Content */}
-          <View style={styles.body}>{renderTabContent()}</View>
+            {showLocationTab && (
+              <View style={{ gap: spacing.md }}>
+                {sectionTitle('Zona')}
+                <Pressable
+                  onPress={() => setShowZone((v) => !v)}
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: showZone }}
+                  accessibilityLabel={`Zona: ${zoneName}. Cambiar`}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: spacing.sm,
+                    padding: spacing.md,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: colors.border.light,
+                  }}
+                >
+                  <MapPin size={18} color={colors.primary[500]} />
+                  <Text
+                    style={{ flex: 1, color: colors.text.primary, fontSize: typography.sizes.sm }}
+                  >
+                    {zoneName}
+                  </Text>
+                  <Text style={{ color: colors.primary[600], fontSize: typography.sizes.sm }}>
+                    Cambiar
+                  </Text>
+                  {showZone ? (
+                    <ChevronUp size={16} color={colors.primary[600]} />
+                  ) : (
+                    <ChevronDown size={16} color={colors.primary[600]} />
+                  )}
+                </Pressable>
+                {showZone && <LocationFilterTab />}
+              </View>
+            )}
+            <View style={{ gap: spacing.md }}>
+              {sectionTitle(
+                'Categorías',
+                selectedCategoryIds.length ? `${selectedCategoryIds.length} elegidas` : undefined,
+              )}
+              <CategoryPicker
+                categories={hierarchicalCategories}
+                selectedIds={selectedCategoryIds}
+                onChange={setSelectedCategoryIds}
+              />
+            </View>
+          </ScrollView>
 
           {/* Footer Actions */}
-          <FooterActions hasFilters={hasFilters} onClear={handleClear} onApply={handleApply} />
+          <FooterActions
+            hasFilters={hasFilters}
+            activeCount={activeCount}
+            onClear={handleClear}
+            onApply={handleApply}
+          />
         </View>
       </KeyboardAvoidingView>
     </Modal>
