@@ -1,16 +1,14 @@
 /**
  * HomeSearchHeader — encabezado del inicio ("buscar primero").
- * Saludo con la zona, buscador que abre Comercios con la búsqueda hecha y accesos por
+ * Saludo, buscador (la zona ya está en el encabezado de la app) que abre Comercios con la búsqueda hecha y accesos por
  * categoría tomados de los comercios que ya cargó el inicio (nunca llevan a una lista vacía).
  */
 
 import { memo, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { Search, MapPin } from 'lucide-react-native';
+import { Search } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { useLocationStore } from '@/store';
-import { getLocationDisplayName } from '@/utils/splitItemsByLocation';
 import { spacing, typography } from '@/styles/theme';
 
 interface CategoryChip {
@@ -33,8 +31,6 @@ export const HomeSearchHeader = memo(function HomeSearchHeader({
   categories,
 }: HomeSearchHeaderProps) {
   const colors = useThemedColors();
-  const location = useLocationStore((s) => s.location);
-  const zone = getLocationDisplayName(location ?? null) || 'Costa Rica';
   const [query, setQuery] = useState('');
   const hello = useMemo(() => greeting(new Date().getHours()), []);
 
@@ -64,18 +60,11 @@ export const HomeSearchHeader = memo(function HomeSearchHeader({
           >
             ¿Qué hacemos hoy?
           </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <MapPin size={14} color={colors.primary[500]} />
-            <Text style={{ fontSize: typography.sizes.sm, color: colors.primary[600] }}>
-              {zone}
-            </Text>
-          </View>
         </View>
 
         <View
           style={{
             flexDirection: 'row',
-            maxWidth: 640,
             alignItems: 'center',
             gap: spacing.sm,
             paddingHorizontal: spacing.md,
