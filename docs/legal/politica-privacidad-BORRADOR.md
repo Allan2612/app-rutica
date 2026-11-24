@@ -1,11 +1,11 @@
 # Política de Privacidad de Rutica — BORRADOR
 
-> ⚖️ **Borrador técnico para revisión legal.** Describe lo que la app hace según el código al 2026-11-24.
+> ⚖️ **Borrador técnico para revisión legal.** Describe lo que la app hace según el código al 2026-11-25.
 > Fuente en la app: `src/features/legal/privacyPolicy.ts`. Este archivo se genera a partir de ese; editar allá y volver a exportar con `python scripts/export-legal.py`.
 > Los textos entre corchetes [ ] son decisiones o datos que faltan.
 > Marco: Ley 8968 y su Reglamento.
 
-**Versión:** 2026-11-24
+**Versión:** 2026-11-25
 
 ## 1. Responsable
 
@@ -25,11 +25,11 @@ Rutica es responsable del tratamiento de los datos personales recolectados en la
 
 • Reportes: cuando reportas un contenido guardamos qué reportaste, el motivo, el detalle que escribas y tu usuario. Solo los ven los administradores; la persona reportada no sabe quién la reportó.
 
-• Pagos de planes: referencia de la transferencia o SINPE que nos indicas. No almacenamos datos de tarjetas ni de cuentas bancarias.
+• Planes: hoy no se venden planes, así que no recolectamos datos de pago. Si se habilita la venta, esta política se actualizará antes. Nunca almacenamos datos de tarjetas ni de cuentas bancarias.
 
 ## 3. Para qué los usamos
 
-Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones y atender reportes, verificar pagos de planes, enviarte correos sobre tu cuenta o tus compras y elaborar estadísticas agregadas para los negocios.
+Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones y atender reportes, enviarte correos sobre tu cuenta y elaborar estadísticas agregadas para los negocios.
 
 ## 4. Qué es público
 
@@ -45,7 +45,7 @@ No vendemos tus datos. Para funcionar usamos proveedores que procesan datos por 
 
 • unpkg (librería de mapas Leaflet) y Google Fonts (tipografía en la versión web): reciben tu dirección IP.
 
-• Brevo (envío de correos: confirmación de cuenta, recuperación de contraseña y avisos sobre compras de planes): recibe tu correo, tu nombre y, en compras, el plan y la referencia de pago.
+• Brevo (envío de correos: confirmación de cuenta y recuperación de contraseña): recibe tu correo y tu nombre.
 
 • Vercel (alojamiento del sitio web): recibe tu dirección IP al visitar el sitio.
 
@@ -59,7 +59,9 @@ Conservamos tus datos mientras tengas una cuenta activa. Al eliminarla, se borra
 
 ## 8. Menores de edad
 
-[Pendiente: definir edad mínima de uso y de venta.]
+Rutica es para todo público, pero para crear una cuenta debes tener al menos 12 años. Si tienes entre 12 y 17 años, necesitas el permiso de tu madre, padre o persona encargada, que puede pedirnos acceder a tus datos o eliminarlos escribiendo a rutica.info@gmail.com.
+
+No recolectamos a sabiendas datos de menores de 12 años. Si nos enteramos de que una cuenta pertenece a alguien menor de esa edad, la eliminamos.
 
 ## 9. Cambios
 

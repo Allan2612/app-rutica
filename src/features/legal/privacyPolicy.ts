@@ -6,7 +6,7 @@
  * `docs/legal/politica-privacidad-BORRADOR.md` y PRIVACY_POLICY_VERSION.
  */
 
-export const PRIVACY_POLICY_VERSION = '2026-11-24';
+export const PRIVACY_POLICY_VERSION = '2026-11-25';
 
 export interface LegalSection {
   title: string;
@@ -29,13 +29,13 @@ export const PRIVACY_POLICY: LegalSection[] = [
       '• Contenido que publicas: reseñas, calificaciones, favoritos, negocios, productos, eventos, atracciones, promociones e imágenes.',
       '• Uso: clics en los botones de contacto de los negocios (para las estadísticas del dueño del negocio).',
       '• Reportes: cuando reportas un contenido guardamos qué reportaste, el motivo, el detalle que escribas y tu usuario. Solo los ven los administradores; la persona reportada no sabe quién la reportó.',
-      '• Pagos de planes: referencia de la transferencia o SINPE que nos indicas. No almacenamos datos de tarjetas ni de cuentas bancarias.',
+      '• Planes: hoy no se venden planes, así que no recolectamos datos de pago. Si se habilita la venta, esta política se actualizará antes. Nunca almacenamos datos de tarjetas ni de cuentas bancarias.',
     ],
   },
   {
     title: '3. Para qué los usamos',
     paragraphs: [
-      'Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones y atender reportes, verificar pagos de planes, enviarte correos sobre tu cuenta o tus compras y elaborar estadísticas agregadas para los negocios.',
+      'Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones y atender reportes, enviarte correos sobre tu cuenta y elaborar estadísticas agregadas para los negocios.',
     ],
   },
   {
@@ -51,7 +51,7 @@ export const PRIVACY_POLICY: LegalSection[] = [
       '• Supabase (base de datos, autenticación y almacenamiento de imágenes).',
       '• OpenStreetMap: Nominatim (convierte coordenadas en provincia, cantón y distrito) y los mapas. Reciben coordenadas o la zona del mapa que ves, y tu dirección IP.',
       '• unpkg (librería de mapas Leaflet) y Google Fonts (tipografía en la versión web): reciben tu dirección IP.',
-      '• Brevo (envío de correos: confirmación de cuenta, recuperación de contraseña y avisos sobre compras de planes): recibe tu correo, tu nombre y, en compras, el plan y la referencia de pago.',
+      '• Brevo (envío de correos: confirmación de cuenta y recuperación de contraseña): recibe tu correo y tu nombre.',
       '• Vercel (alojamiento del sitio web): recibe tu dirección IP al visitar el sitio.',
     ],
   },
@@ -69,7 +69,10 @@ export const PRIVACY_POLICY: LegalSection[] = [
   },
   {
     title: '8. Menores de edad',
-    paragraphs: ['[Pendiente: definir edad mínima de uso y de venta.]'],
+    paragraphs: [
+      'Rutica es para todo público, pero para crear una cuenta debes tener al menos 12 años. Si tienes entre 12 y 17 años, necesitas el permiso de tu madre, padre o persona encargada, que puede pedirnos acceder a tus datos o eliminarlos escribiendo a rutica.info@gmail.com.',
+      'No recolectamos a sabiendas datos de menores de 12 años. Si nos enteramos de que una cuenta pertenece a alguien menor de esa edad, la eliminamos.',
+    ],
   },
   {
     title: '9. Cambios',

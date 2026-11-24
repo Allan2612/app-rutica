@@ -260,9 +260,8 @@ export function usePremiumModal({
         (plan) => !businessSelections[plan],
       );
       if (missingBusinessSelections.length > 0) {
-        const missingNames = planCatalog.filter((p) =>
-          missingBusinessSelections.includes(p.type),
-        )
+        const missingNames = planCatalog
+          .filter((p) => missingBusinessSelections.includes(p.type))
           .map((p) => p.name)
           .join(', ');
         setError(`Selecciona un negocio para: ${missingNames}`);
@@ -279,7 +278,8 @@ export function usePremiumModal({
       // Verificar que todos los planes que requieren entidad tengan una seleccionada
       const missingSelections = entityRequiredPlans.filter((plan) => !entitySelections[plan]);
       if (missingSelections.length > 0) {
-        const missingNames = planCatalog.filter((p) => missingSelections.includes(p.type))
+        const missingNames = planCatalog
+          .filter((p) => missingSelections.includes(p.type))
           .map((p) => p.name)
           .join(', ');
         setError(`Selecciona una entidad para: ${missingNames}`);
@@ -379,9 +379,7 @@ export function usePremiumModal({
         entitySelections,
       );
 
-      const selectedPlanDetails = planCatalog.filter((plan) =>
-        selectedPlans.includes(plan.type),
-      );
+      const selectedPlanDetails = planCatalog.filter((plan) => selectedPlans.includes(plan.type));
       const planNames = selectedPlanDetails.map((plan) => plan.name).join(', ');
       const planCount = selectedPlans.length;
 
