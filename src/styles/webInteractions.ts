@@ -20,9 +20,11 @@ const INTERACTIVE = [
   '[tabindex="0"]',
 ].join(',');
 
-// Tarjetas: elementos pulsables con imagen (comercios, lugares, ofertas, eventos). Se excluye la
-// fila de cuenta del panel lateral, que también lleva la foto.
-const CARD = ':is([role="button"], [tabindex="0"]):has(img):not([aria-label^="Cuenta"])';
+// Tarjetas: elementos pulsables con imagen (comercios, lugares, ofertas, eventos). Se excluyen la
+// fila de cuenta del panel lateral (lleva la foto) y todo lo que esté dentro de un modal, cuyo
+// fondo pulsable también puede contener imágenes y se movería entero.
+const CARD =
+  ':is([role="button"], [tabindex="0"]):has(img):not([aria-label^="Cuenta"]):not([aria-modal="true"] *)';
 
 const css = `
 @media (hover: hover) {
@@ -56,6 +58,11 @@ const css = `
 
 @media (prefers-reduced-motion: no-preference) {
   [role="tab"][aria-selected="true"] svg { animation: rutica-pop 320ms ease-out; }
+  #sidebar-account-menu { animation: rutica-rise 200ms ease-out; }
+}
+@keyframes rutica-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 @keyframes rutica-pop {
   0% { transform: scale(0.85); }
