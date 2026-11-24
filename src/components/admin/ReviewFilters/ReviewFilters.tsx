@@ -97,7 +97,7 @@ export const ReviewFilters = memo<ReviewFiltersProps>(function ReviewFilters({
               color: colors.text.primary,
             },
           ]}
-          placeholder="Buscar por autor, título o contenido..."
+          placeholder="Buscar por autor, título o contenido…"
           placeholderTextColor={colors.text.tertiary}
           value={filters.searchTerm ?? ''}
           onChangeText={handleSearchChange}

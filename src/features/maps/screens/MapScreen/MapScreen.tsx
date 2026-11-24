@@ -144,7 +144,7 @@ export const MapScreen = memo(function MapScreen() {
   }, [handleMessage]);
 
   if (loading) {
-    return <MapLoading message="Preparando mapa..." />;
+    return <MapLoading message="Preparando mapa…" />;
   }
 
   const showOverlay = !isMapLoaded || markersLoading;
@@ -196,7 +196,7 @@ export const MapScreen = memo(function MapScreen() {
           renderLoading={() => (
             <View style={[styles.centerContainer, { backgroundColor: colors.background.primary }]}>
               <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-                Cargando mapa...
+                Cargando mapa…
               </Text>
             </View>
           )}

@@ -109,7 +109,7 @@ export const SubscriptionActionDialog = memo(function SubscriptionActionDialog({
                     color: colors.text.primary,
                   },
                 ]}
-                placeholder="Ej: Comprobante de pago no válido..."
+                placeholder="Ej: Comprobante de pago no válido…"
                 placeholderTextColor={colors.text.tertiary}
                 value={reason}
                 onChangeText={setReason}
@@ -144,7 +144,7 @@ export const SubscriptionActionDialog = memo(function SubscriptionActionDialog({
                 <XCircle size={18} color="#fff" />
               )}
               <Text style={[styles.buttonText, { color: '#fff' }]}>
-                {isLoading ? 'Procesando...' : isApprove ? 'Aprobar' : 'Rechazar'}
+                {isLoading ? 'Procesando…' : isApprove ? 'Aprobar' : 'Rechazar'}
               </Text>
             </Pressable>
           </View>

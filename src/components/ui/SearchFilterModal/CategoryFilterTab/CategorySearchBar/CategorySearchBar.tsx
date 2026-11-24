@@ -13,7 +13,7 @@ interface CategorySearchBarProps {
 export const CategorySearchBar = memo(function CategorySearchBar({
   value,
   onChange,
-  placeholder = 'Busca una categoría...',
+  placeholder = 'Busca una categoría…',
 }: CategorySearchBarProps) {
   const colors = useThemedColors();
   const [localValue, setLocalValue] = useState(value);

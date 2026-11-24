@@ -111,7 +111,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           sessionError.message?.includes('Invalid Refresh Token') ||
           sessionError.message?.includes('Refresh Token Not Found')
         ) {
-          console.warn('[AUTH] Token inválido detectado, limpiando sesión...');
+          console.warn('[AUTH] Token inválido detectado, limpiando sesión…');
           await supabase.auth.signOut();
         }
         set({
@@ -202,7 +202,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         error?.message?.includes('Invalid Refresh Token') ||
         error?.message?.includes('Refresh Token Not Found')
       ) {
-        console.warn('[AUTH] Limpiando sesión corrupta...');
+        console.warn('[AUTH] Limpiando sesión corrupta…');
         try {
           await supabase.auth.signOut();
         } catch (signOutError) {

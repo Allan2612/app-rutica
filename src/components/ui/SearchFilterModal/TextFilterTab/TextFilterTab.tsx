@@ -14,7 +14,7 @@ interface TextFilterTabProps {
 export const TextFilterTab = memo(function TextFilterTab({
   value,
   onChange,
-  placeholder = 'Buscar por nombre...',
+  placeholder = 'Buscar por nombre…',
   debounceMs = 200,
 }: TextFilterTabProps) {
   const colors = useThemedColors();

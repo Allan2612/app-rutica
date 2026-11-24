@@ -27,7 +27,7 @@ export const ProfileLoading = memo(function ProfileLoading({
         <View style={[styles.centerContainer, { backgroundColor: colors.background.secondary }]}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-            Cargando perfil...
+            Cargando perfil…
           </Text>
         </View>
       </Screen>

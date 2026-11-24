@@ -97,7 +97,7 @@ export const ProductSelection = memo(function ProductSelection({
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.primary[500]} />
           <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-            Cargando productos...
+            Cargando productos…
           </Text>
         </View>
       ) : products.length === 0 ? (

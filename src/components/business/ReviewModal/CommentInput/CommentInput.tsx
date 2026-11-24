@@ -31,7 +31,7 @@ export const CommentInput = memo(function CommentInput({
             color: colors.text.primary,
           },
         ]}
-        placeholder="Cuéntanos sobre tu experiencia..."
+        placeholder="Cuéntanos sobre tu experiencia…"
         placeholderTextColor={colors.text.tertiary}
         value={comment}
         onChangeText={onCommentChange}

@@ -132,7 +132,7 @@ export const ManagePromotionsScreen = memo(function ManagePromotionsScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={[styles.emptyDescription, { color: colors.text.secondary, marginTop: 16 }]}>
-            Cargando promociones...
+            Cargando promociones…
           </Text>
         </View>
       </View>

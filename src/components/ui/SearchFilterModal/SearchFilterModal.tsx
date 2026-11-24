@@ -43,7 +43,7 @@ export function SearchFilterModal({
   categories,
   initialSearchText = '',
   initialCategoryIds = [],
-  placeholder = 'Buscar...',
+  placeholder = 'Buscar…',
   title = 'Buscar y Filtrar',
   showLocationTab = true,
 }: SearchFilterModalProps) {

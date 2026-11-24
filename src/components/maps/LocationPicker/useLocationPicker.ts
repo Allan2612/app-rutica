@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Alert } from 'react-native';
 import * as Location from 'expo-location';
 import Toast from 'react-native-toast-message';
 import { COSTA_RICA_CENTER } from '@/utils/geoHelpers';
@@ -56,7 +55,12 @@ export function useLocationPicker({
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(MESSAGES.PERMISSION_DENIED.title, MESSAGES.PERMISSION_DENIED.message);
+        Toast.show({
+          type: 'info',
+          text1: MESSAGES.PERMISSION_DENIED.title,
+          text2: MESSAGES.PERMISSION_DENIED.message,
+          position: 'top',
+        });
         setLoadingLocation(false);
         return;
       }

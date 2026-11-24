@@ -517,7 +517,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
         categories={categories}
         initialSearchText={currentFilters.searchText}
         initialCategoryIds={currentFilters.categoryIds}
-        placeholder={activeTab === 'commerces' ? 'Buscar comercios...' : 'Buscar promociones...'}
+        placeholder={activeTab === 'commerces' ? 'Buscar comercios…' : 'Buscar promociones…'}
         title={activeTab === 'commerces' ? 'Buscar Comercios' : 'Buscar Promociones'}
       />
     </View>

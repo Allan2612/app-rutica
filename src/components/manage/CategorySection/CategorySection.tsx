@@ -114,7 +114,7 @@ export const CategorySection = memo(function CategorySection({
       {isLoading && (
         <View style={[styles.placeholder, { backgroundColor: colors.background.tertiary }]}>
           <Text style={[styles.placeholderText, { color: colors.text.tertiary }]}>
-            Cargando categorías...
+            Cargando categorías…
           </Text>
         </View>
       )}

@@ -45,7 +45,8 @@
       "shortName": "Rutica",
       "description": "Descubre comercios, atracciones y promociones cerca de ti",
       "themeColor": "#10b981",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "lang": "es"
     },
     "plugins": [
       "expo-router",
@@ -66,9 +67,7 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "./node_modules/@expo-google-fonts/caveat/700Bold/Caveat_700Bold.ttf"
-          ]
+          "fonts": ["./node_modules/@expo-google-fonts/caveat/700Bold/Caveat_700Bold.ttf"]
         }
       ]
     ],

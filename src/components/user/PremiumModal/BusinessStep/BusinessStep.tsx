@@ -29,7 +29,7 @@ export const BusinessStep = memo(function BusinessStep({
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary[500]} />
         <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-          Cargando tus negocios...
+          Cargando tus negocios…
         </Text>
       </View>
     );

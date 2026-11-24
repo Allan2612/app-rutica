@@ -30,7 +30,7 @@ export const EditProductScreen = memo(function EditProductScreen() {
       <View style={[styles.loadingContainer, { backgroundColor: colors.background.secondary }]}>
         <ActivityIndicator size="large" color={colors.primary[500]} />
         <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-          Cargando producto...
+          Cargando producto…
         </Text>
       </View>
     );
@@ -77,7 +77,7 @@ export const EditProductScreen = memo(function EditProductScreen() {
         errors={formState.errors}
         nameLabel="Nombre del Producto"
         namePlaceholder="Ej: Hamburguesa Clásica"
-        descriptionPlaceholder="Describe tu producto..."
+        descriptionPlaceholder="Describe tu producto…"
         // Props de precio y moneda para productos
         showPrice
         price={formState.price}

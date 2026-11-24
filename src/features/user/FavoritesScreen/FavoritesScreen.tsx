@@ -102,7 +102,7 @@ function FavoritesScreen() {
         >
           <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-            Cargando favoritos...
+            Cargando favoritos…
           </Text>
         </View>
       </Screen>

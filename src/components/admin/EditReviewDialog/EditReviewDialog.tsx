@@ -150,7 +150,7 @@ export const EditReviewDialog = memo(function EditReviewDialog({
                       color: colors.text.primary,
                     },
                   ]}
-                  placeholder="Escribe un comentario..."
+                  placeholder="Escribe un comentario…"
                   placeholderTextColor={colors.text.tertiary}
                   value={comment}
                   onChangeText={setComment}

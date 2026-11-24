@@ -37,7 +37,7 @@ export const BasicInfoSection = memo(function BasicInfoSection({
   nameLabel = 'Nombre',
   namePlaceholder = 'Ej: Café Premium',
   descriptionLabel = 'Descripción',
-  descriptionPlaceholder = 'Describe tu negocio...',
+  descriptionPlaceholder = 'Describe tu negocio…',
   sectionTitle = 'Información Básica',
   nameRequired = true,
   // Props de precio

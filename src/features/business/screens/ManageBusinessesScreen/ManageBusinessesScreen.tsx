@@ -79,7 +79,7 @@ export const ManageBusinessesScreen = memo(function ManageBusinessesScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={[styles.emptyDescription, { color: colors.text.secondary, marginTop: 16 }]}>
-            Cargando negocios...
+            Cargando negocios…
           </Text>
         </View>
       </View>

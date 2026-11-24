@@ -1,13 +1,5 @@
 import { useState, memo } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  Pressable,
-  Alert,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
 import { MessageSquare } from 'lucide-react-native';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
@@ -29,6 +21,7 @@ import type {
   AdminReviewDisplay,
 } from '@/features/admin/types';
 import { styles } from './styles';
+import Toast from 'react-native-toast-message';
 
 export const AdminReviewsScreen = memo(function AdminReviewsScreen() {
   const colors = useThemedColors();
@@ -47,13 +40,20 @@ export const AdminReviewsScreen = memo(function AdminReviewsScreen() {
   const handleDeleteReview = async (reviewId: string, type: ReviewType, contentId: string) => {
     try {
       await deleteReview.mutateAsync({ reviewId, type, contentId });
-      Alert.alert('Éxito', 'La reseña ha sido eliminada correctamente');
+      Toast.show({
+        type: 'success',
+        text1: 'Éxito',
+        text2: 'La reseña ha sido eliminada correctamente',
+        position: 'top',
+      });
     } catch (error) {
       console.error('Error al eliminar reseña:', error);
-      Alert.alert(
-        'Error',
-        'No se pudo eliminar la reseña. Verifica tus permisos de administrador.',
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo eliminar la reseña. Verifica tus permisos de administrador.',
+        position: 'top',
+      });
       throw error; // Re-throw para que el componente lo maneje
     }
   };
@@ -76,11 +76,21 @@ export const AdminReviewsScreen = memo(function AdminReviewsScreen() {
         rating,
         comment,
       });
-      Alert.alert('Éxito', 'La reseña ha sido actualizada correctamente');
+      Toast.show({
+        type: 'success',
+        text1: 'Éxito',
+        text2: 'La reseña ha sido actualizada correctamente',
+        position: 'top',
+      });
       setEditingReview(null);
     } catch (error) {
       console.error('Error al editar reseña:', error);
-      Alert.alert('Error', 'No se pudo actualizar la reseña.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo actualizar la reseña.',
+        position: 'top',
+      });
     }
   };
 
@@ -139,7 +149,7 @@ export const AdminReviewsScreen = memo(function AdminReviewsScreen() {
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.primary[500]} />
                 <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-                  Cargando reseñas...
+                  Cargando reseñas…
                 </Text>
               </View>
             ) : error ? (

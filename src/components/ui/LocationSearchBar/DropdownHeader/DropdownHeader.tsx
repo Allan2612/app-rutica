@@ -39,7 +39,7 @@ export const DropdownHeader = memo(function DropdownHeader({
             color: colors.text.primary,
           },
         ]}
-        placeholder="Buscar provincia, cantón o distrito..."
+        placeholder="Buscar provincia, cantón o distrito…"
         placeholderTextColor={colors.text.tertiary}
         value={searchText}
         onChangeText={onSearchChange}

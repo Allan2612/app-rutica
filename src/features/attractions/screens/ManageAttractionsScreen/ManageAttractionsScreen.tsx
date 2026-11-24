@@ -77,7 +77,7 @@ export const ManageAttractionsScreen = memo(function ManageAttractionsScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={[styles.emptyDescription, { color: colors.text.secondary, marginTop: 16 }]}>
-            Cargando atracciones...
+            Cargando atracciones…
           </Text>
         </View>
       </View>

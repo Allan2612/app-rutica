@@ -99,7 +99,7 @@ export const AdminProductsScreen = memo(function AdminProductsScreen() {
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.primary[500]} />
                 <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-                  Cargando productos...
+                  Cargando productos…
                 </Text>
               </View>
             ) : error ? (

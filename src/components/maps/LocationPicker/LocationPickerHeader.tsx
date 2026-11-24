@@ -23,7 +23,7 @@ export const LocationPickerHeader = memo(function LocationPickerHeader({
         Mueve el pin a la ubicación del negocio
       </Text>
       <Pressable style={styles.button} onPress={onGetLocation} disabled={isLoading}>
-        <Text style={styles.buttonText}>{isLoading ? 'Obteniendo...' : 'Mi ubicación'}</Text>
+        <Text style={styles.buttonText}>{isLoading ? 'Obteniendo…' : 'Mi ubicación'}</Text>
       </Pressable>
     </View>
   );

@@ -31,6 +31,7 @@ export const AuthInput = memo(function AuthInput({
           },
         ]}
         placeholderTextColor={colors.text.tertiary}
+        accessibilityLabel={label}
         {...inputProps}
       />
     </View>

@@ -281,7 +281,7 @@ export const AdminVerificationScreen = memo(function AdminVerificationScreen() {
               <Text
                 style={[styles.emptyDescription, { color: colors.text.secondary, marginTop: 16 }]}
               >
-                Cargando solicitudes...
+                Cargando solicitudes…
               </Text>
             </View>
           )}

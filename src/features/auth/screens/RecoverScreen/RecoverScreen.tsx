@@ -62,6 +62,7 @@ export const RecoverScreen = memo(function RecoverScreen() {
     >
       <AuthInput
         label="Email"
+        autoComplete="email"
         placeholder="tu@email.com"
         autoCapitalize="none"
         keyboardType="email-address"
@@ -71,7 +72,7 @@ export const RecoverScreen = memo(function RecoverScreen() {
       />
 
       <AuthButton
-        title={loading ? 'Enviando...' : 'Enviar instrucciones'}
+        title={loading ? 'Enviando…' : 'Enviar instrucciones'}
         loading={loading}
         onPress={handleRecover}
         style={sharedStyles.buttonSpacing}
