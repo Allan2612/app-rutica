@@ -7,7 +7,7 @@ import { generateExploreMapHTML, MapFilterChips } from '@/components/maps';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import type { MarkerType } from '@/features/maps/types';
 import { isAllowedMapRoute } from '@/utils/htmlEscape';
-import { MapLoading, MapLocationNotice, MapOverlay } from './MapStates';
+import { MapLocationNotice, MapOverlay } from './MapStates';
 import { useLocationStore } from '@/store';
 import { useLocationDataStore } from '@/store/locationDataStore';
 import { COSTA_RICA_CENTER, getZoneCenter } from '@/features/maps/utils/zoneCenter';
@@ -17,7 +17,7 @@ const ALL_MARKER_TYPES: MarkerType[] = ['attraction', 'event', 'business'];
 
 export const MapScreen = memo(function MapScreen() {
   const colors = useThemedColors();
-  const { coordinates, loading, error, retry } = useMapLocation();
+  const { coordinates, error, retry } = useMapLocation();
   // Sin permiso de ubicación: centrar en la zona elegida en el selector o en Costa Rica
   const zone = useLocationStore((s) => s.location);
   const districts = useLocationDataStore((s) => s.districts);
@@ -143,10 +143,9 @@ export const MapScreen = memo(function MapScreen() {
     return () => window.removeEventListener('message', handleWindowMessage);
   }, [handleMessage]);
 
-  if (loading) {
-    return <MapLoading message="Preparando mapa…" />;
-  }
-
+  // El mapa no espera a la ubicación: arranca en la zona o en Costa Rica y se recentra cuando
+  // llega (mapHTML depende de mapCoords). Antes, si la consulta no respondía, quedaba en
+  // "Preparando mapa…" para siempre.
   const showOverlay = !isMapLoaded || markersLoading;
 
   if (Platform.OS === 'web') {

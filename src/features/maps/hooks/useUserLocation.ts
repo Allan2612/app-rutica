@@ -39,9 +39,13 @@ export function useUserLocation(options: UseUserLocationOptions = {}): UseLocati
         }
       }
 
-      const currentLocation = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      // En web la consulta puede quedar esperando para siempre: cortar a los 10 s
+      const currentLocation = await Promise.race([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('No se pudo obtener tu ubicación a tiempo')), 10000),
+        ),
+      ]);
 
       setLocation(currentLocation);
       setLoading(false);
