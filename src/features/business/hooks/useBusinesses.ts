@@ -1,11 +1,11 @@
 import { usePagedList } from '@/hooks/usePagedList';
+
 import {
   BusinessListFilters,
   BusinessListRecord,
   getBusinessList,
-  getImageUrl,
 } from '@/features/business/services';
-import { getImageTypeFromPath } from '@/utils/storage';
+import { IMAGE_WIDTH, getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 export interface BusinessListItem {
   id: string;
@@ -36,9 +36,13 @@ function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
   const primaryImage = coverImage ?? galleryImage ?? logoImage ?? sortedImages[0];
 
   // V3: Solo path_bim, bucket fijo
-  const imageUrl = primaryImage?.path_bim ? getImageUrl(primaryImage.path_bim) : null;
+  const imageUrl = primaryImage?.path_bim
+    ? publicStorageUrl('business-images', primaryImage.path_bim, IMAGE_WIDTH.card)
+    : null;
 
-  const logoUrl = logoImage?.path_bim ? getImageUrl(logoImage.path_bim) : null;
+  const logoUrl = logoImage?.path_bim
+    ? publicStorageUrl('business-images', logoImage.path_bim, IMAGE_WIDTH.thumb)
+    : null;
 
   // Obtener todas las categorías de la relación many-to-many
   const categories =

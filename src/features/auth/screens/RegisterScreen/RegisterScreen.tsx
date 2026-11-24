@@ -21,6 +21,7 @@ import { useThemedColors } from '@/hooks';
 import type { UserRole } from '@/types/enums';
 import { styles } from './styles';
 import { sharedStyles } from '@/features/auth/screens/shared-styles';
+import { compressImage, IMAGE_MAX_SIZE } from '@/utils/imageCompression';
 
 export const RegisterScreen = memo(function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -48,7 +49,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setProfilePhoto(result.assets[0].uri);
+        setProfilePhoto(await compressImage(result.assets[0].uri, IMAGE_MAX_SIZE.avatar));
       }
     } catch (error) {
       Alert.alert('Error', 'No se pudo seleccionar la imagen');

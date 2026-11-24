@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useThemedColors } from '@/hooks';
 import { ImageCropModal } from '../ImageCropModal';
 import { styles } from './styles';
+import { compressImage, IMAGE_MAX_SIZE } from '@/utils/imageCompression';
 
 export interface SingleImagePickerProps {
   imageUri: string | null;
@@ -28,6 +29,8 @@ export const SingleImagePicker = memo(function SingleImagePicker({
   const [isLoading, setIsLoading] = useState(false);
   // Estado para el modal de crop en web
   const [showCropModal, setShowCropModal] = useState(false);
+  // Los recortes redondos son logos: se ven chicos
+  const maxSize = cropShape === 'round' ? IMAGE_MAX_SIZE.avatar : IMAGE_MAX_SIZE.content;
   const [tempImageUri, setTempImageUri] = useState<string | null>(null);
 
   const handlePickImage = async () => {
@@ -54,7 +57,7 @@ export const SingleImagePicker = memo(function SingleImagePicker({
           setShowCropModal(true);
         } else {
           // En móvil, el cropping ya se hizo con el editor nativo
-          onImageChange(selectedUri);
+          onImageChange(await compressImage(selectedUri, maxSize));
         }
       }
     } catch (error) {
@@ -65,12 +68,12 @@ export const SingleImagePicker = memo(function SingleImagePicker({
   };
 
   const handleCropComplete = useCallback(
-    (croppedUri: string) => {
-      onImageChange(croppedUri);
+    async (croppedUri: string) => {
+      onImageChange(await compressImage(croppedUri, maxSize));
       setShowCropModal(false);
       setTempImageUri(null);
     },
-    [onImageChange],
+    [onImageChange, maxSize],
   );
 
   const handleCropCancel = useCallback(() => {

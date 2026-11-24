@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Types
@@ -115,8 +116,7 @@ function getLogoUrl(images: { path_bim: string }[] | null): string | null {
   const logoImage = images.find((img) => img.path_bim.includes('logo-'));
   if (!logoImage) return null;
 
-  const { data } = supabase.storage.from('business-images').getPublicUrl(logoImage.path_bim);
-  return data.publicUrl;
+  return publicStorageUrl('business-images', logoImage.path_bim, IMAGE_WIDTH.thumb);
 }
 
 function calculateRatingDistribution(reviews: { rating: number }[]): RatingDistribution {

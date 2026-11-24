@@ -8,7 +8,7 @@ import {
 } from '@/services/locations.service';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
-import { getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
+import { UPLOAD_CACHE_SECONDS, getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -441,6 +441,7 @@ async function uploadImage(
     .from(STORAGE_BUCKET)
     .upload(filePath, uploadData, {
       contentType,
+      cacheControl: UPLOAD_CACHE_SECONDS,
       upsert: false,
     });
 

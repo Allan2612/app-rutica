@@ -2,7 +2,7 @@
  * Servicio para obtener el detalle de una atracción
  */
 import { supabase } from '@/lib/supabase/client';
-import { getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
+import { IMAGE_WIDTH, getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -41,7 +41,7 @@ export interface AttractionDetailData {
 // ============================================
 
 function getImageUrl(path: string): string {
-  return publicStorageUrl(STORAGE_BUCKET, path);
+  return publicStorageUrl(STORAGE_BUCKET, path, IMAGE_WIDTH.full);
 }
 
 // Interface para el resultado raw de la query

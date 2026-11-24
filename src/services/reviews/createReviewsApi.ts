@@ -3,6 +3,7 @@ import { validateReviewContent } from '@/services/contentModeration.service';
 import { getLikeCounts, getUserLikedIds } from '@/services/likeCounts.service';
 import { formatPersonName } from '@/utils/formatters';
 import { pageRange, type Page } from '@/services/listQuery';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 /**
  * Fábrica de servicios de reseñas para negocio, evento y atracción.
@@ -66,9 +67,7 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
       comment: row[c('comment')] ?? null,
       createdAt: row[c('created_at')],
       authorName: formatPersonName(row.profiles?.first_name_prf, row.profiles?.last_name1_prf),
-      authorPhotoUrl: photo
-        ? supabase.storage.from('profiles-images').getPublicUrl(photo).data.publicUrl
-        : null,
+      authorPhotoUrl: photo ? publicStorageUrl('profiles-images', photo, IMAGE_WIDTH.thumb) : null,
       likesCount: likes,
       isLikedByUser: liked,
       moderatedAt: row[c('moderated_at')] ?? null,

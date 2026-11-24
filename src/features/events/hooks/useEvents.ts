@@ -1,11 +1,12 @@
 import { usePagedList } from '@/hooks/usePagedList';
-import { supabase } from '@/lib/supabase/client';
+
 import {
   EventListFilters,
   EventListRecord,
   getEventsList,
 } from '@/features/events/services/events.service';
-import { getImageUrl } from '@/features/events/services/getUserEvents.service';
+
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 export interface EventListItem {
   id: string;
@@ -43,7 +44,7 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
 
   const imageUrls = sortedImages
     .filter((img) => img?.path_eim)
-    .map((img) => getImageUrl(img.path_eim));
+    .map((img) => publicStorageUrl('events-images', img.path_eim, IMAGE_WIDTH.card));
 
   // Obtener categorías
   const categories =
@@ -67,8 +68,7 @@ function mapEventToListItem(item: EventListRecord): EventListItem {
 
   // Avatar del autor
   const authorAvatarUrl = item.profiles?.profile_photo_path_prf
-    ? supabase.storage.from('profiles-images').getPublicUrl(item.profiles.profile_photo_path_prf)
-        .data.publicUrl
+    ? publicStorageUrl('profiles-images', item.profiles.profile_photo_path_prf, IMAGE_WIDTH.thumb)
     : null;
 
   return {

@@ -11,7 +11,7 @@ import {
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
 import type { BusinessDetailForEdit } from '@/types/entities/business';
 import { canUserEdit } from '@/utils/permissionHelpers';
-import { publicStorageUrl } from '@/utils/storage';
+import { UPLOAD_CACHE_SECONDS, publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'business-images';
 
@@ -103,6 +103,7 @@ async function uploadImage(
 
     const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, fileData, {
       contentType: 'image/jpeg',
+      cacheControl: UPLOAD_CACHE_SECONDS,
       upsert: false, // No sobrescribir, cada imagen tiene UUID único
     });
 

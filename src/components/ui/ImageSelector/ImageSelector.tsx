@@ -1,4 +1,5 @@
 import { memo, useState, useCallback } from 'react';
+
 import {
   View,
   Text,
@@ -9,11 +10,17 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+
 import { Plus, X } from 'lucide-react-native';
+
 import * as ImagePicker from 'expo-image-picker';
 import { useThemedColors } from '@/hooks';
+
 import { ImageCropModal } from '../ImageCropModal';
+
 import { styles } from './styles';
+
+import { compressImage } from '@/utils/imageCompression';
 
 export interface ImageSelectorProps {
   images: string[];
@@ -68,7 +75,7 @@ export const ImageSelector = memo(function ImageSelector({
           setShowCropModal(true);
         } else {
           // En móvil, el cropping ya se hizo con el editor nativo
-          onImagesChange([...images, selectedUri]);
+          onImagesChange([...images, await compressImage(selectedUri)]);
         }
       }
     } catch (error) {
@@ -79,8 +86,8 @@ export const ImageSelector = memo(function ImageSelector({
   };
 
   const handleCropComplete = useCallback(
-    (croppedUri: string) => {
-      onImagesChange([...images, croppedUri]);
+    async (croppedUri: string) => {
+      onImagesChange([...images, await compressImage(croppedUri)]);
       setShowCropModal(false);
       setTempImageUri(null);
     },
