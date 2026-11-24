@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import { openSafeUrl } from '@/utils/externalLinks';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, Store } from 'lucide-react-native';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
@@ -27,10 +28,9 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
   // Refrescar datos cuando la pantalla recibe foco
   useRefreshOnFocus(refetch);
 
+  // openSafeUrl rechaza esquemas peligrosos (javascript:, intent:, file:...)
   const handleOpenLink = (url: string) => {
-    if (url) {
-      Linking.openURL(url).catch((err) => {});
-    }
+    openSafeUrl(url);
   };
 
   const handleClose = () => {

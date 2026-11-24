@@ -111,3 +111,15 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return `${text.substring(0, maxLength).trim()}...`;
 }
+
+/**
+ * Nombre visible de una persona sin "null"/"undefined" cuando falta algún campo.
+ * @example formatPersonName('María', null) → 'María'
+ */
+export function formatPersonName(
+  firstName?: string | null,
+  lastName?: string | null,
+  fallback = 'Usuario',
+): string {
+  return [firstName, lastName].filter((p) => p && p.trim()).join(' ').trim() || fallback;
+}

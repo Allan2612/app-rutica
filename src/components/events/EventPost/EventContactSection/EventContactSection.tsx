@@ -1,10 +1,17 @@
 import { memo } from 'react';
-import { View, Text, Pressable, Linking } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Phone, Mail, Globe, Facebook, Instagram } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { TikTokIcon } from '@/components/ui';
 import { extractSocialUsername } from '../helpers';
 import { styles } from '../styles';
+import {
+  openSafeUrl,
+  toSafeMailtoUrl,
+  toSafeSocialUrl,
+  toSafeTelUrl,
+  toSafeWebsiteUrl,
+} from '@/utils/externalLinks';
 
 interface EventContactSectionProps {
   contactPhone?: string | null;
@@ -27,7 +34,7 @@ export const EventContactSection = memo(function EventContactSection({
   return (
     <View style={styles.contactSection}>
       {contactPhone && (
-        <Pressable style={styles.contactRow} onPress={() => Linking.openURL(`tel:${contactPhone}`)}>
+        <Pressable style={styles.contactRow} onPress={() => openSafeUrl(toSafeTelUrl(contactPhone))}>
           <Phone size={14} color={colors.primary[500]} />
           <Text style={[styles.contactText, { color: colors.primary[500] }]}>{contactPhone}</Text>
         </Pressable>
@@ -36,11 +43,7 @@ export const EventContactSection = memo(function EventContactSection({
         <Pressable
           style={styles.contactRow}
           onPress={() =>
-            Linking.openURL(
-              socialLinks.facebook.startsWith('http')
-                ? socialLinks.facebook
-                : `https://facebook.com/${socialLinks.facebook}`,
-            )
+            openSafeUrl(toSafeSocialUrl(socialLinks.facebook, 'facebook'))
           }
         >
           <Facebook size={14} color="#1877F2" />
@@ -53,7 +56,7 @@ export const EventContactSection = memo(function EventContactSection({
         <Pressable
           style={styles.contactRow}
           onPress={() =>
-            Linking.openURL(website.startsWith('http') ? website : `https://${website}`)
+            openSafeUrl(toSafeWebsiteUrl(website))
           }
         >
           <Globe size={14} color={colors.primary[500]} />
@@ -66,11 +69,7 @@ export const EventContactSection = memo(function EventContactSection({
         <Pressable
           style={styles.contactRow}
           onPress={() =>
-            Linking.openURL(
-              socialLinks.instagram.startsWith('http')
-                ? socialLinks.instagram
-                : `https://instagram.com/${socialLinks.instagram}`,
-            )
+            openSafeUrl(toSafeSocialUrl(socialLinks.instagram, 'instagram'))
           }
         >
           <Instagram size={14} color="#E4405F" />
@@ -82,7 +81,7 @@ export const EventContactSection = memo(function EventContactSection({
       {contactEmail && (
         <Pressable
           style={styles.contactRow}
-          onPress={() => Linking.openURL(`mailto:${contactEmail}`)}
+          onPress={() => openSafeUrl(toSafeMailtoUrl(contactEmail))}
         >
           <Mail size={14} color={colors.primary[500]} />
           <Text style={[styles.contactText, { color: colors.primary[500] }]}>{contactEmail}</Text>
@@ -92,11 +91,7 @@ export const EventContactSection = memo(function EventContactSection({
         <Pressable
           style={styles.contactRow}
           onPress={() =>
-            Linking.openURL(
-              socialLinks.tiktok.startsWith('http')
-                ? socialLinks.tiktok
-                : `https://tiktok.com/@${socialLinks.tiktok}`,
-            )
+            openSafeUrl(toSafeSocialUrl(socialLinks.tiktok, 'tiktok'))
           }
         >
           <TikTokIcon size={14} color={colors.text.primary} />

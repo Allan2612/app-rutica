@@ -8,7 +8,7 @@ import { useAuthStore, useLocationStore } from '@/store';
 import { useThemedColors, useProfilePhoto } from '@/hooks';
 import { UserMenu } from '@/components/layout/Header/UserMenu';
 import { LocationDropdown } from '@/components/layout/Header/LocationDropdown';
-import { useFonts, Caveat_700Bold } from '@expo-google-fonts/caveat';
+import { brandFont } from '@/styles/theme';
 import { styles } from './styles';
 
 interface BaseHeaderProps {
@@ -22,9 +22,6 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
   const profilePhotoUrl = useProfilePhoto(user?.id);
   const [menuVisible, setMenuVisible] = useState(false);
   const [locationVisible, setLocationVisible] = useState(false);
-  const [fontsLoaded] = useFonts({
-    Caveat_700Bold,
-  });
 
   const handleUserPress = useCallback(() => {
     setMenuVisible(true);
@@ -62,12 +59,6 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
     return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
   };
 
-  // En web la fuente se precarga via HTML, en native esperamos useFonts
-  if (!fontsLoaded && Platform.OS !== 'web') {
-    return null;
-  }
-
-  const caveatFont = Platform.select({ web: 'Caveat', default: 'Caveat_700Bold' });
 
   const headerShadow = showBorder
     ? Platform.select({
@@ -105,7 +96,8 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
           <Text
             style={[
               styles.logoText,
-              { fontFamily: caveatFont, fontWeight: '700' as any, color: colors.primary[500] },
+              brandFont,
+              { color: colors.primary[500] },
             ]}
           >
             Rutica

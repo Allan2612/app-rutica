@@ -1,4 +1,5 @@
 import { memo, useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import type { PropsWithChildren } from 'react';
 import { router, usePathname, useRootNavigationState } from 'expo-router';
 import type { UserRole } from '@/types/enums';
@@ -32,13 +33,16 @@ export const RequireRole = memo(function RequireRole({
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const role = useAuthStore((s) => s.role);
+  // Mientras se restaura la sesión el rol todavía es null: no redirigir en ese momento
+  // (si no, recargar o abrir por deep link una ruta protegida expulsa al home).
+  const isLoading = useAuthStore((s) => s.isLoading || s._isLoadingData);
 
   const hasAuth = !requireAuth || (isAuthenticated && !!user);
   const isAllowed = hasAuth && !!role && allowedRoles.includes(role);
 
   useEffect(() => {
     // Esperar a que el navegador esté listo antes de intentar navegar
-    if (!rootNavigationState?.key) return;
+    if (!rootNavigationState?.key || isLoading) return;
 
     // Delay para asegurar que el Root Layout esté montado
     const timer = setTimeout(() => {
@@ -48,7 +52,15 @@ export const RequireRole = memo(function RequireRole({
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [isAllowed, pathname, redirectTo, rootNavigationState?.key]);
+  }, [isAllowed, isLoading, pathname, redirectTo, rootNavigationState?.key]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
 
   if (!isAllowed) {
     return null;

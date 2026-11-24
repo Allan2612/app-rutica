@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import * as Location from 'expo-location';
-import { useLocationStore } from '@/store';
+import { useLocationStore, selectHasLocation } from '@/store';
 
 export interface LocationSelection {
   province: string | null;
@@ -22,7 +22,8 @@ export function useLocationDetection(
   autoDetect: boolean,
   onLocationChange?: (selection: LocationSelection) => void,
 ) {
-  const { location: storedLocation, hasLocation } = useLocationStore();
+  const storedLocation = useLocationStore((s) => s.location);
+  const hasLocation = useLocationStore(selectHasLocation);
   const hasDetectedLocation = useRef(false);
 
   const [loadingLocation, setLoadingLocation] = useState(false);

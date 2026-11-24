@@ -5,7 +5,7 @@ import { checkBusinessFullPremiumStatus } from '@/features/user/services/subscri
 import { getProfileById } from '@/features/auth/services/profile.service';
 import { sendPaymentReceivedEmail } from '@/services/emailNotification.service';
 import { useAuthStore } from '@/store';
-import { SUBSCRIPTION_PLANS } from '@/types/entities';
+import { usePlanCatalog } from '@/features/user/hooks/usePlanCatalog';
 import type { SubscriptionType } from '@/types/enums';
 
 type Step = 'plans' | 'business' | 'entity' | 'payment';
@@ -55,6 +55,8 @@ export function usePremiumModal({
   preSelectedEntityId,
   preSelectedEntityType,
 }: UsePremiumModalParams) {
+  // Planes y precios desde la tabla `subscription` (lo que configura el admin)
+  const { plans: planCatalog } = usePlanCatalog();
   const { subscribe, isLoading, approvedSubscriptions, pendingSubscriptions } = useSubscriptions();
   const user = useAuthStore((state) => state.user);
 
@@ -258,7 +260,7 @@ export function usePremiumModal({
         (plan) => !businessSelections[plan],
       );
       if (missingBusinessSelections.length > 0) {
-        const missingNames = SUBSCRIPTION_PLANS.filter((p) =>
+        const missingNames = planCatalog.filter((p) =>
           missingBusinessSelections.includes(p.type),
         )
           .map((p) => p.name)
@@ -277,7 +279,7 @@ export function usePremiumModal({
       // Verificar que todos los planes que requieren entidad tengan una seleccionada
       const missingSelections = entityRequiredPlans.filter((plan) => !entitySelections[plan]);
       if (missingSelections.length > 0) {
-        const missingNames = SUBSCRIPTION_PLANS.filter((p) => missingSelections.includes(p.type))
+        const missingNames = planCatalog.filter((p) => missingSelections.includes(p.type))
           .map((p) => p.name)
           .join(', ');
         setError(`Selecciona una entidad para: ${missingNames}`);
@@ -287,6 +289,7 @@ export function usePremiumModal({
       setError(null);
     }
   }, [
+    planCatalog,
     step,
     selectedPlans,
     businessSelections,
@@ -376,7 +379,7 @@ export function usePremiumModal({
         entitySelections,
       );
 
-      const selectedPlanDetails = SUBSCRIPTION_PLANS.filter((plan) =>
+      const selectedPlanDetails = planCatalog.filter((plan) =>
         selectedPlans.includes(plan.type),
       );
       const planNames = selectedPlanDetails.map((plan) => plan.name).join(', ');
@@ -441,6 +444,7 @@ export function usePremiumModal({
       setError(message);
     }
   }, [
+    planCatalog,
     selectedPlans,
     businessSelections,
     businessRequiredPlans,

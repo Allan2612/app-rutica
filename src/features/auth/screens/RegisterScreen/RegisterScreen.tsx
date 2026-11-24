@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { ArrowLeft, Camera, X } from 'lucide-react-native';
+import { ArrowLeft, Camera, Check, X } from 'lucide-react-native';
+import { PRIVACY_POLICY_VERSION } from '@/features/legal/privacyPolicy';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -32,6 +33,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pickingImage, setPickingImage] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const colors = useThemedColors();
 
   const handlePickProfilePhoto = useCallback(async () => {
@@ -64,6 +66,17 @@ export const RegisterScreen = memo(function RegisterScreen() {
         type: 'error',
         text1: 'Campos incompletos',
         text2: 'Por favor completa todos los campos obligatorios',
+        position: 'top',
+        visibilityTime: 4000,
+      });
+      return;
+    }
+
+    if (!acceptedTerms) {
+      Toast.show({
+        type: 'error',
+        text1: 'Falta tu aceptación',
+        text2: 'Debes aceptar los Términos y la Política de Privacidad',
         position: 'top',
         visibilityTime: 4000,
       });
@@ -104,12 +117,13 @@ export const RegisterScreen = memo(function RegisterScreen() {
         phone,
         role,
         profilePhotoUri: profilePhoto || undefined,
+        termsVersion: PRIVACY_POLICY_VERSION,
       });
 
       Toast.show({
         type: 'success',
         text1: '¡Registro exitoso!',
-        text2: 'Tu cuenta fue creada. Ahora puedes iniciar sesión',
+        text2: 'Revisa tu correo para confirmar la cuenta y luego inicia sesión',
         position: 'top',
         visibilityTime: 4000,
       });
@@ -129,14 +143,27 @@ export const RegisterScreen = memo(function RegisterScreen() {
     } finally {
       setLoading(false);
     }
-  }, [email, password, confirmPassword, firstName, lastName1, lastName2, phone, role]);
+  }, [
+    email,
+    password,
+    confirmPassword,
+    firstName,
+    lastName1,
+    lastName2,
+    phone,
+    role,
+    profilePhoto,
+    acceptedTerms,
+  ]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
       <SafeAreaView edges={['top']} style={{ backgroundColor: colors.background.primary }}>
         <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
           <Pressable
-            onPress={() => router.replace('/(app)/(tabs)/manage')}
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
+            accessibilityRole="button"
+            accessibilityLabel="Volver"
             style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center' }}
           >
             <ArrowLeft size={22} color={colors.text.primary} />
@@ -148,12 +175,18 @@ export const RegisterScreen = memo(function RegisterScreen() {
         title="Crear Cuenta"
         footer={
           <Text style={[sharedStyles.footerTextSmall, { color: colors.text.tertiary }]}>
-            Al registrarte, aceptas nuestros{' '}
-            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>
+            Lee nuestros{' '}
+            <Text
+              style={[sharedStyles.footerLink, { color: colors.primary[500] }]}
+              onPress={() => router.push('/(auth)/terms')}
+            >
               Términos y Condiciones
             </Text>
-            {' y '}
-            <Text style={[sharedStyles.footerLink, { color: colors.primary[500] }]}>
+            {' y la '}
+            <Text
+              style={[sharedStyles.footerLink, { color: colors.primary[500] }]}
+              onPress={() => router.push('/(auth)/privacy' as any)}
+            >
               Política de Privacidad
             </Text>
           </Text>
@@ -362,6 +395,33 @@ export const RegisterScreen = memo(function RegisterScreen() {
           onChangeText={setConfirmPassword}
           editable={!loading}
         />
+
+        {/* Consentimiento expreso (Ley 8968) */}
+        <Pressable
+          onPress={() => setAcceptedTerms((v) => !v)}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: acceptedTerms }}
+          accessibilityLabel="Acepto los Términos y Condiciones y la Política de Privacidad"
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 }}
+        >
+          <View
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 6,
+              borderWidth: 2,
+              borderColor: acceptedTerms ? colors.primary[500] : colors.border.dark,
+              backgroundColor: acceptedTerms ? colors.primary[500] : 'transparent',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {acceptedTerms && <Check size={14} color="#fff" strokeWidth={3} />}
+          </View>
+          <Text style={{ flex: 1, color: colors.text.secondary, fontSize: 13 }}>
+            Acepto los Términos y Condiciones y la Política de Privacidad
+          </Text>
+        </Pressable>
 
         <AuthButton
           title={loading ? 'Creando cuenta...' : 'Crear Cuenta'}

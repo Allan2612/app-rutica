@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { validateReviewContent } from './contentModeration.service';
 import type { Database } from '@/lib/supabase/database.types';
 
 export interface ProductReviewDisplay {
@@ -78,6 +79,8 @@ export async function createProductReview(
   rating: number,
   comment?: string,
 ): Promise<boolean> {
+  // Mismo filtro de contenido que el resto de reseñas (antes productos no se validaban)
+  if (comment) validateReviewContent(comment);
   const { error } = await supabase.from('product_reviews').insert({
     product_id_prv: productId,
     user_id_prv: userId,
@@ -94,52 +97,13 @@ export async function createProductReview(
   return true;
 }
 
-async function updateProductRating(productId: string): Promise<void> {
-  // Intentar usar la función RPC con SECURITY DEFINER
-  const { error: rpcError } = await supabase.rpc(
-    'update_product_rating' as any,
-    {
-      p_product_id: productId,
-    } as any,
-  );
-
-  // Si el RPC funciona, terminamos aquí
-  if (!rpcError) {
-    return;
-  }
-
-  console.warn('RPC update_product_rating failed, using fallback method:', rpcError);
-
-  // Fallback: calcular y actualizar manualmente (no debería ser necesario con el trigger)
-  const { data: reviews, error } = await supabase
-    .from('product_reviews')
-    .select('rating_prv')
-    .eq('product_id_prv', productId);
-
-  if (error) {
-    return;
-  }
-
-  const reviewsData = reviews as unknown as Pick<ProductReviewRow, 'rating_prv'>[] | null;
-  const reviewCount = reviewsData?.length ?? 0;
-  const avgRating =
-    reviewCount > 0
-      ? reviewsData!.reduce((sum, r) => sum + (r.rating_prv ?? 0), 0) / reviewCount
-      : 0;
-
-  await (supabase.from('products') as any)
-    .update({
-      avg_rating_prd: Math.round(avgRating * 10) / 10,
-      reviews_count_prd: reviewCount,
-    })
-    .eq('id_prd', productId);
-}
 
 export async function updateProductReview(
   reviewId: string,
   rating: number,
   comment?: string,
 ): Promise<boolean> {
+  if (comment) validateReviewContent(comment);
   const { error } = await (supabase.from('product_reviews') as any)
     .update({
       rating_prv: rating,

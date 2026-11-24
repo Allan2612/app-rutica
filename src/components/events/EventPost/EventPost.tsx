@@ -65,7 +65,13 @@ export function EventPost({
     isDeleting,
     handleSubmitReview,
     handleDeleteReview,
-  } = useEventPostReviews(eventId, userId, selectedReviewId, selectedReviewUserId);
+  } = useEventPostReviews(
+    eventId,
+    userId,
+    selectedReviewId,
+    selectedReviewUserId,
+    showReviews || showReviewModal || showDeleteConfirm,
+  );
 
   const hasLocation = latitude != null && longitude != null;
 
@@ -157,8 +163,8 @@ export function EventPost({
       <EventReviewsSectionControls
         eventId={eventId}
         eventName={name}
-        hasReviews={hasReviews ?? false}
-        reviewCount={reviews.length}
+        hasReviews={showReviews ? (hasReviews ?? false) : reviewCount > 0}
+        reviewCount={showReviews ? reviews.length : reviewCount}
         showReviews={showReviews}
         isAuthenticated={isAuthenticated}
         hasUserReview={!!userReview}
@@ -186,30 +192,34 @@ export function EventPost({
         />
       )}
 
-      <ReviewModal
-        visible={showReviewModal}
-        onClose={() => {
-          setShowReviewModal(false);
-          setSelectedReviewId(null);
-          setSelectedReviewUserId(null);
-        }}
-        onSubmit={handleReviewSubmit}
-        businessName={name}
-        businessLogo={imageUrls[0]}
-        existingRating={selectedReview?.rating}
-        existingComment={selectedReview?.comment}
-        isEditMode={!!selectedReview}
-        isLoading={isSubmitting}
-      />
+      {showReviewModal && (
+        <ReviewModal
+          visible={showReviewModal}
+          onClose={() => {
+            setShowReviewModal(false);
+            setSelectedReviewId(null);
+            setSelectedReviewUserId(null);
+          }}
+          onSubmit={handleReviewSubmit}
+          businessName={name}
+          businessLogo={imageUrls[0]}
+          existingRating={selectedReview?.rating}
+          existingComment={selectedReview?.comment}
+          isEditMode={!!selectedReview}
+          isLoading={isSubmitting}
+        />
+      )}
 
-      <ConfirmDeleteDialog
-        visible={showDeleteConfirm}
-        entityName="Mi reseña"
-        entityType="reseña"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setShowDeleteConfirm(false)}
-        isDeleting={isDeleting}
-      />
+      {showDeleteConfirm && (
+        <ConfirmDeleteDialog
+          visible={showDeleteConfirm}
+          entityName="Mi reseña"
+          entityType="reseña"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setShowDeleteConfirm(false)}
+          isDeleting={isDeleting}
+        />
+      )}
     </Pressable>
   );
 }

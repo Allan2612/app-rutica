@@ -2,6 +2,7 @@
  * Scripts para marcadores Leaflet (draggable y estático)
  */
 import { COSTA_RICA_BOUNDS } from './mapConfig';
+import { toScriptJson } from '@/utils/htmlEscape';
 
 interface MarkerScriptOptions {
   latitude: number;
@@ -81,7 +82,7 @@ export function generateStaticMarkerScript(opts: MarkerScriptOptions): string {
 
   return `
     const marker = L.marker([${latitude}, ${longitude}], { draggable: false }).addTo(map);
-    marker.bindPopup(${JSON.stringify(popup)}).openPopup();
+    marker.bindPopup(${toScriptJson(popup)}).openPopup();
     L.circle([${latitude}, ${longitude}], {
         color: '#10b981',
         fillColor: '#10b981',

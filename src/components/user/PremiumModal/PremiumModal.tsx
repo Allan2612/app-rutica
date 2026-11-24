@@ -1,5 +1,7 @@
-import { memo } from 'react';
-import { View, ScrollView } from 'react-native';
+import { memo, useCallback } from 'react';
+import { View, ScrollView, Text } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { usePaymentSettings } from '@/hooks/usePaymentSettings';
 import { AccessibleModal } from '@/components/ui';
 import { useThemedColors } from '@/hooks';
 import type { UserRole } from '@/types/enums';
@@ -30,12 +32,6 @@ interface PremiumModalProps {
   preSelectedEntityName?: string;
 }
 
-// Configuración de pago
-const SINPE_NUMBER = '8888-8888';
-const SINPE_NAME = 'Rutica CR';
-const IBAN_ACCOUNT = 'CR12345678901234567890';
-const TRANSFER_NAME = 'Rutica S.A';
-
 export const PremiumModal = memo(function PremiumModal({
   visible,
   onClose,
@@ -52,6 +48,8 @@ export const PremiumModal = memo(function PremiumModal({
 }: PremiumModalProps) {
   const colors = useThemedColors();
   const isBuyer = userRole === 'buyer';
+  // Los datos de pago vienen de public.app_settings: nunca se hardcodean en el bundle
+  const { data: payment, isConfigured: paymentConfigured } = usePaymentSettings();
 
   const {
     step,
@@ -88,6 +86,15 @@ export const PremiumModal = memo(function PremiumModal({
     preSelectedEntityType,
   });
 
+  const handlePaymentUnavailable = useCallback(() => {
+    Toast.show({
+      type: 'info',
+      text1: 'Pagos no disponibles',
+      text2: 'Escríbenos a rutica.app@gmail.com para adquirir un plan',
+      position: 'top',
+    });
+  }, []);
+
   // Renderizar el contenido según el paso actual
   const renderStepContent = () => {
     if (step === 'plans') {
@@ -120,6 +127,20 @@ export const PremiumModal = memo(function PremiumModal({
       );
     }
 
+    if (!paymentConfigured) {
+      return (
+        <View style={{ padding: 16 }}>
+          <Text style={{ color: colors.text.primary, fontWeight: '600', marginBottom: 8 }}>
+            Pagos no disponibles por el momento
+          </Text>
+          <Text style={{ color: colors.text.secondary }}>
+            Estamos configurando los medios de pago. Escríbenos a rutica.app@gmail.com para
+            adquirir un plan.
+          </Text>
+        </View>
+      );
+    }
+
     return (
       <PaymentStep
         selectedPlans={selectedPlans}
@@ -131,10 +152,10 @@ export const PremiumModal = memo(function PremiumModal({
         paymentReference={paymentReference}
         paymentNote={paymentNote}
         error={error}
-        sinpeNumber={SINPE_NUMBER}
-        sinpeName={SINPE_NAME}
-        ibanAccount={IBAN_ACCOUNT}
-        transferName={TRANSFER_NAME}
+        sinpeNumber={payment?.sinpeNumber ?? ''}
+        sinpeName={payment?.sinpeName ?? ''}
+        ibanAccount={payment?.iban ?? ''}
+        transferName={payment?.transferName ?? ''}
         onMethodChange={setPaymentMethod}
         onReferenceChange={setPaymentReference}
         onNoteChange={setPaymentNote}
@@ -171,7 +192,7 @@ export const PremiumModal = memo(function PremiumModal({
               isLoading={isLoading}
               onBack={handleBack}
               onContinue={handleContinue}
-              onSubmit={handleSubmit}
+              onSubmit={paymentConfigured ? handleSubmit : handlePaymentUnavailable}
             />
           )}
         </View>

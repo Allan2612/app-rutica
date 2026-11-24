@@ -3,6 +3,7 @@
  */
 import type { MapMarker, MarkerType } from '@/features/maps/types';
 import { MARKER_COLORS, USER_MARKER_COLOR } from '@/features/maps/types';
+import { toScriptJson } from '@/utils/htmlEscape';
 import { getThemeColors, getTileUrl, generateMapStyles, generateMapScript } from './mapStyles';
 
 export interface ExploreMapOptions {
@@ -33,8 +34,9 @@ export function generateExploreMapHTML(options: ExploreMapOptions): string {
   const tileUrl = getTileUrl(theme);
   const isDark = theme === 'dark';
 
-  const markersJSON = JSON.stringify(markers);
-  const markerColorsJSON = JSON.stringify(MARKER_COLORS);
+  // toScriptJson: los nombres vienen de la BD y no deben poder cerrar el <script>
+  const markersJSON = toScriptJson(markers);
+  const markerColorsJSON = toScriptJson(MARKER_COLORS);
 
   const styles = generateMapStyles(colors, isDark);
   const script = generateMapScript({

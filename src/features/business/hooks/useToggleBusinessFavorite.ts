@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toggleBusinessFavorite } from '../services/businessLikes.service';
+import { setBusinessFavorite } from '../services/businessLikes.service';
 import { useAuthStore } from '@/store';
 
 /**
@@ -14,7 +14,10 @@ export function useToggleBusinessFavorite() {
       if (!user?.id) {
         throw new Error('Usuario no autenticado');
       }
-      return toggleBusinessFavorite(businessId, user.id);
+      const current =
+        queryClient.getQueryData<string[]>(['business-favorites', user.id]) ?? [];
+      // El optimistic update de onMutate ya invirtió la caché: el estado deseado es el actual
+      return setBusinessFavorite(businessId, user.id, current.includes(businessId));
     },
     onMutate: async (businessId: string) => {
       // Optimistic update

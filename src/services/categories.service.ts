@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { ilikePattern } from '@/utils/searchFilters';
 import { Category, CategoryOption } from '@/types/entities';
 import type { Database } from '@/lib/supabase/database.types';
 
@@ -79,7 +80,7 @@ export async function searchCategories(searchTerm: string): Promise<CategoryOpti
   const { data, error } = await supabase
     .from('categories')
     .select('id_cat, name_cat, parent_id_cat')
-    .ilike('name_cat', `%${searchTerm}%`)
+    .ilike('name_cat', ilikePattern(searchTerm))
     .order('name_cat', { ascending: true })
     .limit(20);
 

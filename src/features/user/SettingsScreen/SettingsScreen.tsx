@@ -1,11 +1,14 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { View, Text, ScrollView, Switch, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { Moon, Sun, Globe, Info } from 'lucide-react-native';
+import { Moon, Sun, Globe, Info, Trash2 } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
+import { ConfirmDeleteDialog } from '@/components/manage/ConfirmDeleteDialog';
+import { deleteMyAccount } from '@/features/auth/services/auth.service';
 import { Screen } from '@/components/layout';
 import { BaseHeader } from '@/components/layout/Header';
 import { BackButton } from '@/components/ui';
-import { useThemeStore } from '@/store';
+import { useAuthStore, useThemeStore } from '@/store';
 import { useThemedColors } from '@/hooks';
 import styles from './styles';
 
@@ -17,6 +20,24 @@ export const SettingsScreen = memo(function SettingsScreen() {
   const handleToggleTheme = useCallback(() => {
     setMode(isDark ? 'light' : 'dark');
   }, [isDark, setMode]);
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [isDeleteVisible, setIsDeleteVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteAccount = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      await deleteMyAccount();
+      setIsDeleteVisible(false);
+      Toast.show({ type: 'success', text1: 'Cuenta eliminada', text2: 'Tus datos fueron borrados' });
+      router.replace('/');
+    } catch (error: any) {
+      Toast.show({ type: 'error', text1: 'Error', text2: error?.message });
+    } finally {
+      setIsDeleting(false);
+    }
+  }, []);
 
   return (
     <Screen>
@@ -118,8 +139,49 @@ export const SettingsScreen = memo(function SettingsScreen() {
               </Pressable>
             </View>
           </View>
+
+          {/* Cuenta: borrado (requisito de las tiendas y derecho de supresión) */}
+          {isAuthenticated && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.text.tertiary }]}>Cuenta</Text>
+              <View
+                style={[
+                  styles.card,
+                  { backgroundColor: colors.background.primary, borderColor: colors.border.light },
+                ]}
+              >
+                <Pressable
+                  style={styles.settingRow}
+                  onPress={() => setIsDeleteVisible(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Eliminar mi cuenta"
+                >
+                  <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <Trash2 color={colors.error} size={20} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.settingLabel, { color: colors.error }]}>
+                        Eliminar mi cuenta
+                      </Text>
+                      <Text style={[styles.settingDescription, { color: colors.text.secondary }]}>
+                        Borra tu perfil y todo tu contenido de forma permanente
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              </View>
+            </View>
+          )}
         </View>
       </ScrollView>
+
+      <ConfirmDeleteDialog
+        visible={isDeleteVisible}
+        entityName="ELIMINAR"
+        entityType="cuenta"
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setIsDeleteVisible(false)}
+        isDeleting={isDeleting}
+      />
     </Screen>
   );
 });

@@ -3,6 +3,7 @@
 // ============================================
 
 import { supabase } from '@/lib/supabase/client';
+import { ilikePattern } from '@/utils/searchFilters';
 import type { ModerationStatus } from '@/types/enums';
 import type {
   VerificationEntityType,
@@ -110,7 +111,7 @@ async function fetchBusinessVerifications(
   query = query.limit(isAdmin ? limit * 10 : limit);
 
   if (search) {
-    query = query.ilike('name_bus', `%${search}%`);
+    query = query.ilike('name_bus', ilikePattern(search));
   }
 
   const { data, error } = await query;
@@ -253,7 +254,7 @@ async function fetchEventVerifications(
   }
 
   if (search) {
-    query = query.ilike('name_evt', `%${search}%`);
+    query = query.ilike('name_evt', ilikePattern(search));
   }
 
   const { data, error } = await query;
@@ -379,7 +380,7 @@ async function fetchAttractionVerifications(
   }
 
   if (search) {
-    query = query.ilike('name_atr', `%${search}%`);
+    query = query.ilike('name_atr', ilikePattern(search));
   }
 
   const { data, error } = await query;
@@ -515,7 +516,7 @@ async function fetchPromotionVerifications(
   }
 
   if (search) {
-    query = query.ilike('title_prm', `%${search}%`);
+    query = query.ilike('title_prm', ilikePattern(search));
   }
 
   const { data, error } = await query;
@@ -840,11 +841,3 @@ export async function getVerificationDetail(
   return requests.find((r) => r.id === id) || null;
 }
 
-// Re-export types for backwards compatibility
-export type {
-  VerificationEntityType,
-  VerificationRequest,
-  VerificationFilters,
-  VerificationStats,
-  UpdateModerationData,
-} from '../types';

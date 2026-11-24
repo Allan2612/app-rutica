@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase/client';
+import { queryClient } from '@/lib/react-query/client';
 import type { UserRole } from '@/types/enums';
 import type { User } from '@supabase/supabase-js';
 
@@ -264,7 +265,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     // Registrar listener antes de cargar datos (evita race conditions)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // No se debe hacer await de otras llamadas a Supabase dentro de este callback: el
+      // cliente de auth mantiene un lock y puede quedar bloqueado (ver docs de supabase-js).
+      // El trabajo asíncrono se difiere con setTimeout.
+      const runLater = (fn: () => Promise<void>) => {
+        setTimeout(() => {
+          fn().catch((error) => console.error('[AUTH] Error en onAuthStateChange:', error));
+        }, 0);
+      };
+
       // Manejar recuperación de contraseña - NO autenticar al usuario
       if (event === 'PASSWORD_RECOVERY') {
         set({
@@ -276,6 +286,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       if (event === 'SIGNED_OUT') {
+        // No dejar en caché datos del usuario anterior (favoritos, negocios, dashboard)
+        queryClient.clear();
         set({
           user: null,
           role: null,
@@ -304,7 +316,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         }
         // Solo cargar si NO tenemos usuario ya cargado
         if (!currentState.user) {
-          await get().loadUserData();
+          runLater(() => get().loadUserData());
         }
       } else if (event === 'TOKEN_REFRESHED') {
         // NO cargar datos si estamos en modo recovery
@@ -314,7 +326,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         }
         // Solo refrescar si el usuario cambió, no mostrar spinner
         if (session?.user?.id && session.user.id !== currentState.user?.id) {
-          await get().loadUserData();
+          runLater(() => get().loadUserData());
         }
         // Si es el mismo usuario, solo actualizar el objeto user sin recargar todo
         else if (session?.user && currentState.user) {
@@ -328,8 +340,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           return;
         }
         // Solo recargar si hay cambios reales en el usuario
-        if (session?.user && JSON.stringify(session.user) !== JSON.stringify(currentState.user)) {
-          await get().loadUserData();
+        if (session?.user && session.user.updated_at !== currentState.user?.updated_at) {
+          runLater(() => get().loadUserData());
         }
       } else if (event === 'INITIAL_SESSION') {
         // Este evento ocurre al iniciar - cargar datos del usuario
@@ -340,7 +352,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           return;
         }
         if (session?.user) {
-          await get().loadUserData();
+          runLater(() => get().loadUserData());
         }
       }
     });

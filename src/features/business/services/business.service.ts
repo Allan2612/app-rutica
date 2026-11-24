@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { buildIlikeOr } from '@/utils/searchFilters';
 import type { Database } from '@/lib/supabase/database.types';
 import { Business, BusinessWithRelations, Location } from '@/types/entities';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -283,7 +284,7 @@ export async function getBusinessList(
 
   if (searchText && searchText.trim().length > 0) {
     const term = searchText.trim();
-    query = query.or(`name_bus.ilike.%${term}%,description_bus.ilike.%${term}%`);
+    query = query.or(buildIlikeOr(['name_bus', 'description_bus'], term));
   }
 
   query = query.order('created_at_bus', { ascending: false });

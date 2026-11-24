@@ -46,19 +46,22 @@ export const ReviewsTab = memo(function ReviewsTab({
   reviewStats,
   reviewPieData,
 }: ReviewsTabProps) {
-  if (!reviewStats) return null;
+  // Los hooks deben ejecutarse siempre (antes de cualquier return); reviewStats puede
+  // ser undefined mientras recarga al cambiar de período o de negocio.
+  const recentReviews = reviewStats?.recentReviews ?? [];
+  const businessesStats = reviewStats?.businessesStats ?? [];
 
   // Filtrar datos según el tipo de reseña seleccionado
   const filteredData = useMemo(() => {
     // Filtrar reseñas recientes
     const filteredRecentReviews =
-      reviewType === 'all'
-        ? reviewStats.recentReviews
-        : reviewStats.recentReviews.filter((r) => r.type === reviewType);
+      reviewType === 'all' ? recentReviews : recentReviews.filter((r) => r.type === reviewType);
 
     // Calcular totales filtrados
-    const filteredTotalBusiness = reviewType === 'product' ? 0 : reviewStats.totalBusinessReviews;
-    const filteredTotalProduct = reviewType === 'business' ? 0 : reviewStats.totalProductReviews;
+    const filteredTotalBusiness =
+      reviewType === 'product' ? 0 : (reviewStats?.totalBusinessReviews ?? 0);
+    const filteredTotalProduct =
+      reviewType === 'business' ? 0 : (reviewStats?.totalProductReviews ?? 0);
     const totalFiltered = filteredTotalBusiness + filteredTotalProduct;
 
     return {
@@ -67,7 +70,7 @@ export const ReviewsTab = memo(function ReviewsTab({
       totalProductReviews: filteredTotalProduct,
       totalReviews: totalFiltered,
     };
-  }, [reviewStats, reviewType]);
+  }, [recentReviews, reviewStats?.totalBusinessReviews, reviewStats?.totalProductReviews, reviewType]);
 
   // Calcular distribución total
   const totalDistribution = useMemo(() => {
@@ -79,7 +82,7 @@ export const ReviewsTab = memo(function ReviewsTab({
       stars1: 0,
     };
 
-    reviewStats.businessesStats.forEach((business) => {
+    businessesStats.forEach((business) => {
       distribution.stars5 += business.ratingDistribution.stars5;
       distribution.stars4 += business.ratingDistribution.stars4;
       distribution.stars3 += business.ratingDistribution.stars3;
@@ -88,14 +91,16 @@ export const ReviewsTab = memo(function ReviewsTab({
     });
 
     return distribution;
-  }, [reviewStats.businessesStats]);
+  }, [businessesStats]);
 
   // Best rated business
   const bestRated = useMemo(() => {
-    return [...reviewStats.businessesStats]
+    return [...businessesStats]
       .filter((b) => b.totalReviews >= 1)
       .sort((a, b) => b.averageRating - a.averageRating)[0];
-  }, [reviewStats.businessesStats]);
+  }, [businessesStats]);
+
+  if (!reviewStats) return null;
 
   return (
     <>

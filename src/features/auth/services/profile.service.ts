@@ -2,6 +2,10 @@ import { supabase } from '@/lib/supabase/client';
 import type { Profile, ProfileUpdate, ProfileWithPremium, ProfilePremium } from '@/types/entities';
 import type { UserRole } from '@/types/enums';
 
+// Columnas de profiles que anon y authenticated pueden leer (migración 2026-10-15_auditoria, sección 6)
+const PUBLIC_PROFILE_COLUMNS =
+  'id_prf, first_name_prf, last_name1_prf, last_name2_prf, role_prf, is_active_prf, profile_photo_path_prf, created_at_prf, updated_at_prf';
+
 // ============================================
 // Queries
 // ============================================
@@ -16,11 +20,8 @@ export async function getMyProfile(): Promise<Profile> {
 
   if (!user) throw new Error('No authenticated user');
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id_prf', user.id)
-    .single();
+  // El perfil propio completo se lee por RPC: la tabla solo expone columnas públicas (S-05)
+  const { data, error } = await (supabase as any).rpc('get_my_profile').single();
 
   if (error) throw error;
   return data as Profile;
@@ -37,10 +38,8 @@ export async function getMyProfileWithPremium(): Promise<ProfileWithPremium> {
   if (!user) throw new Error('No authenticated user');
 
   // Obtener perfil
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id_prf', user.id)
+  const { data: profile, error: profileError } = await (supabase as any)
+    .rpc('get_my_profile')
     .single();
 
   if (profileError) throw profileError;
@@ -62,7 +61,11 @@ export async function getMyProfileWithPremium(): Promise<ProfileWithPremium> {
  * Obtiene un perfil por su ID
  */
 export async function getProfileById(userId: string): Promise<Profile> {
-  const { data, error } = await supabase.from('profiles').select('*').eq('id_prf', userId).single();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(PUBLIC_PROFILE_COLUMNS)
+    .eq('id_prf', userId)
+    .single();
 
   if (error) throw error;
   return data as Profile;
@@ -75,7 +78,7 @@ export async function getProfileWithPremiumById(userId: string): Promise<Profile
   // Obtener perfil
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('*')
+    .select(PUBLIC_PROFILE_COLUMNS)
     .eq('id_prf', userId)
     .single();
 

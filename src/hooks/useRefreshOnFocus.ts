@@ -12,8 +12,15 @@ import { useFocusEffect } from 'expo-router';
  * const { refetch } = useQuery({ queryKey: ['myData'], queryFn: fetchData });
  * useRefreshOnFocus(refetch);
  */
-export function useRefreshOnFocus<T>(refetch: () => Promise<T> | void, enabled: boolean = true) {
+export function useRefreshOnFocus<T>(
+  refetch: () => Promise<T> | void,
+  enabled: boolean = true,
+  /** No refrescar si ya se refrescó hace menos de esto (evita ráfagas al cambiar de tab) */
+  minIntervalMs: number = 30 * 1000,
+) {
   const isFirstMount = useRef(true);
+  // Se fija en el primer foco, no durante el render (Date.now() en render no es puro)
+  const lastRefreshAt = useRef(0);
   // Usar ref para almacenar la función refetch y evitar que sea dependencia del callback
   const refetchRef = useRef(refetch);
   refetchRef.current = refetch;
@@ -23,14 +30,16 @@ export function useRefreshOnFocus<T>(refetch: () => Promise<T> | void, enabled: 
       // No refrescar en el primer mount (React Query ya lo hace)
       if (isFirstMount.current) {
         isFirstMount.current = false;
+        lastRefreshAt.current = Date.now();
         return;
       }
 
-      // Solo refrescar si está habilitado
-      if (enabled) {
+      // Solo refrescar si está habilitado y pasó el intervalo mínimo
+      if (enabled && Date.now() - lastRefreshAt.current >= minIntervalMs) {
+        lastRefreshAt.current = Date.now();
         refetchRef.current();
       }
-    }, [enabled]),
+    }, [enabled, minIntervalMs]),
   );
 }
 

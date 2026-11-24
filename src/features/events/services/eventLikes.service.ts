@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { getLikeCounts } from '@/services/likeCounts.service';
 
 /**
  * Obtiene los IDs de los eventos a los que el usuario ha dado like
@@ -87,15 +88,7 @@ export async function toggleEventLike(eventId: string, userId: string): Promise<
  * Obtiene el conteo de likes de un evento
  */
 export async function getEventLikesCount(eventId: string): Promise<number> {
-  const { count, error } = await supabase
-    .from('event_likes')
-    .select('*', { count: 'exact', head: true })
-    .eq('event_id_elk', eventId);
-
-  if (error) {
-    console.error('[eventLikes] Error counting likes:', error.message);
-    return 0;
-  }
-
-  return count ?? 0;
+  // Conteo agregado: los likes individuales ya no son públicos (S-18)
+  const counts = await getLikeCounts('event_likes', [eventId]);
+  return counts[eventId] ?? 0;
 }

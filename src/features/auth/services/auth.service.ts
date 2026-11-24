@@ -17,6 +17,7 @@ export interface SignUpInput {
   phone?: string;
   role: UserRole;
   profilePhotoUri?: string; // URI local de la foto de perfil
+  termsVersion: string; // versión de Términos/Privacidad aceptada (L-04)
 }
 
 /**
@@ -58,7 +59,8 @@ async function uploadProfilePhoto(userId: string, imageUri: string): Promise<str
 }
 
 export async function signUp(input: SignUpInput) {
-  const { email, password, firstName, lastName1, lastName2, phone, role, profilePhotoUri } = input;
+  const { email, password, firstName, lastName1, lastName2, phone, role, profilePhotoUri, termsVersion } =
+    input;
 
   // 1. Crear usuario en auth - El trigger handle_new_user() crea el perfil automáticamente
   const { data, error } = await supabase.auth.signUp({
@@ -71,6 +73,8 @@ export async function signUp(input: SignUpInput) {
         last_name2: lastName2 || null,
         phone: phone || null,
         role: role,
+        // El trigger de profiles guarda la versión aceptada y la fecha
+        terms_version: termsVersion,
       },
       emailRedirectTo: getAuthRedirectUrl('/'),
     },
@@ -195,4 +199,21 @@ export async function getCurrentSession() {
   } = await supabase.auth.getSession();
   if (error) throw error;
   return session;
+}
+
+/**
+ * Elimina la cuenta del usuario autenticado y todo su contenido (RPC delete_my_account,
+ * ver docs/base-de-datos/migraciones/2026-10-15_auditoria.sql §15). Requisito de
+ * Google Play / App Store y derecho de supresión (Ley 8968).
+ */
+export async function deleteMyAccount(): Promise<void> {
+  const { error } = await (supabase as any).rpc('delete_my_account');
+  if (error) {
+    if (error.code === 'PGRST202') {
+      throw new Error('La eliminación de cuentas aún no está habilitada. Escríbenos a rutica.app@gmail.com');
+    }
+    throw new Error('No se pudo eliminar la cuenta. Intenta de nuevo o escríbenos a rutica.app@gmail.com');
+  }
+  // La sesión ya no es válida: limpiar el storage local
+  await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
 }

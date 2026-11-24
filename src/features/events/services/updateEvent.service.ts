@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { buildSocialLinks, toSafeWebsiteUrl } from '@/utils/externalLinks';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { canUserEdit } from '@/utils/permissionHelpers';
@@ -277,7 +278,7 @@ export async function updateEventComplete(
 
   // 1. Actualizar ubicación (V3: solo district_id, address y coordenadas)
   if (event.location_id_evt) {
-    await (supabase as any)
+    const { error: locationError } = await (supabase as any)
       .from('locations')
       .update({
         district_id_loc: data.districtId,
@@ -286,13 +287,13 @@ export async function updateEventComplete(
         longitude_loc: data.longitude,
       })
       .eq('id_loc', event.location_id_evt);
+
+    if (locationError) throw locationError;
   }
 
   // 2. Actualizar social links
   const socialLinks: Record<string, string> = {};
-  if (data.facebook) socialLinks.facebook = data.facebook;
-  if (data.instagram) socialLinks.instagram = data.instagram;
-  if (data.tiktok) socialLinks.tiktok = data.tiktok;
+  Object.assign(socialLinks, buildSocialLinks(data));
 
   // 3. Actualizar evento
   const updateFields: any = {
@@ -306,7 +307,7 @@ export async function updateEventComplete(
     capacity_evt: data.capacity ?? null,
     contact_phone_evt: data.phone ?? null,
     contact_email_evt: data.email ?? null,
-    website_evt: data.website ?? null,
+    website_evt: toSafeWebsiteUrl(data.website),
     ticket_url_evt: data.ticketUrl ?? null,
     social_links_evt: Object.keys(socialLinks).length > 0 ? socialLinks : null,
     moderation_status_evt: 'pending',

@@ -52,6 +52,9 @@ export function useCreateBusinessReview() {
       comment?: string;
     }) => createBusinessReview(businessId, userId, rating, comment),
     onSuccess: (data, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       // Invalidar las queries relacionadas
       queryClient.invalidateQueries({
         queryKey: ['business-reviews', variables.businessId],
@@ -87,6 +90,9 @@ export function useUpdateBusinessReview() {
       userId: string;
     }) => updateBusinessReview(reviewId, rating, comment),
     onSuccess: (data, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: ['business-reviews', variables.businessId],
       });
@@ -116,6 +122,9 @@ export function useDeleteBusinessReview() {
       userId: string;
     }) => deleteBusinessReview(reviewId, businessId),
     onSuccess: (data, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: ['business-reviews', variables.businessId],
       });

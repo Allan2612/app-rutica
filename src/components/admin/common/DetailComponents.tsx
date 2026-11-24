@@ -215,8 +215,6 @@ export const ImageGallery = memo(function ImageGallery({ images }: ImageGalleryP
   const colors = useThemedColors();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  if (images.length === 0) return null;
-
   const handleImagePress = useCallback((url: string) => {
     setSelectedImage(url);
   }, []);
@@ -224,6 +222,8 @@ export const ImageGallery = memo(function ImageGallery({ images }: ImageGalleryP
   const handleCloseModal = useCallback(() => {
     setSelectedImage(null);
   }, []);
+
+  if (images.length === 0) return null;
 
   return (
     <View style={styles.galleryContainer}>

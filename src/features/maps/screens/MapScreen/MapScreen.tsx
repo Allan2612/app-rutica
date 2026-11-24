@@ -6,6 +6,7 @@ import { useMapLocation, useMapMarkers } from '@/features/maps/hooks';
 import { generateExploreMapHTML, MapFilterChips } from '@/components/maps';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import type { MarkerType } from '@/features/maps/types';
+import { isAllowedMapRoute } from '@/utils/htmlEscape';
 import { MapLoading, MapError, MapOverlay } from './MapStates';
 import { styles } from './styles';
 
@@ -115,7 +116,8 @@ export const MapScreen = memo(function MapScreen() {
     try {
       const rawData = 'nativeEvent' in event ? event.nativeEvent.data : event.data;
       const data = JSON.parse(rawData);
-      if (data.type === 'navigate' && data.route) {
+      // Solo rutas de detalle conocidas: el contenido del mapa no es de confianza
+      if (data.type === 'navigate' && isAllowedMapRoute(data.route)) {
         router.push(data.route as any);
       }
     } catch {}
@@ -123,7 +125,11 @@ export const MapScreen = memo(function MapScreen() {
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    const handleWindowMessage = (event: MessageEvent) => handleMessage(event);
+    const handleWindowMessage = (event: MessageEvent) => {
+      // Ignorar mensajes que no vengan del iframe del mapa
+      if (event.source !== iframeRef.current?.contentWindow) return;
+      handleMessage(event);
+    };
     window.addEventListener('message', handleWindowMessage);
     return () => window.removeEventListener('message', handleWindowMessage);
   }, [handleMessage]);
@@ -149,6 +155,7 @@ export const MapScreen = memo(function MapScreen() {
           <iframe
             ref={iframeRef}
             srcDoc={mapHTML}
+            sandbox="allow-scripts"
             style={{ width: '100%', height: '100%', border: 0, flex: 1 }}
             onLoad={() => setIsMapLoaded(true)}
           />

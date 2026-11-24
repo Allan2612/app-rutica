@@ -63,7 +63,14 @@
         }
       ],
       "@react-native-community/datetimepicker",
-      "expo-font"
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./node_modules/@expo-google-fonts/caveat/700Bold/Caveat_700Bold.ttf"
+          ]
+        }
+      ]
     ],
     "extra": {
       "router": {},

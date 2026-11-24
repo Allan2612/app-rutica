@@ -15,24 +15,28 @@ const USER_ATTRACTION_REVIEW_KEY = 'user-attraction-review';
 /**
  * Hook para obtener todas las reseñas de una atracción
  */
-export function useAttractionReviews(attractionId: string) {
+export function useAttractionReviews(attractionId: string, enabled: boolean = true) {
   const userId = useAuthStore((state) => state.user?.id);
 
   return useQuery<AttractionReviewDisplay[]>({
     queryKey: [ATTRACTION_REVIEWS_KEY, attractionId, userId],
     queryFn: () => getAttractionReviews(attractionId, userId),
-    enabled: !!attractionId,
+    enabled: enabled && !!attractionId,
   });
 }
 
 /**
  * Hook para obtener la reseña del usuario actual para una atracción
  */
-export function useUserAttractionReview(attractionId: string, userId: string | null) {
+export function useUserAttractionReview(
+  attractionId: string,
+  userId: string | null,
+  enabled: boolean = true,
+) {
   return useQuery<AttractionReviewDisplay | null>({
     queryKey: [USER_ATTRACTION_REVIEW_KEY, attractionId, userId],
     queryFn: () => getUserAttractionReview(attractionId, userId!),
-    enabled: !!attractionId && !!userId,
+    enabled: enabled && !!attractionId && !!userId,
   });
 }
 
@@ -57,6 +61,10 @@ export function useCreateAttractionReview() {
       return createAttractionReview(attractionId, userId, rating, comment);
     },
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+      queryClient.invalidateQueries({ queryKey: ['attraction-detail', variables.attractionId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: [ATTRACTION_REVIEWS_KEY, variables.attractionId],
       });
@@ -90,6 +98,10 @@ export function useUpdateAttractionReview() {
       return updateAttractionReview(reviewId, rating, comment);
     },
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+      queryClient.invalidateQueries({ queryKey: ['attraction-detail', variables.attractionId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: [ATTRACTION_REVIEWS_KEY, variables.attractionId],
       });
@@ -119,6 +131,10 @@ export function useDeleteAttractionReview() {
       return deleteAttractionReview(reviewId, attractionId);
     },
     onSuccess: (_, variables) => {
+      // El trigger recalculó el rating: refrescar tarjetas y detalle (B17)
+      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+      queryClient.invalidateQueries({ queryKey: ['attraction-detail', variables.attractionId] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
       queryClient.invalidateQueries({
         queryKey: [ATTRACTION_REVIEWS_KEY, variables.attractionId],
       });

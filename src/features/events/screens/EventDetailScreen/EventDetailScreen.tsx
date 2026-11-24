@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Pressable, Linking } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import { openSafeUrl } from '@/utils/externalLinks';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, PartyPopper } from 'lucide-react-native';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
@@ -34,7 +35,9 @@ export const EventDetailScreen = memo(function EventDetailScreen() {
     }
   };
 
-  const handleOpenLink = (url: string) => url && Linking.openURL(url).catch(() => {});
+  const handleOpenLink = (url: string) => {
+    openSafeUrl(url);
+  };
 
   if (isLoading) {
     return (

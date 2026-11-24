@@ -5,7 +5,7 @@ import { useThemedColors } from '@/hooks';
 import { useUserBusinesses } from '@/features/business/hooks';
 import { useUserAttractions } from '@/features/attractions/hooks';
 import { useUserEvents } from '@/features/events/hooks';
-import { SUBSCRIPTION_PLANS } from '@/types/entities';
+import { usePlanCatalog } from '@/features/user/hooks/usePlanCatalog';
 import type { SubscriptionType } from '@/types/enums';
 import type { BusinessSelections, EntitySelections } from '../usePremiumModal';
 import { styles } from './styles';
@@ -25,6 +25,8 @@ export const PlansSummary = memo(function PlansSummary({
   preSelectedBusinessName,
   preSelectedEntityName,
 }: PlansSummaryProps) {
+  // Planes y precios desde la tabla `subscription` (lo que configura el admin)
+  const { plans: planCatalog } = usePlanCatalog();
   const colors = useThemedColors();
   const { data: businesses = [] } = useUserBusinesses();
   const { data: attractions = [] } = useUserAttractions();
@@ -55,12 +57,9 @@ export const PlansSummary = memo(function PlansSummary({
     return map;
   }, [events]);
 
-  const selectedPlansInfo = SUBSCRIPTION_PLANS.filter((p) => selectedPlans.includes(p.type));
+  const selectedPlansInfo = planCatalog.filter((p) => selectedPlans.includes(p.type));
 
-  const totalPrice = selectedPlansInfo.reduce((sum, plan) => {
-    const priceNum = parseInt(plan.price.replace(/[^\d]/g, ''));
-    return sum + priceNum;
-  }, 0);
+  const totalPrice = selectedPlansInfo.reduce((sum, plan) => sum + plan.priceValue, 0);
 
   // Verificar si solo tiene full_premium o si tiene algún plan no recurrente
   const hasOnlyFullPremium = selectedPlans.length === 1 && selectedPlans[0] === 'full_premium';

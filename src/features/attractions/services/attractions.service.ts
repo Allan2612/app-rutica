@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { buildIlikeOr } from '@/utils/searchFilters';
 
 // ============================================
 // Constants
@@ -152,7 +153,7 @@ export async function getAttractionsList(
 
   if (searchText && searchText.trim().length > 0) {
     const term = searchText.trim();
-    query = query.or(`name_atr.ilike.%${term}%,description_atr.ilike.%${term}%`);
+    query = query.or(buildIlikeOr(['name_atr', 'description_atr'], term));
   }
 
   query = query.order('created_at_atr', { ascending: false });

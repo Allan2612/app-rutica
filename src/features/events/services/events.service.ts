@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { ilikePattern } from '@/utils/searchFilters';
 
 // ============================================
 // Constants
@@ -161,7 +162,7 @@ export async function getEventsList(filters: EventListFilters = {}): Promise<Eve
 
   // Filtro por texto
   if (searchText?.trim()) {
-    query = query.ilike('name_evt', `%${searchText.trim()}%`);
+    query = query.ilike('name_evt', ilikePattern(searchText));
   }
 
   // Filtro por categorías

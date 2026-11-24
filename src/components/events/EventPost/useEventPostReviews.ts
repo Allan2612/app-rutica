@@ -13,9 +13,11 @@ export function useEventPostReviews(
   userId: string | null,
   selectedReviewId: string | null,
   selectedReviewUserId: string | null,
+  /** Solo cargar reseñas cuando el post está expandido o hay un modal abierto (E2) */
+  active: boolean = true,
 ) {
-  const { data: reviews = [] } = useEventReviews(eventId);
-  const { data: userReview } = useUserEventReview(eventId, userId);
+  const { data: reviews = [] } = useEventReviews(eventId, active);
+  const { data: userReview } = useUserEventReview(eventId, userId, active);
 
   const createReview = useCreateEventReview();
   const updateReview = useUpdateEventReview();
