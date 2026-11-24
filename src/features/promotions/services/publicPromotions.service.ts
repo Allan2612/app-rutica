@@ -10,12 +10,15 @@ import {
   pageRange,
   resolveDistrictIds,
 } from '@/services/listQuery';
+
 import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
+
 import { buildIlikeOr } from '@/utils/searchFilters';
+
 import type { Database } from '@/lib/supabase/database.types';
 import type { PromotionListItem } from '@/types/entities';
-import { getImageUrl } from './promotions.helpers';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 // Database type aliases
 type PromotionRow = Database['public']['Tables']['promotions']['Row'];
@@ -291,7 +294,7 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
 
   if (promoImage) {
     // Bucket para promociones es 'promotions-images'
-    imageUrl = getImageUrl('promotions-images', promoImage.path_pim);
+    imageUrl = publicStorageUrl('promotions-images', promoImage.path_pim, IMAGE_WIDTH.card);
   } else {
     // Fallback: usar imagen del negocio
     const businessCover = record.businesses?.business_images?.find((img) => {
@@ -305,7 +308,7 @@ function mapRecordToListItem(record: PublicPromotionRecord): PromotionListItem {
     const businessImg = businessCover || businessLogo;
     if (businessImg) {
       // Bucket para negocios es 'business-images'
-      imageUrl = getImageUrl('business-images', businessImg.path_bim);
+      imageUrl = publicStorageUrl('business-images', businessImg.path_bim, IMAGE_WIDTH.card);
     }
   }
 

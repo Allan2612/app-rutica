@@ -6,7 +6,7 @@
 import { supabase } from '@/lib/supabase/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
-import { publicStorageUrl } from '@/utils/storage';
+import { UPLOAD_CACHE_SECONDS, publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'promotions-images';
 
@@ -54,6 +54,7 @@ export async function uploadPromotionImage(
 
     const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, blob, {
       contentType: 'image/jpeg',
+      cacheControl: UPLOAD_CACHE_SECONDS,
       upsert: false,
     });
 
@@ -68,6 +69,7 @@ export async function uploadPromotionImage(
       .from(BUCKET_NAME)
       .upload(filePath, decode(base64Data), {
         contentType: 'image/jpeg',
+        cacheControl: UPLOAD_CACHE_SECONDS,
         upsert: false,
       });
 

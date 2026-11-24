@@ -8,6 +8,7 @@ import {
   validateLocationData,
   type LocationHierarchy,
 } from '@/services/locations.service';
+import { UPLOAD_CACHE_SECONDS } from '@/utils/storage';
 
 const BUCKET_NAME = 'business-images';
 
@@ -97,6 +98,7 @@ async function uploadImage(
 
     const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, fileData, {
       contentType: 'image/jpeg',
+      cacheControl: UPLOAD_CACHE_SECONDS,
       upsert: true,
     });
 

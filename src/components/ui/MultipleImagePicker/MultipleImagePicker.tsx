@@ -1,9 +1,15 @@
 import { memo, useState } from 'react';
+
 import { View, Text, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
+
 import { Plus, X } from 'lucide-react-native';
+
 import * as ImagePicker from 'expo-image-picker';
 import { useThemedColors } from '@/hooks';
+
 import { styles } from './styles';
+
+import { compressImage } from '@/utils/imageCompression';
 
 export interface MultipleImagePickerProps {
   images: string[];
@@ -42,7 +48,9 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
 
       if (!result.canceled && result.assets.length > 0) {
         // Tomar solo las imágenes que caben en los espacios disponibles
-        const newImages = result.assets.slice(0, availableSlots).map((asset) => asset.uri);
+        const newImages = await Promise.all(
+          result.assets.slice(0, availableSlots).map((asset) => compressImage(asset.uri)),
+        );
         onImagesChange([...images, ...newImages]);
       }
     } catch (error) {

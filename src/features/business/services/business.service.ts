@@ -12,7 +12,7 @@ import type { Database } from '@/lib/supabase/database.types';
 import { Business, BusinessWithRelations, Location } from '@/types/entities';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
-import { publicStorageUrl } from '@/utils/storage';
+import { UPLOAD_CACHE_SECONDS, publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_LOGO = 'business-images';
 const BUCKET_IMAGES = 'business-images';
@@ -129,6 +129,7 @@ export async function uploadImageToStorage(
     // Subir a Supabase
     const { data, error } = await supabase.storage.from(BUCKET_IMAGES).upload(filePath, fileData, {
       contentType: `image/${fileExt}`,
+      cacheControl: UPLOAD_CACHE_SECONDS,
       upsert: false,
     });
 

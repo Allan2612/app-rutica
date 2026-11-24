@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAuthRedirectUrl } from '@/utils/authRedirect';
+import { UPLOAD_CACHE_SECONDS } from '@/utils/storage';
 
 const PROFILE_IMAGES_BUCKET = 'profiles-images';
 const PENDING_PROFILE_PHOTO_KEY = 'pending_profile_photo';
@@ -33,6 +34,7 @@ async function uploadProfilePhoto(userId: string, imageUri: string): Promise<str
 
     const { error } = await supabase.storage.from(PROFILE_IMAGES_BUCKET).upload(fileName, blob, {
       contentType: 'image/jpeg',
+      cacheControl: UPLOAD_CACHE_SECONDS,
       upsert: true,
     });
 
@@ -49,6 +51,7 @@ async function uploadProfilePhoto(userId: string, imageUri: string): Promise<str
       .from(PROFILE_IMAGES_BUCKET)
       .upload(fileName, byteArray, {
         contentType: 'image/jpeg',
+        cacheControl: UPLOAD_CACHE_SECONDS,
         upsert: true,
       });
 

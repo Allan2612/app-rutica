@@ -1,11 +1,12 @@
 import { usePagedList } from '@/hooks/usePagedList';
-import { supabase } from '@/lib/supabase/client';
+
 import {
   AttractionListFilters,
   AttractionListRecord,
   getAttractionsList,
-  getImageUrl,
 } from '@/features/attractions/services/attractions.service';
+
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 export interface AttractionListItem {
   id: string;
@@ -34,7 +35,7 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
   // V3: Solo path_aim, usar getImageUrl con un solo argumento
   const imageUrls = sortedImages
     .filter((img) => img?.path_aim)
-    .map((img) => getImageUrl(img.path_aim));
+    .map((img) => publicStorageUrl('attractions-images', img.path_aim, IMAGE_WIDTH.card));
 
   // Obtener categorías
   const categories =
@@ -63,8 +64,7 @@ function mapAttractionToListItem(item: AttractionListRecord): AttractionListItem
 
   // Avatar del autor
   const authorAvatarUrl = item.profiles?.profile_photo_path_prf
-    ? supabase.storage.from('profiles-images').getPublicUrl(item.profiles.profile_photo_path_prf)
-        .data.publicUrl
+    ? publicStorageUrl('profiles-images', item.profiles.profile_photo_path_prf, IMAGE_WIDTH.thumb)
     : null;
 
   return {

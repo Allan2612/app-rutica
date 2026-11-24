@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { supabase } from '@/lib/supabase/client';
+
 import { useAuthStore } from '@/store';
-import { getImageUrl } from '../services';
+
 import type { BusinessListItem } from './useBusinesses';
-import { getImageTypeFromPath } from '@/utils/storage';
+import { IMAGE_WIDTH, getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 interface FavoriteBusinessRecord {
   business_id_blk: string;
@@ -66,9 +68,13 @@ function mapFavoriteToBusinessItem(record: FavoriteBusinessRecord): BusinessList
 
   const primaryImage = coverImage ?? galleryImage ?? logoImage ?? sortedImages[0];
 
-  const imageUrl = primaryImage?.path_bim ? getImageUrl(primaryImage.path_bim) : null;
+  const imageUrl = primaryImage?.path_bim
+    ? publicStorageUrl('business-images', primaryImage.path_bim, IMAGE_WIDTH.card)
+    : null;
 
-  const logoUrl = logoImage?.path_bim ? getImageUrl(logoImage.path_bim) : null;
+  const logoUrl = logoImage?.path_bim
+    ? publicStorageUrl('business-images', logoImage.path_bim, IMAGE_WIDTH.thumb)
+    : null;
 
   const categories =
     item.business_category_map

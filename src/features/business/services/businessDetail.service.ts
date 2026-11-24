@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'business-images';
 
@@ -104,12 +105,11 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
     (img) => (img.sort_order_bim ?? 0) > 0 && getImageType(img.path_bim) !== 'cover',
   );
 
-  const getImageUrl = (path: string) => {
-    const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-    return urlData.publicUrl;
-  };
+  const getImageUrl = (path: string) => publicStorageUrl(BUCKET_NAME, path, IMAGE_WIDTH.full);
 
-  const logoUrl = logoImage?.path_bim ? getImageUrl(logoImage.path_bim) : null;
+  const logoUrl = logoImage?.path_bim
+    ? publicStorageUrl(BUCKET_NAME, logoImage.path_bim, IMAGE_WIDTH.thumb)
+    : null;
 
   const coverImageUrl = coverImage?.path_bim ? getImageUrl(coverImage.path_bim) : null;
 

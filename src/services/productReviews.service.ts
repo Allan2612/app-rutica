@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase/client';
 import { validateReviewContent } from './contentModeration.service';
 import type { Database } from '@/lib/supabase/database.types';
 import { pageRange, type Page } from '@/services/listQuery';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 export interface ProductReviewDisplay {
   id: string;
@@ -40,8 +41,7 @@ function toDisplay(review: ProductReviewWithProfile): ProductReviewDisplay {
     createdAt: review.created_at_prv ?? '',
     authorName,
     authorPhotoUrl: profile?.profile_photo_path_prf
-      ? supabase.storage.from('profiles-images').getPublicUrl(profile.profile_photo_path_prf).data
-          .publicUrl
+      ? publicStorageUrl('profiles-images', profile.profile_photo_path_prf, IMAGE_WIDTH.thumb)
       : null,
   };
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 /**
  * Hook para obtener la URL pública de la foto de perfil del usuario
@@ -28,9 +29,11 @@ export function useProfilePhoto(userId: string | undefined): string | null {
         }
 
         // Obtener URL pública del storage
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('profiles-images').getPublicUrl(profile.profile_photo_path_prf);
+        const publicUrl = publicStorageUrl(
+          'profiles-images',
+          profile.profile_photo_path_prf,
+          IMAGE_WIDTH.thumb * 2, // también se muestra en grande en el perfil
+        );
 
         setPhotoUrl(publicUrl);
       } catch (err) {

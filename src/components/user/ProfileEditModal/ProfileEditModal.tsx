@@ -9,6 +9,8 @@ import type { Profile, ProfileUpdate } from '@/types/entities';
 import { useThemedColors, useProfilePhoto } from '@/hooks';
 import { supabase } from '@/lib/supabase';
 import styles from './styles';
+import { compressImage, IMAGE_MAX_SIZE } from '@/utils/imageCompression';
+import { UPLOAD_CACHE_SECONDS } from '@/utils/storage';
 
 interface ProfileEditModalProps {
   visible: boolean;
@@ -47,7 +49,7 @@ export const ProfileEditModal = memo(function ProfileEditModal({
     });
 
     if (!result.canceled) {
-      setProfilePhoto(result.assets[0].uri);
+      setProfilePhoto(await compressImage(result.assets[0].uri, IMAGE_MAX_SIZE.avatar));
     }
   }, []);
 
@@ -80,6 +82,7 @@ export const ProfileEditModal = memo(function ProfileEditModal({
           .from('profiles-images')
           .upload(filePath, blob, {
             contentType: 'image/jpeg',
+            cacheControl: UPLOAD_CACHE_SECONDS,
             upsert: true,
           });
 

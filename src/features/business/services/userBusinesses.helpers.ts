@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
-import { publicStorageUrl } from '@/utils/storage';
+import { UPLOAD_CACHE_SECONDS, publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'business-images';
 
@@ -56,6 +56,7 @@ export async function uploadImage(
 
   const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, fileData, {
     contentType: `image/${fileExt}`,
+    cacheControl: UPLOAD_CACHE_SECONDS,
     upsert: false,
   });
 

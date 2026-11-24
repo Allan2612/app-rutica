@@ -8,7 +8,7 @@ import type { PromotionListItem } from '@/types/entities';
 import type { BusinessListItem } from '@/features/business/hooks/useBusinesses';
 import type { EventListItem } from '@/features/events/hooks/useEvents';
 import type { AttractionListItem } from '@/features/attractions/hooks/useAttractions';
-import { getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
+import { IMAGE_WIDTH, getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_BUSINESS = 'business-images';
 const BUCKET_PROMOTIONS = 'promotions-images';
@@ -16,8 +16,9 @@ const BUCKET_EVENTS = 'events-images';
 const BUCKET_ATTRACTIONS = 'attractions-images';
 
 // Helper para generar URLs de imágenes desde Supabase Storage
+// Inicio: todo se muestra en tarjetas
 function getImageUrl(bucket: string, path: string): string {
-  return publicStorageUrl(bucket, path);
+  return publicStorageUrl(bucket, path, IMAGE_WIDTH.card);
 }
 
 // Helper para extraer el tipo de imagen del path (cover, gallery, etc.)
@@ -687,9 +688,11 @@ export async function getFeaturedEvents(limit: number = 5): Promise<EventListIte
         : null;
 
       const authorAvatarUrl = item.profiles?.profile_photo_path_prf
-        ? supabase.storage
-            .from('profiles-images')
-            .getPublicUrl(item.profiles.profile_photo_path_prf).data.publicUrl
+        ? publicStorageUrl(
+            'profiles-images',
+            item.profiles.profile_photo_path_prf,
+            IMAGE_WIDTH.thumb,
+          )
         : null;
 
       return {
@@ -867,9 +870,11 @@ export async function getFeaturedAttractions(limit: number = 5): Promise<Attract
         : null;
 
       const authorAvatarUrl = item.profiles?.profile_photo_path_prf
-        ? supabase.storage
-            .from('profiles-images')
-            .getPublicUrl(item.profiles.profile_photo_path_prf).data.publicUrl
+        ? publicStorageUrl(
+            'profiles-images',
+            item.profiles.profile_photo_path_prf,
+            IMAGE_WIDTH.thumb,
+          )
         : null;
 
       return {

@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Types
@@ -140,8 +141,7 @@ export async function getUserBusinessesFavoriteStats(
     const logoImage = images.find((img) => img.path_bim.includes('logo-'));
     if (!logoImage) return null;
 
-    const { data } = supabase.storage.from('business-images').getPublicUrl(logoImage.path_bim);
-    return data.publicUrl;
+    return publicStorageUrl('business-images', logoImage.path_bim, IMAGE_WIDTH.thumb);
   };
 
   // 8. Construir estadísticas por negocio (filtrar si se especifica uno)

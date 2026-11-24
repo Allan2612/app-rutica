@@ -2,7 +2,7 @@
  * Servicio para obtener el detalle de un evento
  */
 import { supabase } from '@/lib/supabase/client';
-import { publicStorageUrl } from '@/utils/storage';
+import { IMAGE_WIDTH, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -56,7 +56,7 @@ export interface EventDetailData {
 // ============================================
 
 function getImageUrl(path: string): string {
-  return publicStorageUrl(BUCKET_NAME, path);
+  return publicStorageUrl(BUCKET_NAME, path, IMAGE_WIDTH.full);
 }
 
 // ============================================

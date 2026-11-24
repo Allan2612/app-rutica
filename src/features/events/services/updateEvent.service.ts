@@ -4,7 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
-import { publicStorageUrl } from '@/utils/storage';
+import { UPLOAD_CACHE_SECONDS, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -482,6 +482,7 @@ async function uploadImage(
     .from(BUCKET_NAME)
     .upload(filePath, uploadData, {
       contentType,
+      cacheControl: UPLOAD_CACHE_SECONDS,
       upsert: false,
     });
 
