@@ -1,4 +1,5 @@
 import { memo, useCallback } from 'react';
+import { ReportContentButton } from '@/components/ui';
 import { ModeratedBadge } from '@/components/ui/ModeratedBadge';
 import * as React from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
@@ -10,6 +11,7 @@ import { useToggleReviewLike } from '@/features/business/hooks/useToggleReviewLi
 import { formatDate, DATE_FORMAT_OPTIONS } from '@/utils';
 import { colors as themeColors } from '@/styles/theme/colors';
 import { styles } from './styles';
+import type { ReportEntityType } from '@/services/contentReports.service';
 
 interface ReviewCardProps {
   id: string;
@@ -29,6 +31,8 @@ interface ReviewCardProps {
   /** Optional external like toggle – when provided, overrides the internal business-like hook */
   onLikeToggle?: (reviewId: string) => void;
   isLikeToggling?: boolean;
+  /** Si se indica, muestra "Reportar" (4.9) a quien no es autor ni admin */
+  reportEntityType?: ReportEntityType;
 }
 
 export const ReviewCard = memo(function ReviewCard({
@@ -47,6 +51,7 @@ export const ReviewCard = memo(function ReviewCard({
   isDeleting = false,
   onLikeToggle,
   isLikeToggling = false,
+  reportEntityType,
 }: ReviewCardProps) {
   const colors = useThemedColors();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -152,6 +157,14 @@ export const ReviewCard = memo(function ReviewCard({
               </Text>
             )}
           </Pressable>
+          {reportEntityType && (
+            <ReportContentButton
+              compact
+              entityType={reportEntityType}
+              entityId={id}
+              ownerId={authorId}
+            />
+          )}
         </View>
       )}
 

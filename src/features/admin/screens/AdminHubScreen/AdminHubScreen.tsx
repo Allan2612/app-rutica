@@ -1,11 +1,20 @@
 import { memo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { ClipboardCheck, ChevronRight, MessageSquare, Package, Crown } from 'lucide-react-native';
+import { useQuery } from '@tanstack/react-query';
+import {
+  ClipboardCheck,
+  ChevronRight,
+  MessageSquare,
+  Package,
+  Crown,
+  Flag,
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { BackButton } from '@/components/ui';
 import { useVerificationStats } from '../../hooks/useAdminVerification';
 import { useAdminSubscriptionStats } from '../../hooks/useAdminSubscriptions';
+import { countOpenReports } from '@/services/contentReports.service';
 import { styles } from './styles';
 
 type AdminAction = {
@@ -26,7 +35,13 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
   const { data: verificationStats, refetch: refetchVerification } = useVerificationStats();
   const { data: subscriptionStats, refetch: refetchSubscription } = useAdminSubscriptionStats();
 
+  const { data: openReports = 0, refetch: refetchReports } = useQuery({
+    queryKey: ['admin-content-reports', 'count'],
+    queryFn: countOpenReports,
+  });
+
   // Refrescar estadísticas cuando la pantalla recibe foco
+  useRefreshOnFocus(refetchReports);
   useRefreshOnFocus(refetchVerification);
   useRefreshOnFocus(refetchSubscription);
 
@@ -52,6 +67,17 @@ export const AdminHubScreen = memo(function AdminHubScreen() {
       iconBg: '#fef9c3',
       showBadge: true,
       badgeCount: subscriptionStats?.pending || 0,
+    },
+    {
+      key: 'reports',
+      title: 'Reportes de Contenido',
+      description: 'Revisa lo que los usuarios marcaron como inapropiado',
+      href: '/(app)/(tabs)/manage/admin/reports',
+      icon: Flag,
+      iconColor: '#ef4444',
+      iconBg: '#fee2e2',
+      showBadge: true,
+      badgeCount: openReports,
     },
     {
       key: 'reviews',

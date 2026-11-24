@@ -2,6 +2,7 @@
  * Pantalla de detalle de atracción
  */
 import { memo, useState } from 'react';
+import { ReportContentButton } from '@/components/ui';
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, Mountain } from 'lucide-react-native';
@@ -122,6 +123,12 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
               attractionId={id}
               attractionName={attraction.name}
               attractionImage={attraction.coverImage ?? undefined}
+              ownerId={attraction.createdBy}
+            />
+
+            <ReportContentButton
+              entityType="attraction"
+              entityId={id}
               ownerId={attraction.createdBy}
             />
           </View>

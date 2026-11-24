@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { ReportContentButton } from '@/components/ui';
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { openSafeUrl } from '@/utils/externalLinks';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -150,6 +151,8 @@ export const EventDetailScreen = memo(function EventDetailScreen() {
               eventImage={event.coverImage ?? undefined}
               ownerId={event.createdBy}
             />
+
+            <ReportContentButton entityType="event" entityId={id} ownerId={event.createdBy} />
           </View>
         </View>
       </ScrollView>

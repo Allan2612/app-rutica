@@ -42,6 +42,7 @@ export const AttractionReviewsList = memo(function AttractionReviewsList({
       {/* User's review first if exists */}
       {userReview && (
         <ReviewCard
+          reportEntityType="attraction_review"
           id={userReview.id}
           authorName={userReview.authorName}
           authorId={userReview.userId}
@@ -64,6 +65,7 @@ export const AttractionReviewsList = memo(function AttractionReviewsList({
         .filter((review) => review.userId !== currentUserId)
         .map((review) => (
           <ReviewCard
+            reportEntityType="attraction_review"
             key={review.id}
             id={review.id}
             authorName={review.authorName}
