@@ -14,8 +14,9 @@ import styles from './styles';
 
 export const SettingsScreen = memo(function SettingsScreen() {
   const colors = useThemedColors();
-  const { mode, setMode } = useThemeStore();
-  const isDark = mode === 'dark';
+  const setMode = useThemeStore((s) => s.setMode);
+  // El interruptor refleja el tema que se ve (también cuando sigue al sistema)
+  const isDark = useThemeStore((s) => s.effectiveTheme === 'dark');
 
   const handleToggleTheme = useCallback(() => {
     setMode(isDark ? 'light' : 'dark');

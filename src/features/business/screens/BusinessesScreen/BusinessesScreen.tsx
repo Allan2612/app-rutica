@@ -455,7 +455,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
         contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
       >
         {promotionCount === 0 ? (
-          renderEmpty('No hay promociones disponibles')
+          renderEmpty('Todavía no hay ofertas activas')
         ) : (
           <>
             {/* Sección local */}
