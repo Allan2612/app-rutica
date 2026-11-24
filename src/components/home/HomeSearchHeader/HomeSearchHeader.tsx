@@ -1,10 +1,11 @@
 /**
  * HomeSearchHeader — encabezado del inicio ("buscar primero").
- * Saludo, buscador (la zona ya está en el encabezado de la app) que abre Comercios con la búsqueda hecha y accesos por
- * categoría tomados de los comercios que ya cargó el inicio (nunca llevan a una lista vacía).
+ * Qué ofrece la app en una línea, buscador (la zona ya está en el encabezado de la app) que abre
+ * Comercios con la búsqueda hecha y accesos por categoría tomados de los comercios que ya cargó
+ * el inicio (nunca llevan a una lista vacía).
  */
 
-import { memo, useMemo, useState } from 'react';
+import { memo, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Search } from 'lucide-react-native';
@@ -21,18 +22,11 @@ interface HomeSearchHeaderProps {
   categories: CategoryChip[];
 }
 
-function greeting(hour: number) {
-  if (hour < 12) return 'Buenos días';
-  if (hour < 19) return 'Buenas tardes';
-  return 'Buenas noches';
-}
-
 export const HomeSearchHeader = memo(function HomeSearchHeader({
   categories,
 }: HomeSearchHeaderProps) {
   const colors = useThemedColors();
   const [query, setQuery] = useState('');
-  const hello = useMemo(() => greeting(new Date().getHours()), []);
 
   const search = () => {
     const q = query.trim();
@@ -46,21 +40,16 @@ export const HomeSearchHeader = memo(function HomeSearchHeader({
       style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.sm }}
     >
       <View style={{ gap: spacing.md }}>
-        <View style={{ gap: 4 }}>
-          <Text style={{ fontSize: typography.sizes.sm, color: colors.text.secondary }}>
-            {hello}
-          </Text>
-          <Text
-            accessibilityRole="header"
-            style={{
-              fontSize: typography.sizes['2xl'],
-              fontWeight: '700',
-              color: colors.text.primary,
-            }}
-          >
-            ¿Qué hacemos hoy?
-          </Text>
-        </View>
+        <Text
+          accessibilityRole="header"
+          style={{
+            fontSize: typography.sizes['2xl'],
+            fontWeight: '700',
+            color: colors.text.primary,
+          }}
+        >
+          Comercios, lugares y eventos cerca de ti
+        </Text>
 
         <View
           style={{

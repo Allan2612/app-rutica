@@ -30,6 +30,7 @@ import { useBusinessesStyles } from './styles';
 import { BusinessesList } from '@/components/business/BusinessesList';
 import { BusinessCard } from '@/components/business/BusinessCard';
 import { PromotionsPublicList } from '@/components/promotions';
+import { withDescendants } from '@/utils/categoryTree';
 import { PromotionPublicCard } from '@/components/promotions/PromotionPublicCard';
 import type { PromotionListItem } from '@/types/entities';
 import { spacing } from '@/styles/theme';
@@ -110,7 +111,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   const locationName = getLocationDisplayName(locationFilter);
   const businessScope = {
     searchText: commerceFilters.searchText,
-    categoryIds: commerceFilters.categoryIds,
+    // Elegir una categoría incluye sus subcategorías
+    categoryIds: withDescendants(commerceFilters.categoryIds, categories),
     location: locationFilter,
   };
   const localBusinesses = useBusinesses({
@@ -126,7 +128,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
 
   const promotionScope = {
     searchText: promotionFilters.searchText,
-    categoryIds: promotionFilters.categoryIds,
+    categoryIds: withDescendants(promotionFilters.categoryIds, categories),
     location: locationFilter,
   };
   const localPromotions = usePromotions({

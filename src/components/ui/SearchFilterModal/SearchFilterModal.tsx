@@ -10,7 +10,16 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
-import { ChevronDown, ChevronUp, MapPin, Search, X } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  MapPin,
+  Search,
+  Tags,
+  X,
+} from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useLocationStore } from '@/store';
 import type { SearchFilters, HierarchicalCategoryOption } from '@/types/entities';
@@ -40,8 +49,8 @@ export interface SearchFilterModalProps {
 export type { SearchFilters, HierarchicalCategoryOption };
 
 /**
- * Modal de búsqueda y filtros: una sola hoja con búsqueda, categorías (agrupadas, todas a la
- * vista) y zona. Antes eran tres pestañas que no dejaban ver los filtros juntos.
+ * Modal de búsqueda y filtros: una hoja con búsqueda, zona y un resumen de categorías. Las
+ * categorías (cientos, en niveles) tienen su propia vista dentro del modal con CategoryPicker.
  */
 export function SearchFilterModal({
   visible,
@@ -60,6 +69,7 @@ export function SearchFilterModal({
   );
 
   const [showZone, setShowZone] = useState(false);
+  const [view, setView] = useState<'main' | 'categories'>('main');
 
   // Estados de filtros
   const [searchText, setSearchText] = useState(initialSearchText);
@@ -71,6 +81,7 @@ export function SearchFilterModal({
       setSearchText(initialSearchText);
       setSelectedCategoryIds(initialCategoryIds);
       setShowZone(false);
+      setView('main');
     }
     // Solo cuando visible cambia - no cuando cambian los valores iniciales mientras está abierto
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,6 +131,17 @@ export function SearchFilterModal({
     selectedCategoryIds.length +
     (location?.province || location?.canton || location?.district ? 1 : 0);
 
+  const categoryNames = useMemo(() => {
+    const byId = new Map(categories.map((c) => [c.id, c.name]));
+    return selectedCategoryIds.map((id) => byId.get(id)).filter(Boolean) as string[];
+  }, [categories, selectedCategoryIds]);
+  const categorySummary =
+    categoryNames.length === 0
+      ? 'Todas las categorías'
+      : categoryNames.length <= 2
+        ? categoryNames.join(', ')
+        : `${categoryNames.slice(0, 2).join(', ')} y ${categoryNames.length - 2} más`;
+
   const sectionTitle = (text: string, extra?: string) => (
     <Text
       accessibilityRole="header"
@@ -141,7 +163,19 @@ export function SearchFilterModal({
         <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-            <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
+            {view === 'categories' ? (
+              <Pressable
+                onPress={() => setView('main')}
+                accessibilityRole="button"
+                accessibilityLabel="Volver a los filtros"
+                style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 }}
+              >
+                <ArrowLeft size={22} color={colors.text.primary} />
+                <Text style={[styles.title, { color: colors.text.primary }]}>Categorías</Text>
+              </Pressable>
+            ) : (
+              <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
+            )}
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Cerrar"
@@ -152,59 +186,105 @@ export function SearchFilterModal({
             </Pressable>
           </View>
 
-          <ScrollView
-            style={styles.body}
-            contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: spacing.sm,
-                paddingHorizontal: spacing.md,
-                borderRadius: 12,
-                borderWidth: 1,
-                borderColor: colors.border.medium,
-              }}
-            >
-              <Search size={18} color={colors.text.tertiary} />
-              <TextInput
-                value={searchText}
-                onChangeText={setSearchText}
-                onSubmitEditing={handleApply}
-                returnKeyType="search"
-                placeholder={placeholder}
-                placeholderTextColor={colors.text.tertiary}
-                accessibilityLabel="Buscar por nombre o descripción"
-                autoCorrect={false}
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  fontSize: typography.sizes.base,
-                  color: colors.text.primary,
-                }}
+          {view === 'categories' ? (
+            <View style={[styles.body, { padding: spacing.lg, paddingBottom: 0 }]}>
+              <CategoryPicker
+                categories={hierarchicalCategories}
+                selectedIds={selectedCategoryIds}
+                onChange={setSelectedCategoryIds}
               />
-              {searchText ? (
-                <Pressable
-                  onPress={() => setSearchText('')}
-                  accessibilityRole="button"
-                  accessibilityLabel="Borrar búsqueda"
-                  hitSlop={8}
-                >
-                  <X size={18} color={colors.text.tertiary} />
-                </Pressable>
-              ) : null}
             </View>
+          ) : (
+            <ScrollView
+              style={styles.body}
+              contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: spacing.sm,
+                  paddingHorizontal: spacing.md,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border.medium,
+                }}
+              >
+                <Search size={18} color={colors.text.tertiary} />
+                <TextInput
+                  value={searchText}
+                  onChangeText={setSearchText}
+                  onSubmitEditing={handleApply}
+                  returnKeyType="search"
+                  placeholder={placeholder}
+                  placeholderTextColor={colors.text.tertiary}
+                  accessibilityLabel="Buscar por nombre o descripción"
+                  autoCorrect={false}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    fontSize: typography.sizes.base,
+                    color: colors.text.primary,
+                  }}
+                />
+                {searchText ? (
+                  <Pressable
+                    onPress={() => setSearchText('')}
+                    accessibilityRole="button"
+                    accessibilityLabel="Borrar búsqueda"
+                    hitSlop={8}
+                  >
+                    <X size={18} color={colors.text.tertiary} />
+                  </Pressable>
+                ) : null}
+              </View>
 
-            {showLocationTab && (
+              {showLocationTab && (
+                <View style={{ gap: spacing.md }}>
+                  {sectionTitle('Zona')}
+                  <Pressable
+                    onPress={() => setShowZone((v) => !v)}
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: showZone }}
+                    accessibilityLabel={`Zona: ${zoneName}. Cambiar`}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: spacing.sm,
+                      padding: spacing.md,
+                      borderRadius: 12,
+                      borderWidth: 1,
+                      borderColor: colors.border.light,
+                    }}
+                  >
+                    <MapPin size={18} color={colors.primary[500]} />
+                    <Text
+                      style={{ flex: 1, color: colors.text.primary, fontSize: typography.sizes.sm }}
+                    >
+                      {zoneName}
+                    </Text>
+                    <Text style={{ color: colors.primary[600], fontSize: typography.sizes.sm }}>
+                      Cambiar
+                    </Text>
+                    {showZone ? (
+                      <ChevronUp size={16} color={colors.primary[600]} />
+                    ) : (
+                      <ChevronDown size={16} color={colors.primary[600]} />
+                    )}
+                  </Pressable>
+                  {showZone && <LocationFilterTab />}
+                </View>
+              )}
               <View style={{ gap: spacing.md }}>
-                {sectionTitle('Zona')}
+                {sectionTitle(
+                  'Categorías',
+                  selectedCategoryIds.length ? `${selectedCategoryIds.length} elegidas` : undefined,
+                )}
                 <Pressable
-                  onPress={() => setShowZone((v) => !v)}
+                  onPress={() => setView('categories')}
                   accessibilityRole="button"
-                  accessibilityState={{ expanded: showZone }}
-                  accessibilityLabel={`Zona: ${zoneName}. Cambiar`}
+                  accessibilityLabel={`Categorías: ${categorySummary}. Elegir`}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -215,36 +295,21 @@ export function SearchFilterModal({
                     borderColor: colors.border.light,
                   }}
                 >
-                  <MapPin size={18} color={colors.primary[500]} />
+                  <Tags size={18} color={colors.primary[500]} />
                   <Text
+                    numberOfLines={1}
                     style={{ flex: 1, color: colors.text.primary, fontSize: typography.sizes.sm }}
                   >
-                    {zoneName}
+                    {categorySummary}
                   </Text>
                   <Text style={{ color: colors.primary[600], fontSize: typography.sizes.sm }}>
-                    Cambiar
+                    Elegir
                   </Text>
-                  {showZone ? (
-                    <ChevronUp size={16} color={colors.primary[600]} />
-                  ) : (
-                    <ChevronDown size={16} color={colors.primary[600]} />
-                  )}
+                  <ChevronRight size={16} color={colors.primary[600]} />
                 </Pressable>
-                {showZone && <LocationFilterTab />}
               </View>
-            )}
-            <View style={{ gap: spacing.md }}>
-              {sectionTitle(
-                'Categorías',
-                selectedCategoryIds.length ? `${selectedCategoryIds.length} elegidas` : undefined,
-              )}
-              <CategoryPicker
-                categories={hierarchicalCategories}
-                selectedIds={selectedCategoryIds}
-                onChange={setSelectedCategoryIds}
-              />
-            </View>
-          </ScrollView>
+            </ScrollView>
+          )}
 
           {/* Footer Actions */}
           <FooterActions

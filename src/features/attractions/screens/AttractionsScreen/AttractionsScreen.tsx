@@ -26,6 +26,7 @@ import { EventsList } from '@/components/events';
 import { useThemedColors } from '@/hooks';
 import { useLocationStore } from '@/store';
 import { useCategories } from '@/hooks/useCategories';
+import { withDescendants } from '@/utils/categoryTree';
 import { useAttractions, AttractionListItem } from '@/features/attractions/hooks/useAttractions';
 import { useEvents, EventListItem } from '@/features/events/hooks/useEvents';
 import { getLocationDisplayName } from '@/utils/splitItemsByLocation';
@@ -90,7 +91,8 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   const locationName = getLocationDisplayName(locationFilter);
   const attractionScope = {
     searchText: attractionFilters.searchText,
-    categoryIds: attractionFilters.categoryIds,
+    // Elegir una categoría incluye sus subcategorías
+    categoryIds: withDescendants(attractionFilters.categoryIds, categories),
     location: locationFilter,
   };
   const localAttractions = useAttractions({
@@ -106,7 +108,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
 
   const eventScope = {
     searchText: eventFilters.searchText,
-    categoryIds: eventFilters.categoryIds,
+    categoryIds: withDescendants(eventFilters.categoryIds, categories),
     upcoming: true,
     location: locationFilter,
   };

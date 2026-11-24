@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { Modal, View, Text, Pressable , ScrollView } from 'react-native';
+import { Modal, View, Text, Pressable } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { CategoryPicker } from '@/components/ui/CategoryPicker';
@@ -77,13 +77,15 @@ export const CategorySelectionModal = memo(function CategorySelectionModal({
           </View>
 
           {/* Category Filter Tab */}
-          <ScrollView style={styles.content} contentContainerStyle={{ padding: 20 }}>
+          <View style={[styles.content, { padding: 20, paddingBottom: 0 }]}>
+            {/* Etiquetar: cada categoría cuenta por sí sola (sin incluir subcategorías) */}
             <CategoryPicker
               categories={categories}
               selectedIds={tempSelectedIds}
               onChange={setTempSelectedIds}
+              cascade={false}
             />
-          </ScrollView>
+          </View>
         </View>
       </View>
     </Modal>

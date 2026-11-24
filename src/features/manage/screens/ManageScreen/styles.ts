@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
   },
   content: {
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 1100,
   },
   header: {
     paddingBottom: spacing.lg,
@@ -29,7 +29,8 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   grid: {
-    flexDirection: 'column',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'stretch',
   },
 });
