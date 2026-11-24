@@ -1,8 +1,8 @@
 /**
  * DesktopSidebar — navegación de la web en PC (solo web y pantallas anchas; ver useIsDesktopWeb).
  * Arriba el botón para plegarlo (plegado, se abre solo al pasar el mouse, por encima del
- * contenido), luego las secciones y abajo la cuenta: un acordeón que se abre hacia arriba dentro
- * del panel (perfil, favoritos, configuración, soporte, cerrar sesión). Plegado se recuerda en
+ * contenido). Grupos: Explorar (secciones), Más (favoritos, configuración, soporte, descarga) y
+ * abajo la cuenta (perfil, donde está cerrar sesión, o iniciar sesión). Plegado se recuerda en
  * este navegador.
  */
 
@@ -12,19 +12,14 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {
-  ChevronDown,
-  ChevronUp,
   Download,
   Heart,
   HelpCircle,
   LogIn,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
   User,
-  UserCircle,
-  UserPlus,
 } from 'lucide-react-native';
 import { useShallow } from 'zustand/react/shallow';
 import { useAuthStore } from '@/store';
@@ -59,7 +54,6 @@ type PressState = { pressed: boolean; hovered?: boolean };
 export function DesktopSidebar({ state, descriptors, navigation }: BottomTabBarProps) {
   const colors = useThemedColors();
   const [collapsed, setCollapsed] = useState(readCollapsed);
-  const [accountOpen, setAccountOpen] = useState(false);
   const { user, isAuthenticated, profileName } = useAuthStore(
     useShallow((s) => ({
       user: s.user,
@@ -136,7 +130,6 @@ export function DesktopSidebar({ state, descriptors, navigation }: BottomTabBarP
   );
 
   const go = (path: string) => () => {
-    setAccountOpen(false);
     router.push(path as never);
   };
 
@@ -146,14 +139,14 @@ export function DesktopSidebar({ state, descriptors, navigation }: BottomTabBarP
     label: string,
     icon: (color: string) => ReactNode,
     onPress: () => void,
-    opts: { active?: boolean; color?: string; role?: 'tab' | 'menuitem' } = {},
+    opts: { active?: boolean; color?: string; role?: 'tab' | 'button' } = {},
   ) => {
     const tint = opts.color ?? (opts.active ? colors.primary[500] : colors.text.secondary);
     return (
       <Pressable
         key={key}
         onPress={onPress}
-        accessibilityRole={opts.role ?? 'menuitem'}
+        accessibilityRole={opts.role ?? 'button'}
         accessibilityState={opts.role === 'tab' ? { selected: !!opts.active } : undefined}
         accessibilityLabel={label}
         style={(p: PressState) => ({
@@ -187,6 +180,24 @@ export function DesktopSidebar({ state, descriptors, navigation }: BottomTabBarP
     function renderIcon(c: string) {
       return <Icon color={c} size={18} />;
     };
+
+  // Título de grupo; plegado deja el mismo alto para que los íconos no salten al abrirse
+  const sectionLabel = (text: string) => (
+    <View style={{ height: 28, justifyContent: 'center', paddingHorizontal: 13 }}>
+      {!narrow && (
+        <Text
+          style={{
+            fontSize: typography.sizes.xs,
+            fontWeight: '600',
+            letterSpacing: 0.4,
+            color: colors.text.tertiary,
+          }}
+        >
+          {text.toUpperCase()}
+        </Text>
+      )}
+    </View>
+  );
 
   return (
     <View style={{ width: collapsed ? WIDTH_CLOSED : WIDTH_OPEN, height: '100%', zIndex: 20 }}>
@@ -228,6 +239,7 @@ export function DesktopSidebar({ state, descriptors, navigation }: BottomTabBarP
           </Pressable>
         </View>
 
+        {sectionLabel('Explorar')}
         <View style={{ gap: 2 }}>
           {tabs.map(({ route, index, options }) => {
             const focused = state.index === index;
@@ -253,95 +265,96 @@ export function DesktopSidebar({ state, descriptors, navigation }: BottomTabBarP
 
         <View style={{ flex: 1 }} />
 
-        {accountOpen && (
-          <View nativeID="sidebar-account-menu" accessibilityRole="menu" style={{ gap: 2 }}>
-            {isAuthenticated && !narrow && (
-              <Text
-                numberOfLines={1}
-                style={{
-                  paddingHorizontal: 13,
-                  paddingBottom: 6,
-                  fontSize: typography.sizes.xs,
-                  color: colors.text.tertiary,
-                }}
+        {sectionLabel('Más')}
+        <View style={{ gap: 2 }}>
+          {isAuthenticated && row('fav', 'Mis favoritos', icon(Heart), go('/(app)/favorites'))}
+          {row('settings', 'Configuración', icon(Settings), go('/(app)/settings'))}
+          {row('support', 'Soporte', icon(HelpCircle), go('/(app)/support'))}
+          {hasDownloadAvailable() &&
+            row('download', 'Descargar app', icon(Download), triggerDownload)}
+        </View>
+
+        <View style={{ height: 1, marginVertical: 10, backgroundColor: colors.border.light }} />
+
+        {isAuthenticated ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Pressable
+              onPress={go('/(app)/profile')}
+              accessibilityRole="button"
+              accessibilityLabel={`Mi perfil: ${name}`}
+              style={(p: PressState) => ({
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: narrow ? 'center' : 'flex-start',
+                gap: 10,
+                paddingVertical: 6,
+                paddingHorizontal: narrow ? 0 : 6,
+                borderRadius: 10,
+                backgroundColor: hover(p),
+              })}
+            >
+              {avatar}
+              {!narrow && (
+                <View style={{ flex: 1 }}>
+                  <Text
+                    numberOfLines={1}
+                    style={{
+                      fontSize: typography.sizes.sm,
+                      fontWeight: '600',
+                      color: colors.text.primary,
+                    }}
+                  >
+                    {name}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    style={{ fontSize: typography.sizes.xs, color: colors.text.secondary }}
+                  >
+                    Ver perfil
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+          </View>
+        ) : (
+          <View style={{ gap: 6 }}>
+            <Pressable
+              onPress={go('/(auth)/login')}
+              accessibilityRole="button"
+              accessibilityLabel="Iniciar sesión"
+              style={(p: PressState) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                height: 40,
+                borderRadius: 10,
+                backgroundColor: colors.primary[500],
+                opacity: p.pressed ? 0.85 : 1,
+              })}
+            >
+              <LogIn color="#fff" size={18} />
+              {!narrow && (
+                <Text style={{ color: '#fff', fontWeight: '600', fontSize: typography.sizes.sm }}>
+                  Iniciar sesión
+                </Text>
+              )}
+            </Pressable>
+            {!narrow && (
+              <Pressable
+                onPress={go('/(auth)/register')}
+                accessibilityRole="link"
+                style={{ alignItems: 'center', paddingVertical: 4 }}
               >
-                {user?.email ?? name}
-              </Text>
+                <Text style={{ fontSize: typography.sizes.xs, color: colors.text.secondary }}>
+                  ¿No tienes cuenta?{' '}
+                  <Text style={{ color: colors.primary[500], fontWeight: '600' }}>Regístrate</Text>
+                </Text>
+              </Pressable>
             )}
-            {isAuthenticated ? (
-              <>
-                {row('profile', 'Mi perfil', icon(UserCircle), go('/(app)/profile'))}
-                {row('fav', 'Mis favoritos', icon(Heart), go('/(app)/favorites'))}
-              </>
-            ) : (
-              <>
-                {row('login', 'Iniciar sesión', icon(LogIn), go('/(auth)/login'), {
-                  color: colors.primary[500],
-                })}
-                {row('register', 'Registrarse', icon(UserPlus), go('/(auth)/register'))}
-              </>
-            )}
-            {row('settings', 'Configuración', icon(Settings), go('/(app)/settings'))}
-            {row('support', 'Soporte', icon(HelpCircle), go('/(app)/support'))}
-            {hasDownloadAvailable() &&
-              row('download', 'Descargar app', icon(Download), () => {
-                setAccountOpen(false);
-                triggerDownload();
-              })}
-            {isAuthenticated &&
-              row('logout', 'Cerrar sesión', icon(LogOut), go('/(app)/logout'), {
-                color: '#ef4444',
-              })}
           </View>
         )}
-
-        <View style={{ height: 1, marginVertical: 6, backgroundColor: colors.border.light }} />
-
-        <Pressable
-          onPress={() => setAccountOpen((v) => !v)}
-          accessibilityRole="button"
-          accessibilityLabel={`Cuenta: ${name}`}
-          accessibilityState={{ expanded: accountOpen }}
-          style={(p: PressState) => ({
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-            paddingVertical: 6,
-            paddingHorizontal: narrow ? 0 : 6,
-            justifyContent: narrow ? 'center' : 'flex-start',
-            borderRadius: 10,
-            backgroundColor: accountOpen ? colors.background.tertiary : hover(p),
-          })}
-        >
-          {avatar}
-          {!narrow && (
-            <>
-              <View style={{ flex: 1 }}>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    fontSize: typography.sizes.sm,
-                    fontWeight: '600',
-                    color: colors.text.primary,
-                  }}
-                >
-                  {name}
-                </Text>
-                <Text
-                  numberOfLines={1}
-                  style={{ fontSize: typography.sizes.xs, color: colors.text.secondary }}
-                >
-                  {isAuthenticated ? 'Mi cuenta' : 'Iniciar sesión o registrarse'}
-                </Text>
-              </View>
-              {accountOpen ? (
-                <ChevronDown color={colors.text.tertiary} size={16} />
-              ) : (
-                <ChevronUp color={colors.text.tertiary} size={16} />
-              )}
-            </>
-          )}
-        </Pressable>
       </View>
     </View>
   );

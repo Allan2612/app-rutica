@@ -58,11 +58,6 @@ const css = `
 
 @media (prefers-reduced-motion: no-preference) {
   [role="tab"][aria-selected="true"] svg { animation: rutica-pop 320ms ease-out; }
-  #sidebar-account-menu { animation: rutica-rise 200ms ease-out; }
-}
-@keyframes rutica-rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 @keyframes rutica-pop {
   0% { transform: scale(0.85); }
