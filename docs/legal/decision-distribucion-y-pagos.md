@@ -8,7 +8,7 @@ Los planes de Rutica (galerías, paquete de productos, promociones, dashboard, P
 
 ## Decisión
 
-1. **Hoy Rutica se distribuye solo como app web** (https://rutica-orpin.vercel.app) y, si hace falta en Android, como APK fuera de la tienda. En ese canal el cobro por SINPE es válido.
+1. **Hoy Rutica se distribuye solo como app web** (https://rutica.avt.codes) y, si hace falta en Android, como APK fuera de la tienda. En ese canal el cobro por SINPE es válido.
 2. **No se publica en App Store ni en Google Play** mientras los planes se cobren fuera de la tienda.
 3. Si se decide publicar en una tienda, antes hay que elegir una de estas opciones:
    - a) Cobrar los planes dentro de la app con el sistema de la tienda (Apple In-App Purchase / Google Play Billing). La comisión es de 15 % a 30 %; hay que ajustar precios y conciliar con el flujo de aprobación actual.

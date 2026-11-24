@@ -4,6 +4,7 @@ import nodemailer from 'npm:nodemailer@6.9.16';
 import { createClient, type SupabaseClient, type User } from 'npm:@supabase/supabase-js@2.49.4';
 
 const ALLOWED_ORIGINS = [
+  /^https:\/\/rutica\.avt\.codes$/,
   /^https:\/\/rutica-orpin\.vercel\.app$/,
   /^https:\/\/rutica-[a-z0-9-]+-allans-projects-60a7494c\.vercel\.app$/, // previews
   /^http:\/\/localhost:\d+$/,
