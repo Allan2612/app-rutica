@@ -419,8 +419,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       );
     }
 
-    // Sin ubicación activa → mostrar lista normal
-    if (!withLocation) {
+    // Sin ubicación activa, o sin ofertas → lista normal (su vacío ofrece ir a comercios)
+    if (!withLocation || promotionCount === 0) {
       return (
         <PromotionsPublicList
           data={otherPromotions.data}

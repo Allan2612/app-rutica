@@ -36,6 +36,7 @@ export default function TabsLayout() {
           : isWide
             ? {
                 width: 220,
+                minWidth: 220, // la librería pone ~360 px por defecto
                 paddingTop: 12,
                 backgroundColor: colors.background.primary,
                 borderRightWidth: 1,
