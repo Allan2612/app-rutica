@@ -11,6 +11,7 @@ import {
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
 import type { BusinessDetailForEdit } from '@/types/entities/business';
 import { canUserEdit } from '@/utils/permissionHelpers';
+import { publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'business-images';
 
@@ -46,8 +47,7 @@ export interface UpdateBusinessData {
 }
 
 function getImageUrl(path: string): string {
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(BUCKET_NAME, path);
 }
 
 /**

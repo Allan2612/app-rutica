@@ -42,7 +42,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
   const { tab } = useLocalSearchParams<{ tab?: string }>();
   const [activeTab, setActiveTab] = useState(tab === 'events' ? 'events' : 'attractions');
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
-  const { location } = useLocationStore();
+  const location = useLocationStore((s) => s.location);
 
   // Actualizar tab cuando cambia el parámetro
   useEffect(() => {
@@ -328,10 +328,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
             )}
 
             {localAttractions.data.length === 0 && otherAttractions.data.length > 0 && (
-              <NoLocalResultsPlaceholder
-                locationName={locationName}
-                entityLabel="atracciones"
-              />
+              <NoLocalResultsPlaceholder locationName={locationName} entityLabel="atracciones" />
             )}
 
             {otherAttractions.data.length > 0 && (
@@ -423,10 +420,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
             )}
 
             {localEvents.data.length === 0 && otherEvents.data.length > 0 && (
-              <NoLocalResultsPlaceholder
-                locationName={locationName}
-                entityLabel="eventos"
-              />
+              <NoLocalResultsPlaceholder locationName={locationName} entityLabel="eventos" />
             )}
 
             {otherEvents.data.length > 0 && (

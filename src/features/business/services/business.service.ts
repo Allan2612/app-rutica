@@ -6,6 +6,7 @@ import type { Database } from '@/lib/supabase/database.types';
 import { Business, BusinessWithRelations, Location } from '@/types/entities';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_LOGO = 'business-images';
 const BUCKET_IMAGES = 'business-images';
@@ -153,8 +154,7 @@ export async function saveBusinessImageReference(
 }
 
 export function getImageUrl(filePath: string): string {
-  const { data } = supabase.storage.from(BUCKET_IMAGES).getPublicUrl(filePath);
-  return data.publicUrl;
+  return publicStorageUrl(BUCKET_IMAGES, filePath);
 }
 
 export async function createBusiness(input: CreateBusinessInput): Promise<Business> {

@@ -21,7 +21,13 @@ export const DropdownHeader = memo(function DropdownHeader({
     <View style={[styles.container, { borderBottomColor: colors.border.medium }]}>
       <Text style={[styles.title, { color: colors.text.primary }]}>Seleccionar ubicación</Text>
 
-      <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel="Cerrar"
+        onPress={onClose}
+        style={styles.closeButton}
+        activeOpacity={0.7}
+      >
         <X size={24} color={colors.text.primary} />
       </TouchableOpacity>
 

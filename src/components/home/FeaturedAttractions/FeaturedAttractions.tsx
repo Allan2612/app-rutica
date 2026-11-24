@@ -5,7 +5,8 @@
  */
 
 import { memo, useCallback, useMemo } from 'react';
-import { View, Text, Pressable, ActivityIndicator, ScrollView, Image } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import { Mountain, ChevronRight, MapPin, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -28,7 +29,7 @@ export const FeaturedAttractions = memo(function FeaturedAttractions({
   isLoading = false,
 }: FeaturedAttractionsProps) {
   const colors = useThemedColors();
-  const { location } = useLocationStore();
+  const location = useLocationStore((s) => s.location);
 
   const locationFilter = useMemo(() => {
     if (!location) return null;
@@ -61,7 +62,7 @@ export const FeaturedAttractions = memo(function FeaturedAttractions({
         <Image
           source={{ uri: attraction.imageUrls[0] }}
           style={styles.heroFull}
-          resizeMode="cover"
+          contentFit="cover"
         />
       ) : (
         <View

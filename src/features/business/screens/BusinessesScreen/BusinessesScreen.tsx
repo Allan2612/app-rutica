@@ -43,7 +43,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
   const { tab } = useLocalSearchParams<{ tab?: string }>();
   const [activeTab, setActiveTab] = useState(tab === 'promotions' ? 'promotions' : 'commerces');
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
-  const { location } = useLocationStore();
+  const location = useLocationStore((s) => s.location);
 
   // Actualizar tab cuando cambia el parámetro
   useEffect(() => {
@@ -372,10 +372,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
 
             {/* Si no hay coincidencias locales, mostrar placeholder antes de otros */}
             {localBusinesses.data.length === 0 && otherBusinesses.data.length > 0 && (
-              <NoLocalResultsPlaceholder
-                locationName={locationName}
-                entityLabel="comercios"
-              />
+              <NoLocalResultsPlaceholder locationName={locationName} entityLabel="comercios" />
             )}
 
             {/* Sección otros lugares */}
@@ -471,10 +468,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
 
             {/* Si no hay coincidencias locales */}
             {localPromotions.data.length === 0 && otherPromotions.data.length > 0 && (
-              <NoLocalResultsPlaceholder
-                locationName={locationName}
-                entityLabel="ofertas"
-              />
+              <NoLocalResultsPlaceholder locationName={locationName} entityLabel="ofertas" />
             )}
 
             {/* Sección otros lugares */}

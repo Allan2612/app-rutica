@@ -100,6 +100,8 @@ export const AdminReviewCard = memo<AdminReviewCardProps>(function AdminReviewCa
         <View style={styles.actionButtons}>
           {onEdit && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Editar"
               style={({ pressed }) => [
                 styles.actionButton,
                 {
@@ -115,6 +117,8 @@ export const AdminReviewCard = memo<AdminReviewCardProps>(function AdminReviewCa
             </Pressable>
           )}
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Eliminar"
             style={({ pressed }) => [
               styles.actionButton,
               {

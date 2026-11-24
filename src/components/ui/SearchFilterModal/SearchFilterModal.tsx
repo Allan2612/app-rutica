@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { View, Text, Modal, Pressable, Platform, KeyboardAvoidingView } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
@@ -47,7 +48,9 @@ export function SearchFilterModal({
   showLocationTab = true,
 }: SearchFilterModalProps) {
   const colors = useThemedColors();
-  const { location, clearLocation } = useLocationStore();
+  const { location, clearLocation } = useLocationStore(
+    useShallow((s) => ({ location: s.location, clearLocation: s.clearLocation })),
+  );
 
   // Tab activo
   const [activeTab, setActiveTab] = useState<FilterTab>('text');
@@ -136,7 +139,12 @@ export function SearchFilterModal({
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
             <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
-            <Pressable onPress={onClose} style={styles.closeButton}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
+              onPress={onClose}
+              style={styles.closeButton}
+            >
               <X size={24} color={colors.text.secondary} />
             </Pressable>
           </View>

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import { supabase, getSessionUser } from '@/lib/supabase/client';
 import type {
   ProfileSubscription,
   ProfileSubscriptionInsert,
@@ -62,9 +62,7 @@ export async function getSubscriptionPlanById(id: string): Promise<Subscription 
  * Obtiene todas las suscripciones del usuario autenticado
  */
 export async function getMySubscriptions(): Promise<ProfileSubscription[]> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -89,9 +87,7 @@ export async function getMySubscriptions(): Promise<ProfileSubscription[]> {
  * Obtiene solo las suscripciones aprobadas del usuario autenticado
  */
 export async function getMyApprovedSubscriptions(): Promise<ProfileSubscription[]> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -117,9 +113,7 @@ export async function getMyApprovedSubscriptions(): Promise<ProfileSubscription[
  * Obtiene las suscripciones pendientes del usuario autenticado
  */
 export async function getMyPendingSubscriptions(): Promise<ProfileSubscription[]> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -159,9 +153,7 @@ export async function getSubscriptionsByUserId(userId: string): Promise<ProfileS
  * Verifica si el usuario autenticado tiene al menos una suscripción aprobada
  */
 export async function hasActiveSubscription(): Promise<boolean> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) return false;
 
@@ -185,9 +177,7 @@ export async function checkBusinessFullPremiumStatus(businessId: string): Promis
   hasActive: boolean;
   hasPending: boolean;
 }> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) return { hasActive: false, hasPending: false };
 
@@ -216,7 +206,7 @@ export async function checkBusinessFullPremiumStatus(businessId: string): Promis
   let hasPending = false;
 
   // Cast the data to access the joined fields
-  const typedUsageData = usageData as Array<{
+  const typedUsageData = usageData as {
     profile_subscription_id_sus: string;
     profile_subscription: {
       status_psub: string;
@@ -224,7 +214,7 @@ export async function checkBusinessFullPremiumStatus(businessId: string): Promis
         type_sub: string;
       } | null;
     } | null;
-  }>;
+  }[];
 
   for (const usage of typedUsageData) {
     const sub = usage.profile_subscription;
@@ -302,9 +292,7 @@ export async function createSubscription(
   paymentReference: string,
   paymentNote?: string,
 ): Promise<ProfileSubscription> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -355,9 +343,7 @@ export async function createMultipleSubscriptions(
   businessSelections?: BusinessSelections,
   entitySelections?: EntitySelections,
 ): Promise<ProfileSubscription[]> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -439,14 +425,14 @@ async function createSubscriptionUsageRecords(
     // dashboard no consume recursos directos
   };
 
-  const usageInserts: Array<{
+  const usageInserts: {
     profile_subscription_id_sus: string;
     profile_id_sus: string;
     resource_type_sus: string;
     business_id_sus: string;
     max_quota_sus: number;
     used_count_sus: number;
-  }> = [];
+  }[] = [];
 
   for (let i = 0; i < subscriptions.length; i++) {
     const subscription = subscriptions[i];
@@ -525,14 +511,14 @@ async function createBusinessSubscriptionUsageRecordsMultiple(
     // dashboard no consume recursos directos
   };
 
-  const usageInserts: Array<{
+  const usageInserts: {
     profile_subscription_id_sus: string;
     profile_id_sus: string;
     resource_type_sus: string;
     business_id_sus: string;
     max_quota_sus: number;
     used_count_sus: number;
-  }> = [];
+  }[] = [];
 
   for (let i = 0; i < subscriptions.length; i++) {
     const subscription = subscriptions[i];
@@ -606,7 +592,7 @@ async function createEntitySubscriptionUsageRecords(
   entityId: string,
   entityType: 'attraction' | 'event',
 ): Promise<void> {
-  const usageInserts: Array<{
+  const usageInserts: {
     profile_subscription_id_sus: string;
     profile_id_sus: string;
     resource_type_sus: string;
@@ -614,7 +600,7 @@ async function createEntitySubscriptionUsageRecords(
     event_id_sus?: string;
     max_quota_sus: number;
     used_count_sus: number;
-  }> = [];
+  }[] = [];
 
   for (let i = 0; i < subscriptions.length; i++) {
     const subscription = subscriptions[i];
@@ -666,7 +652,7 @@ async function createEntitySubscriptionUsageRecordsMultiple(
   plans: Subscription[],
   entitySelections: EntitySelections,
 ): Promise<void> {
-  const usageInserts: Array<{
+  const usageInserts: {
     profile_subscription_id_sus: string;
     profile_id_sus: string;
     resource_type_sus: string;
@@ -674,7 +660,7 @@ async function createEntitySubscriptionUsageRecordsMultiple(
     event_id_sus?: string;
     max_quota_sus: number;
     used_count_sus: number;
-  }> = [];
+  }[] = [];
 
   for (let i = 0; i < subscriptions.length; i++) {
     const subscription = subscriptions[i];
@@ -728,9 +714,7 @@ async function createEntitySubscriptionUsageRecordsMultiple(
  * Cancela una suscripción pendiente (solo el usuario puede cancelar sus propias suscripciones pendientes)
  */
 export async function cancelPendingSubscription(subscriptionId: string): Promise<void> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -756,9 +740,7 @@ export async function cancelPendingSubscription(subscriptionId: string): Promise
  * Aprueba una suscripción (solo admins)
  */
 export async function approveSubscription(subscriptionId: string): Promise<ProfileSubscription> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -786,9 +768,7 @@ export async function rejectSubscription(
   subscriptionId: string,
   rejectionReason?: string,
 ): Promise<ProfileSubscription> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 

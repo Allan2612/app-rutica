@@ -8,14 +8,7 @@ interface ConfirmDeleteDialogProps {
   visible: boolean;
   entityName: string;
   entityType:
-    | 'negocio'
-    | 'evento'
-    | 'atracción'
-    | 'producto'
-    | 'promoción'
-    | 'reseña'
-    | 'opinión'
-    | 'cuenta';
+    'negocio' | 'evento' | 'atracción' | 'producto' | 'promoción' | 'reseña' | 'opinión' | 'cuenta';
   onConfirm: () => void;
   onCancel: () => void;
   isDeleting?: boolean;
@@ -112,7 +105,13 @@ export const ConfirmDeleteDialog = memo(function ConfirmDeleteDialog({
             <View style={[styles.iconWrapper, { backgroundColor: colors.error + '20' }]}>
               <AlertTriangle color={colors.error} size={28} strokeWidth={2} />
             </View>
-            <Pressable style={styles.closeButton} onPress={handleClose} disabled={isDeleting}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
+              style={styles.closeButton}
+              onPress={handleClose}
+              disabled={isDeleting}
+            >
               <X color={colors.text.tertiary} size={24} />
             </Pressable>
           </View>

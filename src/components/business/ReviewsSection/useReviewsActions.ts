@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import Toast from 'react-native-toast-message';
 import { useAuthStore } from '@/store';
 import {
@@ -10,7 +11,7 @@ import {
 } from '@/features/business/hooks/useBusinessReviews';
 
 export function useReviewsActions(businessId: string, ownerId: string, onCloseModal: () => void) {
-  const { user, role } = useAuthStore();
+  const { user, role } = useAuthStore(useShallow((s) => ({ user: s.user, role: s.role })));
 
   const reviewsQuery = useBusinessReviews(businessId);
   const { data: reviews, isLoading: isLoadingReviews } = reviewsQuery;

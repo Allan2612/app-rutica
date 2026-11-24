@@ -33,6 +33,8 @@ export const DeleteReviewDialog = memo(function DeleteReviewDialog({
             <Text style={[styles.title, { color: colors.text.primary }]}>Eliminar reseña</Text>
             {!isDeleting && (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
                 onPress={onCancel}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.7 : 1,

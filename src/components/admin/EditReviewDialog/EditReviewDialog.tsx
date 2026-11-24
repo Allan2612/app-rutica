@@ -63,6 +63,9 @@ export const EditReviewDialog = memo(function EditReviewDialog({
       return (
         <Pressable
           key={index}
+          accessibilityRole="button"
+          accessibilityLabel={`${starValue} ${starValue === 1 ? 'estrella' : 'estrellas'}`}
+          accessibilityState={{ selected: isFilled }}
           onPress={() => setRating(starValue)}
           disabled={isSaving}
           style={({ pressed }) => ({
@@ -90,6 +93,8 @@ export const EditReviewDialog = memo(function EditReviewDialog({
             <Text style={[styles.title, { color: colors.text.primary }]}>Editar reseña</Text>
             {!isSaving && (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
                 onPress={handleCancel}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.7 : 1,

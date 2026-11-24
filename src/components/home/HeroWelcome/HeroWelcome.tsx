@@ -29,8 +29,8 @@ export const HeroWelcome = memo(function HeroWelcome({
   promotionCount,
 }: HeroWelcomeProps) {
   const colors = useThemedColors();
-  const { user } = useAuthStore();
-  const { location } = useLocationStore();
+  const user = useAuthStore((s) => s.user);
+  const location = useLocationStore((s) => s.location);
   const { width } = useWindowDimensions();
 
   const isMobile = width < 768;
@@ -44,7 +44,6 @@ export const HeroWelcome = memo(function HeroWelcome({
     const parts = [location.district, location.canton, location.province].filter(Boolean);
     return parts.length > 0 ? parts.join(', ') : 'Costa Rica';
   };
-
 
   const locationText = getLocationText();
 
@@ -74,13 +73,7 @@ export const HeroWelcome = memo(function HeroWelcome({
             cachePolicy="memory-disk"
           />
           <View style={styles.brandTextContainer}>
-            <Text
-              style={[
-                styles.brandName,
-                brandFont,
-                { color: colors.primary[500] },
-              ]}
-            >
+            <Text style={[styles.brandName, brandFont, { color: colors.primary[500] }]}>
               Rutica
             </Text>
             <Text style={[styles.brandTagline, { color: colors.text.secondary }]}>
@@ -120,24 +113,36 @@ export const HeroWelcome = memo(function HeroWelcome({
 
         {/* Quick Stats */}
         <View style={[styles.statsContainer, isMobile && styles.statsContainerMobile]}>
-          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/businesses')}>
+          <Pressable
+            style={styles.statItem}
+            onPress={() => handleStatPress('/(app)/(tabs)/businesses')}
+          >
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>{businessCount}</Text>
             <Text style={[styles.statLabel, { color: colors.text.secondary }]}>Negocios</Text>
           </Pressable>
           <View style={[styles.statDivider, { backgroundColor: colors.border.medium }]} />
-          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/attractions?tab=events')}>
+          <Pressable
+            style={styles.statItem}
+            onPress={() => handleStatPress('/(app)/(tabs)/attractions?tab=events')}
+          >
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>{eventCount}</Text>
             <Text style={[styles.statLabel, { color: colors.text.secondary }]}>Eventos</Text>
           </Pressable>
           <View style={[styles.statDivider, { backgroundColor: colors.border.medium }]} />
-          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/attractions')}>
+          <Pressable
+            style={styles.statItem}
+            onPress={() => handleStatPress('/(app)/(tabs)/attractions')}
+          >
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>
               {attractionCount}
             </Text>
             <Text style={[styles.statLabel, { color: colors.text.secondary }]}>Atracciones</Text>
           </Pressable>
           <View style={[styles.statDivider, { backgroundColor: colors.border.medium }]} />
-          <Pressable style={styles.statItem} onPress={() => handleStatPress('/(app)/(tabs)/businesses?tab=promotions')}>
+          <Pressable
+            style={styles.statItem}
+            onPress={() => handleStatPress('/(app)/(tabs)/businesses?tab=promotions')}
+          >
             <Text style={[styles.statNumber, { color: colors.primary[500] }]}>
               {promotionCount}
             </Text>

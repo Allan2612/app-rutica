@@ -74,6 +74,8 @@ export const AttractionDetailScreen = memo(function AttractionDetailScreen() {
 
         {/* Back Button */}
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Volver"
           style={({ pressed }) => ({
             position: 'absolute',
             top: 16,

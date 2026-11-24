@@ -20,7 +20,7 @@ export const reviewStatsKeys = {
  * Hook para obtener estadísticas de reseñas del dashboard
  */
 export function useReviewDashboardStats(businessId: string | null = null, days: number = 30) {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   return useQuery({
     queryKey: reviewStatsKeys.dashboard(user?.id ?? '', businessId, days),

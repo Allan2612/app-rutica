@@ -8,6 +8,7 @@ import type { PromotionListItem } from '@/types/entities';
 import type { BusinessListItem } from '@/features/business/hooks/useBusinesses';
 import type { EventListItem } from '@/features/events/hooks/useEvents';
 import type { AttractionListItem } from '@/features/attractions/hooks/useAttractions';
+import { getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_BUSINESS = 'business-images';
 const BUCKET_PROMOTIONS = 'promotions-images';
@@ -16,18 +17,10 @@ const BUCKET_ATTRACTIONS = 'attractions-images';
 
 // Helper para generar URLs de imágenes desde Supabase Storage
 function getImageUrl(bucket: string, path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(bucket, path);
 }
 
 // Helper para extraer el tipo de imagen del path (cover, gallery, etc.)
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
-}
-
 // ============================================
 // Featured Promotions (Global Active)
 // ============================================

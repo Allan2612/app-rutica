@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useLocationStore, selectHasLocation, LocationState } from '@/store';
 
 /**
@@ -21,7 +22,13 @@ import { useLocationStore, selectHasLocation, LocationState } from '@/store';
  * ```
  */
 export function useLocation() {
-  const { location, setLocation, clearLocation } = useLocationStore();
+  const { location, setLocation, clearLocation } = useLocationStore(
+    useShallow((s) => ({
+      location: s.location,
+      setLocation: s.setLocation,
+      clearLocation: s.clearLocation,
+    })),
+  );
   const hasLocation = useLocationStore(selectHasLocation);
 
   /**

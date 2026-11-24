@@ -10,7 +10,7 @@ import {
 } from '@/features/events/hooks/useEventReviews';
 
 export function useEventReviewsActions(eventId: string, ownerId: string, onCloseModal: () => void) {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   const { data: reviews, isLoading: isLoadingReviews } = useEventReviews(eventId);
   const { data: userReview } = useUserEventReview(eventId, user?.id ?? null);

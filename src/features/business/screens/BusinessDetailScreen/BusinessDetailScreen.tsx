@@ -86,6 +86,8 @@ export const BusinessDetailScreen = memo(function BusinessDetailScreen() {
 
         {/* Back Button */}
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Volver"
           style={({ pressed }) => ({
             position: 'absolute',
             top: 16,

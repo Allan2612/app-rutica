@@ -14,7 +14,7 @@ export function useAttractionReviewsActions(
   ownerId: string,
   onCloseModal: () => void,
 ) {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   const reviewsQuery = useAttractionReviews(attractionId);
   const { data: reviews, isLoading: isLoadingReviews } = reviewsQuery;

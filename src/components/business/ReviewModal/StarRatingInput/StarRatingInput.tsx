@@ -26,6 +26,9 @@ export const StarRatingInput = memo(function StarRatingInput({
         {[1, 2, 3, 4, 5].map((i) => (
           <Pressable
             key={i}
+            accessibilityRole="button"
+            accessibilityLabel={`${i} ${i === 1 ? 'estrella' : 'estrellas'}`}
+            accessibilityState={{ selected: i <= rating }}
             onPress={() => onRatingChange(i)}
             disabled={disabled}
             style={styles.starButton}

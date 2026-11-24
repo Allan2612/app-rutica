@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import { supabase, getSessionUser } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import type { ReviewType, ReviewFilters, AdminReviewDisplay } from '@/features/admin/types';
 
@@ -6,9 +6,7 @@ import type { ReviewType, ReviewFilters, AdminReviewDisplay } from '@/features/a
  * Verifica si el usuario actual es administrador
  */
 async function isUserAdmin(): Promise<boolean> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return false;
 
   const { data, error } = await supabase

@@ -188,6 +188,8 @@ export const ProfileEditModal = memo(function ProfileEditModal({
                     transition={200}
                   />
                   <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Cerrar"
                     style={[styles.removeButton, { backgroundColor: colors.error || '#ef4444' }]}
                     onPress={removePhoto}
                   >
@@ -214,6 +216,8 @@ export const ProfileEditModal = memo(function ProfileEditModal({
                 </View>
               )}
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cambiar foto"
                 style={[styles.cameraButton, { backgroundColor: colors.primary[500] }]}
                 onPress={pickImage}
                 disabled={loading}

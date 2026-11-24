@@ -14,7 +14,7 @@ interface ProductFormErrors {
 
 export function useProductForm(businessId: string) {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const createMutation = useCreateProduct(businessId);
   const { quotaInfo, invalidateQuota } = useProductQuota(businessId);
 

@@ -274,6 +274,8 @@ export const ImageGallery = memo(function ImageGallery({ images }: ImageGalleryP
         >
           <Pressable style={styles.lightboxContent} onPress={(e) => e.stopPropagation()}>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
               style={[styles.lightboxCloseButton, { backgroundColor: colors.overlay.light }]}
               onPress={handleCloseModal}
             >

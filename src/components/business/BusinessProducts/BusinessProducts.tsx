@@ -22,7 +22,7 @@ export const BusinessProducts = memo(function BusinessProducts({
   onImagePress,
 }: BusinessProductsProps) {
   const colors = useThemedColors();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const { data: products = [], isLoading } = useBusinessProducts(businessId, true); // Solo productos activos en muro público
   const { data: promotions = [] } = useBusinessActivePromotions(businessId);
 
@@ -34,7 +34,7 @@ export const BusinessProducts = memo(function BusinessProducts({
 
   // Combinar productos regulares + combos mixtos
   const allItems = useMemo(() => {
-    const items: Array<{ type: 'product' | 'combo'; data: any }> = [];
+    const items: { type: 'product' | 'combo'; data: any }[] = [];
 
     // Agregar productos regulares
     products.forEach((product) => {

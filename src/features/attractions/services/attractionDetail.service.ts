@@ -2,6 +2,7 @@
  * Servicio para obtener el detalle de una atracción
  */
 import { supabase } from '@/lib/supabase/client';
+import { getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -40,19 +41,7 @@ export interface AttractionDetailData {
 // ============================================
 
 function getImageUrl(path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- * Path format: <entity_id>/<prefix>-<uuid>.ext
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
+  return publicStorageUrl(STORAGE_BUCKET, path);
 }
 
 // Interface para el resultado raw de la query
@@ -65,9 +54,11 @@ interface AttractionRawData {
   reviews_count_atr: number;
   created_at_atr: string;
   profiles: { first_name_prf: string; last_name1_prf: string } | null;
-  attraction_category_map: Array<{
-    categories: { id_cat: string; name_cat: string } | null;
-  }> | null;
+  attraction_category_map:
+    | {
+        categories: { id_cat: string; name_cat: string } | null;
+      }[]
+    | null;
   locations: {
     address_loc: string | null;
     latitude_loc: number | null;
@@ -80,7 +71,7 @@ interface AttractionRawData {
       } | null;
     } | null;
   } | null;
-  attraction_images: Array<{ path_aim: string; sort_order_aim: number }> | null;
+  attraction_images: { path_aim: string; sort_order_aim: number }[] | null;
 }
 
 // ============================================

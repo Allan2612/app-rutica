@@ -8,6 +8,7 @@ import {
 } from '@/services/locations.service';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
+import { getImageTypeFromPath, publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -57,9 +58,7 @@ export interface UpdateAttractionData {
 // ============================================
 
 function getImageUrl(path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(STORAGE_BUCKET, path);
 }
 
 function isNewImage(uri: string | null | undefined): boolean {
@@ -68,15 +67,6 @@ function isNewImage(uri: string | null | undefined): boolean {
     !uri.includes('supabase.co') &&
     (uri.startsWith('file://') || uri.startsWith('blob:') || uri.startsWith('data:'))
   );
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
 }
 
 // ============================================
@@ -115,14 +105,18 @@ export async function getAttractionById(
         } | null;
       } | null;
     } | null;
-    attraction_images: Array<{
-      id_aim: string;
-      path_aim: string;
-      sort_order_aim: number;
-    }> | null;
-    attraction_category_map: Array<{
-      category_id_acm: string;
-    }> | null;
+    attraction_images:
+      | {
+          id_aim: string;
+          path_aim: string;
+          sort_order_aim: number;
+        }[]
+      | null;
+    attraction_category_map:
+      | {
+          category_id_acm: string;
+        }[]
+      | null;
   }
 
   const { data: attractionData, error: attractionError } = await supabase

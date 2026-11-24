@@ -5,6 +5,7 @@ import {
   getBusinessList,
   getImageUrl,
 } from '@/features/business/services';
+import { getImageTypeFromPath } from '@/utils/storage';
 
 export interface BusinessListItem {
   id: string;
@@ -19,16 +20,6 @@ export interface BusinessListItem {
   reviewCount: number;
   isApproved: boolean;
   hasActivePromotions: boolean;
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- * Path format: <business_id>/<prefix>-<timestamp>-<random>.<ext>
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
 }
 
 function mapBusinessToListItem(item: BusinessListRecord): BusinessListItem {
@@ -91,9 +82,8 @@ export function useBusinesses({
   const { searchText = '', categoryIds = [], location = null, locationMode = 'only' } = filters;
   const scope = { searchText, categoryIds, location, locationMode };
 
-  return usePagedList(
-    ['businesses', scope],
-    (page) => getBusinessList({ ...scope, page }),
-    { enabled, map: mapBusinessToListItem },
-  );
+  return usePagedList(['businesses', scope], (page) => getBusinessList({ ...scope, page }), {
+    enabled,
+    map: mapBusinessToListItem,
+  });
 }

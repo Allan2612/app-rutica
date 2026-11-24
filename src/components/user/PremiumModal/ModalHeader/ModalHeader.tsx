@@ -42,6 +42,8 @@ export const ModalHeader = memo(function ModalHeader({ step, onClose }: ModalHea
         <Text style={[styles.headerTitle, { color: colors.text.primary }]}>{getTitle()}</Text>
       </View>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Cerrar"
         style={[
           styles.closeButton,
           {

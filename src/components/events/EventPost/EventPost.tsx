@@ -54,7 +54,7 @@ export function EventPost({
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [selectedReviewUserId, setSelectedReviewUserId] = useState<string | null>(null);
 
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id ?? null;
   const isAuthenticated = !!userId;
 

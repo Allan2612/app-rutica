@@ -7,13 +7,7 @@ import { TikTokIcon } from '../TikTokIcon';
 import { styles } from './styles';
 
 export type SocialType =
-  | 'facebook'
-  | 'instagram'
-  | 'tiktok'
-  | 'whatsapp'
-  | 'youtube'
-  | 'twitter'
-  | 'linkedin';
+  'facebook' | 'instagram' | 'tiktok' | 'whatsapp' | 'youtube' | 'twitter' | 'linkedin';
 
 interface SocialButtonsProps {
   facebook?: string;
@@ -41,6 +35,8 @@ export const SocialButtons = memo(function SocialButtons({
       <View style={styles.socialLinksRow}>
         {facebook && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Abrir Facebook"
             style={({ pressed }) => [
               styles.socialButton,
               {
@@ -57,6 +53,8 @@ export const SocialButtons = memo(function SocialButtons({
 
         {instagram && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Abrir Instagram"
             style={({ pressed }) => [
               styles.socialButton,
               {
@@ -73,6 +71,8 @@ export const SocialButtons = memo(function SocialButtons({
 
         {tiktok && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Abrir TikTok"
             style={({ pressed }) => [
               styles.socialButton,
               {

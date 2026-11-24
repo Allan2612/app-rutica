@@ -2,6 +2,7 @@ import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/serv
 import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
+import { publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -68,19 +69,7 @@ export interface AttractionListRecord {
 // ============================================
 
 export function getImageUrl(path: string): string {
-  if (!path) return '';
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-/**
- * Extrae el tipo de imagen del path (V3)
- * Path format: <entity_id>/<prefix>-<uuid>.ext
- */
-function getImageTypeFromPath(path: string): string {
-  if (!path) return '';
-  const filename = path.split('/').pop() || '';
-  return filename.split('-')[0];
+  return publicStorageUrl(STORAGE_BUCKET, path);
 }
 
 // ============================================

@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { Edit2, Trash2, Tag, Calendar, Clock, Eye, EyeOff } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
@@ -73,7 +74,7 @@ export const UserPromotionCard = memo(function UserPromotionCard({
     >
       {/* Hero Image */}
       {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
+        <Image source={{ uri: imageUrl }} style={styles.heroFull} contentFit="cover" />
       ) : (
         <View
           style={[
@@ -140,6 +141,8 @@ export const UserPromotionCard = memo(function UserPromotionCard({
             <View style={styles.actions}>
               {onEdit && (
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Editar"
                   style={({ pressed }) => [
                     styles.actionButton,
                     styles.editButton,
@@ -161,6 +164,8 @@ export const UserPromotionCard = memo(function UserPromotionCard({
                   ]}
                   onPress={onDelete}
                   disabled={isDeleting}
+                  accessibilityRole="button"
+                  accessibilityLabel="Eliminar promoción"
                 >
                   {isDeleting ? (
                     <ActivityIndicator size="small" color="#FFFFFF" />

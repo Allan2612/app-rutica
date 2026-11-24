@@ -38,7 +38,7 @@ export function useProduct(productId: string) {
  */
 export function useDeleteProduct(businessId: string) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   return useMutation({
     mutationFn: (productId: string) => deleteProduct(productId, businessId),

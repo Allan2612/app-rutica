@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import { ProductListItem } from '@/types/entities/product';
+import { publicStorageUrl } from '@/utils/storage';
 
 const BUCKET_NAME = 'product-images';
 
@@ -342,8 +343,7 @@ export async function deleteProduct(productId: string, businessId: string): Prom
 }
 
 function getImageUrl(bucket: string, filePath: string): string {
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return data.publicUrl;
+  return publicStorageUrl(bucket, filePath);
 }
 
 function generateUUID(): string {

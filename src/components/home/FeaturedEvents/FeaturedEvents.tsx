@@ -5,7 +5,8 @@
  */
 
 import { memo, useCallback, useMemo } from 'react';
-import { View, Text, Pressable, ActivityIndicator, ScrollView, Image } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import { Calendar, ChevronRight, MapPin, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -29,7 +30,7 @@ export const FeaturedEvents = memo(function FeaturedEvents({
   isLoading = false,
 }: FeaturedEventsProps) {
   const colors = useThemedColors();
-  const { location } = useLocationStore();
+  const location = useLocationStore((s) => s.location);
 
   const locationFilter = useMemo(() => {
     if (!location) return null;
@@ -59,7 +60,7 @@ export const FeaturedEvents = memo(function FeaturedEvents({
       onPress={() => handleEventPress(event)}
     >
       {event.imageUrls[0] ? (
-        <Image source={{ uri: event.imageUrls[0] }} style={styles.heroFull} resizeMode="cover" />
+        <Image source={{ uri: event.imageUrls[0] }} style={styles.heroFull} contentFit="cover" />
       ) : (
         <View
           style={[

@@ -27,7 +27,7 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
   isLoading = false,
 }: FeaturedPromotionsProps) {
   const colors = useThemedColors();
-  const { location } = useLocationStore();
+  const location = useLocationStore((s) => s.location);
 
   // Dividir por ubicación del negocio asociado
   const locationFilter = useMemo(() => {

@@ -156,6 +156,8 @@ export const ImageCropModal = memo(function ImageCropModal({
                 {/* Header */}
                 <View style={[styles.header, { backgroundColor: colors.background.primary }]}>
                     <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Cerrar"
                         onPress={handleCancel}
                         style={styles.headerButton}
                         disabled={isProcessing}
@@ -166,6 +168,8 @@ export const ImageCropModal = memo(function ImageCropModal({
                     <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
 
                     <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Recortar y usar imagen"
                         onPress={handleConfirm}
                         style={[styles.headerButton, styles.confirmButton]}
                         disabled={isProcessing}

@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
-import { View, Text, Image, Dimensions } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { Building2, Calendar, Tag } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { useUserBusinesses } from '@/features/business/hooks';

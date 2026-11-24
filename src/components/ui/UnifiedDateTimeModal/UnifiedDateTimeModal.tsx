@@ -66,7 +66,12 @@ export const UnifiedDateTimeModal = memo(function UnifiedDateTimeModal({
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border.medium }]}>
             <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
-            <Pressable onPress={onClose} style={styles.closeButton}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
+              onPress={onClose}
+              style={styles.closeButton}
+            >
               <X size={24} color={colors.text.secondary} />
             </Pressable>
           </View>

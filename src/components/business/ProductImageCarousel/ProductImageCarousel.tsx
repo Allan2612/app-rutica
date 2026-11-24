@@ -120,6 +120,8 @@ export const ProductImageCarousel = memo(function ProductImageCarousel({
         <>
           {currentIndex > 0 && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Anterior"
               style={({ pressed }) => [
                 styles.navButton,
                 styles.navButtonLeft,
@@ -133,6 +135,8 @@ export const ProductImageCarousel = memo(function ProductImageCarousel({
 
           {currentIndex < images.length - 1 && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Siguiente"
               style={({ pressed }) => [
                 styles.navButton,
                 styles.navButtonRight,

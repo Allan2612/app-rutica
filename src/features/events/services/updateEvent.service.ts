@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import { canUserEdit } from '@/utils/permissionHelpers';
 import { syncResourceUsage } from '@/services/subscriptionQuota.service';
+import { publicStorageUrl } from '@/utils/storage';
 
 // ============================================
 // Constants
@@ -91,8 +92,7 @@ export interface UpdateEventData {
 }
 
 function getImageUrl(bucket: string, path: string): string {
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
+  return publicStorageUrl(bucket, path);
 }
 
 /**

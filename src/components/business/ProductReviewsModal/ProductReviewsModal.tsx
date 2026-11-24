@@ -28,7 +28,7 @@ export const ProductReviewsModal = memo(function ProductReviewsModal({
   onClose,
 }: ProductReviewsModalProps) {
   const colors = useThemedColors();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const userId = user?.id ?? null;
 
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -73,7 +73,12 @@ export const ProductReviewsModal = memo(function ProductReviewsModal({
               <Text style={[styles.title, { color: colors.text.primary }]} numberOfLines={2}>
                 Opiniones del producto {productName}
               </Text>
-              <Pressable onPress={onClose} style={styles.closeButton}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
+                onPress={onClose}
+                style={styles.closeButton}
+              >
                 <X size={24} color={colors.text.primary} />
               </Pressable>
             </View>

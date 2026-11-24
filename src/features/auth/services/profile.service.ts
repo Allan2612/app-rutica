@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import { supabase, getSessionUser } from '@/lib/supabase/client';
 import type { Profile, ProfileUpdate, ProfileWithPremium, ProfilePremium } from '@/types/entities';
 import type { UserRole } from '@/types/enums';
 
@@ -14,9 +14,7 @@ const PUBLIC_PROFILE_COLUMNS =
  * Obtiene el perfil del usuario autenticado
  */
 export async function getMyProfile(): Promise<Profile> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -31,9 +29,7 @@ export async function getMyProfile(): Promise<Profile> {
  * Obtiene el perfil del usuario autenticado con información premium
  */
 export async function getMyProfileWithPremium(): Promise<ProfileWithPremium> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 
@@ -146,9 +142,7 @@ export async function updateProfile(userId: string, updates: ProfileUpdate): Pro
  * Actualiza el perfil del usuario autenticado
  */
 export async function updateMyProfile(updates: ProfileUpdate): Promise<void> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) throw new Error('No authenticated user');
 

@@ -1,5 +1,14 @@
 import { memo, useState, useCallback } from 'react';
-import { View, Text, Pressable, Image, ActivityIndicator, ScrollView, Alert, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  Image,
+  ActivityIndicator,
+  ScrollView,
+  Alert,
+  Platform,
+} from 'react-native';
 import { Plus, X } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useThemedColors } from '@/hooks';
@@ -111,6 +120,8 @@ export const ImageSelector = memo(function ImageSelector({
 
             {/* Botón eliminar */}
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
               style={[styles.removeButton, { backgroundColor: 'rgba(0,0,0,0.7)' }]}
               onPress={() => handleRemoveImage(index)}
             >

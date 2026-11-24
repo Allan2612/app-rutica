@@ -8,7 +8,7 @@ import { useLocationStore } from '@/store';
 export function useFiltersWithLocation<T extends { searchText?: string; categoryIds?: string[] }>(
   localFilters: T,
 ) {
-  const { location } = useLocationStore();
+  const location = useLocationStore((s) => s.location);
 
   return useMemo(
     () => ({

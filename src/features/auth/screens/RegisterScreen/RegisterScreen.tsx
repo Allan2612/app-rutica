@@ -198,6 +198,8 @@ export const RegisterScreen = memo(function RegisterScreen() {
                   }}
                 />
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Cerrar"
                   style={{
                     position: 'absolute',
                     top: -4,

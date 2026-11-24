@@ -111,6 +111,8 @@ export const EditProductDialog = memo(function EditProductDialog({
             <Text style={[styles.title, { color: colors.text.primary }]}>Editar producto</Text>
             {!updateProduct.isPending && (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
                 onPress={handleCancel}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.7 : 1,

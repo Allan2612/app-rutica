@@ -150,7 +150,12 @@ export const SubscriptionPlanModal = memo(function SubscriptionPlanModal({
                 )}
               </View>
             </View>
-            <Pressable onPress={onClose} style={styles.closeButton}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar"
+              onPress={onClose}
+              style={styles.closeButton}
+            >
               <X size={24} color={colors.text.tertiary} />
             </Pressable>
           </View>

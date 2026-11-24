@@ -4,7 +4,8 @@
  */
 
 import { memo } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { Calendar, MapPin, Star } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedColors } from '@/hooks';
@@ -74,7 +75,7 @@ export const EventCard = memo(function EventCard({
       disabled={!onPress}
     >
       {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.heroFull} resizeMode="cover" />
+        <Image source={{ uri: imageUrl }} style={styles.heroFull} contentFit="cover" />
       ) : (
         <View
           style={[

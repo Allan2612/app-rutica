@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LoadMoreButton , GenericCarousel } from '@/components/ui';
+import { LoadMoreButton, GenericCarousel } from '@/components/ui';
 import { Pressable, View, Dimensions, Platform } from 'react-native';
 import { Mountain } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
@@ -55,7 +55,7 @@ export function AttractionPost({
   onPress,
 }: AttractionPostProps) {
   const colors = useThemedColors();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -113,6 +113,8 @@ export function AttractionPost({
       ]}
       onPress={onPress}
       disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={onPress ? `Ver ${name}` : undefined}
     >
       <AttractionContent
         name={name}
