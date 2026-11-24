@@ -7,7 +7,10 @@ import { generateExploreMapHTML, MapFilterChips } from '@/components/maps';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import type { MarkerType } from '@/features/maps/types';
 import { isAllowedMapRoute } from '@/utils/htmlEscape';
-import { MapLoading, MapError, MapOverlay } from './MapStates';
+import { MapLoading, MapLocationNotice, MapOverlay } from './MapStates';
+import { useLocationStore } from '@/store';
+import { useLocationDataStore } from '@/store/locationDataStore';
+import { COSTA_RICA_CENTER, getZoneCenter } from '@/features/maps/utils/zoneCenter';
 import { styles } from './styles';
 
 const ALL_MARKER_TYPES: MarkerType[] = ['attraction', 'event', 'business'];
@@ -15,6 +18,14 @@ const ALL_MARKER_TYPES: MarkerType[] = ['attraction', 'event', 'business'];
 export const MapScreen = memo(function MapScreen() {
   const colors = useThemedColors();
   const { coordinates, loading, error, retry } = useMapLocation();
+  // Sin permiso de ubicación: centrar en la zona elegida en el selector o en Costa Rica
+  const zone = useLocationStore((s) => s.location);
+  const districts = useLocationDataStore((s) => s.districts);
+  const cantons = useLocationDataStore((s) => s.cantons);
+  const fallbackCenter = useMemo(
+    () => getZoneCenter(zone, districts, cantons) ?? COSTA_RICA_CENTER,
+    [zone, districts, cantons],
+  );
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<MarkerType[]>(ALL_MARKER_TYPES);
   const [showUserLocation, setShowUserLocation] = useState(true);
@@ -27,7 +38,6 @@ export const MapScreen = memo(function MapScreen() {
     refetch,
   } = useMapMarkers({
     limitPerType: 500,
-    enabled: !!coordinates,
   });
 
   // Refrescar marcadores cuando la pantalla recibe foco
@@ -96,8 +106,7 @@ export const MapScreen = memo(function MapScreen() {
     });
   }, [isMapLoaded, selectedTypes, updateMapFilters]);
 
-  // Coordenadas con fallback al centro de Costa Rica
-  const mapCoords = coordinates ?? { latitude: 9.9281, longitude: -84.0907 };
+  const mapCoords = coordinates ?? fallbackCenter;
 
   // Generar HTML solo una vez con TODOS los marcadores
   const mapHTML = useMemo(() => {
@@ -106,7 +115,7 @@ export const MapScreen = memo(function MapScreen() {
       userLongitude: mapCoords.longitude,
       markers: allMarkers,
       theme: colors.isDark ? 'dark' : 'light',
-      zoom: coordinates ? 13 : 8,
+      zoom: coordinates ? 13 : fallbackCenter.zoom,
       showUserMarker: showUserLocation && !!coordinates,
       initialSelectedTypes: selectedTypes,
     });
@@ -134,7 +143,6 @@ export const MapScreen = memo(function MapScreen() {
     return () => window.removeEventListener('message', handleWindowMessage);
   }, [handleMessage]);
 
-  if (error && !coordinates) return <MapError error={error} onRetry={retry} />;
   if (loading) {
     return <MapLoading message="Preparando mapa..." />;
   }
@@ -151,6 +159,7 @@ export const MapScreen = memo(function MapScreen() {
           onToggleUserLocation={handleToggleUserLocation}
         />
         <View style={styles.mapContainer}>
+          {error && !coordinates && <MapLocationNotice onRetry={retry} />}
           <MapOverlay visible={showOverlay} />
           <iframe
             ref={iframeRef}
@@ -173,6 +182,7 @@ export const MapScreen = memo(function MapScreen() {
         onToggleUserLocation={handleToggleUserLocation}
       />
       <View style={styles.mapContainer}>
+        {error && !coordinates && <MapLocationNotice onRetry={retry} />}
         <WebView
           ref={webViewRef}
           originWhitelist={['*']}

@@ -78,17 +78,22 @@ export class LocationDataService {
         .select('district_id_loc, latitude_loc, longitude_loc');
 
       // Crear mapa de coordenadas por distrito
-      const districtCoordinates = new Map<string, { lat: number; lng: number }>();
+      // Promedio de las ubicaciones de cada distrito (sirve de centro para el mapa)
+      const sums = new Map<string, { lat: number; lng: number; n: number }>();
       if (!locationsError && locationsData) {
         locationsData.forEach((loc: any) => {
           if (loc.district_id_loc && loc.latitude_loc && loc.longitude_loc) {
-            districtCoordinates.set(loc.district_id_loc, {
-              lat: loc.latitude_loc,
-              lng: loc.longitude_loc,
+            const acc = sums.get(loc.district_id_loc) ?? { lat: 0, lng: 0, n: 0 };
+            sums.set(loc.district_id_loc, {
+              lat: acc.lat + loc.latitude_loc,
+              lng: acc.lng + loc.longitude_loc,
+              n: acc.n + 1,
             });
           }
         });
       }
+      const districtCoordinates = new Map<string, { lat: number; lng: number }>();
+      sums.forEach((v, id) => districtCoordinates.set(id, { lat: v.lat / v.n, lng: v.lng / v.n }));
 
       // 3. Procesar datos
       return this.processNormalizedLocations(provincesData as any, districtCoordinates);
