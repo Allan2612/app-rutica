@@ -73,7 +73,7 @@ export const SubscriptionFilters = memo(function SubscriptionFilters({
           </View>
           <TextInput
             style={[styles.searchInput, { color: colors.text.primary }]}
-            placeholder="Buscar usuario, plan premium o referencia de pago..."
+            placeholder="Buscar usuario, plan premium o referencia de pago…"
             placeholderTextColor={colors.text.tertiary}
             value={searchQuery}
             onChangeText={onSearchChange}

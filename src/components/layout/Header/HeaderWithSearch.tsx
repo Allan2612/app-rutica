@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useIsDesktopWeb } from '@/hooks';
 import { BaseHeader } from './BaseHeader';
 
 /**
@@ -9,5 +10,6 @@ import { BaseHeader } from './BaseHeader';
  * <HeaderWithSearch />
  */
 export const HeaderWithSearch = memo(function HeaderWithSearch() {
-  return <BaseHeader showBorder={true} />;
+  // En PC la cuenta está en el panel lateral
+  return <BaseHeader showBorder={true} hideUserButton={useIsDesktopWeb()} />;
 });

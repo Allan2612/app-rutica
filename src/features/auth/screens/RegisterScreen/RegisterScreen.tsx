@@ -1,14 +1,6 @@
 import { memo, useState, useCallback } from 'react';
 import { firstError, registerSchema } from '@/utils/validation';
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  Pressable,
-  Image,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import { Text, View, TouchableOpacity, Pressable, Image, ActivityIndicator } from 'react-native';
 import { ArrowLeft, Camera, Check, X } from 'lucide-react-native';
 import { PRIVACY_POLICY_VERSION } from '@/features/legal/privacyPolicy';
 import { router } from 'expo-router';
@@ -52,7 +44,12 @@ export const RegisterScreen = memo(function RegisterScreen() {
         setProfilePhoto(await compressImage(result.assets[0].uri, IMAGE_MAX_SIZE.avatar));
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo seleccionar la imagen',
+        position: 'top',
+      });
     } finally {
       setPickingImage(false);
     }
@@ -328,6 +325,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
         <AuthInput
           label="Nombre"
+          autoComplete="given-name"
           placeholder="Tu nombre"
           value={firstName}
           onChangeText={setFirstName}
@@ -336,6 +334,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
         <AuthInput
           label="Primer apellido"
+          autoComplete="family-name"
           placeholder="Tu primer apellido"
           value={lastName1}
           onChangeText={setLastName1}
@@ -352,6 +351,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
         <AuthInput
           label="Email"
+          autoComplete="email"
           placeholder="tu@email.com"
           autoCapitalize="none"
           keyboardType="email-address"
@@ -362,6 +362,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
         <AuthInput
           label="Teléfono"
+          autoComplete="tel"
           placeholder="+506 0000-0000"
           keyboardType="phone-pad"
           value={phone}
@@ -371,6 +372,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
         <AuthInput
           label="Contraseña"
+          autoComplete="new-password"
           placeholder="••••••••"
           secureTextEntry
           value={password}
@@ -380,6 +382,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
 
         <AuthInput
           label="Confirmar contraseña"
+          autoComplete="new-password"
           placeholder="••••••••"
           secureTextEntry
           value={confirmPassword}
@@ -415,7 +418,7 @@ export const RegisterScreen = memo(function RegisterScreen() {
         </Pressable>
 
         <AuthButton
-          title={loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+          title={loading ? 'Creando cuenta…' : 'Crear Cuenta'}
           loading={loading}
           onPress={handleRegister}
           style={sharedStyles.buttonSpacing}

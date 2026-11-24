@@ -31,7 +31,7 @@ export const CategorySelector = memo(function CategorySelector({
     return (
       <View style={styles.loadingContainer}>
         <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-          Cargando categorías...
+          Cargando categorías…
         </Text>
       </View>
     );

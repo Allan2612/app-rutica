@@ -44,53 +44,53 @@ export const ConfirmDeleteDialog = memo(function ConfirmDeleteDialog({
       description:
         'Se eliminará toda la información del negocio incluyendo imágenes y datos de contacto.',
       buttonText: 'Eliminar negocio',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
     evento: {
       title: 'Eliminar evento',
       description:
         'Se eliminará toda la información del evento incluyendo imágenes, fechas y ubicación.',
       buttonText: 'Eliminar evento',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
     atracción: {
       title: 'Eliminar atracción',
       description:
         'Se eliminará toda la información de la atracción incluyendo imágenes y ubicación.',
       buttonText: 'Eliminar atracción',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
     producto: {
       title: 'Eliminar producto',
       description: 'Se eliminará toda la información del producto incluyendo imágenes y precio.',
       buttonText: 'Eliminar producto',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
     promoción: {
       title: 'Eliminar promoción',
       description:
         'Se eliminará toda la información de la promoción incluyendo imágenes y descuentos.',
       buttonText: 'Eliminar promoción',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
     reseña: {
       title: 'Eliminar reseña',
       description: 'Se eliminará tu reseña de este negocio. Esta acción no se puede deshacer.',
       buttonText: 'Eliminar reseña',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
     opinión: {
       title: 'Eliminar opinión',
       description: 'Se eliminará tu opinión sobre este producto. Esta acción no se puede deshacer.',
       buttonText: 'Eliminar opinión',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
     cuenta: {
       title: 'Eliminar mi cuenta',
       description:
         'Se eliminarán tu perfil, reseñas, favoritos y todo el contenido que publicaste (negocios, productos, eventos, atracciones y promociones).',
       buttonText: 'Eliminar mi cuenta',
-      deletingText: 'Eliminando...',
+      deletingText: 'Eliminando…',
     },
   };
 

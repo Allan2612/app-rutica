@@ -1,5 +1,5 @@
 import { memo, useState, useCallback } from 'react';
-import { View, Text, Modal, Pressable, Alert } from 'react-native';
+import { View, Text, Modal, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, User, X } from 'lucide-react-native';
@@ -37,7 +37,12 @@ export const ProfileEditModal = memo(function ProfileEditModal({
   const pickImage = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permisos requeridos', 'Se necesita permiso para acceder a tus fotos');
+      Toast.show({
+        type: 'info',
+        text1: 'Permisos requeridos',
+        text2: 'Se necesita permiso para acceder a tus fotos',
+        position: 'top',
+      });
       return;
     }
 
@@ -294,7 +299,7 @@ export const ProfileEditModal = memo(function ProfileEditModal({
               onPress={handleSave}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>{loading ? 'Guardando...' : 'Guardar'}</Text>
+              <Text style={styles.buttonText}>{loading ? 'Guardando…' : 'Guardar'}</Text>
             </Pressable>
           </View>
         </Pressable>

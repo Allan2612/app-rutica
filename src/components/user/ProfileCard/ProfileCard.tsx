@@ -169,7 +169,7 @@ export const ProfileCard = memo(function ProfileCard({
         >
           <Store color="#fff" size={20} />
           <Text style={styles.sellerUpgradeButtonText}>
-            {isUpgrading ? 'Actualizando...' : 'Convertirse en Vendedor'}
+            {isUpgrading ? 'Actualizando…' : 'Convertirse en Vendedor'}
           </Text>
         </Pressable>
       )}

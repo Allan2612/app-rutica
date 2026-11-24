@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 
-import { View, Text, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Pressable, Image, ActivityIndicator } from 'react-native';
 
 import { Plus, X } from 'lucide-react-native';
 
@@ -10,6 +10,7 @@ import { useThemedColors } from '@/hooks';
 import { styles } from './styles';
 
 import { compressImage } from '@/utils/imageCompression';
+import Toast from 'react-native-toast-message';
 
 export interface MultipleImagePickerProps {
   images: string[];
@@ -31,7 +32,12 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
 
   const handlePickImage = async () => {
     if (images.length >= maxImages) {
-      Alert.alert('Límite alcanzado', `Solo puedes agregar hasta ${maxImages} imágenes`);
+      Toast.show({
+        type: 'info',
+        text1: 'Límite alcanzado',
+        text2: `Solo puedes agregar hasta ${maxImages} imágenes`,
+        position: 'top',
+      });
       return;
     }
 
@@ -54,7 +60,12 @@ export const MultipleImagePicker = memo(function MultipleImagePicker({
         onImagesChange([...images, ...newImages]);
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo seleccionar las imágenes');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo seleccionar las imágenes',
+        position: 'top',
+      });
     } finally {
       setIsLoading(false);
     }

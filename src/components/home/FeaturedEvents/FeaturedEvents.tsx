@@ -165,7 +165,7 @@ export const FeaturedEvents = memo(function FeaturedEvents({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-              Eventos Próximos
+              Próximos eventos
             </Text>
             <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
               No te pierdas estos eventos

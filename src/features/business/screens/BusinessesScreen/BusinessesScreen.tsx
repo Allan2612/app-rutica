@@ -40,7 +40,7 @@ const BUSINESS_TABS: TabOption[] = [
 ];
 
 export const BusinessesScreen = memo(function BusinessesScreen() {
-  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const { tab, q, cat } = useLocalSearchParams<{ tab?: string; q?: string; cat?: string }>();
   const [activeTab, setActiveTab] = useState(tab === 'promotions' ? 'promotions' : 'commerces');
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const location = useLocationStore((s) => s.location);
@@ -58,6 +58,17 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     categoryIds: [],
     location: null,
   });
+
+  // Búsqueda o categoría que llegan desde el inicio (?q=…, ?cat=…)
+  useEffect(() => {
+    if (q === undefined && cat === undefined) return;
+    setActiveTab('commerces');
+    setCommerceFilters((prev) => ({
+      ...prev,
+      searchText: typeof q === 'string' ? q : '',
+      categoryIds: typeof cat === 'string' && cat ? [cat] : [],
+    }));
+  }, [q, cat]);
 
   // Filtros para promociones
   const [promotionFilters, setPromotionFilters] = useState<SearchFilters>({
@@ -408,8 +419,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
       );
     }
 
-    // Sin ubicación activa → mostrar lista normal
-    if (!withLocation) {
+    // Sin ubicación activa, o sin ofertas → lista normal (su vacío ofrece ir a comercios)
+    if (!withLocation || promotionCount === 0) {
       return (
         <PromotionsPublicList
           data={otherPromotions.data}
@@ -444,7 +455,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
         contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
       >
         {promotionCount === 0 ? (
-          renderEmpty('No hay promociones disponibles')
+          renderEmpty('Todavía no hay ofertas activas')
         ) : (
           <>
             {/* Sección local */}
@@ -517,8 +528,8 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
         categories={categories}
         initialSearchText={currentFilters.searchText}
         initialCategoryIds={currentFilters.categoryIds}
-        placeholder={activeTab === 'commerces' ? 'Buscar comercios...' : 'Buscar promociones...'}
-        title={activeTab === 'commerces' ? 'Buscar Comercios' : 'Buscar Promociones'}
+        placeholder={activeTab === 'commerces' ? 'Buscar comercios…' : 'Buscar promociones…'}
+        title={activeTab === 'commerces' ? 'Buscar comercios' : 'Buscar promociones'}
       />
     </View>
   );

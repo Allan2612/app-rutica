@@ -34,7 +34,7 @@ interface ThemeState {
  * Persiste la preferencia del usuario en AsyncStorage
  */
 export const useThemeStore = create<ThemeState>((set, get) => ({
-  mode: 'light', // Por defecto inicia en light
+  mode: 'auto', // Sin preferencia guardada, sigue el tema del sistema
   effectiveTheme: 'light',
   isLoaded: false,
 

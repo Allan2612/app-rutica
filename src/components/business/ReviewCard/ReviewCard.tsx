@@ -201,7 +201,7 @@ export const ReviewCard = memo(function ReviewCard({
           >
             <Trash2 size={16} color="#dc2626" />
             <Text style={[styles.deleteButtonText, { color: colors.error }]}>
-              {isDeleting ? 'Eliminando...' : 'Eliminar'}
+              {isDeleting ? 'Eliminando…' : 'Eliminar'}
             </Text>
           </Pressable>
         </View>

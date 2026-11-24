@@ -65,7 +65,7 @@ export const PaymentForm = memo(function PaymentForm({
           ]}
           value={paymentNote}
           onChangeText={onNoteChange}
-          placeholder="Información adicional sobre el pago..."
+          placeholder="Información adicional sobre el pago…"
           placeholderTextColor={colors.text.tertiary}
           multiline
           numberOfLines={3}

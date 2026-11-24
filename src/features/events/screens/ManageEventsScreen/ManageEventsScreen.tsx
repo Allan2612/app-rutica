@@ -70,7 +70,7 @@ export const ManageEventsScreen = memo(function ManageEventsScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={[styles.emptyDescription, { color: colors.text.secondary, marginTop: 16 }]}>
-            Cargando eventos...
+            Cargando eventos…
           </Text>
         </View>
       </View>

@@ -292,7 +292,7 @@ export const LocationFilterTab = memo(function LocationFilterTab() {
           <View style={styles.centerContainer}>
             <ActivityIndicator size="large" color={colors.primary[500]} />
             <Text style={[styles.messageText, { color: colors.text.secondary }]}>
-              Cargando ubicaciones...
+              Cargando ubicaciones…
             </Text>
           </View>
         )}

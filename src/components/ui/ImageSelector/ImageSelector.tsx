@@ -7,7 +7,6 @@ import {
   Image,
   ActivityIndicator,
   ScrollView,
-  Alert,
   Platform,
 } from 'react-native';
 
@@ -21,6 +20,7 @@ import { ImageCropModal } from '../ImageCropModal';
 import { styles } from './styles';
 
 import { compressImage } from '@/utils/imageCompression';
+import Toast from 'react-native-toast-message';
 
 export interface ImageSelectorProps {
   images: string[];
@@ -48,7 +48,12 @@ export const ImageSelector = memo(function ImageSelector({
 
   const handlePickImage = async () => {
     if (images.length >= maxImages) {
-      Alert.alert('Límite alcanzado', `Solo puedes agregar hasta ${maxImages} imágenes`);
+      Toast.show({
+        type: 'info',
+        text1: 'Límite alcanzado',
+        text2: `Solo puedes agregar hasta ${maxImages} imágenes`,
+        position: 'top',
+      });
       return;
     }
 
@@ -79,7 +84,12 @@ export const ImageSelector = memo(function ImageSelector({
         }
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo seleccionar la imagen',
+        position: 'top',
+      });
     } finally {
       setIsLoading(false);
     }

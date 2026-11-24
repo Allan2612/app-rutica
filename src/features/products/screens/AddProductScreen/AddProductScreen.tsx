@@ -43,7 +43,7 @@ export const AddProductScreen = memo(function AddProductScreen() {
         errors={formState.errors}
         nameLabel="Nombre del Producto"
         namePlaceholder="Ej: Hamburguesa Clásica"
-        descriptionPlaceholder="Describe tu producto..."
+        descriptionPlaceholder="Describe tu producto…"
         // Props de precio y moneda para productos
         showPrice
         price={formState.price}

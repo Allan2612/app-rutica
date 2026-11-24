@@ -216,7 +216,7 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
         <View style={editStyles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
           <Text style={[editStyles.loadingText, { color: colors.text.secondary }]}>
-            Cargando promoción...
+            Cargando promoción…
           </Text>
         </View>
       </SafeAreaView>

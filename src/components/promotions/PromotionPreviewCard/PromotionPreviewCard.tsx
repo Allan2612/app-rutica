@@ -144,7 +144,7 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
 
         {/* Description */}
         <Text style={[styles.description, { color: colors.text.secondary }]} numberOfLines={2}>
-          {formData.description || 'Descripción de la promoción...'}
+          {formData.description || 'Descripción de la promoción…'}
         </Text>
 
         {/* Meta Info */}

@@ -268,7 +268,7 @@ export const ComboSelection = memo(function ComboSelection({
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.primary[500]} />
           <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-            Cargando productos...
+            Cargando productos…
           </Text>
         </View>
       ) : products.length === 0 ? (

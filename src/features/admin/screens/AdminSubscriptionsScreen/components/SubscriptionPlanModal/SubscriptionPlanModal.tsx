@@ -196,7 +196,7 @@ export const SubscriptionPlanModal = memo(function SubscriptionPlanModal({
                     backgroundColor: colors.background.secondary,
                   },
                 ]}
-                placeholder="Describe los beneficios del plan..."
+                placeholder="Describe los beneficios del plan…"
                 placeholderTextColor={colors.text.tertiary}
                 value={formData.description_sub}
                 onChangeText={(text) => setFormData({ ...formData, description_sub: text })}
@@ -321,7 +321,7 @@ export const SubscriptionPlanModal = memo(function SubscriptionPlanModal({
             >
               <Save size={18} color="#fff" />
               <Text style={[styles.buttonText, { color: '#fff' }]}>
-                {isLoading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear Plan'}
+                {isLoading ? 'Guardando…' : isEditing ? 'Actualizar' : 'Crear Plan'}
               </Text>
             </Pressable>
           </View>

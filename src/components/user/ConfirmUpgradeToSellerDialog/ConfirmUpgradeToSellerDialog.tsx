@@ -112,7 +112,7 @@ export const ConfirmUpgradeToSellerDialog = memo(function ConfirmUpgradeToSeller
               disabled={isUpgrading}
             >
               <Text style={[styles.buttonText, { color: '#fff' }]}>
-                {isUpgrading ? 'Actualizando...' : 'Sí, convertir'}
+                {isUpgrading ? 'Actualizando…' : 'Sí, convertir'}
               </Text>
             </Pressable>
           </View>

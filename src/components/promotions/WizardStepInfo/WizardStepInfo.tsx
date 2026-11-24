@@ -67,7 +67,7 @@ export const WizardStepInfo = memo(function WizardStepInfo({
             ]}
             value={formData.description}
             onChangeText={(text) => onFieldChange('description', text)}
-            placeholder="Describe los detalles de tu promoción..."
+            placeholder="Describe los detalles de tu promoción…"
             placeholderTextColor={colors.text.tertiary}
             multiline
             numberOfLines={5}

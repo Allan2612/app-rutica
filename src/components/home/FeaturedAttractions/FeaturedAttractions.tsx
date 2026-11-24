@@ -167,7 +167,7 @@ export const FeaturedAttractions = memo(function FeaturedAttractions({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-              Atracciones Destacadas
+              Lugares para visitar
             </Text>
             <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
               Lugares que debes conocer

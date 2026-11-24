@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { View, Text, Pressable, ViewStyle, TextStyle } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { getCategoryColorScheme, CategoryColorScheme } from '@/styles/theme/categoryColors';
 import { styles } from './styles';
 
 export interface CategoryChipProps {
@@ -54,7 +53,6 @@ export const CategoryChip = memo(function CategoryChip({
   textStyle,
 }: CategoryChipProps) {
   const colors = useThemedColors();
-  const colorScheme = getCategoryColorScheme(categoryId, parentId);
 
   // Determinar estilos según variante
   const containerStyle = [
@@ -65,10 +63,11 @@ export const CategoryChip = memo(function CategoryChip({
     variant === 'small' ? styles.textSmall : variant === 'large' ? styles.textLarge : styles.text,
   ];
 
-  // Usar siempre los colores normales de la categoría (sin color especial para selección)
-  const finalBackgroundColor = colorScheme.backgroundColor;
-  const finalTextColor = colorScheme.textColor;
-  const finalBorderColor = colorScheme.borderColor;
+  // Un solo tono para todas las categorías: antes cada una tenía su color y juntas se veían
+  // como un arcoíris que competía con el contenido. Seleccionada = verde de la marca.
+  const finalBackgroundColor = selected ? colors.primary[500] : colors.background.primary;
+  const finalTextColor = selected ? colors.text.inverse : colors.text.primary;
+  const finalBorderColor = selected ? colors.primary[500] : colors.border.medium;
 
   const ChipContent = (
     <View

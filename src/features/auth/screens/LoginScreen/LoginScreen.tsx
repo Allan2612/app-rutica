@@ -79,6 +79,7 @@ export const LoginScreen = memo(function LoginScreen() {
     >
       <AuthInput
         label="Email"
+        autoComplete="email"
         placeholder="tu@email.com"
         autoCapitalize="none"
         keyboardType="email-address"
@@ -89,6 +90,7 @@ export const LoginScreen = memo(function LoginScreen() {
 
       <AuthInput
         label="Contraseña"
+        autoComplete="current-password"
         placeholder="••••••••"
         secureTextEntry
         value={password}
@@ -104,7 +106,7 @@ export const LoginScreen = memo(function LoginScreen() {
       />
 
       <AuthButton
-        title={loading ? 'Ingresando...' : 'Iniciar Sesión'}
+        title={loading ? 'Ingresando…' : 'Iniciar Sesión'}
         loading={loading}
         onPress={handleLogin}
         style={sharedStyles.buttonSpacing}

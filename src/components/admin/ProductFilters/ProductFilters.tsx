@@ -116,7 +116,7 @@ export const ProductFilters = memo<ProductFiltersProps>(function ProductFilters(
               color: colors.text.primary,
             },
           ]}
-          placeholder="Nombre del negocio..."
+          placeholder="Nombre del negocio…"
           placeholderTextColor={colors.text.tertiary}
           value={filters.businessName ?? ''}
           onChangeText={handleBusinessNameChange}
@@ -136,7 +136,7 @@ export const ProductFilters = memo<ProductFiltersProps>(function ProductFilters(
               color: colors.text.primary,
             },
           ]}
-          placeholder="Nombre del producto..."
+          placeholder="Nombre del producto…"
           placeholderTextColor={colors.text.tertiary}
           value={filters.productName ?? ''}
           onChangeText={handleProductNameChange}
@@ -156,7 +156,7 @@ export const ProductFilters = memo<ProductFiltersProps>(function ProductFilters(
               color: colors.text.primary,
             },
           ]}
-          placeholder="Categoría..."
+          placeholder="Categoría…"
           placeholderTextColor={colors.text.tertiary}
           value={filters.category ?? ''}
           onChangeText={handleCategoryChange}

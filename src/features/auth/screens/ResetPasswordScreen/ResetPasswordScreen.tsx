@@ -95,6 +95,7 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
     >
       <AuthInput
         label="Nueva contraseña"
+        autoComplete="new-password"
         placeholder={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres`}
         secureTextEntry
         value={password}
@@ -104,6 +105,7 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
 
       <AuthInput
         label="Confirmar contraseña"
+        autoComplete="new-password"
         placeholder="Repite tu contraseña"
         secureTextEntry
         value={confirmPassword}
@@ -112,7 +114,7 @@ export const ResetPasswordScreen = memo(function ResetPasswordScreen() {
       />
 
       <AuthButton
-        title={loading ? 'Actualizando...' : 'Restablecer contraseña'}
+        title={loading ? 'Actualizando…' : 'Restablecer contraseña'}
         loading={loading}
         onPress={handleResetPassword}
         style={sharedStyles.buttonSpacing}

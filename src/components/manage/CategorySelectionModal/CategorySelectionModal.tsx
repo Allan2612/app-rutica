@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { Modal, View, Text, Pressable } from 'react-native';
+import { Modal, View, Text, Pressable , ScrollView } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
-import { CategoryFilterTab } from '@/components/ui/SearchFilterModal/CategoryFilterTab/CategoryFilterTab';
+import { CategoryPicker } from '@/components/ui/CategoryPicker';
 import type { HierarchicalCategoryOption } from '@/types/entities';
 import { styles } from './styles';
 
@@ -77,13 +77,13 @@ export const CategorySelectionModal = memo(function CategorySelectionModal({
           </View>
 
           {/* Category Filter Tab */}
-          <View style={styles.content}>
-            <CategoryFilterTab
+          <ScrollView style={styles.content} contentContainerStyle={{ padding: 20 }}>
+            <CategoryPicker
               categories={categories}
               selectedIds={tempSelectedIds}
               onChange={setTempSelectedIds}
             />
-          </View>
+          </ScrollView>
         </View>
       </View>
     </Modal>

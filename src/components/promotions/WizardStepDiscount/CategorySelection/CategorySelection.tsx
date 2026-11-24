@@ -49,7 +49,7 @@ export const CategorySelection = memo(function CategorySelection({
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.primary[500]} />
           <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-            Cargando categorías...
+            Cargando categorías…
           </Text>
         </View>
       ) : categories.length === 0 ? (

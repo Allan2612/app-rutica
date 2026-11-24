@@ -15,3 +15,4 @@ export * from './usePremiumDashboard';
 export * from './useReviewStats';
 export * from './useResourceQuota';
 export * from './useRefreshOnFocus';
+export * from './useIsDesktopWeb';

@@ -1,11 +1,12 @@
 import { memo, useState, useCallback } from 'react';
-import { View, Text, Pressable, Image, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, Pressable, Image, ActivityIndicator, Platform } from 'react-native';
 import { X, ImageIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useThemedColors } from '@/hooks';
 import { ImageCropModal } from '../ImageCropModal';
 import { styles } from './styles';
 import { compressImage, IMAGE_MAX_SIZE } from '@/utils/imageCompression';
+import Toast from 'react-native-toast-message';
 
 export interface SingleImagePickerProps {
   imageUri: string | null;
@@ -61,7 +62,12 @@ export const SingleImagePicker = memo(function SingleImagePicker({
         }
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No se pudo seleccionar la imagen',
+        position: 'top',
+      });
     } finally {
       setIsLoading(false);
     }

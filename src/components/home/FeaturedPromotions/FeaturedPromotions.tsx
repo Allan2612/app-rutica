@@ -74,7 +74,7 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-              Ofertas Destacadas
+              Ofertas vigentes
             </Text>
             <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
               Las mejores promociones del momento

@@ -21,7 +21,7 @@ export interface LocationSearchBarProps {
 
 export const LocationSearchBar = memo(function LocationSearchBar({
   onLocationChange,
-  placeholder = 'Buscar ubicación o provincia...',
+  placeholder = 'Buscar ubicación o provincia…',
   autoDetectLocation = true,
   initialOpen = false,
   hideButton = false,
@@ -151,7 +151,7 @@ export const LocationSearchBar = memo(function LocationSearchBar({
             <View style={[styles.messageContainer, { padding: 20 }]}>
               <ActivityIndicator size="small" color={colors.primary[500]} />
               <Text style={[styles.messageText, { color: colors.text.secondary }]}>
-                Cargando ubicaciones...
+                Cargando ubicaciones…
               </Text>
             </View>
           )}

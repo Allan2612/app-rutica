@@ -78,7 +78,7 @@ export const VerificationFilters = memo(function VerificationFilters({
         <Search color={colors.text.tertiary} size={18} strokeWidth={2} />
         <TextInput
           style={[styles.searchInput, { color: colors.text.primary }]}
-          placeholder="Buscar por nombre..."
+          placeholder="Buscar por nombre…"
           placeholderTextColor={colors.text.tertiary}
           value={localSearch}
           onChangeText={setLocalSearch}

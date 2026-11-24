@@ -26,3 +26,4 @@ export * from './LocationSectionHeader';
 export * from './NoLocalResultsPlaceholder';
 export * from './LoadMoreButton';
 export * from './ReportContentButton';
+export * from './CategoryPicker';

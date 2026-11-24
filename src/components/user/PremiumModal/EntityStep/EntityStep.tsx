@@ -42,7 +42,7 @@ export const EntityStep = memo(function EntityStep({
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary[500]} />
         <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
-          Cargando tus publicaciones...
+          Cargando tus publicaciones…
         </Text>
       </View>
     );

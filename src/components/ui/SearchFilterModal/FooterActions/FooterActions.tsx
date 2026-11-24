@@ -5,12 +5,15 @@ import { styles } from './styles';
 
 interface FooterActionsProps {
   hasFilters: boolean;
+  /** Cantidad de filtros activos, para el botón principal */
+  activeCount?: number;
   onClear: () => void;
   onApply: () => void;
 }
 
 export const FooterActions = memo(function FooterActions({
   hasFilters,
+  activeCount = 0,
   onClear,
   onApply,
 }: FooterActionsProps) {
@@ -21,6 +24,7 @@ export const FooterActions = memo(function FooterActions({
       {hasFilters && (
         <Pressable
           onPress={onClear}
+          accessibilityRole="button"
           style={[styles.clearButton, { borderColor: colors.border.medium }]}
         >
           <Text style={[styles.clearButtonText, { color: colors.text.secondary }]}>Limpiar</Text>
@@ -28,9 +32,12 @@ export const FooterActions = memo(function FooterActions({
       )}
       <Pressable
         onPress={onApply}
+        accessibilityRole="button"
         style={[styles.applyButton, { backgroundColor: colors.primary[500] }]}
       >
-        <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+        <Text style={styles.applyButtonText}>
+          {activeCount ? `Mostrar resultados (${activeCount} filtros)` : 'Mostrar resultados'}
+        </Text>
       </Pressable>
     </View>
   );

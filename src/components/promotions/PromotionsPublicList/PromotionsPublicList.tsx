@@ -4,7 +4,8 @@
  */
 
 import { memo, type ReactElement, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl } from 'react-native';
+import { View, Text, FlatList, RefreshControl, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import { Tag } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { PromotionPublicCard } from '../PromotionPublicCard';
@@ -54,11 +55,26 @@ export const PromotionsPublicList = memo(function PromotionsPublicList({
       <View style={styles.emptyContainer}>
         <Tag size={48} color={colors.text.tertiary} strokeWidth={1.5} />
         <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-          No hay promociones disponibles
+          Todavía no hay ofertas activas
         </Text>
         <Text style={[styles.emptySubtitle, { color: colors.text.secondary }]}>
-          Las promociones activas aparecerán aquí
+          Cuando los comercios publiquen descuentos, van a aparecer aquí.
         </Text>
+        <Pressable
+          onPress={() => router.push('/(app)/(tabs)/businesses?tab=commerces')}
+          accessibilityRole="button"
+          style={({ pressed }) => ({
+            marginTop: 16,
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+            borderRadius: 999,
+            borderWidth: 1,
+            borderColor: colors.primary[500],
+            opacity: pressed ? 0.7 : 1,
+          })}
+        >
+          <Text style={{ color: colors.primary[600], fontWeight: '600' }}>Ver comercios</Text>
+        </Pressable>
       </View>
     ),
     [colors],

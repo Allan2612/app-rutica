@@ -1,1 +1,0 @@
-export { CategoryFilterTab } from './CategoryFilterTab';

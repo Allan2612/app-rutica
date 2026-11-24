@@ -1,8 +1,8 @@
 import { Tabs, usePathname, useRouter } from 'expo-router';
 import { Platform } from 'react-native';
 import { Home, Landmark, Map, Store, Wrench } from 'lucide-react-native';
-import { HeaderWithSearch } from '@/components/layout';
-import { useThemedColors } from '@/hooks';
+import { DesktopSidebar, HeaderWithSearch } from '@/components/layout';
+import { useIsDesktopWeb, useThemedColors } from '@/hooks';
 
 export default function TabsLayout() {
   const colors = useThemedColors();
@@ -13,13 +13,18 @@ export default function TabsLayout() {
   const shouldHideTabs =
     pathname.includes('/create') || pathname.includes('/edit') || pathname.includes('/wizard');
 
+  // Web en PC: panel lateral propio. Teléfono, tablet y app nativa: pestañas abajo, sin cambios.
+  const isWide = useIsDesktopWeb();
+
   return (
     <Tabs
+      tabBar={isWide && !shouldHideTabs ? (props) => <DesktopSidebar {...props} /> : undefined}
       screenOptions={{
         headerShown: true,
         header: () => <HeaderWithSearch />,
         tabBarActiveTintColor: colors.primary[500],
         tabBarInactiveTintColor: colors.text.tertiary,
+        tabBarPosition: isWide ? 'left' : 'bottom',
         tabBarStyle: shouldHideTabs
           ? { display: 'none' }
           : {
