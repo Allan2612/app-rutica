@@ -66,12 +66,13 @@ export async function sendMail(
   html: string,
   text: string,
 ): Promise<void> {
-  // SMTP_* (Brevo, el mismo que usa Auth). Si no están, se usa la cuenta de Gmail anterior.
+  // SMTP_* (Brevo, el mismo que usa Auth) solo si están usuario y clave; si no, la cuenta de
+  // Gmail anterior. Nunca se mezcla un usuario de un proveedor con la clave del otro.
   const env = (k: string) => Deno.env.get(k) || undefined;
-  const user = env('SMTP_USER') ?? env('GMAIL_USER');
-  const pass = env('SMTP_PASS') ?? env('GMAIL_APP_PASSWORD');
+  const usingSmtp = !!(env('SMTP_USER') && env('SMTP_PASS'));
+  const user = usingSmtp ? env('SMTP_USER') : env('GMAIL_USER');
+  const pass = usingSmtp ? env('SMTP_PASS') : env('GMAIL_APP_PASSWORD');
   if (!user || !pass) throw new Error('SMTP credentials not configured');
-  const usingSmtp = !!env('SMTP_USER');
   const port = Number(usingSmtp ? (env('SMTP_PORT') ?? 587) : 465);
   const transporter = nodemailer.createTransport({
     host: usingSmtp ? (env('SMTP_HOST') ?? 'smtp-relay.brevo.com') : 'smtp.gmail.com',
