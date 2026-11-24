@@ -108,12 +108,18 @@ export async function getUserBusinessesFavoriteStats(
     supabase.rpc('get_owner_like_buckets', { p_business_ids: businessIds, p_since: since }),
     supabase.rpc('get_owner_like_totals', { p_business_ids: businessIds }),
   ]);
-  if (bucketsRes.error) console.error('[premiumDashboard] Error fetching like buckets:', bucketsRes.error);
-  if (totalsRes.error) console.error('[premiumDashboard] Error fetching like totals:', totalsRes.error);
+  if (bucketsRes.error)
+    console.error('[premiumDashboard] Error fetching like buckets:', bucketsRes.error);
+  if (totalsRes.error)
+    console.error('[premiumDashboard] Error fetching like totals:', totalsRes.error);
 
   const likes: LikeQueryResult[] = (
     (bucketsRes.data ?? []) as { business_id: string; bucket_hour: string; likes: number }[]
-  ).map((b) => ({ business_id_blk: b.business_id, created_at_blk: b.bucket_hour, count: Number(b.likes) }));
+  ).map((b) => ({
+    business_id_blk: b.business_id,
+    created_at_blk: b.bucket_hour,
+    count: Number(b.likes),
+  }));
 
   // 4. Total histórico por negocio
   const likesCountMap = new Map<string, number>();

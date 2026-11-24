@@ -60,7 +60,12 @@ export async function isAdmin(userId: string): Promise<boolean> {
   return data?.role_prf === 'admin' && data?.is_active_prf !== false;
 }
 
-export async function sendMail(to: string, subject: string, html: string, text: string): Promise<void> {
+export async function sendMail(
+  to: string,
+  subject: string,
+  html: string,
+  text: string,
+): Promise<void> {
   const user = Deno.env.get('GMAIL_USER');
   const pass = Deno.env.get('GMAIL_APP_PASSWORD');
   if (!user || !pass) throw new Error('SMTP credentials not configured');

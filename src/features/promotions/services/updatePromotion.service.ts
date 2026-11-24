@@ -99,9 +99,7 @@ export async function updatePromotionComplete(
         product_id_ppr: productId,
       }));
 
-      const { error: productError } = await supabase
-        .from('promotion_products')
-        .insert(productMaps);
+      const { error: productError } = await supabase.from('promotion_products').insert(productMaps);
 
       if (productError) {
         console.error('Error updating products:', productError);

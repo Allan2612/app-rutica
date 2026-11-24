@@ -44,7 +44,9 @@ export function createReviewLikesApi(table: ReviewLikesTable, sfx: 'brl' | 'erl'
   }
 
   async function toggle(reviewId: string, userId: string): Promise<boolean> {
-    return (await isLikedByUser(reviewId, userId)) ? remove(reviewId, userId) : add(reviewId, userId);
+    return (await isLikedByUser(reviewId, userId))
+      ? remove(reviewId, userId)
+      : add(reviewId, userId);
   }
 
   async function count(reviewId: string): Promise<number> {

@@ -28,7 +28,8 @@ export function hasLocation(location?: LocationFilter | null): location is Locat
   return Boolean(location && (location.province || location.canton || location.district));
 }
 
-// shortcut: caché en memoria de 5 min por zona; sirve mientras `locations` tenga pocos miles de filas.
+// shortcut: caché en memoria de 5 min por zona, y los IDs viajan en la URL (~37 caracteres cada uno).
+// Sirve hasta ~150 ubicaciones por zona; con más, pasar el filtro a una RPC o filtrar por distritos.
 const locationCache = new Map<string, { at: number; ids: string[] }>();
 const LOCATION_TTL = 5 * 60 * 1000;
 
@@ -37,7 +38,9 @@ const LOCATION_TTL = 5 * 60 * 1000;
  * de esa zona (5.15). Usa todos los niveles presentes porque hay distritos con el mismo
  * nombre en cantones distintos. Devuelve null si no hay zona.
  */
-export async function resolveLocationIds(location?: LocationFilter | null): Promise<string[] | null> {
+export async function resolveLocationIds(
+  location?: LocationFilter | null,
+): Promise<string[] | null> {
   if (!hasLocation(location)) return null;
   const key = JSON.stringify([location.province, location.canton, location.district]);
   const cached = locationCache.get(key);
@@ -50,7 +53,8 @@ export async function resolveLocationIds(location?: LocationFilter | null): Prom
     );
   if (location.district) query = query.eq('districts.name_dst', location.district);
   if (location.canton) query = query.eq('districts.cantons.name_ctn', location.canton);
-  if (location.province) query = query.eq('districts.cantons.provinces.name_prv', location.province);
+  if (location.province)
+    query = query.eq('districts.cantons.provinces.name_prv', location.province);
 
   const { data, error } = await query;
   if (error) throw error;
@@ -76,5 +80,8 @@ export function applyLocation<Q>(
   const col = referencedTable ? `${referencedTable}.${column}` : column;
   if (mode === 'only') return ids.length ? q.in(col, ids) : null;
   if (!ids.length) return query;
-  return q.or(`${column}.is.null,${column}.not.in.(${ids.join(',')})`, referencedTable ? { referencedTable } : undefined);
+  return q.or(
+    `${column}.is.null,${column}.not.in.(${ids.join(',')})`,
+    referencedTable ? { referencedTable } : undefined,
+  );
 }

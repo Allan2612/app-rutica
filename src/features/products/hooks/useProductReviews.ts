@@ -1,6 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getProductReviews,
+  getUserProductReview,
   createProductReview,
   updateProductReview,
   deleteProductReview,
@@ -16,6 +17,14 @@ export function useProductReviewsQuery(productId: string) {
     (page) => getProductReviews(productId, page),
     { enabled: !!productId },
   );
+}
+
+export function useUserProductReviewQuery(productId: string, userId: string | null) {
+  return useQuery({
+    queryKey: [PRODUCT_REVIEWS_KEY, productId, 'mine', userId],
+    queryFn: () => getUserProductReview(productId, userId!),
+    enabled: !!productId && !!userId,
+  });
 }
 
 export function useCreateProductReview() {

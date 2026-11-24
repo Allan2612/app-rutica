@@ -21,7 +21,10 @@ export function useDeepLinkHandler() {
           const tokenHash = query.get('token_hash');
           if (tokenHash && query.get('type') === 'recovery') {
             useAuthStore.getState().setRecoveryMode(true);
-            const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
+            const { error } = await supabase.auth.verifyOtp({
+              token_hash: tokenHash,
+              type: 'recovery',
+            });
             if (error) throw error;
             router.replace('/(auth)/reset-password');
             return;

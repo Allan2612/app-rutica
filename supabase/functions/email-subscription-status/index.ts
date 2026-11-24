@@ -17,7 +17,8 @@ Deno.serve(async (req) => {
       return json(req, 400, { error: 'Missing or invalid fields: profileId, status' });
     }
 
-    const { data: userData, error: userError } = await serviceClient().auth.admin.getUserById(profileId);
+    const { data: userData, error: userError } =
+      await serviceClient().auth.admin.getUserById(profileId);
     if (userError || !userData?.user?.email) return json(req, 404, { error: 'User not found' });
 
     const approved = status === 'approved';
@@ -48,7 +49,9 @@ Deno.serve(async (req) => {
 
     await sendMail(
       userData.user.email,
-      approved ? 'Tu suscripción fue aprobada - Rutica' : 'Actualización de tu suscripción - Rutica',
+      approved
+        ? 'Tu suscripción fue aprobada - Rutica'
+        : 'Actualización de tu suscripción - Rutica',
       html,
       text,
     );

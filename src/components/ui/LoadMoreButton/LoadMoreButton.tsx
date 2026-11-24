@@ -45,7 +45,9 @@ export const LoadMoreButton = memo(function LoadMoreButton({
             opacity: pressed ? 0.7 : 1,
           })}
         >
-          <Text style={{ color: colors.primary[600], fontWeight: '600', fontSize: 14 }}>{label}</Text>
+          <Text style={{ color: colors.primary[600], fontWeight: '600', fontSize: 14 }}>
+            {label}
+          </Text>
         </Pressable>
       )}
     </View>

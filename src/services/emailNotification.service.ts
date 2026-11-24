@@ -46,7 +46,9 @@ export async function sendPaymentReceivedEmail(data: PaymentEmailData): Promise<
  * Correo de suscripción aprobada o rechazada. Solo funciona con la sesión de un admin
  * (la Edge Function `email-subscription-status` lo verifica). No lanza.
  */
-export async function sendSubscriptionStatusEmail(data: SubscriptionStatusEmailData): Promise<void> {
+export async function sendSubscriptionStatusEmail(
+  data: SubscriptionStatusEmailData,
+): Promise<void> {
   const date = new Date().toLocaleDateString('es-CR', {
     day: 'numeric',
     month: 'long',

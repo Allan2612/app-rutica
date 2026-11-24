@@ -14,11 +14,12 @@ function fakeBuilder(): any {
   b.then = (resolve: (v: unknown) => void) => resolve({ data: rows, error: null });
   return b;
 }
-vi.mock('@/lib/supabase/client', () => ({ supabase: { from: (t: string) => fakeBuilder().from(t) } }));
+vi.mock('@/lib/supabase/client', () => ({
+  supabase: { from: (t: string) => fakeBuilder().from(t) },
+}));
 
-const { applyLocation, hasLocation, pageRange, resolveLocationIds, PAGE_SIZE } = await import(
-  '@/services/listQuery'
-);
+const { applyLocation, hasLocation, pageRange, resolveLocationIds, PAGE_SIZE } =
+  await import('@/services/listQuery');
 
 beforeEach(() => {
   calls.length = 0;
@@ -55,13 +56,19 @@ describe('applyLocation', () => {
 
   it("'exclude' deja pasar lo que no tiene ubicación", () => {
     applyLocation(fakeBuilder(), 'location_id_evt', ['a', 'b'], 'exclude');
-    expect(calls).toEqual([['or', 'location_id_evt.is.null,location_id_evt.not.in.(a,b)', undefined]]);
+    expect(calls).toEqual([
+      ['or', 'location_id_evt.is.null,location_id_evt.not.in.(a,b)', undefined],
+    ]);
   });
 
   it("'exclude' por tabla embebida (promociones → comercio)", () => {
     applyLocation(fakeBuilder(), 'location_id_bus', ['a'], 'exclude', 'businesses');
     expect(calls).toEqual([
-      ['or', 'location_id_bus.is.null,location_id_bus.not.in.(a)', { referencedTable: 'businesses' }],
+      [
+        'or',
+        'location_id_bus.is.null,location_id_bus.not.in.(a)',
+        { referencedTable: 'businesses' },
+      ],
     ]);
   });
 });
@@ -72,7 +79,11 @@ describe('resolveLocationIds', () => {
     const loc = { province: 'San José', canton: 'Pérez Zeledón', district: 'Daniel Flores' };
     expect(await resolveLocationIds(loc)).toEqual(['L1', 'L2']);
     const eqs = calls.filter((c) => c[0] === 'eq').map((c) => c[1]);
-    expect(eqs).toEqual(['districts.name_dst', 'districts.cantons.name_ctn', 'districts.cantons.provinces.name_prv']);
+    expect(eqs).toEqual([
+      'districts.name_dst',
+      'districts.cantons.name_ctn',
+      'districts.cantons.provinces.name_prv',
+    ]);
 
     calls.length = 0;
     expect(await resolveLocationIds(loc)).toEqual(['L1', 'L2']);

@@ -22,11 +22,19 @@ describe('registerSchema', () => {
   });
 
   it('exige 8 caracteres de contraseña (igual que Supabase Auth)', () => {
-    expect(firstError(registerSchema, { ...validRegister, password: 'corta12', confirmPassword: 'corta12' })).toMatch(/8 caracteres/);
+    expect(
+      firstError(registerSchema, {
+        ...validRegister,
+        password: 'corta12',
+        confirmPassword: 'corta12',
+      }),
+    ).toMatch(/8 caracteres/);
   });
 
   it('detecta confirmación distinta', () => {
-    expect(fieldErrors(registerSchema, { ...validRegister, confirmPassword: 'otra-cosa' })).toHaveProperty('confirmPassword');
+    expect(
+      fieldErrors(registerSchema, { ...validRegister, confirmPassword: 'otra-cosa' }),
+    ).toHaveProperty('confirmPassword');
   });
 
   it('rechaza correos mal escritos', () => {
@@ -43,9 +51,15 @@ describe('registerSchema', () => {
 
 describe('newPasswordSchema', () => {
   it('pide coincidencia y largo mínimo', () => {
-    expect(firstError(newPasswordSchema, { password: '12345678', confirmPassword: '12345678' })).toBeNull();
-    expect(firstError(newPasswordSchema, { password: '1234567', confirmPassword: '1234567' })).not.toBeNull();
-    expect(firstError(newPasswordSchema, { password: '12345678', confirmPassword: '87654321' })).toMatch(/iguales/);
+    expect(
+      firstError(newPasswordSchema, { password: '12345678', confirmPassword: '12345678' }),
+    ).toBeNull();
+    expect(
+      firstError(newPasswordSchema, { password: '1234567', confirmPassword: '1234567' }),
+    ).not.toBeNull();
+    expect(
+      firstError(newPasswordSchema, { password: '12345678', confirmPassword: '87654321' }),
+    ).toMatch(/iguales/);
   });
 });
 

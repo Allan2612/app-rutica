@@ -198,11 +198,7 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   // 3️⃣ Subir logo si existe (V3: sort_order=0 para logo)
   if (input.logoUri && business.id_bus) {
     try {
-      const logoPath = await uploadImageToStorage(
-        input.logoUri,
-        business.id_bus,
-        'logo.png',
-      );
+      const logoPath = await uploadImageToStorage(input.logoUri, business.id_bus, 'logo.png');
       await saveBusinessImageReference(business.id_bus, logoPath, 0);
     } catch (error) {
       // No lanzar error si falla el logo, continuar

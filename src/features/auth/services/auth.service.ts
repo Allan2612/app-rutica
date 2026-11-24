@@ -59,8 +59,17 @@ async function uploadProfilePhoto(userId: string, imageUri: string): Promise<str
 }
 
 export async function signUp(input: SignUpInput) {
-  const { email, password, firstName, lastName1, lastName2, phone, role, profilePhotoUri, termsVersion } =
-    input;
+  const {
+    email,
+    password,
+    firstName,
+    lastName1,
+    lastName2,
+    phone,
+    role,
+    profilePhotoUri,
+    termsVersion,
+  } = input;
 
   // 1. Crear usuario en auth - El trigger handle_new_user() crea el perfil automáticamente
   const { data, error } = await supabase.auth.signUp({
@@ -210,9 +219,13 @@ export async function deleteMyAccount(): Promise<void> {
   const { error } = await supabase.rpc('delete_my_account');
   if (error) {
     if (error.code === 'PGRST202') {
-      throw new Error('La eliminación de cuentas aún no está habilitada. Escríbenos a rutica.app@gmail.com');
+      throw new Error(
+        'La eliminación de cuentas aún no está habilitada. Escríbenos a rutica.app@gmail.com',
+      );
     }
-    throw new Error('No se pudo eliminar la cuenta. Intenta de nuevo o escríbenos a rutica.app@gmail.com');
+    throw new Error(
+      'No se pudo eliminar la cuenta. Intenta de nuevo o escríbenos a rutica.app@gmail.com',
+    );
   }
   // La sesión ya no es válida: limpiar el storage local
   await supabase.auth.signOut({ scope: 'local' }).catch(() => {});

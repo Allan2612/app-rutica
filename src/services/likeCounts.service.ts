@@ -31,7 +31,10 @@ const USER_COLUMN: Record<LikeTable, string> = {
  * Los likes individuales ya no son públicos (S-18), así que contar filas desde el
  * cliente devolvería solo los propios.
  */
-export async function getLikeCounts(table: LikeTable, ids: string[]): Promise<Record<string, number>> {
+export async function getLikeCounts(
+  table: LikeTable,
+  ids: string[],
+): Promise<Record<string, number>> {
   const counts: Record<string, number> = Object.fromEntries(ids.map((id) => [id, 0]));
   if (ids.length === 0) return counts;
 

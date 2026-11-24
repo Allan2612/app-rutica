@@ -216,9 +216,7 @@ export async function incrementUsage(
       ...entityData,
     };
 
-    const { error: insertError } = await supabase
-      .from('subscription_usage')
-      .insert(insertData);
+    const { error: insertError } = await supabase.from('subscription_usage').insert(insertData);
 
     if (insertError) {
       console.error('Error inserting usage:', insertError);

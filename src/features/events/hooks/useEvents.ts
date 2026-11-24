@@ -113,9 +113,9 @@ export function useEvents({
   } = filters;
   const scope = { searchText, categoryIds, upcoming, location, locationMode };
 
-  return usePagedList(
-    ['events', 'list', scope],
-    (page) => getEventsList({ ...scope, page }),
-    { enabled, staleTime: 1000 * 60 * 5, map: mapEventToListItem },
-  );
+  return usePagedList(['events', 'list', scope], (page) => getEventsList({ ...scope, page }), {
+    enabled,
+    staleTime: 1000 * 60 * 5,
+    map: mapEventToListItem,
+  });
 }

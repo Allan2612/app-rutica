@@ -517,7 +517,9 @@ export async function getFeaturedBusinesses(limit: number = 5): Promise<Business
       return [];
     }
 
-    return ((data ?? []) as unknown as BusinessRecord[]).map((item) => mapBusinessRecord(item, now));
+    return ((data ?? []) as unknown as BusinessRecord[]).map((item) =>
+      mapBusinessRecord(item, now),
+    );
   } catch (err) {
     console.error('Exception in getFeaturedBusinesses:', err);
     return [];

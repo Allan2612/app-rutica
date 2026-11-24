@@ -93,9 +93,8 @@ export function useAttractions({
   const { searchText = '', categoryIds = [], location = null, locationMode = 'only' } = filters;
   const scope = { searchText, categoryIds, location, locationMode };
 
-  return usePagedList(
-    ['attractions', scope],
-    (page) => getAttractionsList({ ...scope, page }),
-    { enabled, map: mapAttractionToListItem },
-  );
+  return usePagedList(['attractions', scope], (page) => getAttractionsList({ ...scope, page }), {
+    enabled,
+    map: mapAttractionToListItem,
+  });
 }
