@@ -66,14 +66,20 @@ export async function sendMail(
   html: string,
   text: string,
 ): Promise<void> {
-  const user = Deno.env.get('GMAIL_USER');
-  const pass = Deno.env.get('GMAIL_APP_PASSWORD');
+  // SMTP_* (Brevo, el mismo que usa Auth). Si no están, se usa la cuenta de Gmail anterior.
+  const env = (k: string) => Deno.env.get(k) || undefined;
+  const user = env('SMTP_USER') ?? env('GMAIL_USER');
+  const pass = env('SMTP_PASS') ?? env('GMAIL_APP_PASSWORD');
   if (!user || !pass) throw new Error('SMTP credentials not configured');
+  const usingSmtp = !!env('SMTP_USER');
+  const port = Number(usingSmtp ? (env('SMTP_PORT') ?? 587) : 465);
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    host: usingSmtp ? (env('SMTP_HOST') ?? 'smtp-relay.brevo.com') : 'smtp.gmail.com',
+    port,
+    secure: port === 465, // 587 usa STARTTLS
     auth: { user, pass },
   });
-  await transporter.sendMail({ from: `Rutica <${user}>`, to, subject, html, text });
+  // Con Brevo el usuario SMTP no es una dirección de correo: el remitente va aparte
+  const from = (usingSmtp ? env('MAIL_FROM') : undefined) ?? user;
+  await transporter.sendMail({ from: `Rutica <${from}>`, to, subject, html, text });
 }
