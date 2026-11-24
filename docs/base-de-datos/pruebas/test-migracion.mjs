@@ -4,7 +4,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm';
 import fs from 'node:fs';
 
-const [, , schemaPath, migrationPath] = process.argv;
+const [, , schemaPath, ...migrationPaths] = process.argv;
 const db = new PGlite({ extensions: { pg_trgm } });
 
 function splitSql(sql) {
@@ -82,15 +82,19 @@ async function run() {
     create policy "profiles_update_own" on public.profiles for update using (id_prf = auth.uid())
       with check (id_prf = auth.uid() and public.is_valid_role_update((select role_prf from public.profiles where id_prf = auth.uid()), role_prf));
   `);
-  const mig = fs.readFileSync(migrationPath, 'utf8');
-  for (const pass of [1, 2]) {
-    try {
-      for (const st of splitSql(mig)) {
-        try { await db.exec(st); } catch (e) { e.message += '\n  EN: ' + st.slice(0, 300); throw e; }
+  // Each migration runs twice, in order: all of them must be idempotent
+  for (const migrationPath of migrationPaths) {
+    const mig = fs.readFileSync(migrationPath, 'utf8');
+    const name = migrationPath.split(/[\\/]/).pop();
+    for (const pass of [1, 2]) {
+      try {
+        for (const st of splitSql(mig)) {
+          try { await db.exec(st); } catch (e) { e.message += '\n  EN: ' + st.slice(0, 300); throw e; }
+        }
+        console.log(`${name} pass ${pass}: OK`);
       }
-      console.log(`migration pass ${pass}: OK`);
+      catch (e) { console.log(`${name} pass ${pass}: FAILED → ${e.message}`); process.exit(1); }
     }
-    catch (e) { console.log(`migration pass ${pass}: FAILED → ${e.message}`); process.exit(1); }
   }
   await tests();
 }
@@ -257,6 +261,44 @@ async function tests() {
   await check('S-16: no se puede registrar un click a nombre de otro usuario', () =>
     expectError(() => as(U.buyer, `insert into public.business_contact_clicks (business_id_bcc, user_id_bcc, contact_type_bcc) values ('30000000-0000-0000-0000-000000000001', $1, 'phone')`, [U.admin]), /row-level security/));
 
+  // 2026-11-24_cierre-auditoria
+  const BUS = '30000000-0000-0000-0000-000000000001';
+  await check('1.13: más de 10 clicks en 10 min del mismo usuario se descartan', async () => {
+    for (let i = 0; i < 12; i++) {
+      await as(U.buyer, `insert into public.business_contact_clicks (business_id_bcc, user_id_bcc, contact_type_bcc) values ($1, $2, 'whatsapp')`, [BUS, U.buyer]);
+    }
+    const c = (await db.query(`select count(*)::int c from public.business_contact_clicks where user_id_bcc = $1`, [U.buyer])).rows[0].c;
+    return c === 10;
+  });
+  await check('4.9: reportar contenido, sin duplicados ni motivos inventados', async () => {
+    await as(U.buyer, `insert into public.content_reports (entity_type_rep, entity_id_rep, reason_rep) values ('business', $1, 'spam')`, [BUS]);
+    const dup = await expectError(() => as(U.buyer, `insert into public.content_reports (entity_type_rep, entity_id_rep, reason_rep) values ('business', $1, 'spam')`, [BUS]), /duplicate|unique/);
+    const bad = await expectError(() => as(U.buyer, `insert into public.content_reports (entity_type_rep, entity_id_rep, reason_rep) values ('business', $1, 'porque sí')`, [BUS]));
+    const reporter = (await db.query(`select reporter_id_rep from public.content_reports`)).rows[0].reporter_id_rep;
+    return dup && bad && reporter === U.buyer;
+  });
+  await check('4.9: el que reporta no puede cerrar su reporte; el admin sí', async () => {
+    await as(U.buyer, `update public.content_reports set status_rep = 'dismissed'`).catch(() => {});
+    const afterUser = (await db.query(`select status_rep from public.content_reports`)).rows[0].status_rep;
+    await as(U.admin, `update public.content_reports set status_rep = 'actioned', reviewed_by_rep = $1, reviewed_at_rep = now()`, [U.admin]);
+    const afterAdmin = (await db.query(`select status_rep from public.content_reports`)).rows[0].status_rep;
+    return afterUser === 'open' && afterAdmin === 'actioned';
+  });
+  await check('4.9: el seller no ve reportes ajenos', async () =>
+    (await as(U.seller, `select count(*)::int c from public.content_reports`)).rows[0].c === 0);
+  await check('5.17: el dueño ve sus favoritos agregados; otro usuario no', async () => {
+    const own = (await as(U.seller, `select coalesce(sum(likes), 0)::int s from public.get_owner_like_totals(array[$1]::uuid[])`, [BUS])).rows[0].s;
+    const other = (await as(U.buyer, `select count(*)::int c from public.get_owner_like_totals(array[$1]::uuid[])`, [BUS])).rows[0].c;
+    return own >= 1 && other === 0;
+  });
+  await check('H-34: otro usuario no puede editar ni borrar fotos de un comercio ajeno', async () => {
+    await db.exec(`insert into public.business_images (business_id_bim, path_bim, sort_order_bim) values ('${BUS}', '${BUS}/gallery-1-x.jpg', 9)`);
+    await as(U.buyer, `update public.business_images set sort_order_bim = 1 where business_id_bim = $1`, [BUS]);
+    await as(U.buyer, `delete from public.business_images where business_id_bim = $1`, [BUS]);
+    const r = (await db.query(`select sort_order_bim from public.business_images where path_bim = $1`, [`${BUS}/gallery-1-x.jpg`])).rows;
+    return r.length === 1 && r[0].sort_order_bim === 9;
+  });
+
   // Promotions
   await check('S-08: extender fechas de promo aprobada → pending', async () => {
     await db.exec(`insert into public.promotions (id_prm, business_id_prm, created_by_prm, title_prm, moderation_status_prm, payment_state_prm, start_at_prm, end_at_prm)
@@ -281,6 +323,7 @@ async function tests() {
   for (const [s, n] of results) console.log(` ${s} ${n}`);
   const failed = results.filter((r) => r[0] === '✗').length;
   console.log(`\n${results.length - failed}/${results.length} OK`);
+  if (failed) process.exitCode = 1;
 }
 
 run().catch((e) => { console.error(e); process.exit(1); });

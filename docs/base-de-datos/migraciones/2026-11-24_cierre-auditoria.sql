@@ -27,10 +27,17 @@ drop policy if exists business_images_authenticated_delete on storage.objects;
 
 -- La app crea provincia/cantón/distrito si la geocodificación trae uno nuevo, así que la
 -- inserción en el catálogo sigue abierta, pero solo para cuentas activas.
-alter policy countries_insert_policy on public.countries with check ((select public.is_active_user()));
-alter policy provinces_insert_policy on public.provinces with check ((select public.is_active_user()));
-alter policy cantons_insert_policy on public.cantons with check ((select public.is_active_user()));
-alter policy districts_insert_policy on public.districts with check ((select public.is_active_user()));
+do $$
+declare t text;
+begin
+  foreach t in array array['countries', 'provinces', 'cantons', 'districts'] loop
+    if exists (select 1 from pg_policies where schemaname = 'public' and tablename = t
+               and policyname = t || '_insert_policy') then
+      execute format('alter policy %I on public.%I with check ((select public.is_active_user()))',
+                     t || '_insert_policy', t);
+    end if;
+  end loop;
+end $$;
 
 -- Fotos de perfil: solo en la carpeta propia (<uid>/...), como ya hacen la app y el resto
 -- de políticas del bucket.
