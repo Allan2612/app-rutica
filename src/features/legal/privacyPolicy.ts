@@ -1,12 +1,12 @@
 /**
- * Política de Privacidad — BORRADOR técnico (2026-10-15).
+ * Política de Privacidad — BORRADOR técnico (2026-11-24).
  *
  * ⚠️ Pendiente de revisión por un abogado (Ley 8968 y su Reglamento). Describe lo que la app
  * hace realmente según el código. Si cambia algún flujo de datos, actualizar este texto,
  * `docs/legal/politica-privacidad-BORRADOR.md` y PRIVACY_POLICY_VERSION.
  */
 
-export const PRIVACY_POLICY_VERSION = '2026-10-15';
+export const PRIVACY_POLICY_VERSION = '2026-11-24';
 
 export interface LegalSection {
   title: string;
@@ -28,13 +28,14 @@ export const PRIVACY_POLICY: LegalSection[] = [
       '• Ubicación: si lo autorizas, tu ubicación aproximada para mostrarte lugares cercanos. Puedes usar la app sin dar este permiso.',
       '• Contenido que publicas: reseñas, calificaciones, favoritos, negocios, productos, eventos, atracciones, promociones e imágenes.',
       '• Uso: clics en los botones de contacto de los negocios (para las estadísticas del dueño del negocio).',
+      '• Reportes: cuando reportas un contenido guardamos qué reportaste, el motivo, el detalle que escribas y tu usuario. Solo los ven los administradores; la persona reportada no sabe quién la reportó.',
       '• Pagos de planes: referencia de la transferencia o SINPE que nos indicas. No almacenamos datos de tarjetas ni de cuentas bancarias.',
     ],
   },
   {
     title: '3. Para qué los usamos',
     paragraphs: [
-      'Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones, verificar pagos de planes, enviarte correos sobre tu cuenta o tus compras y elaborar estadísticas agregadas para los negocios.',
+      'Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones y atender reportes, verificar pagos de planes, enviarte correos sobre tu cuenta o tus compras y elaborar estadísticas agregadas para los negocios.',
     ],
   },
   {
@@ -48,8 +49,10 @@ export const PRIVACY_POLICY: LegalSection[] = [
     paragraphs: [
       'No vendemos tus datos. Para funcionar usamos proveedores que procesan datos por nuestra cuenta, algunos fuera de Costa Rica:',
       '• Supabase (base de datos, autenticación y almacenamiento de imágenes).',
-      '• OpenStreetMap / Nominatim (convertir coordenadas en provincia, cantón y distrito) y CARTO (mapas): reciben coordenadas y tu dirección IP.',
-      '• Google (envío de correos y fuentes tipográficas en la versión web) y Vercel (alojamiento del sitio web).',
+      '• OpenStreetMap: Nominatim (convierte coordenadas en provincia, cantón y distrito) y los mapas. Reciben coordenadas o la zona del mapa que ves, y tu dirección IP.',
+      '• unpkg (librería de mapas Leaflet) y Google Fonts (tipografía en la versión web): reciben tu dirección IP.',
+      '• Brevo (correos de cuenta: confirmación y recuperación de contraseña) y Google (correos sobre compras de planes): reciben tu correo, tu nombre y, en compras, el plan y la referencia de pago.',
+      '• Vercel (alojamiento del sitio web): recibe tu dirección IP al visitar el sitio.',
     ],
   },
   {

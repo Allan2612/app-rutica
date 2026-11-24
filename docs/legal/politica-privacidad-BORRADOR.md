@@ -1,10 +1,11 @@
 # Política de Privacidad de Rutica — BORRADOR
 
-> ⚖️ **Borrador técnico para revisión legal** (Ley 8968 y su Reglamento). Describe lo que la app hace según el código al 2026-10-15.
-> Fuente en la app: `src/features/legal/privacyPolicy.ts` (se muestra en la pantalla /privacy). Si se edita aquí, actualizar también ese archivo y la versión.
-> Los textos entre corchetes [ ] son datos que faltan.
+> ⚖️ **Borrador técnico para revisión legal.** Describe lo que la app hace según el código al 2026-11-24.
+> Fuente en la app: `src/features/legal/privacyPolicy.ts`. Este archivo se genera a partir de ese; editar allá y volver a exportar con `python scripts/export-legal.py`.
+> Los textos entre corchetes [ ] son decisiones o datos que faltan.
+> Marco: Ley 8968 y su Reglamento.
 
-**Versión:** 2026-10-15
+**Versión:** 2026-11-24
 
 ## 1. Responsable
 
@@ -22,11 +23,13 @@ Rutica es responsable del tratamiento de los datos personales recolectados en la
 
 • Uso: clics en los botones de contacto de los negocios (para las estadísticas del dueño del negocio).
 
+• Reportes: cuando reportas un contenido guardamos qué reportaste, el motivo, el detalle que escribas y tu usuario. Solo los ven los administradores; la persona reportada no sabe quién la reportó.
+
 • Pagos de planes: referencia de la transferencia o SINPE que nos indicas. No almacenamos datos de tarjetas ni de cuentas bancarias.
 
 ## 3. Para qué los usamos
 
-Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones, verificar pagos de planes, enviarte correos sobre tu cuenta o tus compras y elaborar estadísticas agregadas para los negocios.
+Para crear y administrar tu cuenta, mostrar el contenido de la plataforma, moderar publicaciones y atender reportes, verificar pagos de planes, enviarte correos sobre tu cuenta o tus compras y elaborar estadísticas agregadas para los negocios.
 
 ## 4. Qué es público
 
@@ -38,9 +41,13 @@ No vendemos tus datos. Para funcionar usamos proveedores que procesan datos por 
 
 • Supabase (base de datos, autenticación y almacenamiento de imágenes).
 
-• OpenStreetMap / Nominatim (convertir coordenadas en provincia, cantón y distrito) y CARTO (mapas): reciben coordenadas y tu dirección IP.
+• OpenStreetMap: Nominatim (convierte coordenadas en provincia, cantón y distrito) y los mapas. Reciben coordenadas o la zona del mapa que ves, y tu dirección IP.
 
-• Google (envío de correos y fuentes tipográficas en la versión web) y Vercel (alojamiento del sitio web).
+• unpkg (librería de mapas Leaflet) y Google Fonts (tipografía en la versión web): reciben tu dirección IP.
+
+• Brevo (correos de cuenta: confirmación y recuperación de contraseña) y Google (correos sobre compras de planes): reciben tu correo, tu nombre y, en compras, el plan y la referencia de pago.
+
+• Vercel (alojamiento del sitio web): recibe tu dirección IP al visitar el sitio.
 
 ## 6. Tus derechos
 
@@ -57,14 +64,3 @@ Conservamos tus datos mientras tengas una cuenta activa. Al eliminarla, se borra
 ## 9. Cambios
 
 Si esta política cambia, te lo indicaremos en la app y te pediremos aceptarla de nuevo cuando el cambio sea relevante.
-
----
-
-## Pendientes para el abogado
-
-- Identificación completa del responsable (razón social, cédula, domicilio).
-- Edad mínima.
-- Si corresponde inscribir la base de datos ante la PRODHAB.
-- Base legal y consentimiento para transferencias internacionales (Supabase, OSM/Nominatim, CARTO, Google, Vercel).
-- Plazos de respuesta para derechos ARCO.
-- Términos y Condiciones: condiciones de compra de planes (IVA, factura electrónica, renovación, reembolso/retracto), reglas de moderación de reseñas, procedimiento de denuncia de contenido. Ver docs/auditoria/07-legal-y-cumplimiento.md.
