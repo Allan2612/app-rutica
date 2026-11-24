@@ -2,7 +2,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const MAX = Number(process.argv[2] ?? 183);
+const MAX = Number(process.argv[2] ?? 179);
 let count = 0;
 const walk = (dir) => {
   for (const name of readdirSync(dir)) {

@@ -218,12 +218,14 @@ export const FeaturedEvents = memo(function FeaturedEvents({
 
           {others.length > 0 && (
             <>
-              <LocationSectionHeader
-                type="others"
-                count={others.length}
-                entityLabel="eventos"
-                compact
-              />
+              {local.length > 0 && (
+                <LocationSectionHeader
+                  type="others"
+                  count={others.length}
+                  entityLabel="eventos"
+                  compact
+                />
+              )}
               {renderCarousel(others)}
             </>
           )}

@@ -224,12 +224,14 @@ export const FeaturedAttractions = memo(function FeaturedAttractions({
 
           {others.length > 0 && (
             <>
-              <LocationSectionHeader
-                type="others"
-                count={others.length}
-                entityLabel="atracciones"
-                compact
-              />
+              {local.length > 0 && (
+                <LocationSectionHeader
+                  type="others"
+                  count={others.length}
+                  entityLabel="atracciones"
+                  compact
+                />
+              )}
               {renderCarousel(others)}
             </>
           )}

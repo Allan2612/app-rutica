@@ -53,34 +53,14 @@ export const styles = StyleSheet.create({
 
   /* ── Compact variant (home sections) ────────────────── */
   compactContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    gap: 6,
-  },
-  compactIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  compactText: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.fontWeights.medium,
-    textAlign: 'center',
-  },
-  compactHint: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 999,
+    gap: 6,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
   },
-  compactHintText: {
-    fontSize: typography.sizes.xs - 1,
-    fontWeight: typography.fontWeights.medium,
+  compactText: {
+    flexShrink: 1,
+    fontSize: typography.sizes.xs,
   },
 });

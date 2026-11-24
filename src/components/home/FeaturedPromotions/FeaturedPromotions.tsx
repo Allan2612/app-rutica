@@ -134,12 +134,14 @@ export const FeaturedPromotions = memo(function FeaturedPromotions({
           {/* Ofertas de otros lugares */}
           {split.others.length > 0 && (
             <>
-              <LocationSectionHeader
-                type="others"
-                count={split.others.length}
-                entityLabel="ofertas"
-                compact
-              />
+              {split.local.length > 0 && (
+                <LocationSectionHeader
+                  type="others"
+                  count={split.others.length}
+                  entityLabel="ofertas"
+                  compact
+                />
+              )}
               {renderHorizontalList(split.others)}
             </>
           )}
