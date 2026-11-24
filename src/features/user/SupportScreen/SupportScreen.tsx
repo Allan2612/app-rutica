@@ -16,7 +16,7 @@ export const SupportScreen = memo(function SupportScreen() {
   }, []);
 
   const handleEmail = useCallback(() => {
-    Linking.openURL('mailto:rutica.app@gmail.com');
+    Linking.openURL('mailto:rutica.info@gmail.com');
   }, []);
 
   const handlePhone = useCallback(
@@ -75,7 +75,7 @@ export const SupportScreen = memo(function SupportScreen() {
                     Correo electrónico
                   </Text>
                   <Text style={[styles.contactValue, { color: colors.text.primary }]}>
-                    rutica.app@gmail.com
+                    rutica.info@gmail.com
                   </Text>
                 </View>
               </Pressable>

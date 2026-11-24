@@ -53,7 +53,7 @@ Podemos retirar contenido inapropiado, falso o que incumpla estos términos.
 
 Cualquier persona con cuenta puede reportar un negocio, evento, atracción o reseña con el botón "Reportar este contenido" o el ícono de bandera. Un administrador revisa cada reporte y, si corresponde, edita, oculta o elimina el contenido.
 
-Si un contenido usa tus fotos, tu marca o tu imagen sin permiso, escríbenos a rutica.app@gmail.com indicando el enlace y tu relación con el material. Lo retiraremos mientras se aclara.
+Si un contenido usa tus fotos, tu marca o tu imagen sin permiso, escríbenos a rutica.info@gmail.com indicando el enlace y tu relación con el material. Lo retiraremos mientras se aclara.
 
 ## 6. Planes pagos
 
@@ -107,7 +107,7 @@ Estos términos se rigen por las leyes de la República de Costa Rica. Cualquier
 
 Si tienes preguntas sobre estos términos, puedes escribirnos o llamarnos:
 
-• Correo electrónico: rutica.app@gmail.com
+• Correo electrónico: rutica.info@gmail.com
 
 • Teléfono: +506 8450-1389
 

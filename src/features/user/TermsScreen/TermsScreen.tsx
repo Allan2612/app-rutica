@@ -16,7 +16,7 @@ export const TermsScreen = memo(function TermsScreen() {
   }, []);
 
   const handleContact = useCallback(() => {
-    Linking.openURL('mailto:rutica.app@gmail.com');
+    Linking.openURL('mailto:rutica.info@gmail.com');
   }, []);
 
   return (
@@ -30,7 +30,7 @@ export const TermsScreen = memo(function TermsScreen() {
           style={[styles.contactButton, { borderColor: colors.primary[500] }]}
           onPress={handleContact}
           accessibilityRole="link"
-          accessibilityLabel="Enviar correo a rutica.app@gmail.com"
+          accessibilityLabel="Enviar correo a rutica.info@gmail.com"
         >
           <Mail color={colors.primary[500]} size={16} />
           <Text style={[styles.contactButtonText, { color: colors.primary[500] }]}>

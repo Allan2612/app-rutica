@@ -220,11 +220,11 @@ export async function deleteMyAccount(): Promise<void> {
   if (error) {
     if (error.code === 'PGRST202') {
       throw new Error(
-        'La eliminación de cuentas aún no está habilitada. Escríbenos a rutica.app@gmail.com',
+        'La eliminación de cuentas aún no está habilitada. Escríbenos a rutica.info@gmail.com',
       );
     }
     throw new Error(
-      'No se pudo eliminar la cuenta. Intenta de nuevo o escríbenos a rutica.app@gmail.com',
+      'No se pudo eliminar la cuenta. Intenta de nuevo o escríbenos a rutica.info@gmail.com',
     );
   }
   // La sesión ya no es válida: limpiar el storage local

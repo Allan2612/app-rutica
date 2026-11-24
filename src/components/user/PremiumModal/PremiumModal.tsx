@@ -90,7 +90,7 @@ export const PremiumModal = memo(function PremiumModal({
     Toast.show({
       type: 'info',
       text1: 'Pagos no disponibles',
-      text2: 'Escríbenos a rutica.app@gmail.com para adquirir un plan',
+      text2: 'Escríbenos a rutica.info@gmail.com para adquirir un plan',
       position: 'top',
     });
   }, []);
@@ -134,7 +134,7 @@ export const PremiumModal = memo(function PremiumModal({
             Pagos no disponibles por el momento
           </Text>
           <Text style={{ color: colors.text.secondary }}>
-            Estamos configurando los medios de pago. Escríbenos a rutica.app@gmail.com para
+            Estamos configurando los medios de pago. Escríbenos a rutica.info@gmail.com para
             adquirir un plan.
           </Text>
         </View>

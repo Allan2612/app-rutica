@@ -52,7 +52,7 @@ export const TERMS: LegalSection[] = [
     title: '5. Reportes y retiro de contenido',
     paragraphs: [
       'Cualquier persona con cuenta puede reportar un negocio, evento, atracción o reseña con el botón "Reportar este contenido" o el ícono de bandera. Un administrador revisa cada reporte y, si corresponde, edita, oculta o elimina el contenido.',
-      'Si un contenido usa tus fotos, tu marca o tu imagen sin permiso, escríbenos a rutica.app@gmail.com indicando el enlace y tu relación con el material. Lo retiraremos mientras se aclara.',
+      'Si un contenido usa tus fotos, tu marca o tu imagen sin permiso, escríbenos a rutica.info@gmail.com indicando el enlace y tu relación con el material. Lo retiraremos mientras se aclara.',
     ],
   },
   {
@@ -111,7 +111,7 @@ export const TERMS: LegalSection[] = [
     title: '13. Contacto',
     paragraphs: [
       'Si tienes preguntas sobre estos términos, puedes escribirnos o llamarnos:',
-      '• Correo electrónico: rutica.app@gmail.com',
+      '• Correo electrónico: rutica.info@gmail.com',
       '• Teléfono: +506 8450-1389',
       '• Teléfono: +506 8707-7994',
     ],
