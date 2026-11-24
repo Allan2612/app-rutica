@@ -28,7 +28,11 @@ export function publicStorageUrl(
 ): string {
   if (!path) return '';
   const clean = path.replace(/^\/+/, '');
-  const options = width ? { transform: { width, quality: 75 } } : undefined;
+  // resize 'contain': con solo el ancho, el modo por defecto ('cover') conserva la altura
+  // original y recorta una franja (3264x4928 → 640x4928). 'contain' escala proporcional.
+  const options = width
+    ? { transform: { width, quality: 75, resize: 'contain' as const } }
+    : undefined;
   return supabase.storage.from(bucket).getPublicUrl(clean, options).data.publicUrl;
 }
 
