@@ -35,9 +35,11 @@ interface BusinessQueryResult {
   business_images: { path_bim: string }[] | null;
 }
 
+/** Un bloque de favoritos: comercio + hora + cantidad (viene agregado por SQL). */
 interface LikeQueryResult {
   business_id_blk: string;
   created_at_blk: string;
+  count: number;
 }
 
 // ============================================
@@ -99,24 +101,24 @@ export async function getUserBusinessesFavoriteStats(
   // 2. Obtener IDs de negocios (filtrar si se especifica uno)
   const businessIds = businessId ? [businessId] : businesses.map((b) => b.id_bus);
 
-  // 3. Contar favoritos por negocio con fechas
-  const { data: likesData, error: likesError } = await supabase
-    .from('business_likes')
-    .select('business_id_blk, created_at_blk')
-    .in('business_id_blk', businessIds);
+  // 3. Favoritos agregados en SQL (5.17). Los likes son privados (S-18): estas RPC solo
+  //    devuelven datos de comercios del usuario, sin decir quién dio el "me gusta".
+  const since = startOfDay(subDays(new Date(), Math.max(days, 14))).toISOString();
+  const [bucketsRes, totalsRes] = await Promise.all([
+    (supabase as any).rpc('get_owner_like_buckets', { p_business_ids: businessIds, p_since: since }),
+    (supabase as any).rpc('get_owner_like_totals', { p_business_ids: businessIds }),
+  ]);
+  if (bucketsRes.error) console.error('[premiumDashboard] Error fetching like buckets:', bucketsRes.error);
+  if (totalsRes.error) console.error('[premiumDashboard] Error fetching like totals:', totalsRes.error);
 
-  if (likesError) {
-    console.error('[premiumDashboard] Error fetching likes:', likesError);
-  }
+  const likes: LikeQueryResult[] = (
+    (bucketsRes.data ?? []) as { business_id: string; bucket_hour: string; likes: number }[]
+  ).map((b) => ({ business_id_blk: b.business_id, created_at_blk: b.bucket_hour, count: Number(b.likes) }));
 
-  // Type assertion
-  const likes = likesData as unknown as LikeQueryResult[] | null;
-
-  // 4. Agrupar likes por negocio
+  // 4. Total histórico por negocio
   const likesCountMap = new Map<string, number>();
-  (likes ?? []).forEach((like) => {
-    const currentCount = likesCountMap.get(like.business_id_blk) || 0;
-    likesCountMap.set(like.business_id_blk, currentCount + 1);
+  ((totalsRes.data ?? []) as { business_id: string; likes: number }[]).forEach((t) => {
+    likesCountMap.set(t.business_id, Number(t.likes));
   });
 
   // 5. Calcular tendencia diaria
@@ -192,7 +194,7 @@ function calculateDailyTrend(likes: LikeQueryResult[], days: number): DailyFavor
 
     // Contar por día
     const currentCount = countByDay.get(dateKey) || 0;
-    countByDay.set(dateKey, currentCount + 1);
+    countByDay.set(dateKey, currentCount + like.count);
 
     // Contar por día y hora
     if (!countByDayAndHour.has(dateKey)) {
@@ -200,7 +202,7 @@ function calculateDailyTrend(likes: LikeQueryResult[], days: number): DailyFavor
     }
     const hourMap = countByDayAndHour.get(dateKey)!;
     const hourCount = hourMap.get(hour) || 0;
-    hourMap.set(hour, hourCount + 1);
+    hourMap.set(hour, hourCount + like.count);
   });
 
   // Para 90 días, agrupar por mes
@@ -305,9 +307,9 @@ function calculateGrowthPercentage(likes: LikeQueryResult[]): number {
     const likeDate = new Date(like.created_at_blk);
 
     if (likeDate >= startOfDay(oneWeekAgo) && likeDate <= endOfDay(today)) {
-      thisWeekCount++;
+      thisWeekCount += like.count;
     } else if (likeDate >= startOfDay(twoWeeksAgo) && likeDate < startOfDay(oneWeekAgo)) {
-      lastWeekCount++;
+      lastWeekCount += like.count;
     }
   });
 

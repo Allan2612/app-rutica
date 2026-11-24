@@ -1,3 +1,4 @@
+import { getLikeCounts } from '@/services/likeCounts.service';
 import { supabase } from '@/lib/supabase/client';
 
 /**
@@ -87,46 +88,8 @@ export async function toggleReviewLike(reviewId: string, userId: string): Promis
  * Obtiene el conteo de likes de una reseña
  */
 export async function getReviewLikesCount(reviewId: string): Promise<number> {
-  const { count, error } = await supabase
-    .from('business_review_likes')
-    .select('*', { count: 'exact', head: true })
-    .eq('review_id_brl', reviewId);
-
-  if (error) {
-    console.error('[businessReviewLikes] Error counting likes:', error.message);
-    return 0;
-  }
-
-  return count ?? 0;
+  // Los likes son privados (S-18): contar filas devolvería solo los propios
+  const counts = await getLikeCounts('business_review_likes', [reviewId]);
+  return counts[reviewId] ?? 0;
 }
 
-/**
- * Obtiene el conteo de likes para múltiples reseñas
- */
-export async function getMultipleReviewLikesCount(
-  reviewIds: string[],
-): Promise<Record<string, number>> {
-  if (reviewIds.length === 0) {
-    return {};
-  }
-
-  const { data, error } = await supabase
-    .from('business_review_likes')
-    .select('review_id_brl')
-    .in('review_id_brl', reviewIds);
-
-  if (error) {
-    console.error('[businessReviewLikes] Error counting multiple likes:', error.message);
-    return {};
-  }
-
-  // Contar likes por reseña
-  const counts: Record<string, number> = {};
-  reviewIds.forEach((id) => (counts[id] = 0));
-
-  data.forEach((item: any) => {
-    counts[item.review_id_brl] = (counts[item.review_id_brl] || 0) + 1;
-  });
-
-  return counts;
-}
