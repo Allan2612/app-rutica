@@ -76,7 +76,9 @@ export function DesktopSidebar({ state, descriptors, navigation }: BottomTabBarP
   const [peek, setPeek] = useState(false);
   const panelRef = useRef<View>(null);
   const collapsedRef = useRef(collapsed);
-  collapsedRef.current = collapsed;
+  useEffect(() => {
+    collapsedRef.current = collapsed;
+  }, [collapsed]);
   useEffect(() => {
     const el = panelRef.current as unknown as HTMLElement | null;
     if (!el?.addEventListener) return;
