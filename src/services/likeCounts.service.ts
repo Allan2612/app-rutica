@@ -35,23 +35,15 @@ export async function getLikeCounts(table: LikeTable, ids: string[]): Promise<Re
   const counts: Record<string, number> = Object.fromEntries(ids.map((id) => [id, 0]));
   if (ids.length === 0) return counts;
 
-  const { data, error } = await (supabase as any).rpc('get_like_counts', {
+  const { data, error } = await supabase.rpc('get_like_counts', {
     p_table: table,
     p_ids: ids,
   });
 
-  if (!error) {
-    for (const row of (data ?? []) as { target_id: string; likes: number }[]) {
-      counts[row.target_id] = Number(row.likes);
-    }
-    return counts;
+  if (error) throw error;
+  for (const row of (data ?? []) as { target_id: string; likes: number }[]) {
+    counts[row.target_id] = Number(row.likes);
   }
-
-  // Compatibilidad mientras la migración no esté aplicada: contar filas
-  const col = TARGET_COLUMN[table];
-  const { data: rows, error: rowsError } = await (supabase as any).from(table).select(col).in(col, ids);
-  if (rowsError) throw rowsError;
-  for (const row of rows ?? []) counts[row[col]] = (counts[row[col]] ?? 0) + 1;
   return counts;
 }
 
@@ -63,11 +55,12 @@ export async function getUserLikedIds(
 ): Promise<Set<string>> {
   if (!userId || ids.length === 0) return new Set();
   const col = TARGET_COLUMN[table];
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from(table)
     .select(col)
     .eq(USER_COLUMN[table], userId)
     .in(col, ids);
   if (error) throw error;
-  return new Set((data ?? []).map((row: Record<string, string>) => row[col]));
+  // Columna dinámica según la tabla: los tipos generados no la infieren
+  return new Set(((data ?? []) as unknown as Record<string, string>[]).map((row) => row[col]));
 }

@@ -21,7 +21,7 @@ const PAYMENT_KEYS = {
 export async function getPaymentSettings(): Promise<PaymentSettings> {
   const settings: PaymentSettings = { sinpeNumber: null, sinpeName: null, iban: null, transferName: null };
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('app_settings')
     .select('key_set, value_set')
     .in('key_set', Object.keys(PAYMENT_KEYS));

@@ -71,7 +71,7 @@ export async function getProductReviews(
       userId: review.user_id_prv ?? '',
       rating: review.rating_prv ?? 0,
       comment: review.comment_prv,
-      createdAt: review.created_at_prv,
+      createdAt: review.created_at_prv ?? '',
       authorName,
       authorPhotoUrl,
     };
@@ -93,7 +93,7 @@ export async function createProductReview(
     user_id_prv: userId,
     rating_prv: rating,
     comment_prv: comment || null,
-  } as any);
+  });
 
   if (error) {
     console.error('[productReviews] Error creating review:', error.message);

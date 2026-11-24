@@ -50,7 +50,7 @@ export function useUpdateAttraction() {
         visibilityTime: 3000,
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       Toast.show({
         type: 'error',
         text1: 'Error al actualizar',

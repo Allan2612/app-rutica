@@ -105,8 +105,8 @@ export async function getUserBusinessesFavoriteStats(
   //    devuelven datos de comercios del usuario, sin decir quién dio el "me gusta".
   const since = startOfDay(subDays(new Date(), Math.max(days, 14))).toISOString();
   const [bucketsRes, totalsRes] = await Promise.all([
-    (supabase as any).rpc('get_owner_like_buckets', { p_business_ids: businessIds, p_since: since }),
-    (supabase as any).rpc('get_owner_like_totals', { p_business_ids: businessIds }),
+    supabase.rpc('get_owner_like_buckets', { p_business_ids: businessIds, p_since: since }),
+    supabase.rpc('get_owner_like_totals', { p_business_ids: businessIds }),
   ]);
   if (bucketsRes.error) console.error('[premiumDashboard] Error fetching like buckets:', bucketsRes.error);
   if (totalsRes.error) console.error('[premiumDashboard] Error fetching like totals:', totalsRes.error);

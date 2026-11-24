@@ -82,7 +82,7 @@ export async function getAttractionsList(
   const { searchText, categoryIds, page, location, locationMode } = filters;
   const locationIds = await resolveLocationIds(location);
 
-  let query = (supabase as any).from('attractions').select(
+  let query = supabase.from('attractions').select(
     `
       id_atr,
       name_atr,
@@ -139,16 +139,16 @@ export async function getAttractionsList(
     query = query.or(buildIlikeOr(['name_atr', 'description_atr'], term));
   }
 
-  query = applyLocation(query, 'location_id_atr', locationIds, locationMode);
-  if (!query) return EMPTY_PAGE;
+  const scoped = applyLocation(query, 'location_id_atr', locationIds, locationMode);
+  if (!scoped) return EMPTY_PAGE;
 
   const [from, to] = pageRange(page);
-  query = query
+  const paged = scoped
     .order('created_at_atr', { ascending: false })
     .order('id_atr', { ascending: true })
     .range(from, to);
 
-  const { data, error, count } = await query;
+  const { data, error, count } = await paged;
   if (error) throw error;
 
   return { rows: (data ?? []) as AttractionListRecord[], total: count ?? 0 };

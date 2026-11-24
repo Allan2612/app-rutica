@@ -96,7 +96,7 @@ export const SubscriptionPlanModal = memo(function SubscriptionPlanModal({
       if (isEditing && plan) {
         // For updates, exclude type_sub
         const { ...updateData } = dataToSave;
-        delete (updateData as any).type_sub;
+        delete updateData.type_sub;
         await updateMutation.mutateAsync({
           planId: plan.id_sub,
           updates: updateData as any,

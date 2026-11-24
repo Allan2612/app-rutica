@@ -207,7 +207,7 @@ export async function getCurrentSession() {
  * Google Play / App Store y derecho de supresión (Ley 8968).
  */
 export async function deleteMyAccount(): Promise<void> {
-  const { error } = await (supabase as any).rpc('delete_my_account');
+  const { error } = await supabase.rpc('delete_my_account');
   if (error) {
     if (error.code === 'PGRST202') {
       throw new Error('La eliminación de cuentas aún no está habilitada. Escríbenos a rutica.app@gmail.com');

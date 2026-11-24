@@ -87,7 +87,7 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
   return {
     async list(entityId: string, userId?: string, page = 0): Promise<Page<Display<K>>> {
       const [from, to] = pageRange(page);
-      const { data, error, count } = await (supabase as any)
+      const { data, error, count } = await supabase
         .from(cfg.table)
         .select(select, { count: 'exact' })
         .eq(cfg.entityColumn, entityId)
@@ -99,7 +99,7 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
     },
 
     async getForUser(entityId: string, userId: string): Promise<Display<K> | null> {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from(cfg.table)
         .select(select)
         .eq(cfg.entityColumn, entityId)
@@ -117,7 +117,7 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
       comment?: string,
     ): Promise<Display<K>> {
       if (comment) validateReviewContent(comment);
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from(cfg.table)
         .insert({
           [cfg.entityColumn]: entityId,
@@ -133,7 +133,7 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
 
     async update(reviewId: string, rating: number, comment?: string): Promise<Display<K>> {
       if (comment) validateReviewContent(comment);
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from(cfg.table)
         .update({ [c('rating')]: rating, [c('comment')]: comment || null })
         .eq(c('id'), reviewId)
@@ -144,7 +144,7 @@ export function createReviewsApi<K extends string>(cfg: ReviewsApiConfig<K>) {
     },
 
     async remove(reviewId: string): Promise<void> {
-      const { error } = await (supabase as any).from(cfg.table).delete().eq(c('id'), reviewId);
+      const { error } = await supabase.from(cfg.table).delete().eq(c('id'), reviewId);
       if (error) throw translateReviewError(error);
     },
   };

@@ -229,7 +229,7 @@ export async function updateAttractionComplete(
   }
 
   // Verificar permisos: debe ser el colaborador O admin
-  const hasPermission = await canUserEdit(userId, (attraction as any).submitted_by_atr);
+  const hasPermission = await canUserEdit(userId, attraction.submitted_by_atr);
   if (!hasPermission) {
     throw new Error('No tienes permiso para editar esta atracción');
   }
@@ -250,7 +250,7 @@ export async function updateAttractionComplete(
   const districtId = await findOrCreateLocationHierarchy(locationHierarchy);
 
   // 3. Actualizar ubicación
-  if ((attraction as any).location_id_atr) {
+  if (attraction.location_id_atr) {
     const { error: locationError } = await supabase
       .from('locations')
       .update({
@@ -259,7 +259,7 @@ export async function updateAttractionComplete(
         latitude_loc: data.latitude,
         longitude_loc: data.longitude,
       } as never)
-      .eq('id_loc', (attraction as any).location_id_atr);
+      .eq('id_loc', attraction.location_id_atr);
 
     if (locationError) throw locationError;
   }

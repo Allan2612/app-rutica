@@ -26,7 +26,7 @@ export async function updatePromotionComplete(
   data: Partial<PromotionFormData>,
 ): Promise<void> {
   // 1. Verificar permisos
-  const { data: promotion, error: fetchError } = await (supabase as any)
+  const { data: promotion, error: fetchError } = await supabase
     .from('promotions')
     .select('created_by_prm')
     .eq('id_prm', promotionId)
@@ -58,7 +58,7 @@ export async function updatePromotionComplete(
   if (data.endAt !== undefined) updatePayload.end_at_prm = data.endAt;
   if (data.isActive !== undefined) updatePayload.is_active_prm = data.isActive;
 
-  const { error: updateError } = await (supabase as any)
+  const { error: updateError } = await supabase
     .from('promotions')
     .update(updatePayload)
     .eq('id_prm', promotionId);
@@ -77,7 +77,7 @@ export async function updatePromotionComplete(
         category_id_pcr: categoryId,
       }));
 
-      const { error: categoryError } = await (supabase as any)
+      const { error: categoryError } = await supabase
         .from('promotion_category_map')
         .insert(categoryMaps);
 
@@ -99,7 +99,7 @@ export async function updatePromotionComplete(
         product_id_ppr: productId,
       }));
 
-      const { error: productError } = await (supabase as any)
+      const { error: productError } = await supabase
         .from('promotion_products')
         .insert(productMaps);
 
@@ -121,7 +121,7 @@ export async function updatePromotionComplete(
         category_id_psc: categoryId,
       }));
 
-      const { error: scopeCategoryError } = await (supabase as any)
+      const { error: scopeCategoryError } = await supabase
         .from('promotion_scope_categories')
         .insert(scopeCategoryMaps);
 
@@ -145,7 +145,7 @@ export async function updatePromotionComplete(
         paid_quantity_pci: item.paidQuantity ?? null,
       }));
 
-      const { error: comboError } = await (supabase as any)
+      const { error: comboError } = await supabase
         .from('promotion_combo_items')
         .insert(comboItemMaps);
 
@@ -164,7 +164,7 @@ export async function updatePromotionComplete(
       .eq('promotion_id_pim', promotionId);
 
     const currentCover =
-      (allImages as any)?.find((img: any) => {
+      allImages?.find((img: any) => {
         const prefix = img.path_pim.split('/').pop()?.split('-')[0];
         return prefix === 'flyer';
       }) ?? null;
@@ -185,7 +185,7 @@ export async function updatePromotionComplete(
       // Subir nueva imagen
       const coverPath = await uploadPromotionImage(promotionId, data.coverUri, 'flyer');
 
-      await (supabase as any).from('promotion_images').insert({
+      await supabase.from('promotion_images').insert({
         id_pim: generateUUID(),
         promotion_id_pim: promotionId,
         path_pim: coverPath,
@@ -202,7 +202,7 @@ export async function updatePromotionComplete(
       .select('id_pim, path_pim')
       .eq('promotion_id_pim', promotionId);
 
-    const currentPaths = (currentGallery as any)?.map((img: any) => img.path_pim) ?? [];
+    const currentPaths = currentGallery?.map((img: any) => img.path_pim) ?? [];
     const newUris = data.galleryUris;
 
     // Determinar qué imágenes eliminar (las que no están en newUris como URL)
@@ -219,7 +219,7 @@ export async function updatePromotionComplete(
       if (isNewImage(uri)) {
         const galleryPath = await uploadPromotionImage(promotionId, uri, 'flyer');
 
-        await (supabase as any).from('promotion_images').insert({
+        await supabase.from('promotion_images').insert({
           id_pim: generateUUID(),
           promotion_id_pim: promotionId,
           path_pim: galleryPath,

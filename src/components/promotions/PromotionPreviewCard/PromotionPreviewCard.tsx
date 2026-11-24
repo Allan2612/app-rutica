@@ -25,7 +25,7 @@ export const PromotionPreviewCard = memo(function PromotionPreviewCard({
 
   // Get selected business name
   const businessName = useMemo(() => {
-    const business = businesses.find((b: any) => b.id === formData.businessId);
+    const business = businesses.find((b) => b.id === formData.businessId);
     return business?.name || 'Sin negocio';
   }, [businesses, formData.businessId]);
 

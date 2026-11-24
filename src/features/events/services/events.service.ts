@@ -94,7 +94,7 @@ export async function getEventsList(
   const { searchText, categoryIds, upcoming = true, page, location, locationMode } = filters;
   const locationIds = await resolveLocationIds(location);
 
-  let query = (supabase as any).from('events').select(
+  let query = supabase.from('events').select(
     `
             id_evt,
             name_evt,
@@ -170,7 +170,7 @@ export async function getEventsList(
       .in('category_id_ecm', categoryIds);
 
     if (eventCategoryData && eventCategoryData.length > 0) {
-      const eventIds = [...new Set((eventCategoryData as any).map((ec: any) => ec.event_id_ecm))];
+      const eventIds = [...new Set(eventCategoryData.map((ec) => ec.event_id_ecm))];
       query = query.in('id_evt', eventIds);
     } else {
       // No hay eventos con esas categorías
@@ -178,17 +178,17 @@ export async function getEventsList(
     }
   }
 
-  query = applyLocation(query, 'location_id_evt', locationIds, locationMode);
-  if (!query) return EMPTY_PAGE;
+  const scoped = applyLocation(query, 'location_id_evt', locationIds, locationMode);
+  if (!scoped) return EMPTY_PAGE;
 
   // Próximos primero
   const [from, to] = pageRange(page);
-  query = query
+  const paged = scoped
     .order('start_at_evt', { ascending: true })
     .order('id_evt', { ascending: true })
     .range(from, to);
 
-  const { data, error, count } = await query;
+  const { data, error, count } = await paged;
   if (error) throw error;
 
   return { rows: (data ?? []) as EventListRecord[], total: count ?? 0 };

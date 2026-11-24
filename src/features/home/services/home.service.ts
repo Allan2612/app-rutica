@@ -82,7 +82,7 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
   try {
     const now = new Date().toISOString();
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('promotions')
       .select(
         `
@@ -140,7 +140,7 @@ export async function getFeaturedPromotions(limit: number = 6): Promise<Promotio
       return [];
     }
 
-    return (data ?? []).map((item: PromotionRecord): PromotionListItem => {
+    return ((data ?? []) as unknown as PromotionRecord[]).map((item): PromotionListItem => {
       const promoImage = item.promotion_images?.[0]?.path_pim;
       const businessCover = item.businesses?.business_images?.find(
         (img: { path_bim: string }) => getImageTypeFromPath(img.path_bim) === 'cover',
@@ -256,7 +256,7 @@ interface BusinessRecord {
 export async function getTopRatedBusiness(): Promise<BusinessListItem | null> {
   const now = new Date().toISOString();
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `
@@ -301,7 +301,7 @@ export async function getTopRatedBusiness(): Promise<BusinessListItem | null> {
 
   if (error || !data) {
     // Fallback: get any approved business if no rated one exists
-    const { data: fallback } = await (supabase as any)
+    const { data: fallback } = await supabase
       .from('businesses')
       .select(
         `
@@ -343,10 +343,10 @@ export async function getTopRatedBusiness(): Promise<BusinessListItem | null> {
 
     if (!fallback) return null;
 
-    return mapBusinessRecord(fallback, now);
+    return mapBusinessRecord(fallback as unknown as BusinessRecord, now);
   }
 
-  return mapBusinessRecord(data, now);
+  return mapBusinessRecord(data as unknown as BusinessRecord, now);
 }
 
 function mapBusinessRecord(item: BusinessRecord, now: string): BusinessListItem {
@@ -418,23 +418,23 @@ export async function getHomeStats(): Promise<HomeStats> {
     const now = new Date().toISOString();
 
     const [businesses, events, attractions, promotions] = await Promise.all([
-      (supabase as any)
+      supabase
         .from('businesses')
         .select('id_bus', { count: 'exact', head: true })
         .eq('moderation_status_bus', 'approved')
         .eq('is_active_bus', true),
-      (supabase as any)
+      supabase
         .from('events')
         .select('id_evt', { count: 'exact', head: true })
         .eq('moderation_status_evt', 'approved')
         .eq('is_active_evt', true)
         .gte('end_at_evt', now),
-      (supabase as any)
+      supabase
         .from('attractions')
         .select('id_atr', { count: 'exact', head: true })
         .eq('moderation_status_atr', 'approved')
         .eq('is_active_atr', true),
-      (supabase as any)
+      supabase
         .from('promotions')
         .select('id_prm', { count: 'exact', head: true })
         .eq('moderation_status_prm', 'approved')
@@ -472,7 +472,7 @@ export async function getFeaturedBusinesses(limit: number = 5): Promise<Business
   try {
     const now = new Date().toISOString();
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('businesses')
       .select(
         `
@@ -517,7 +517,7 @@ export async function getFeaturedBusinesses(limit: number = 5): Promise<Business
       return [];
     }
 
-    return (data ?? []).map((item: BusinessRecord) => mapBusinessRecord(item, now));
+    return ((data ?? []) as unknown as BusinessRecord[]).map((item) => mapBusinessRecord(item, now));
   } catch (err) {
     console.error('Exception in getFeaturedBusinesses:', err);
     return [];
@@ -589,7 +589,7 @@ export async function getFeaturedEvents(limit: number = 5): Promise<EventListIte
   try {
     const now = new Date().toISOString();
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('events')
       .select(
         `
@@ -650,7 +650,7 @@ export async function getFeaturedEvents(limit: number = 5): Promise<EventListIte
       return [];
     }
 
-    return (data ?? []).map((item: EventRecord): EventListItem => {
+    return ((data ?? []) as unknown as EventRecord[]).map((item): EventListItem => {
       // Ordenar imágenes por sort_order
       const sortedImages = [...(item.event_images ?? [])].sort(
         (a, b) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0),
@@ -780,7 +780,7 @@ interface AttractionRecord {
  */
 export async function getFeaturedAttractions(limit: number = 5): Promise<AttractionListItem[]> {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('attractions')
       .select(
         `
@@ -830,7 +830,7 @@ export async function getFeaturedAttractions(limit: number = 5): Promise<Attract
       return [];
     }
 
-    return (data ?? []).map((item: AttractionRecord): AttractionListItem => {
+    return ((data ?? []) as unknown as AttractionRecord[]).map((item): AttractionListItem => {
       // Ordenar imágenes por sort_order
       const sortedImages = [...(item.attraction_images ?? [])].sort(
         (a, b) => (a?.sort_order_aim ?? 0) - (b?.sort_order_aim ?? 0),

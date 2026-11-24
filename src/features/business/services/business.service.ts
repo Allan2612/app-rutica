@@ -141,7 +141,7 @@ export async function saveBusinessImageReference(
   filePath: string,
   sortOrder: number = 0,
 ): Promise<void> {
-  const { error } = await (supabase as any).from('business_images').insert({
+  const { error } = await supabase.from('business_images').insert({
     id_bim: generateUUID(),
     business_id_bim: businessId,
     path_bim: filePath,
@@ -159,7 +159,7 @@ export function getImageUrl(filePath: string): string {
 
 export async function createBusiness(input: CreateBusinessInput): Promise<Business> {
   // 1️⃣ Crear ubicación (V3: solo district_id, address y coordenadas)
-  const { data: location, error: locationError } = await (supabase as any)
+  const { data: location, error: locationError } = await supabase
     .from('locations')
     .insert({
       id_loc: generateUUID(),
@@ -174,14 +174,14 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   if (locationError) throw locationError;
 
   // 2️⃣ Crear comercio
-  const { data: business, error: businessError } = await (supabase as any)
+  const { data: business, error: businessError } = await supabase
     .from('businesses')
     .insert({
       id_bus: generateUUID(),
       owner_id_bus: input.ownerId,
       name_bus: input.name,
       description_bus: input.description ?? null,
-      location_id_bus: (location as any).id_loc,
+      location_id_bus: location.id_loc,
 
       whatsapp_phone_bus: input.whatsapp ?? null,
       contact_phone_bus: input.phone ?? null,
@@ -196,29 +196,29 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
   if (businessError) throw businessError;
 
   // 3️⃣ Subir logo si existe (V3: sort_order=0 para logo)
-  if (input.logoUri && (business as any).id_bus) {
+  if (input.logoUri && business.id_bus) {
     try {
       const logoPath = await uploadImageToStorage(
         input.logoUri,
-        (business as any).id_bus,
+        business.id_bus,
         'logo.png',
       );
-      await saveBusinessImageReference((business as any).id_bus, logoPath, 0);
+      await saveBusinessImageReference(business.id_bus, logoPath, 0);
     } catch (error) {
       // No lanzar error si falla el logo, continuar
     }
   }
 
   // 4️⃣ Subir imágenes del negocio si existen
-  if (input.imageUris && input.imageUris.length > 0 && (business as any).id_bus) {
+  if (input.imageUris && input.imageUris.length > 0 && business.id_bus) {
     try {
       for (let i = 0; i < input.imageUris.length; i++) {
         const imagePath = await uploadImageToStorage(
           input.imageUris[i],
-          (business as any).id_bus,
+          business.id_bus,
           `gallery-${i}.png`,
         );
-        await saveBusinessImageReference((business as any).id_bus, imagePath, i + 1);
+        await saveBusinessImageReference(business.id_bus, imagePath, i + 1);
       }
     } catch (error) {
       // No lanzar error si fallan las imágenes, continuar
@@ -236,7 +236,7 @@ export async function getBusinessList(
 
   const now = new Date().toISOString();
 
-  let query = (supabase as any).from('businesses').select(
+  let query = supabase.from('businesses').select(
     `
       id_bus,
       name_bus,
@@ -290,23 +290,23 @@ export async function getBusinessList(
     query = query.or(buildIlikeOr(['name_bus', 'description_bus'], term));
   }
 
-  query = applyLocation(query, 'location_id_bus', locationIds, locationMode);
-  if (!query) return EMPTY_PAGE;
+  const scoped = applyLocation(query, 'location_id_bus', locationIds, locationMode);
+  if (!scoped) return EMPTY_PAGE;
 
   const [from, to] = pageRange(page);
-  query = query
+  const paged = scoped
     .order('created_at_bus', { ascending: false })
     .order('id_bus', { ascending: true })
     .range(from, to);
 
-  const { data, error, count } = await query;
+  const { data, error, count } = await paged;
   if (error) throw error;
 
   return { rows: (data ?? []) as BusinessListRecord[], total: count ?? 0 };
 }
 
 export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `
@@ -341,7 +341,7 @@ export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {
 }
 
 export async function getBusinessesByOwner(ownerId: string) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `
@@ -360,7 +360,7 @@ export async function getBusinessesByOwner(ownerId: string) {
 }
 
 export async function getBusinessById(id: string): Promise<BusinessWithRelations> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `

@@ -109,7 +109,7 @@ export async function getPublicPromotions(
   const businessJoin = locationIds ? '!inner' : '';
   const categoryJoin = byCategory ? '!inner' : '';
 
-  let query = (supabase as any)
+  let query = supabase
     .from('promotions')
     .select(
       `
@@ -177,20 +177,20 @@ export async function getPublicPromotions(
     query = query.or(buildIlikeOr(['title_prm', 'description_prm'], term));
   }
 
-  if (byCategory) {
+  if (categoryIds && categoryIds.length > 0) {
     query = query.in('promotion_category_map.category_id_pcr', categoryIds);
   }
 
-  query = applyLocation(query, 'location_id_bus', locationIds, locationMode, 'businesses');
-  if (!query) return EMPTY_PAGE;
+  const scoped = applyLocation(query, 'location_id_bus', locationIds, locationMode, 'businesses');
+  if (!scoped) return EMPTY_PAGE;
 
   const [from, to] = pageRange(page);
-  query = query
+  const paged = scoped
     .order('start_at_prm', { ascending: false })
     .order('id_prm', { ascending: true })
     .range(from, to);
 
-  const { data, error, count } = await query;
+  const { data, error, count } = await paged;
   if (error) throw error;
 
   return {
@@ -208,7 +208,7 @@ export async function getBusinessActivePromotions(
 ): Promise<PromotionListItem[]> {
   const now = new Date().toISOString();
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('promotions')
     .select(
       `

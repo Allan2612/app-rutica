@@ -109,7 +109,7 @@ async function uploadImage(
     if (error) throw error;
 
     // Registrar en business_images
-    const { error: insertError } = await (supabase as any).from('business_images').insert({
+    const { error: insertError } = await supabase.from('business_images').insert({
       id_bim: generateUUID(),
       business_id_bim: businessId,
       path_bim: filePath,
@@ -135,7 +135,7 @@ export async function getBusinessForEdit(
   businessId: string,
   userId: string,
 ): Promise<BusinessDetailForEdit> {
-  const { data: businessData, error: businessError } = await (supabase as any)
+  const { data: businessData, error: businessError } = await supabase
     .from('businesses')
     .select(
       `
@@ -227,7 +227,7 @@ export async function getBusinessForEdit(
   const socialLinks = (businessData as any).social_links_bus || {};
 
   // Cargar imágenes desde business_images table
-  const { data: businessImages, error: imagesError } = await (supabase as any)
+  const { data: businessImages, error: imagesError } = await supabase
     .from('business_images')
     .select('path_bim, sort_order_bim')
     .eq('business_id_bim', businessId)
@@ -288,7 +288,7 @@ export async function updateBusinessComplete(
 ): Promise<void> {
   try {
     // 1. Verificar permisos
-    const { data: business } = await (supabase as any)
+    const { data: business } = await supabase
       .from('businesses')
       .select('owner_id_bus, location_id_bus')
       .eq('id_bus', businessId)
@@ -320,7 +320,7 @@ export async function updateBusinessComplete(
 
     if ((business as any).location_id_bus) {
       // Actualizar ubicación existente
-      const { error: locUpdateError } = await (supabase as any)
+      const { error: locUpdateError } = await supabase
         .from('locations')
         .update({
           district_id_loc: districtId,
@@ -334,7 +334,7 @@ export async function updateBusinessComplete(
     } else {
       // Crear nueva ubicación
       const newLocationId = generateUUID();
-      const { error: locError } = await (supabase as any).from('locations').insert({
+      const { error: locError } = await supabase.from('locations').insert({
         id_loc: newLocationId,
         district_id_loc: districtId,
         address_loc: data.address ?? null,
@@ -345,7 +345,7 @@ export async function updateBusinessComplete(
       if (locError) throw locError;
 
       // Actualizar negocio con nueva ubicación
-      await (supabase as any)
+      await supabase
         .from('businesses')
         .update({ location_id_bus: newLocationId })
         .eq('id_bus', businessId);
@@ -468,7 +468,7 @@ export async function updateBusinessComplete(
       updateFields.is_active_bus = data.isActive;
     }
 
-    const { error: businessError } = await (supabase as any)
+    const { error: businessError } = await supabase
       .from('businesses')
       .update(updateFields)
       .eq('id_bus', businessId);
@@ -483,7 +483,7 @@ export async function updateBusinessComplete(
         business_id_bcm: businessId,
         category_id_bcm: catId,
       }));
-      await (supabase as any).from('business_category_map').insert(categoryMaps);
+      await supabase.from('business_category_map').insert(categoryMaps);
     }
   } catch (error) {
     console.error('[updateBusinessComplete] Error:', error);

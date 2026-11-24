@@ -31,7 +31,7 @@ export interface BusinessDetailData {
 }
 
 export async function getBusinessDetail(businessId: string): Promise<BusinessDetailData | null> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('businesses')
     .select(
       `

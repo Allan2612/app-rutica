@@ -43,7 +43,7 @@ export async function resolveLocationIds(location?: LocationFilter | null): Prom
   const cached = locationCache.get(key);
   if (cached && Date.now() - cached.at < LOCATION_TTL) return cached.ids;
 
-  let query = (supabase as any)
+  let query = supabase
     .from('locations')
     .select(
       'id_loc, districts!inner(name_dst, cantons!inner(name_ctn, provinces!inner(name_prv)))',

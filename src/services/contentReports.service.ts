@@ -60,7 +60,7 @@ export async function reportContent(input: {
   reason: ReportReason;
   details?: string;
 }): Promise<void> {
-  const { error } = await (supabase as any).from('content_reports').insert({
+  const { error } = await supabase.from('content_reports').insert({
     entity_type_rep: input.entityType,
     entity_id_rep: input.entityId,
     reason_rep: input.reason,
@@ -138,7 +138,7 @@ const ENTITY_SOURCES: Record<
 
 /** Lista de reportes para el admin (RLS: solo admin ve los de otros). */
 export async function getContentReports(status: ReportStatus): Promise<ContentReport[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('content_reports')
     .select(
       'id_rep, entity_type_rep, entity_id_rep, reason_rep, details_rep, status_rep, created_at_rep',
@@ -159,6 +159,7 @@ export async function getContentReports(status: ReportStatus): Promise<ContentRe
     [...byType].map(async ([type, ids]) => {
       const src = ENTITY_SOURCES[type];
       const cols = [src.id, src.label, src.parent].filter(Boolean).join(',');
+      // Tabla dinámica según el tipo: los tipos generados no pueden inferirla
       const { data: entities } = await (supabase as any)
         .from(src.table)
         .select(cols)
@@ -187,7 +188,7 @@ export async function getContentReports(status: ReportStatus): Promise<ContentRe
 
 export async function setContentReportStatus(id: string, status: Exclude<ReportStatus, 'open'>) {
   const { data: auth } = await supabase.auth.getSession();
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('content_reports')
     .update({
       status_rep: status,
@@ -200,7 +201,7 @@ export async function setContentReportStatus(id: string, status: Exclude<ReportS
 
 /** Cantidad de reportes abiertos, para el contador del panel de admin. */
 export async function countOpenReports(): Promise<number> {
-  const { count, error } = await (supabase as any)
+  const { count, error } = await supabase
     .from('content_reports')
     .select('id_rep', { count: 'exact', head: true })
     .eq('status_rep', 'open');

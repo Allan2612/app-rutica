@@ -142,7 +142,7 @@ export const EditPromotionWizardScreen = memo(function EditPromotionWizardScreen
             router.replace('/(app)/(tabs)/manage/promotions');
           }, 1500);
         },
-        onError: (error: any) => {
+        onError: (error) => {
           Toast.show({
             type: 'error',
             text1: 'Error al actualizar',

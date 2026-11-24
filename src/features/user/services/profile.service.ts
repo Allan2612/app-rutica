@@ -7,7 +7,7 @@ import type { Profile, ProfileUpdate } from '@/types/entities';
  * (teléfono incluido) se lee con la RPC get_my_profile.
  */
 export async function getCurrentProfile(_userId?: string): Promise<Profile> {
-  const { data, error } = await (supabase as any).rpc('get_my_profile').single();
+  const { data, error } = await supabase.rpc('get_my_profile').single();
 
   if (error) throw error;
   return data as Profile;
