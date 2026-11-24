@@ -36,7 +36,9 @@ export const FooterActions = memo(function FooterActions({
         style={[styles.applyButton, { backgroundColor: colors.primary[500] }]}
       >
         <Text style={styles.applyButtonText}>
-          {activeCount ? `Mostrar resultados (${activeCount} filtros)` : 'Mostrar resultados'}
+          {activeCount
+            ? `Mostrar resultados (${activeCount} ${activeCount === 1 ? 'filtro' : 'filtros'})`
+            : 'Mostrar resultados'}
         </Text>
       </Pressable>
     </View>

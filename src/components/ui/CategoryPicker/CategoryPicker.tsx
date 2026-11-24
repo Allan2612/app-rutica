@@ -1,284 +1,362 @@
 /**
- * CategoryPicker — selector de categorías para filtros y formularios.
- * Todas las categorías a la vista, agrupadas por su categoría principal; un toque marca o
- * desmarca. Con muchas categorías aparece un buscador que muestra la ruta ("Salud › Dental").
+ * CategoryPicker — navegador de categorías pensado para cientos de ellas (hoy ~200 en 3 niveles).
+ * Se recorre por niveles (como carpetas, con migas para volver), se busca sin tildes en todo el
+ * árbol mostrando la ruta, y lo elegido queda arriba para quitarlo de un toque.
+ *
+ * cascade (filtros): elegir una categoría la incluye con todas sus subcategorías, que se ven
+ * marcadas como "incluidas". Sin cascade (etiquetar un comercio) cada categoría es independiente.
+ * Ocupa todo el alto del contenedor y tiene su propio scroll.
  */
 
-import { memo, useMemo, useState, type ReactNode } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
-import { Check, ChevronDown, ChevronUp, Search, X } from 'lucide-react-native';
+import { memo, useMemo, useState } from 'react';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Check, ChevronLeft, ChevronRight, Search, X } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
 import { spacing, typography } from '@/styles/theme';
 import type { HierarchicalCategoryOption } from '@/types/entities';
+import { buildCategoryTree, normalizeForSearch } from '@/utils/categoryTree';
 
 interface CategoryPickerProps {
   categories: HierarchicalCategoryOption[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
+  /** Elegir una categoría incluye sus subcategorías (para filtros). Por defecto: sí */
+  cascade?: boolean;
 }
 
-/** A partir de cuántas categorías se muestra el buscador */
-const SEARCH_THRESHOLD = 12;
+type Cat = HierarchicalCategoryOption;
 
 export const CategoryPicker = memo(function CategoryPicker({
   categories,
   selectedIds,
   onChange,
+  cascade = true,
 }: CategoryPickerProps) {
   const colors = useThemedColors();
+  const tree = useMemo(() => buildCategoryTree(categories), [categories]);
   const [query, setQuery] = useState('');
+  const [trail, setTrail] = useState<string[]>([]);
   const selected = useMemo(() => new Set(selectedIds), [selectedIds]);
 
-  const { groups, pathOf } = useMemo(() => {
-    const byId = new Map(categories.map((c) => [c.id, c]));
-    const children = new Map<string | null, HierarchicalCategoryOption[]>();
-    categories.forEach((c) => {
-      const key = c.parentId && byId.has(c.parentId) ? c.parentId : null;
-      children.set(key, [...(children.get(key) ?? []), c]);
-    });
-    const descendants = (id: string): HierarchicalCategoryOption[] =>
-      (children.get(id) ?? []).flatMap((c) => [c, ...descendants(c.id)]);
-    const roots = children.get(null) ?? [];
-    const path = (c: HierarchicalCategoryOption): string => {
-      const parent = c.parentId ? byId.get(c.parentId) : undefined;
-      return parent ? `${path(parent)} › ${c.name}` : c.name;
-    };
-    return {
-      groups: roots.map((root) => ({ root, items: descendants(root.id) })),
-      pathOf: path,
-    };
-  }, [categories]);
+  const currentId = trail[trail.length - 1] ?? null;
+  const current = currentId ? tree.byId.get(currentId) : undefined;
 
-  const toggle = (id: string) =>
-    onChange(selected.has(id) ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
+  const coveringAncestor = (id: string) =>
+    cascade ? tree.ancestorsOf(id).find((a) => selected.has(a.id)) : undefined;
 
-  const q = query.trim().toLowerCase();
-  const matches = q ? categories.filter((c) => c.name.toLowerCase().includes(q)) : [];
+  const toggle = (id: string) => {
+    if (selected.has(id)) return onChange(selectedIds.filter((x) => x !== id));
+    if (!cascade) return onChange([...selectedIds, id]);
+    // Al elegir una categoría, sus subcategorías ya van incluidas: no repetirlas
+    const inside = new Set(tree.descendantsOf(id));
+    onChange([...selectedIds.filter((x) => !inside.has(x)), id]);
+  };
 
-  const chip = (c: HierarchicalCategoryOption, label: string) => {
-    const on = selected.has(c.id);
-    return (
-      <Pressable
-        key={c.id}
-        onPress={() => toggle(c.id)}
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: on }}
-        accessibilityLabel={label}
-        style={({ pressed }) => ({
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 6,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 999,
-          borderWidth: 1,
-          borderColor: on ? colors.primary[500] : colors.border.light,
-          backgroundColor: on
-            ? colors.primary[500]
-            : pressed
-              ? colors.background.tertiary
-              : colors.background.primary,
-        })}
-      >
-        {on && <Check size={14} color={colors.text.inverse} strokeWidth={3} />}
+  const open = (id: string) => {
+    setQuery('');
+    setTrail([...tree.ancestorsOf(id).map((a) => a.id), id]);
+  };
+
+  const pathText = (c: Cat) =>
+    tree
+      .ancestorsOf(c.id)
+      .map((a) => a.name)
+      .join(' › ');
+
+  const q = normalizeForSearch(query);
+  const matches = useMemo(
+    () => (q ? categories.filter((c) => normalizeForSearch(c.name).includes(q)) : []),
+    [q, categories],
+  );
+
+  const checkbox = (on: boolean, dim: boolean) => (
+    <View
+      style={{
+        width: 22,
+        height: 22,
+        borderRadius: 6,
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: on ? colors.primary[500] : colors.border.medium,
+        backgroundColor: on ? colors.primary[500] : 'transparent',
+        opacity: dim ? 0.45 : 1,
+      }}
+    >
+      {on && <Check size={14} color={colors.text.inverse} strokeWidth={3} />}
+    </View>
+  );
+
+  const row = (c: Cat, opts: { label?: string; subtitle?: string; drill?: boolean } = {}) => {
+    const label = opts.label ?? c.name;
+    const cover = selected.has(c.id) ? undefined : coveringAncestor(c.id);
+    const on = selected.has(c.id) || !!cover;
+    const kids = tree.childrenOf(c.id).length;
+    const drill = (opts.drill ?? true) && kids > 0;
+    const inside = drill ? tree.descendantsOf(c.id).filter((d) => selected.has(d)).length : 0;
+    const subtitle = cover ? `Incluida en ${cover.name}` : opts.subtitle;
+    const text = (
+      <View style={{ flex: 1 }}>
         <Text
+          numberOfLines={2}
           style={{
-            fontSize: typography.sizes.sm,
-            color: on ? colors.text.inverse : colors.text.primary,
-            fontWeight: on ? '600' : '400',
+            fontSize: typography.sizes.base,
+            color: colors.text.primary,
+            fontWeight: on && !cover ? '600' : '400',
           }}
         >
           {label}
         </Text>
-      </Pressable>
+        {subtitle ? (
+          <Text
+            numberOfLines={1}
+            style={{ fontSize: typography.sizes.xs, color: colors.text.secondary, marginTop: 2 }}
+          >
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
     );
-  };
 
-  const chosen = categories.filter((c) => selected.has(c.id));
-
-  return (
-    <View style={{ gap: spacing.md }}>
-      {chosen.length > 0 && (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-          {chosen.map((c) => (
-            <Pressable
-              key={c.id}
-              onPress={() => toggle(c.id)}
-              accessibilityRole="button"
-              accessibilityLabel={`Quitar ${c.name}`}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 4,
-                paddingLeft: 12,
-                paddingRight: 8,
-                paddingVertical: 6,
-                borderRadius: 999,
-                backgroundColor: colors.primary[500],
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: typography.sizes.sm,
-                  color: colors.text.inverse,
-                  fontWeight: '600',
-                }}
-              >
-                {c.name}
-              </Text>
-              <X size={14} color={colors.text.inverse} />
-            </Pressable>
-          ))}
-        </View>
-      )}
-      {categories.length > SEARCH_THRESHOLD && (
-        <View
+    return (
+      <View
+        key={`${c.id}-${opts.label ?? ''}`}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          minHeight: 52,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border.light,
+        }}
+      >
+        <Pressable
+          onPress={() => toggle(c.id)}
+          disabled={!!cover}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: on, disabled: !!cover }}
+          accessibilityLabel={label}
+          hitSlop={4}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            gap: spacing.sm,
-            paddingHorizontal: spacing.md,
-            borderRadius: 12,
-            backgroundColor: colors.background.secondary,
+            gap: spacing.md,
+            paddingVertical: 12,
+            paddingRight: spacing.md,
+            flex: drill ? undefined : 1,
           }}
         >
-          <Search size={16} color={colors.text.tertiary} />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Buscar categoría…"
-            placeholderTextColor={colors.text.tertiary}
-            accessibilityLabel="Buscar categoría"
-            autoCorrect={false}
-            style={{
+          {checkbox(on, !!cover)}
+          {!drill && text}
+        </Pressable>
+        {drill && (
+          <Pressable
+            onPress={() => open(c.id)}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver ${kids} subcategorías de ${c.name}`}
+            style={({ pressed }) => ({
               flex: 1,
-              paddingVertical: 10,
-              fontSize: typography.sizes.sm,
-              color: colors.text.primary,
-            }}
-          />
-          {query ? (
-            <Pressable
-              onPress={() => setQuery('')}
-              accessibilityRole="button"
-              accessibilityLabel="Borrar búsqueda"
-              hitSlop={8}
-            >
-              <X size={16} color={colors.text.tertiary} />
-            </Pressable>
-          ) : null}
-        </View>
-      )}
-
-      {q ? (
-        matches.length ? (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {matches.map((c) => chip(c, pathOf(c)))}
-          </View>
-        ) : (
-          <Text style={{ color: colors.text.secondary, fontSize: typography.sizes.sm }}>
-            No hay categorías con “{query.trim()}”.
-          </Text>
-        )
-      ) : (
-        groups.map(({ root, items }) => (
-          <CategoryGroup
-            key={root.id}
-            title={root.name}
-            count={items.length + 1}
-            selectedCount={[root, ...items].filter((c) => selected.has(c.id)).length}
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: spacing.sm,
+              paddingVertical: 12,
+              opacity: pressed ? 0.6 : 1,
+            })}
           >
-            {chip(root, items.length ? `Todo ${root.name.toLowerCase()}` : root.name)}
-            {items.map((c) => chip(c, c.name))}
-          </CategoryGroup>
-        ))
-      )}
-    </View>
-  );
-});
+            {text}
+            {inside > 0 && (
+              <Text
+                style={{
+                  fontSize: typography.sizes.xs,
+                  fontWeight: '600',
+                  color: colors.text.inverse,
+                  backgroundColor: colors.primary[500],
+                  borderRadius: 999,
+                  paddingHorizontal: 8,
+                  paddingVertical: 2,
+                  overflow: 'hidden',
+                }}
+              >
+                {inside}
+              </Text>
+            )}
+            <Text style={{ fontSize: typography.sizes.xs, color: colors.text.tertiary }}>
+              {kids}
+            </Text>
+            <ChevronRight size={18} color={colors.text.tertiary} />
+          </Pressable>
+        )}
+      </View>
+    );
+  };
 
-/** Grupo plegable: se abre solo si ya tiene categorías elegidas. */
-function CategoryGroup({
-  title,
-  count,
-  selectedCount,
-  children,
-}: {
-  title: string;
-  count: number;
-  selectedCount: number;
-  children: ReactNode;
-}) {
-  const colors = useThemedColors();
-  const [open, setOpen] = useState(selectedCount > 0);
+  const chosen = selectedIds.map((id) => tree.byId.get(id)).filter((c): c is Cat => !!c);
+  const level = tree.childrenOf(currentId);
+
   return (
-    <View
-      style={{
-        borderWidth: 1,
-        borderColor: colors.border.light,
-        borderRadius: 12,
-        overflow: 'hidden',
-      }}
-    >
-      <Pressable
-        onPress={() => setOpen((v) => !v)}
-        accessibilityRole="button"
-        accessibilityState={{ expanded: open }}
-        accessibilityLabel={`${title}, ${count} categorías${selectedCount ? `, ${selectedCount} elegidas` : ''}`}
-        style={({ pressed }) => ({
+    <View style={{ flex: 1, gap: spacing.md }}>
+      <View
+        style={{
           flexDirection: 'row',
           alignItems: 'center',
           gap: spacing.sm,
           paddingHorizontal: spacing.md,
-          paddingVertical: 12,
-          backgroundColor: pressed ? colors.background.tertiary : colors.background.primary,
-        })}
+          borderRadius: 12,
+          backgroundColor: colors.background.secondary,
+        }}
       >
-        <Text
+        <Search size={18} color={colors.text.tertiary} />
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={`Buscar entre ${categories.length} categorías…`}
+          placeholderTextColor={colors.text.tertiary}
+          accessibilityLabel="Buscar categoría"
+          autoCorrect={false}
           style={{
             flex: 1,
-            fontSize: typography.sizes.sm,
-            fontWeight: '600',
+            paddingVertical: 12,
+            fontSize: typography.sizes.base,
             color: colors.text.primary,
           }}
-        >
-          {title}
-        </Text>
-        {selectedCount > 0 && (
-          <Text
-            style={{
-              fontSize: typography.sizes.xs,
-              color: colors.text.inverse,
-              backgroundColor: colors.primary[500],
-              borderRadius: 999,
-              paddingHorizontal: 8,
-              paddingVertical: 2,
-              overflow: 'hidden',
-            }}
+        />
+        {query ? (
+          <Pressable
+            onPress={() => setQuery('')}
+            accessibilityRole="button"
+            accessibilityLabel="Borrar búsqueda"
+            hitSlop={8}
           >
-            {selectedCount}
-          </Text>
-        )}
-        <Text style={{ fontSize: typography.sizes.xs, color: colors.text.tertiary }}>{count}</Text>
-        {open ? (
-          <ChevronUp size={16} color={colors.text.tertiary} />
-        ) : (
-          <ChevronDown size={16} color={colors.text.tertiary} />
-        )}
-      </Pressable>
-      {open && (
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: spacing.sm,
-            paddingHorizontal: spacing.md,
-            paddingBottom: spacing.md,
-          }}
-        >
-          {children}
+            <X size={18} color={colors.text.tertiary} />
+          </Pressable>
+        ) : null}
+      </View>
+
+      {chosen.length > 0 && (
+        <View style={{ gap: spacing.sm }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ flex: 1, fontSize: typography.sizes.sm, color: colors.text.secondary }}>
+              {chosen.length === 1 ? '1 elegida' : `${chosen.length} elegidas`}
+            </Text>
+            <Pressable onPress={() => onChange([])} accessibilityRole="button" hitSlop={8}>
+              <Text style={{ fontSize: typography.sizes.sm, color: colors.primary[600] }}>
+                Quitar todas
+              </Text>
+            </Pressable>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: spacing.sm }}
+          >
+            {chosen.map((c) => (
+              <Pressable
+                key={c.id}
+                onPress={() => toggle(c.id)}
+                accessibilityRole="button"
+                accessibilityLabel={`Quitar ${c.name}`}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
+                  paddingLeft: 12,
+                  paddingRight: 8,
+                  paddingVertical: 6,
+                  borderRadius: 999,
+                  backgroundColor: colors.primary[500],
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: typography.sizes.sm,
+                    color: colors.text.inverse,
+                    fontWeight: '600',
+                  }}
+                >
+                  {cascade && tree.childrenOf(c.id).length ? `Todo ${c.name}` : c.name}
+                </Text>
+                <X size={14} color={colors.text.inverse} />
+              </Pressable>
+            ))}
+          </ScrollView>
         </View>
       )}
+
+      {!q && current && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+          <Pressable
+            onPress={() => setTrail(trail.slice(0, -1))}
+            accessibilityRole="button"
+            accessibilityLabel="Volver"
+            hitSlop={8}
+            style={{ padding: 4, marginLeft: -4 }}
+          >
+            <ChevronLeft size={22} color={colors.text.primary} />
+          </Pressable>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {[null, ...trail].map((id, i) => {
+                const last = i === trail.length;
+                return (
+                  <View key={id ?? 'root'} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {i > 0 && (
+                      <Text style={{ color: colors.text.tertiary, marginHorizontal: 6 }}>›</Text>
+                    )}
+                    <Pressable
+                      onPress={() => setTrail(trail.slice(0, i))}
+                      disabled={last}
+                      accessibilityRole="link"
+                    >
+                      <Text
+                        style={{
+                          fontSize: typography.sizes.sm,
+                          fontWeight: last ? '700' : '400',
+                          color: last ? colors.text.primary : colors.primary[600],
+                        }}
+                      >
+                        {id ? tree.byId.get(id)?.name : 'Todas'}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
+      )}
+
+      <ScrollView
+        style={{ flex: 1 }}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: spacing.lg }}
+      >
+        {q ? (
+          matches.length ? (
+            matches.map((c) => row(c, { subtitle: pathText(c) || undefined }))
+          ) : (
+            <Text
+              style={{
+                paddingVertical: spacing.lg,
+                textAlign: 'center',
+                color: colors.text.secondary,
+              }}
+            >
+              No hay categorías con “{query.trim()}”.
+            </Text>
+          )
+        ) : (
+          <>
+            {current &&
+              row(current, {
+                label: cascade ? `Todo ${current.name}` : `${current.name} (en general)`,
+                subtitle: cascade
+                  ? `Incluye sus ${tree.descendantsOf(current.id).length} subcategorías`
+                  : undefined,
+                drill: false,
+              })}
+            {level.map((c) => row(c))}
+          </>
+        )}
+      </ScrollView>
     </View>
   );
-}
+});

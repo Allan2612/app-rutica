@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
@@ -56,16 +56,13 @@ export const ManageScreen = memo(function ManageScreen() {
   const normalizedRole = useMemo(() => normalizeRole(role), [role]);
   const effectiveRole: UserRole = normalizedRole ?? 'buyer';
 
-  const columns = 1;
-  const horizontalPadding = spacing.lg;
+  // Columnas según el espacio real del contenido (en PC descuenta el panel lateral): 1 en
+  // teléfono, 2 o 3 cuando hay campo
   const gap = spacing.md;
-  const cardWidth = useMemo(() => {
-    const maxContentWidth = 600;
-    const available = Math.max(0, width - horizontalPadding * 2);
-    const contentWidth = Math.min(available, maxContentWidth);
-    const usableWidth = contentWidth - gap * (columns - 1);
-    return Math.floor(usableWidth / columns);
-  }, [columns, gap, horizontalPadding, width]);
+  const [measured, setMeasured] = useState(0);
+  const available = measured || Math.max(0, width - spacing.lg * 2);
+  const columns = available >= 900 ? 3 : available >= 560 ? 2 : 1;
+  const cardWidth = Math.floor((available - gap * (columns - 1)) / columns);
 
   const actions: readonly ManageAction[] = useMemo(
     () => [
@@ -154,7 +151,7 @@ export const ManageScreen = memo(function ManageScreen() {
         contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.content}>
+        <View style={styles.content} onLayout={(e) => setMeasured(e.nativeEvent.layout.width)}>
           <View style={[styles.header, { borderColor: colors.border.light }]}>
             <Text style={[styles.title, { color: colors.text.primary }]}>Gestionar</Text>
             <Text style={[styles.subtitle, { color: colors.text.secondary }]}>

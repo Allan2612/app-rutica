@@ -12,12 +12,16 @@ import { useLocationDataStore } from '@/store/locationDataStore';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { setupReanimatedConfig } from '@/lib/reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { installWebInteractions } from '@/styles/webInteractions';
 
 // Configurar Reanimated una sola vez al inicio
 setupReanimatedConfig();
 
 // Configurar React Query focus manager para React Native
 setupReactQueryFocusManager();
+
+// Web: hover, foco y micro-animaciones globales (no hace nada en la app nativa)
+installWebInteractions();
 
 // Mantener el splash hasta que la fuente de marca esté lista (evita el salto del header)
 SplashScreen.preventAutoHideAsync().catch(() => {});
