@@ -1,4 +1,10 @@
-import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import {
+  applyLocation,
+  EMPTY_PAGE,
+  locationJoin,
+  pageRange,
+  resolveDistrictIds,
+} from '@/services/listQuery';
 import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { ilikePattern } from '@/utils/searchFilters';
@@ -92,7 +98,7 @@ export async function getEventsList(
   filters: EventListFilters = {},
 ): Promise<Page<EventListRecord>> {
   const { searchText, categoryIds, upcoming = true, page, location, locationMode } = filters;
-  const locationIds = await resolveLocationIds(location);
+  const districtIds = await resolveDistrictIds(location);
 
   let query = supabase.from('events').select(
     `
@@ -126,7 +132,7 @@ export async function getEventsList(
                     name_cat
                 )
             ),
-            locations!events_location_id_evt_fkey (
+            locations!events_location_id_evt_fkey${locationJoin(districtIds)} (
                 latitude_loc,
                 longitude_loc,
                 districts!locations_district_id_fkey (
@@ -178,7 +184,7 @@ export async function getEventsList(
     }
   }
 
-  const scoped = applyLocation(query, 'location_id_evt', locationIds, locationMode);
+  const scoped = applyLocation(query, 'locations.district_id_loc', districtIds, locationMode);
   if (!scoped) return EMPTY_PAGE;
 
   // Próximos primero

@@ -3,7 +3,13 @@
  * Para mostrar en el listado público de promociones
  */
 
-import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import {
+  applyLocation,
+  EMPTY_PAGE,
+  locationJoin,
+  pageRange,
+  resolveDistrictIds,
+} from '@/services/listQuery';
 import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
@@ -103,10 +109,10 @@ export async function getPublicPromotions(
 ): Promise<Page<PromotionListItem>> {
   const { searchText, categoryIds, page, location, locationMode } = filters;
   const now = new Date().toISOString();
-  const locationIds = await resolveLocationIds(location);
+  const districtIds = await resolveDistrictIds(location);
   const byCategory = Boolean(categoryIds && categoryIds.length > 0);
   // !inner solo cuando se filtra por esa tabla: si no, saldrían solo promos con categoría/ubicación
-  const businessJoin = locationIds ? '!inner' : '';
+  const businessJoin = locationJoin(districtIds);
   const categoryJoin = byCategory ? '!inner' : '';
 
   let query = supabase
@@ -129,7 +135,7 @@ export async function getPublicPromotions(
                 business_images (
                     path_bim
                 ),
-                locations (
+                locations${locationJoin(districtIds)} (
                     districts (
                         name_dst,
                         cantons (
@@ -181,7 +187,12 @@ export async function getPublicPromotions(
     query = query.in('promotion_category_map.category_id_pcr', categoryIds);
   }
 
-  const scoped = applyLocation(query, 'location_id_bus', locationIds, locationMode, 'businesses');
+  const scoped = applyLocation(
+    query,
+    'businesses.locations.district_id_loc',
+    districtIds,
+    locationMode,
+  );
   if (!scoped) return EMPTY_PAGE;
 
   const [from, to] = pageRange(page);
