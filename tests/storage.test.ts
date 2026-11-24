@@ -7,11 +7,11 @@ vi.mock('@/lib/supabase/client', () => ({
       from: (bucket: string) => ({
         getPublicUrl: (
           path: string,
-          opts?: { transform?: { width: number; quality: number } },
+          opts?: { transform?: { width: number; quality: number; resize?: string } },
         ) => ({
           data: {
             publicUrl: opts?.transform
-              ? `https://x.supabase.co/storage/v1/render/image/public/${bucket}/${path}?width=${opts.transform.width}&quality=${opts.transform.quality}`
+              ? `https://x.supabase.co/storage/v1/render/image/public/${bucket}/${path}?width=${opts.transform.width}&quality=${opts.transform.quality}&resize=${opts.transform.resize}`
               : `https://x.supabase.co/storage/v1/object/public/${bucket}/${path}`,
           },
         }),
@@ -32,7 +32,7 @@ describe('publicStorageUrl', () => {
 
   it('con ancho pide la versión redimensionada', () => {
     expect(publicStorageUrl('business-images', '/b1/cover-1.jpg', IMAGE_WIDTH.card)).toBe(
-      'https://x.supabase.co/storage/v1/render/image/public/business-images/b1/cover-1.jpg?width=640&quality=75',
+      'https://x.supabase.co/storage/v1/render/image/public/business-images/b1/cover-1.jpg?width=640&quality=75&resize=contain',
     );
   });
 
