@@ -21,9 +21,14 @@ import { styles } from './styles';
 
 interface BaseHeaderProps {
   showBorder?: boolean;
+  /** Oculta el botón de cuenta (en PC ya está en el panel lateral) */
+  hideUserButton?: boolean;
 }
 
-export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHeaderProps) {
+export const BaseHeader = memo(function BaseHeader({
+  showBorder = true,
+  hideUserButton = false,
+}: BaseHeaderProps) {
   const { user, isLoading, isAuthenticated } = useAuthStore(
     useShallow((s) => ({
       user: s.user,
@@ -129,30 +134,34 @@ export const BaseHeader = memo(function BaseHeader({ showBorder = true }: BaseHe
             </View>
           </Pressable>
 
-          <Pressable style={styles.userButton} onPress={handleUserPress} disabled={isLoading}>
-            {isLoading ? (
-              <ActivityIndicator size="small" color={colors.primary[500]} />
-            ) : isAuthenticated ? (
-              profilePhotoUrl ? (
-                <Image
-                  source={{ uri: profilePhotoUrl }}
-                  style={styles.userIconAuthenticated}
-                  contentFit="cover"
-                  transition={200}
-                />
+          {!hideUserButton && (
+            <Pressable style={styles.userButton} onPress={handleUserPress} disabled={isLoading}>
+              {isLoading ? (
+                <ActivityIndicator size="small" color={colors.primary[500]} />
+              ) : isAuthenticated ? (
+                profilePhotoUrl ? (
+                  <Image
+                    source={{ uri: profilePhotoUrl }}
+                    style={styles.userIconAuthenticated}
+                    contentFit="cover"
+                    transition={200}
+                  />
+                ) : (
+                  <View
+                    style={[styles.userIconAuthenticated, { backgroundColor: colors.primary[500] }]}
+                  >
+                    <User color="#fff" size={20} />
+                  </View>
+                )
               ) : (
                 <View
-                  style={[styles.userIconAuthenticated, { backgroundColor: colors.primary[500] }]}
+                  style={[styles.userIconGuest, { backgroundColor: colors.background.tertiary }]}
                 >
-                  <User color="#fff" size={20} />
+                  <LogIn color={colors.text.secondary} size={20} />
                 </View>
-              )
-            ) : (
-              <View style={[styles.userIconGuest, { backgroundColor: colors.background.tertiary }]}>
-                <LogIn color={colors.text.secondary} size={20} />
-              </View>
-            )}
-          </Pressable>
+              )}
+            </Pressable>
+          )}
         </View>
       </View>
 

@@ -1,8 +1,8 @@
 import { Tabs, usePathname, useRouter } from 'expo-router';
-import { Platform, useWindowDimensions } from 'react-native';
+import { Platform } from 'react-native';
 import { Home, Landmark, Map, Store, Wrench } from 'lucide-react-native';
-import { HeaderWithSearch } from '@/components/layout';
-import { useThemedColors } from '@/hooks';
+import { DesktopSidebar, HeaderWithSearch } from '@/components/layout';
+import { useIsDesktopWeb, useThemedColors } from '@/hooks';
 
 export default function TabsLayout() {
   const colors = useThemedColors();
@@ -13,49 +13,34 @@ export default function TabsLayout() {
   const shouldHideTabs =
     pathname.includes('/create') || pathname.includes('/edit') || pathname.includes('/wizard');
 
-  // En pantallas anchas la barra va a la izquierda (como un menú lateral); abajo es de teléfono
-  const { width } = useWindowDimensions();
-  const isWide = width >= 1024;
+  // Web en PC: panel lateral propio. Teléfono, tablet y app nativa: pestañas abajo, sin cambios.
+  const isWide = useIsDesktopWeb();
 
   return (
     <Tabs
+      tabBar={isWide && !shouldHideTabs ? (props) => <DesktopSidebar {...props} /> : undefined}
       screenOptions={{
         headerShown: true,
         header: () => <HeaderWithSearch />,
         tabBarActiveTintColor: colors.primary[500],
         tabBarInactiveTintColor: colors.text.tertiary,
         tabBarPosition: isWide ? 'left' : 'bottom',
-        tabBarVariant: isWide ? 'material' : 'uikit',
-        tabBarLabelPosition: isWide ? 'beside-icon' : 'below-icon',
-        tabBarActiveBackgroundColor: isWide ? colors.primary[500] + '18' : undefined,
-        tabBarItemStyle: isWide
-          ? { borderRadius: 10, marginHorizontal: 8, marginVertical: 2 }
-          : undefined,
         tabBarStyle: shouldHideTabs
           ? { display: 'none' }
-          : isWide
-            ? {
-                width: 220,
-                minWidth: 220, // la librería pone ~360 px por defecto
-                paddingTop: 12,
-                backgroundColor: colors.background.primary,
-                borderRightWidth: 1,
-                borderRightColor: colors.border.light,
-              }
-            : {
-                backgroundColor: colors.background.primary,
-                borderTopWidth: 0,
-                ...Platform.select({
-                  web: { boxShadow: '0px -2px 3px rgba(0, 0, 0, 0.05)' } as any,
-                  default: {
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: -2 },
-                    shadowOpacity: 0.05,
-                    shadowRadius: 3,
-                    elevation: 8,
-                  },
-                }),
-              },
+          : {
+              backgroundColor: colors.background.primary,
+              borderTopWidth: 0,
+              ...Platform.select({
+                web: { boxShadow: '0px -2px 3px rgba(0, 0, 0, 0.05)' } as any,
+                default: {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: -2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 3,
+                  elevation: 8,
+                },
+              }),
+            },
       }}
     >
       {/* Tab 1: Negocios (con subtabs de negocios y promociones) */}
