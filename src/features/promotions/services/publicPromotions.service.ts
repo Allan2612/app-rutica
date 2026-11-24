@@ -3,6 +3,8 @@
  * Para mostrar en el listado público de promociones
  */
 
+import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
 import type { Database } from '@/lib/supabase/database.types';
@@ -23,12 +25,9 @@ type PromotionComboItemRow = Database['public']['Tables']['promotion_combo_items
 // Types
 // ============================================
 
-export interface PublicPromotionFilters {
+export interface PublicPromotionFilters extends ListScope {
   searchText?: string;
   categoryIds?: string[];
-  province?: string;
-  canton?: string;
-  district?: string;
 }
 
 interface PublicPromotionRecord {
@@ -101,9 +100,14 @@ interface PublicPromotionRecord {
  */
 export async function getPublicPromotions(
   filters: PublicPromotionFilters = {},
-): Promise<PromotionListItem[]> {
-  const { searchText, categoryIds, province, canton, district } = filters;
+): Promise<Page<PromotionListItem>> {
+  const { searchText, categoryIds, page, location, locationMode } = filters;
   const now = new Date().toISOString();
+  const locationIds = await resolveLocationIds(location);
+  const byCategory = Boolean(categoryIds && categoryIds.length > 0);
+  // !inner solo cuando se filtra por esa tabla: si no, saldrían solo promos con categoría/ubicación
+  const businessJoin = locationIds ? '!inner' : '';
+  const categoryJoin = byCategory ? '!inner' : '';
 
   let query = (supabase as any)
     .from('promotions')
@@ -119,7 +123,7 @@ export async function getPublicPromotions(
             start_at_prm,
             end_at_prm,
             created_at_prm,
-            businesses:business_id_prm (
+            businesses:business_id_prm${businessJoin} (
                 id_bus,
                 name_bus,
                 business_images (
@@ -140,7 +144,7 @@ export async function getPublicPromotions(
             promotion_images (
                 path_pim
             ),
-            promotion_category_map (
+            promotion_category_map${categoryJoin} (
                 categories!inner (
                     id_cat,
                     name_cat
@@ -158,6 +162,7 @@ export async function getPublicPromotions(
                 paid_quantity_pci
             )
         `,
+      { count: 'exact' },
     )
     // Solo promociones aprobadas y activas
     .eq('moderation_status_prm', 'approved')
@@ -172,56 +177,26 @@ export async function getPublicPromotions(
     query = query.or(buildIlikeOr(['title_prm', 'description_prm'], term));
   }
 
-  // Ordenar por placement_score (relevancia) y fecha de inicio
-  query = query.order('start_at_prm', { ascending: false });
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Error fetching public promotions:', error);
-    return [];
+  if (byCategory) {
+    query = query.in('promotion_category_map.category_id_pcr', categoryIds);
   }
 
-  let promotions = ((data as unknown as PublicPromotionRecord[]) || []).map(mapRecordToListItem);
+  query = applyLocation(query, 'location_id_bus', locationIds, locationMode, 'businesses');
+  if (!query) return EMPTY_PAGE;
 
-  // Filtrar por ubicación del negocio en JavaScript (más confiable que filtros anidados en Supabase)
-  if (district || canton || province) {
-    promotions = promotions.filter((promo) => {
-      const promoRecord = (data as unknown as PublicPromotionRecord[]).find(
-        (r) => r.id_prm === promo.id,
-      );
+  const [from, to] = pageRange(page);
+  query = query
+    .order('start_at_prm', { ascending: false })
+    .order('id_prm', { ascending: true })
+    .range(from, to);
 
-      const districtName = promoRecord?.businesses?.locations?.districts?.name_dst;
-      const cantonName = promoRecord?.businesses?.locations?.districts?.cantons?.name_ctn;
-      const provinceName =
-        promoRecord?.businesses?.locations?.districts?.cantons?.provinces?.name_prv;
+  const { data, error, count } = await query;
+  if (error) throw error;
 
-      if (district) {
-        return districtName?.toLowerCase() === district.toLowerCase();
-      } else if (canton) {
-        return cantonName?.toLowerCase() === canton.toLowerCase();
-      } else if (province) {
-        return provinceName?.toLowerCase() === province.toLowerCase();
-      }
-      return false;
-    });
-  }
-
-  // Filtrar por categorías en JavaScript (post-query)
-  if (categoryIds && categoryIds.length > 0) {
-    promotions = promotions.filter((promo) => {
-      // Obtener las categorías de la promoción del original
-      const promoRecord = (data as unknown as PublicPromotionRecord[]).find(
-        (r) => r.id_prm === promo.id,
-      );
-      const promoCategoryIds =
-        promoRecord?.promotion_category_map?.map((pcm) => pcm.categories?.id_cat).filter(Boolean) ??
-        [];
-      return categoryIds.some((cid) => promoCategoryIds.includes(cid));
-    });
-  }
-
-  return promotions;
+  return {
+    rows: ((data ?? []) as PublicPromotionRecord[]).map(mapRecordToListItem),
+    total: count ?? 0,
+  };
 }
 
 /**

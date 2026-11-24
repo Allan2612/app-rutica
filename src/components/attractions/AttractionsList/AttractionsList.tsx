@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, type ReactElement, useCallback } from 'react';
 import { FlatList, Text, View, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AttractionPost } from '@/components/attractions/AttractionPost';
@@ -10,12 +10,17 @@ export interface AttractionsListProps {
   data: AttractionListItem[];
   isRefreshing?: boolean;
   onRefresh?: () => void;
+  /** Paginación (5.14): se llama al acercarse al final */
+  onEndReached?: () => void;
+  footer?: ReactElement | null;
 }
 
 export const AttractionsList = memo(function AttractionsList({
   data,
   isRefreshing = false,
   onRefresh,
+  onEndReached,
+  footer,
 }: AttractionsListProps) {
   const colors = useThemedColors();
   const router = useRouter();
@@ -62,6 +67,9 @@ export const AttractionsList = memo(function AttractionsList({
 
   return (
     <FlatList
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={footer}
       data={data}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.listContent}

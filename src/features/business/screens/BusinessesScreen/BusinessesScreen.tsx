@@ -17,13 +17,15 @@ import {
   SearchFilters,
   LocationSectionHeader,
   NoLocalResultsPlaceholder,
+  LoadMoreButton,
 } from '@/components/ui';
 import { useBusinessCategories } from '@/features/business/hooks/useBusinessCategories';
 import { useBusinesses, BusinessListItem } from '@/features/business/hooks/useBusinesses';
 import { usePromotions } from '@/features/promotions/hooks';
 import { useThemedColors } from '@/hooks';
 import { useLocationStore } from '@/store';
-import { splitItemsByLocation } from '@/utils/splitItemsByLocation';
+import { getLocationDisplayName } from '@/utils/splitItemsByLocation';
+import { hasLocation } from '@/services/listQuery';
 import { useBusinessesStyles } from './styles';
 import { BusinessesList } from '@/components/business/BusinessesList';
 import { BusinessCard } from '@/components/business/BusinessCard';
@@ -91,41 +93,48 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
 
   const { data: categories = [] } = useBusinessCategories();
 
-  // Fetch ALL businesses (sin filtro de ubicación) para poder dividir en secciones
-  const {
-    data: businesses = [],
-    isLoading: isBusinessesLoading,
-    refetch: refetchBusinesses,
-  } = useBusinesses({
+  // Con zona elegida se piden dos listas paginadas en el servidor (5.14/5.15):
+  // la zona ('only') y el resto ('exclude'). Sin zona, 'others' trae todo.
+  const withLocation = hasLocation(locationFilter);
+  const locationName = getLocationDisplayName(locationFilter);
+  const businessScope = {
     searchText: commerceFilters.searchText,
     categoryIds: commerceFilters.categoryIds,
-    // No pasar ubicación — se divide client-side
+    location: locationFilter,
+  };
+  const localBusinesses = useBusinesses({
+    ...businessScope,
+    locationMode: 'only',
+    enabled: activeTab === 'commerces' && withLocation,
+  });
+  const otherBusinesses = useBusinesses({
+    ...businessScope,
+    locationMode: 'exclude',
     enabled: activeTab === 'commerces',
   });
 
-  // Fetch ALL promotions (sin filtro de ubicación)
-  const {
-    data: promotions = [],
-    isLoading: isPromotionsLoading,
-    refetch: refetchPromotions,
-  } = usePromotions({
+  const promotionScope = {
     searchText: promotionFilters.searchText,
     categoryIds: promotionFilters.categoryIds,
-    // No pasar ubicación — se divide client-side
+    location: locationFilter,
+  };
+  const localPromotions = usePromotions({
+    ...promotionScope,
+    locationMode: 'only',
+    enabled: activeTab === 'promotions' && withLocation,
+  });
+  const otherPromotions = usePromotions({
+    ...promotionScope,
+    locationMode: 'exclude',
     enabled: activeTab === 'promotions',
   });
 
-  // Dividir negocios por ubicación
-  const businessSplit = useMemo(
-    () => splitItemsByLocation(businesses, locationFilter),
-    [businesses, locationFilter],
-  );
-
-  // Dividir promociones por ubicación (usan locationLabel del negocio asociado)
-  const promotionSplit = useMemo(
-    () => splitItemsByLocation(promotions, locationFilter),
-    [promotions, locationFilter],
-  );
+  const isBusinessesLoading =
+    otherBusinesses.isLoading || (withLocation && localBusinesses.isLoading);
+  const isPromotionsLoading =
+    otherPromotions.isLoading || (withLocation && localPromotions.isLoading);
+  const businessCount = localBusinesses.data.length + otherBusinesses.data.length;
+  const promotionCount = localPromotions.data.length + otherPromotions.data.length;
 
   // Estado para controlar el pull-to-refresh manualmente
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
@@ -134,14 +143,14 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     setIsManualRefreshing(true);
     try {
       if (activeTab === 'commerces') {
-        await refetchBusinesses();
+        await Promise.all([localBusinesses.refetch(), otherBusinesses.refetch()]);
       } else {
-        await refetchPromotions();
+        await Promise.all([localPromotions.refetch(), otherPromotions.refetch()]);
       }
     } finally {
       setIsManualRefreshing(false);
     }
-  }, [activeTab, refetchBusinesses, refetchPromotions]);
+  }, [activeTab, localBusinesses, otherBusinesses, localPromotions, otherPromotions]);
 
   const currentFilters = activeTab === 'commerces' ? commerceFilters : promotionFilters;
   const hasActiveFilters =
@@ -296,7 +305,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
 
   // Renderizar contenido de comercios con secciones por ubicación
   const renderBusinessesContent = () => {
-    if (isBusinessesLoading && businesses.length === 0) {
+    if (isBusinessesLoading && businessCount === 0) {
       return (
         <View style={styles.loader}>
           <ActivityIndicator size="small" color={colors.primary[600]} />
@@ -305,10 +314,17 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     }
 
     // Sin ubicación activa → mostrar lista normal
-    if (!businessSplit.hasLocation) {
+    if (!withLocation) {
       return (
         <BusinessesList
-          data={businesses}
+          data={otherBusinesses.data}
+          onEndReached={otherBusinesses.hasNextPage ? otherBusinesses.fetchNextPage : undefined}
+          footer={
+            <LoadMoreButton
+              isLoading={otherBusinesses.isFetchingNextPage}
+              onPress={otherBusinesses.fetchNextPage}
+            />
+          }
           numColumns={numColumns}
           listKey={businessesListKey}
           isRefreshing={isManualRefreshing}
@@ -331,40 +347,52 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
         }
         contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
       >
-        {businesses.length === 0 ? (
+        {businessCount === 0 ? (
           renderEmpty('No hay comercios disponibles')
         ) : (
           <>
             {/* Sección local */}
-            {businessSplit.local.length > 0 && (
+            {localBusinesses.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="local"
-                  locationName={businessSplit.locationName}
-                  count={businessSplit.local.length}
+                  locationName={locationName}
+                  count={localBusinesses.total}
                   entityLabel="comercios"
                 />
-                {renderBusinessGrid(businessSplit.local)}
+                {renderBusinessGrid(localBusinesses.data)}
+                <LoadMoreButton
+                  hasMore={localBusinesses.hasNextPage}
+                  isLoading={localBusinesses.isFetchingNextPage}
+                  onPress={localBusinesses.fetchNextPage}
+                  entityLabel={`comercios en ${locationName}`}
+                />
               </>
             )}
 
             {/* Si no hay coincidencias locales, mostrar placeholder antes de otros */}
-            {businessSplit.local.length === 0 && businessSplit.others.length > 0 && (
+            {localBusinesses.data.length === 0 && otherBusinesses.data.length > 0 && (
               <NoLocalResultsPlaceholder
-                locationName={businessSplit.locationName}
+                locationName={locationName}
                 entityLabel="comercios"
               />
             )}
 
             {/* Sección otros lugares */}
-            {businessSplit.others.length > 0 && (
+            {otherBusinesses.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="others"
-                  count={businessSplit.others.length}
+                  count={otherBusinesses.total}
                   entityLabel="comercios"
                 />
-                {renderBusinessGrid(businessSplit.others)}
+                {renderBusinessGrid(otherBusinesses.data)}
+                <LoadMoreButton
+                  hasMore={otherBusinesses.hasNextPage}
+                  isLoading={otherBusinesses.isFetchingNextPage}
+                  onPress={otherBusinesses.fetchNextPage}
+                  entityLabel="comercios"
+                />
               </>
             )}
           </>
@@ -375,7 +403,7 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
 
   // Renderizar contenido de promociones con secciones por ubicación
   const renderPromotionsContent = () => {
-    if (isPromotionsLoading && promotions.length === 0) {
+    if (isPromotionsLoading && promotionCount === 0) {
       return (
         <View style={styles.loader}>
           <ActivityIndicator size="small" color={colors.primary[600]} />
@@ -384,10 +412,17 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     }
 
     // Sin ubicación activa → mostrar lista normal
-    if (!promotionSplit.hasLocation) {
+    if (!withLocation) {
       return (
         <PromotionsPublicList
-          data={promotions}
+          data={otherPromotions.data}
+          onEndReached={otherPromotions.hasNextPage ? otherPromotions.fetchNextPage : undefined}
+          footer={
+            <LoadMoreButton
+              isLoading={otherPromotions.isFetchingNextPage}
+              onPress={otherPromotions.fetchNextPage}
+            />
+          }
           numColumns={numColumns}
           listKey={promotionsListKey}
           isRefreshing={isManualRefreshing}
@@ -411,40 +446,52 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
         }
         contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
       >
-        {promotions.length === 0 ? (
+        {promotionCount === 0 ? (
           renderEmpty('No hay promociones disponibles')
         ) : (
           <>
             {/* Sección local */}
-            {promotionSplit.local.length > 0 && (
+            {localPromotions.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="local"
-                  locationName={promotionSplit.locationName}
-                  count={promotionSplit.local.length}
+                  locationName={locationName}
+                  count={localPromotions.total}
                   entityLabel="ofertas"
                 />
-                {renderPromotionGrid(promotionSplit.local)}
+                {renderPromotionGrid(localPromotions.data)}
+                <LoadMoreButton
+                  hasMore={localPromotions.hasNextPage}
+                  isLoading={localPromotions.isFetchingNextPage}
+                  onPress={localPromotions.fetchNextPage}
+                  entityLabel={`ofertas en ${locationName}`}
+                />
               </>
             )}
 
             {/* Si no hay coincidencias locales */}
-            {promotionSplit.local.length === 0 && promotionSplit.others.length > 0 && (
+            {localPromotions.data.length === 0 && otherPromotions.data.length > 0 && (
               <NoLocalResultsPlaceholder
-                locationName={promotionSplit.locationName}
+                locationName={locationName}
                 entityLabel="ofertas"
               />
             )}
 
             {/* Sección otros lugares */}
-            {promotionSplit.others.length > 0 && (
+            {otherPromotions.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="others"
-                  count={promotionSplit.others.length}
+                  count={otherPromotions.total}
                   entityLabel="ofertas"
                 />
-                {renderPromotionGrid(promotionSplit.others)}
+                {renderPromotionGrid(otherPromotions.data)}
+                <LoadMoreButton
+                  hasMore={otherPromotions.hasNextPage}
+                  isLoading={otherPromotions.isFetchingNextPage}
+                  onPress={otherPromotions.fetchNextPage}
+                  entityLabel="ofertas"
+                />
               </>
             )}
           </>

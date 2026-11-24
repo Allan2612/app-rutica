@@ -1,3 +1,5 @@
+import { applyLocation, EMPTY_PAGE, pageRange, resolveLocationIds } from '@/services/listQuery';
+import type { ListScope, Page } from '@/services/listQuery';
 import { supabase } from '@/lib/supabase/client';
 import { buildIlikeOr } from '@/utils/searchFilters';
 import type { Database } from '@/lib/supabase/database.types';
@@ -39,12 +41,9 @@ export interface CreateBusinessInput {
   imageUris?: string[];
 }
 
-export interface BusinessListFilters {
+export interface BusinessListFilters extends ListScope {
   searchText?: string;
   categoryIds?: string[];
-  province?: string;
-  canton?: string;
-  district?: string;
 }
 
 export interface BusinessListRecord {
@@ -231,12 +230,14 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
 
 export async function getBusinessList(
   filters: BusinessListFilters = {},
-): Promise<BusinessListRecord[]> {
-  const { searchText, categoryIds } = filters;
+): Promise<Page<BusinessListRecord>> {
+  const { searchText, categoryIds, page, location, locationMode } = filters;
+  const locationIds = await resolveLocationIds(location);
 
   const now = new Date().toISOString();
 
-  let query = (supabase as any).from('businesses').select(`
+  let query = (supabase as any).from('businesses').select(
+    `
       id_bus,
       name_bus,
       description_bus,
@@ -265,7 +266,9 @@ export async function getBusinessList(
       promotions!business_id_prm (
         id_prm
       )
-    `);
+    `,
+    { count: 'exact' },
+  );
 
   // Solo negocios aprobados y activos
   query = query.eq('moderation_status_bus', 'approved').eq('is_active_bus', true);
@@ -287,15 +290,19 @@ export async function getBusinessList(
     query = query.or(buildIlikeOr(['name_bus', 'description_bus'], term));
   }
 
-  query = query.order('created_at_bus', { ascending: false });
+  query = applyLocation(query, 'location_id_bus', locationIds, locationMode);
+  if (!query) return EMPTY_PAGE;
 
-  const { data, error } = await query;
+  const [from, to] = pageRange(page);
+  query = query
+    .order('created_at_bus', { ascending: false })
+    .order('id_bus', { ascending: true })
+    .range(from, to);
 
-  if (error) {
-    return [] as BusinessListRecord[];
-  }
+  const { data, error, count } = await query;
+  if (error) throw error;
 
-  return (data ?? []) as unknown as BusinessListRecord[];
+  return { rows: (data ?? []) as BusinessListRecord[], total: count ?? 0 };
 }
 
 export async function getAllBusinesses(): Promise<BusinessWithRelations[]> {

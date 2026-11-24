@@ -3,7 +3,7 @@
  * Lista de promociones públicas con soporte para múltiples columnas
  */
 
-import { memo, useCallback } from 'react';
+import { memo, type ReactElement, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { Tag } from 'lucide-react-native';
 import { useThemedColors } from '@/hooks';
@@ -17,6 +17,9 @@ interface PromotionsPublicListProps {
   listKey?: string;
   isRefreshing?: boolean;
   onRefresh?: () => void;
+  /** Paginación (5.14): se llama al acercarse al final */
+  onEndReached?: () => void;
+  footer?: ReactElement | null;
   onPromotionPress?: (promotion: PromotionListItem) => void;
 }
 
@@ -26,6 +29,8 @@ export const PromotionsPublicList = memo(function PromotionsPublicList({
   listKey,
   isRefreshing = false,
   onRefresh,
+  onEndReached,
+  footer,
   onPromotionPress,
 }: PromotionsPublicListProps) {
   const colors = useThemedColors();
@@ -63,6 +68,9 @@ export const PromotionsPublicList = memo(function PromotionsPublicList({
 
   return (
     <FlatList
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={footer}
       key={listKey}
       data={data}
       renderItem={renderItem}

@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, type ReactElement, useCallback } from 'react';
 import { FlatList, Text, View, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Store } from 'lucide-react-native';
@@ -13,6 +13,9 @@ export interface BusinessesListProps {
   listKey: string;
   isRefreshing?: boolean;
   onRefresh?: () => void;
+  /** Paginación (5.14): se llama al acercarse al final */
+  onEndReached?: () => void;
+  footer?: ReactElement | null;
 }
 
 export const BusinessesList = memo(function BusinessesList({
@@ -21,6 +24,8 @@ export const BusinessesList = memo(function BusinessesList({
   listKey,
   isRefreshing = false,
   onRefresh,
+  onEndReached,
+  footer,
 }: BusinessesListProps) {
   const colors = useThemedColors();
   const router = useRouter();
@@ -70,6 +75,9 @@ export const BusinessesList = memo(function BusinessesList({
 
   return (
     <FlatList
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={footer}
       key={listKey}
       data={data}
       keyExtractor={(item) => item.id}

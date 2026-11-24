@@ -17,6 +17,7 @@ import {
   SearchFilters,
   LocationSectionHeader,
   NoLocalResultsPlaceholder,
+  LoadMoreButton,
 } from '@/components/ui';
 import { AttractionPost } from '@/components/attractions/AttractionPost';
 import { AttractionsList } from '@/components/attractions';
@@ -27,7 +28,8 @@ import { useLocationStore } from '@/store';
 import { useCategories } from '@/hooks/useCategories';
 import { useAttractions, AttractionListItem } from '@/features/attractions/hooks/useAttractions';
 import { useEvents, EventListItem } from '@/features/events/hooks/useEvents';
-import { splitItemsByLocation } from '@/utils/splitItemsByLocation';
+import { getLocationDisplayName } from '@/utils/splitItemsByLocation';
+import { hasLocation } from '@/services/listQuery';
 import { spacing } from '@/styles/theme';
 import { styles } from './styles';
 
@@ -82,40 +84,48 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
 
   const { data: categories = [] } = useCategories();
 
-  // Fetch ALL atracciones (sin filtro de ubicación)
-  const {
-    data: attractions = [],
-    isLoading: isAttractionsLoading,
-    refetch: refetchAttractions,
-  } = useAttractions({
+  // Con zona elegida se piden dos listas paginadas en el servidor (5.14/5.15):
+  // la zona ('only') y el resto ('exclude'). Sin zona, 'others' trae todo.
+  const withLocation = hasLocation(locationFilter);
+  const locationName = getLocationDisplayName(locationFilter);
+  const attractionScope = {
     searchText: attractionFilters.searchText,
     categoryIds: attractionFilters.categoryIds,
-    // No pasar ubicación — se divide client-side
+    location: locationFilter,
+  };
+  const localAttractions = useAttractions({
+    ...attractionScope,
+    locationMode: 'only',
+    enabled: activeTab === 'attractions' && withLocation,
+  });
+  const otherAttractions = useAttractions({
+    ...attractionScope,
+    locationMode: 'exclude',
     enabled: activeTab === 'attractions',
   });
 
-  // Fetch ALL eventos (sin filtro de ubicación)
-  const {
-    data: events = [],
-    isLoading: isEventsLoading,
-    refetch: refetchEvents,
-  } = useEvents({
+  const eventScope = {
     searchText: eventFilters.searchText,
     categoryIds: eventFilters.categoryIds,
-    // No pasar ubicación — se divide client-side
     upcoming: true,
+    location: locationFilter,
+  };
+  const localEvents = useEvents({
+    ...eventScope,
+    locationMode: 'only',
+    enabled: activeTab === 'events' && withLocation,
+  });
+  const otherEvents = useEvents({
+    ...eventScope,
+    locationMode: 'exclude',
+    enabled: activeTab === 'events',
   });
 
-  // Dividir por ubicación
-  const attractionSplit = useMemo(
-    () => splitItemsByLocation(attractions, locationFilter),
-    [attractions, locationFilter],
-  );
-
-  const eventSplit = useMemo(
-    () => splitItemsByLocation(events, locationFilter),
-    [events, locationFilter],
-  );
+  const isAttractionsLoading =
+    otherAttractions.isLoading || (withLocation && localAttractions.isLoading);
+  const isEventsLoading = otherEvents.isLoading || (withLocation && localEvents.isLoading);
+  const attractionCount = localAttractions.data.length + otherAttractions.data.length;
+  const eventCount = localEvents.data.length + otherEvents.data.length;
 
   // Estado para controlar el pull-to-refresh manualmente
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
@@ -124,14 +134,14 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
     setIsManualRefreshing(true);
     try {
       if (activeTab === 'attractions') {
-        await refetchAttractions();
+        await Promise.all([localAttractions.refetch(), otherAttractions.refetch()]);
       } else {
-        await refetchEvents();
+        await Promise.all([localEvents.refetch(), otherEvents.refetch()]);
       }
     } finally {
       setIsManualRefreshing(false);
     }
-  }, [activeTab, refetchAttractions, refetchEvents]);
+  }, [activeTab, localAttractions, otherAttractions, localEvents, otherEvents]);
 
   const currentFilters = activeTab === 'attractions' ? attractionFilters : eventFilters;
   const hasActiveFilters =
@@ -255,7 +265,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
 
   // Renderizar contenido de atracciones con secciones
   const renderAttractionsContent = () => {
-    if (isAttractionsLoading && attractions.length === 0) {
+    if (isAttractionsLoading && attractionCount === 0) {
       return (
         <View style={styles.loader}>
           <ActivityIndicator size="small" color={colors.primary[600]} />
@@ -264,10 +274,17 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
     }
 
     // Sin ubicación activa → lista normal
-    if (!attractionSplit.hasLocation) {
+    if (!withLocation) {
       return (
         <AttractionsList
-          data={attractions}
+          data={otherAttractions.data}
+          onEndReached={otherAttractions.hasNextPage ? otherAttractions.fetchNextPage : undefined}
+          footer={
+            <LoadMoreButton
+              isLoading={otherAttractions.isFetchingNextPage}
+              onPress={otherAttractions.fetchNextPage}
+            />
+          }
           isRefreshing={isManualRefreshing}
           onRefresh={handleManualRefresh}
         />
@@ -288,37 +305,49 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
         }
         contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
       >
-        {attractions.length === 0 ? (
+        {attractionCount === 0 ? (
           renderEmpty('No hay atracciones disponibles')
         ) : (
           <>
-            {attractionSplit.local.length > 0 && (
+            {localAttractions.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="local"
-                  locationName={attractionSplit.locationName}
-                  count={attractionSplit.local.length}
+                  locationName={locationName}
+                  count={localAttractions.total}
                   entityLabel="atracciones"
                 />
-                {renderAttractionItems(attractionSplit.local)}
+                {renderAttractionItems(localAttractions.data)}
+                <LoadMoreButton
+                  hasMore={localAttractions.hasNextPage}
+                  isLoading={localAttractions.isFetchingNextPage}
+                  onPress={localAttractions.fetchNextPage}
+                  entityLabel={`atracciones en ${locationName}`}
+                />
               </>
             )}
 
-            {attractionSplit.local.length === 0 && attractionSplit.others.length > 0 && (
+            {localAttractions.data.length === 0 && otherAttractions.data.length > 0 && (
               <NoLocalResultsPlaceholder
-                locationName={attractionSplit.locationName}
+                locationName={locationName}
                 entityLabel="atracciones"
               />
             )}
 
-            {attractionSplit.others.length > 0 && (
+            {otherAttractions.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="others"
-                  count={attractionSplit.others.length}
+                  count={otherAttractions.total}
                   entityLabel="atracciones"
                 />
-                {renderAttractionItems(attractionSplit.others)}
+                {renderAttractionItems(otherAttractions.data)}
+                <LoadMoreButton
+                  hasMore={otherAttractions.hasNextPage}
+                  isLoading={otherAttractions.isFetchingNextPage}
+                  onPress={otherAttractions.fetchNextPage}
+                  entityLabel="atracciones"
+                />
               </>
             )}
           </>
@@ -329,7 +358,7 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
 
   // Renderizar contenido de eventos con secciones
   const renderEventsContent = () => {
-    if (isEventsLoading && events.length === 0) {
+    if (isEventsLoading && eventCount === 0) {
       return (
         <View style={styles.loader}>
           <ActivityIndicator size="small" color={colors.primary[600]} />
@@ -338,10 +367,17 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
     }
 
     // Sin ubicación activa → lista normal
-    if (!eventSplit.hasLocation) {
+    if (!withLocation) {
       return (
         <EventsList
-          events={events}
+          events={otherEvents.data}
+          onEndReached={otherEvents.hasNextPage ? otherEvents.fetchNextPage : undefined}
+          footer={
+            <LoadMoreButton
+              isLoading={otherEvents.isFetchingNextPage}
+              onPress={otherEvents.fetchNextPage}
+            />
+          }
           isLoading={false}
           isRefreshing={isManualRefreshing}
           onRefresh={handleManualRefresh}
@@ -364,37 +400,49 @@ export const AttractionsScreen = memo(function AttractionsScreen() {
         }
         contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
       >
-        {events.length === 0 ? (
+        {eventCount === 0 ? (
           renderEmpty('No hay eventos próximos disponibles')
         ) : (
           <>
-            {eventSplit.local.length > 0 && (
+            {localEvents.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="local"
-                  locationName={eventSplit.locationName}
-                  count={eventSplit.local.length}
+                  locationName={locationName}
+                  count={localEvents.total}
                   entityLabel="eventos"
                 />
-                {renderEventItems(eventSplit.local)}
+                {renderEventItems(localEvents.data)}
+                <LoadMoreButton
+                  hasMore={localEvents.hasNextPage}
+                  isLoading={localEvents.isFetchingNextPage}
+                  onPress={localEvents.fetchNextPage}
+                  entityLabel={`eventos en ${locationName}`}
+                />
               </>
             )}
 
-            {eventSplit.local.length === 0 && eventSplit.others.length > 0 && (
+            {localEvents.data.length === 0 && otherEvents.data.length > 0 && (
               <NoLocalResultsPlaceholder
-                locationName={eventSplit.locationName}
+                locationName={locationName}
                 entityLabel="eventos"
               />
             )}
 
-            {eventSplit.others.length > 0 && (
+            {otherEvents.data.length > 0 && (
               <>
                 <LocationSectionHeader
                   type="others"
-                  count={eventSplit.others.length}
+                  count={otherEvents.total}
                   entityLabel="eventos"
                 />
-                {renderEventItems(eventSplit.others)}
+                {renderEventItems(otherEvents.data)}
+                <LoadMoreButton
+                  hasMore={otherEvents.hasNextPage}
+                  isLoading={otherEvents.isFetchingNextPage}
+                  onPress={otherEvents.fetchNextPage}
+                  entityLabel="eventos"
+                />
               </>
             )}
           </>
