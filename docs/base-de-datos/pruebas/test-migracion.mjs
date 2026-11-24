@@ -291,7 +291,7 @@ async function tests() {
     const other = (await as(U.buyer, `select count(*)::int c from public.get_owner_like_totals(array[$1]::uuid[])`, [BUS])).rows[0].c;
     return own >= 1 && other === 0;
   });
-  await check('H-34: otro usuario no puede editar ni borrar fotos de un comercio ajeno', async () => {
+  await check('H-06: otro usuario no puede editar ni borrar fotos de un comercio ajeno', async () => {
     await db.exec(`insert into public.business_images (business_id_bim, path_bim, sort_order_bim) values ('${BUS}', '${BUS}/gallery-1-x.jpg', 9)`);
     await as(U.buyer, `update public.business_images set sort_order_bim = 1 where business_id_bim = $1`, [BUS]);
     await as(U.buyer, `delete from public.business_images where business_id_bim = $1`, [BUS]);

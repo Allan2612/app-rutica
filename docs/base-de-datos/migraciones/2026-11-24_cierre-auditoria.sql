@@ -10,7 +10,7 @@
 begin;
 
 -- ============================================================================
--- 0. [H-34] Políticas heredadas que abrían escrituras a cualquier usuario con sesión
+-- 0. [H-06] Políticas heredadas que abrían escrituras a cualquier usuario con sesión
 -- ============================================================================
 -- Las políticas se combinan con OR: estas anulaban a las de dueño que ya existen
 -- (business_images_*_owner, locations_update_owner, *_storage_*_owner). Con ellas,
