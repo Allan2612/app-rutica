@@ -224,52 +224,50 @@ export async function getPromotionById(
   if (error) throw error;
 
   // Verificar permisos: debe ser el propietario O admin
-  const hasPermission = await canUserEdit(userId, (data as any).created_by_prm);
+  const hasPermission = await canUserEdit(userId, data.created_by_prm);
   if (!hasPermission) {
     throw new Error('No tienes permisos para ver esta promoción');
   }
 
   // Procesar imágenes - filtrar por prefijo del path
-  const images = (data as any).promotion_images || [];
-  const coverImage = images.find((img: any) => {
+  const images = data.promotion_images || [];
+  const coverImage = images.find((img) => {
     const prefix = img.path_pim.split('/').pop()?.split('-')[0];
     return prefix === 'flyer';
   });
-  const galleryImages = images.filter((img: any) => {
+  const galleryImages = images.filter((img) => {
     const prefix = img.path_pim.split('/').pop()?.split('-')[0];
     return prefix === 'flyer';
   });
 
   const coverUrl = coverImage ? getImageUrl(BUCKET_NAME, coverImage.path_pim) : null;
 
-  const galleryUrls = galleryImages.map((img: any) => getImageUrl(BUCKET_NAME, img.path_pim));
+  const galleryUrls = galleryImages.map((img) => getImageUrl(BUCKET_NAME, img.path_pim));
 
   return {
-    id: (data as any).id_prm,
-    businessId: (data as any).business_id_prm,
-    scope: (data as any).scope_prm as PromotionScope,
-    title: (data as any).title_prm,
-    description: (data as any).description_prm,
-    discountType: (data as any).discount_type_prm as DiscountType,
-    discountValue: (data as any).discount_value_prm,
-    startAt: (data as any).start_at_prm,
-    endAt: (data as any).end_at_prm,
-    categoryIds: ((data as any).promotion_category_map || []).map(
+    id: data.id_prm,
+    businessId: data.business_id_prm ?? '',
+    scope: data.scope_prm as PromotionScope,
+    title: data.title_prm ?? '',
+    description: data.description_prm,
+    discountType: data.discount_type_prm as DiscountType,
+    discountValue: data.discount_value_prm ?? 0,
+    startAt: data.start_at_prm,
+    endAt: data.end_at_prm,
+    categoryIds: (data.promotion_category_map || []).map(
       (pcm: { category_id_pcr: string }) => pcm.category_id_pcr,
     ),
-    productIds: ((data as any).promotion_products || []).map(
+    productIds: (data.promotion_products || []).map(
       (pp: { product_id_ppr: string }) => pp.product_id_ppr,
     ),
-    scopeCategoryIds: ((data as any).promotion_scope_categories || []).map(
+    scopeCategoryIds: (data.promotion_scope_categories || []).map(
       (psc: { category_id_psc: string }) => psc.category_id_psc,
     ),
-    comboItems: ((data as any).promotion_combo_items || []).map(
-      (pci: { product_id_pci: string; quantity_pci: number; paid_quantity_pci?: number }) => ({
-        productId: pci.product_id_pci,
-        quantity: pci.quantity_pci,
-        paidQuantity: pci.paid_quantity_pci ?? undefined,
-      }),
-    ),
+    comboItems: (data.promotion_combo_items || []).map((pci) => ({
+      productId: pci.product_id_pci,
+      quantity: pci.quantity_pci,
+      paidQuantity: pci.paid_quantity_pci ?? undefined,
+    })),
     coverUrl,
     galleryUrls,
   };
@@ -378,19 +376,19 @@ function mapRecordToListItem(record: PromotionRecord): PromotionListItem {
 
   // Extraer IDs de categorías de scope (para scope: 'category')
   const scopeCategoryIds =
-    (record as any).promotion_scope_categories
-      ?.map((psc: any) => psc.category_id_psc)
+    record.promotion_scope_categories
+      ?.map((psc) => psc.category_id_psc)
       .filter((id: string): id is string => !!id) ?? [];
 
   // Extraer items de combo (para scope: 'combo')
   const comboItems =
-    (record as any).promotion_combo_items
-      ?.map((pci: any) => ({
+    record.promotion_combo_items
+      ?.map((pci) => ({
         productId: pci.product_id_pci,
         quantity: pci.quantity_pci,
         paidQuantity: pci.paid_quantity_pci ?? undefined,
       }))
-      .filter((item: any) => item.productId) ?? [];
+      .filter((item) => item.productId) ?? [];
 
   // Determinar si está activa (aprobada y en rango de fechas)
   const now = new Date();

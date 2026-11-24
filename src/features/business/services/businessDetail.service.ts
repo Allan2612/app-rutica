@@ -91,17 +91,17 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
   };
 
   // Procesar imágenes
-  const images = ((data as any).business_images ?? []).sort(
-    (a: any, b: any) => (a?.sort_order_bim ?? 0) - (b?.sort_order_bim ?? 0),
+  const images = (data.business_images ?? []).sort(
+    (a, b) => (a?.sort_order_bim ?? 0) - (b?.sort_order_bim ?? 0),
   );
 
   // V3: sort_order=0 es logo, >0 es gallery
   const logoImage = images.find(
-    (img: any) => img.sort_order_bim === 0 || getImageType(img.path_bim) === 'logo',
+    (img) => img.sort_order_bim === 0 || getImageType(img.path_bim) === 'logo',
   );
-  const coverImage = images.find((img: any) => getImageType(img.path_bim) === 'cover');
+  const coverImage = images.find((img) => getImageType(img.path_bim) === 'cover');
   const galleryImagesData = images.filter(
-    (img: any) => img.sort_order_bim > 0 && getImageType(img.path_bim) !== 'cover',
+    (img) => (img.sort_order_bim ?? 0) > 0 && getImageType(img.path_bim) !== 'cover',
   );
 
   const getImageUrl = (path: string) => {
@@ -114,20 +114,17 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
   const coverImageUrl = coverImage?.path_bim ? getImageUrl(coverImage.path_bim) : null;
 
   const galleryImages = galleryImagesData
-    .filter((img: any) => img.path_bim)
-    .map((img: any) => getImageUrl(img.path_bim))
+    .filter((img) => img.path_bim)
+    .map((img) => getImageUrl(img.path_bim))
     .slice(0, 3); // Máximo 3 imágenes
 
   // Procesar categorías
-  const categories =
-    (data as any).business_category_map?.map((bcm: any) => bcm.categories).filter(Boolean) ?? [];
-  const categoryNames = categories.map((c: any) => c.name_cat);
-  const categoryIds = categories.map((c: any) => c.id_cat);
+  const categories = data.business_category_map?.map((bcm) => bcm.categories).filter(Boolean) ?? [];
+  const categoryNames = categories.map((c) => c.name_cat).filter((n): n is string => !!n);
+  const categoryIds = categories.map((c) => c.id_cat);
 
   // Procesar ubicación V3
-  const location = Array.isArray((data as any).locations)
-    ? (data as any).locations[0]
-    : (data as any).locations;
+  const location = Array.isArray(data.locations) ? data.locations[0] : data.locations;
   const district = location?.districts;
   const canton = district?.cantons;
   const province = canton?.provinces;
@@ -142,19 +139,23 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
   const locationLabel = locationParts.length ? locationParts.join(', ') : null;
 
   // Procesar social links (viene como JSON)
-  const socialLinks = (data as any).social_links_bus ?? {};
+  const socialLinks = (data.social_links_bus ?? {}) as {
+    facebook?: string | null;
+    instagram?: string | null;
+    tiktok?: string | null;
+  };
 
   // Asegurar que el website tenga protocolo
-  let website = (data as any).website_bus;
+  let website = data.website_bus;
   if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
     website = `https://${website}`;
   }
 
   return {
-    id: (data as any).id_bus,
-    ownerId: (data as any).owner_id_bus,
-    name: (data as any).name_bus,
-    description: (data as any).description_bus,
+    id: data.id_bus,
+    ownerId: data.owner_id_bus ?? '',
+    name: data.name_bus ?? '',
+    description: data.description_bus,
     categoryNames,
     categoryIds,
     locationLabel,
@@ -165,15 +166,15 @@ export async function getBusinessDetail(businessId: string): Promise<BusinessDet
     logoUrl,
     galleryImages,
     socialLinks: {
-      facebook: socialLinks.facebook,
-      instagram: socialLinks.instagram,
-      tiktok: socialLinks.tiktok,
+      facebook: socialLinks.facebook ?? undefined,
+      instagram: socialLinks.instagram ?? undefined,
+      tiktok: socialLinks.tiktok ?? undefined,
     },
-    contactPhone: (data as any).contact_phone_bus,
-    contactEmail: (data as any).contact_email_bus,
+    contactPhone: data.contact_phone_bus,
+    contactEmail: data.contact_email_bus,
     website: website,
-    rating: (data as any).avg_rating_bus ?? 0,
-    reviewCount: (data as any).reviews_count_bus ?? 0,
-    isApproved: (data as any).moderation_status_bus === 'approved',
+    rating: data.avg_rating_bus ?? 0,
+    reviewCount: data.reviews_count_bus ?? 0,
+    isApproved: data.moderation_status_bus === 'approved',
   };
 }

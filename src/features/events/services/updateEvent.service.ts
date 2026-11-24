@@ -141,7 +141,7 @@ export async function getEventById(eventId: string, userId: string): Promise<Eve
   if (!eventData) throw new Error('No se encontró el evento');
 
   // Verificar permisos: debe ser el creador O admin
-  const hasPermission = await canUserEdit(userId, (eventData as any).created_by_evt);
+  const hasPermission = await canUserEdit(userId, eventData.created_by_evt);
   if (!hasPermission) {
     throw new Error('No tienes permiso para editar este evento');
   }
@@ -152,7 +152,7 @@ export async function getEventById(eventId: string, userId: string): Promise<Eve
   let cantonData: any = null;
   let provinceData: any = null;
 
-  if ((eventData as any).location_id_evt) {
+  if (eventData.location_id_evt) {
     const { data: loc } = await supabase
       .from('locations')
       .select(
@@ -175,11 +175,11 @@ export async function getEventById(eventId: string, userId: string): Promise<Eve
                 )
             `,
       )
-      .eq('id_loc', (eventData as any).location_id_evt)
+      .eq('id_loc', eventData.location_id_evt)
       .single();
 
     locationData = loc;
-    districtData = (loc as any)?.districts;
+    districtData = loc?.districts;
     cantonData = districtData?.cantons;
     provinceData = cantonData?.provinces;
   }
@@ -197,28 +197,32 @@ export async function getEventById(eventId: string, userId: string): Promise<Eve
     .select('category_id_ecm')
     .eq('event_id_ecm', eventId);
 
-  const sortedImages = ((images as any) || []).sort(
-    (a: any, b: any) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0),
+  const sortedImages = (images ?? []).sort(
+    (a, b) => (a?.sort_order_eim ?? 0) - (b?.sort_order_eim ?? 0),
   );
 
   // sort_order_eim: 0 = cover, 1-3 = gallery
-  const coverImage = sortedImages.find((img: any) => img.sort_order_eim === 0);
-  const galleryImages = sortedImages.filter((img: any) => img.sort_order_eim > 0);
+  const coverImage = sortedImages.find((img) => img.sort_order_eim === 0);
+  const galleryImages = sortedImages.filter((img) => (img.sort_order_eim ?? 0) > 0);
 
   const coverUrl = coverImage?.path_eim ? getImageUrl(BUCKET_NAME, coverImage.path_eim) : null;
 
-  const galleryUrls = galleryImages.map((img: any) => getImageUrl(BUCKET_NAME, img.path_eim));
+  const galleryUrls = galleryImages.map((img) => getImageUrl(BUCKET_NAME, img.path_eim));
 
   const categoryIds = (categoryMaps ?? [])
-    .map((ecm: any) => ecm.category_id_ecm)
+    .map((ecm) => ecm.category_id_ecm)
     .filter((id: string) => !!id);
 
-  const socialLinks = (eventData as any).social_links_evt || {};
+  const socialLinks = (eventData.social_links_evt ?? {}) as {
+    facebook?: string | null;
+    instagram?: string | null;
+    tiktok?: string | null;
+  };
 
   return {
-    id: (eventData as any).id_evt,
-    name: (eventData as any).name_evt,
-    description: (eventData as any).description_evt,
+    id: eventData.id_evt,
+    name: eventData.name_evt ?? '',
+    description: eventData.description_evt,
     categoryIds,
     // Location hierarchy (V3)
     districtId: locationData?.district_id_loc ?? null,
@@ -229,25 +233,25 @@ export async function getEventById(eventId: string, userId: string): Promise<Eve
     latitude: locationData?.latitude_loc ?? 0,
     longitude: locationData?.longitude_loc ?? 0,
     // Dates
-    startDate: new Date((eventData as any).start_at_evt),
-    endDate: new Date((eventData as any).end_at_evt),
+    startDate: new Date(eventData.start_at_evt ?? Date.now()),
+    endDate: new Date(eventData.end_at_evt ?? Date.now()),
     // Pricing
-    isFree: (eventData as any).is_free_evt,
-    price: (eventData as any).price_evt,
-    currency: (eventData as any).currency_evt,
-    capacity: (eventData as any).capacity_evt,
+    isFree: eventData.is_free_evt ?? false,
+    price: eventData.price_evt,
+    currency: eventData.currency_evt,
+    capacity: eventData.capacity_evt,
     // Contact
-    phone: (eventData as any).contact_phone_evt,
-    email: (eventData as any).contact_email_evt,
-    website: (eventData as any).website_evt,
-    ticketUrl: (eventData as any).ticket_url_evt,
+    phone: eventData.contact_phone_evt,
+    email: eventData.contact_email_evt,
+    website: eventData.website_evt,
+    ticketUrl: eventData.ticket_url_evt,
     // Social
     facebook: socialLinks.facebook ?? null,
     instagram: socialLinks.instagram ?? null,
-    tiktok: (socialLinks as any).tiktok ?? null,
+    tiktok: socialLinks.tiktok ?? null,
     coverUrl,
     galleryUrls,
-    isActive: (eventData as any).is_active_evt ?? true,
+    isActive: eventData.is_active_evt ?? true,
     country: 'Costa Rica',
   };
 }
@@ -348,7 +352,7 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
     .eq('event_id_eim', eventId);
 
   // === MANEJO DE COVER (sort_order_eim = 0) ===
-  const currentCover = (currentImages as any)?.find((img: any) => img.sort_order_eim === 0);
+  const currentCover = currentImages?.find((img) => img.sort_order_eim === 0);
 
   if (data.coverImage === null) {
     // Usuario eliminó el cover explícitamente
@@ -373,30 +377,29 @@ async function handleImageUpdates(eventId: string, data: UpdateEventData): Promi
 
   // === MANEJO DE GALERÍA (sort_order_eim > 0) ===
   if (data.galleryImages !== undefined) {
-    const currentGallery =
-      (currentImages as any)?.filter((img: any) => img.sort_order_eim > 0) || [];
+    const currentGallery = currentImages?.filter((img) => (img.sort_order_eim ?? 0) > 0) || [];
 
     // Separar las imágenes existentes (URLs de supabase) de las nuevas
     const existingGalleryUrls = data.galleryImages.filter((uri) => !isNewImage(uri));
     const newGalleryUris = data.galleryImages.filter((uri) => isNewImage(uri));
 
     // Encontrar imágenes que se eliminaron (estaban antes pero ya no están en el array)
-    const imagesToDelete = currentGallery.filter((currentImg: any) => {
+    const imagesToDelete = currentGallery.filter((currentImg) => {
       const currentUrl = getImageUrl(BUCKET_NAME, currentImg.path_eim);
       return !existingGalleryUrls.includes(currentUrl);
     });
 
     // Eliminar del bucket y BD las imágenes que ya no están
     if (imagesToDelete.length > 0) {
-      const pathsToDelete = imagesToDelete.map((img: any) => img.path_eim);
+      const pathsToDelete = imagesToDelete.map((img) => img.path_eim);
       await supabase.storage.from(BUCKET_NAME).remove(pathsToDelete);
 
-      const idsToDelete = imagesToDelete.map((img: any) => img.id_eim);
+      const idsToDelete = imagesToDelete.map((img) => img.id_eim);
       await supabase.from('event_images').delete().in('id_eim', idsToDelete);
     }
 
     // Reindexar imágenes existentes que se mantienen
-    const keptImages = currentGallery.filter((currentImg: any) => {
+    const keptImages = currentGallery.filter((currentImg) => {
       const currentUrl = getImageUrl(BUCKET_NAME, currentImg.path_eim);
       return existingGalleryUrls.includes(currentUrl);
     });

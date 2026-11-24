@@ -46,15 +46,15 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
 
   if (error) throw error;
 
-  return ((data as any) || []).map((item: any) => {
+  return (data ?? []).map((item) => {
     const sortedImages = [...(item.business_images ?? [])].sort(
-      (a: any, b: any) => (a?.sort_order_bim ?? 0) - (b?.sort_order_bim ?? 0),
+      (a, b) => (a?.sort_order_bim ?? 0) - (b?.sort_order_bim ?? 0),
     );
 
     // sort_order: 0=logo, 1=cover, 2+=gallery
-    const logoImage = sortedImages.find((img: any) => img.sort_order_bim === 0);
-    const coverImage = sortedImages.find((img: any) => img.sort_order_bim === 1);
-    const galleryImage = sortedImages.find((img: any) => img.sort_order_bim > 1);
+    const logoImage = sortedImages.find((img) => img.sort_order_bim === 0);
+    const coverImage = sortedImages.find((img) => img.sort_order_bim === 1);
+    const galleryImage = sortedImages.find((img) => (img.sort_order_bim ?? 0) > 1);
 
     const primaryImage = coverImage ?? galleryImage ?? logoImage ?? sortedImages[0];
 
@@ -77,16 +77,16 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
     ].filter(Boolean);
 
     const categoryNames = (item.business_category_map ?? [])
-      .map((bcm: any) => bcm.categories?.name_cat)
-      .filter((name: string | undefined): name is string => !!name);
+      .map((bcm) => bcm.categories?.name_cat)
+      .filter((name): name is string => !!name);
 
     const categoryIds = (item.business_category_map ?? [])
-      .map((bcm: any) => bcm.categories?.id_cat)
-      .filter((id: string | undefined): id is string => !!id);
+      .map((bcm) => bcm.categories?.id_cat)
+      .filter((id): id is string => !!id);
 
     return {
       id: item.id_bus,
-      name: item.name_bus,
+      name: item.name_bus ?? '',
       description: item.description_bus,
       categoryNames,
       categoryIds,
@@ -98,8 +98,8 @@ export async function getUserBusinesses(userId: string): Promise<UserBusinessLis
       reviewsCount: null,
       moderationStatus: item.moderation_status_bus as 'pending' | 'approved' | 'rejected',
       moderationNote: item.moderation_note_bus,
-      isActive: item.is_active_bus,
-      createdAt: item.created_at_bus,
+      isActive: item.is_active_bus ?? false,
+      createdAt: item.created_at_bus ?? '',
     };
   });
 }
@@ -113,7 +113,7 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
     .single();
 
   if (businessError) throw businessError;
-  if (!business || (business as any).owner_id_bus !== userId) {
+  if (!business || business.owner_id_bus !== userId) {
     throw new Error('No tienes permiso para eliminar este negocio');
   }
 
@@ -126,7 +126,7 @@ export async function deleteUserBusiness(businessId: string, userId: string): Pr
 
     // 3. Eliminar imágenes del bucket
     if (images && images.length > 0) {
-      const imagePaths = images.map((img: any) => img.path_bim);
+      const imagePaths = images.map((img) => img.path_bim);
       const { error: storageError } = await supabase.storage.from(BUCKET_NAME).remove(imagePaths);
 
       if (storageError) {
@@ -199,7 +199,7 @@ export async function getBusinessById(
   if (!businessData) throw new Error('No se encontró el negocio');
 
   // Verificar permisos: debe ser el propietario O admin
-  const hasPermission = await canUserEdit(userId, (businessData as any).owner_id_bus);
+  const hasPermission = await canUserEdit(userId, businessData.owner_id_bus);
   if (!hasPermission) {
     throw new Error('No tienes permiso para editar este negocio');
   }
@@ -212,14 +212,14 @@ export async function getBusinessById(
   let cantonName = '';
   let districtName = '';
 
-  if ((businessData as any).location_id_bus) {
+  if (businessData.location_id_bus) {
     const { data: loc } = await supabase
       .from('locations')
       .select('district_id_loc, address_loc, latitude_loc, longitude_loc')
-      .eq('id_loc', (businessData as any).location_id_bus)
+      .eq('id_loc', businessData.location_id_bus)
       .single();
     locationData = loc;
-    districtId = (loc as any)?.district_id_loc;
+    districtId = loc?.district_id_loc ?? null;
 
     // Cargar jerarquía de ubicación
     if (districtId) {
@@ -230,34 +230,34 @@ export async function getBusinessById(
         .single();
 
       if (district) {
-        districtName = (district as any).name_dst;
+        districtName = district.name_dst;
 
         const { data: canton } = await supabase
           .from('cantons')
           .select('name_ctn, province_id_ctn')
-          .eq('id_ctn', (district as any).canton_id_dst)
+          .eq('id_ctn', district.canton_id_dst)
           .single();
 
         if (canton) {
-          cantonName = (canton as any).name_ctn;
+          cantonName = canton.name_ctn;
 
           const { data: province } = await supabase
             .from('provinces')
             .select('name_prv, country_id_prv')
-            .eq('id_prv', (canton as any).province_id_ctn)
+            .eq('id_prv', canton.province_id_ctn)
             .single();
 
           if (province) {
-            provinceName = (province as any).name_prv;
+            provinceName = province.name_prv;
 
             const { data: country } = await supabase
               .from('countries')
               .select('name_cnt')
-              .eq('id_cnt', (province as any).country_id_prv)
+              .eq('id_cnt', province.country_id_prv)
               .single();
 
             if (country) {
-              countryName = (country as any).name_cnt;
+              countryName = country.name_cnt;
             }
           }
         }
@@ -276,44 +276,48 @@ export async function getBusinessById(
     .select('category_id_bcm')
     .eq('business_id_bcm', businessId);
 
-  const sortedImages = ((images as any) || []).sort(
-    (a: any, b: any) => (a?.sort_order_bim ?? 0) - (b?.sort_order_bim ?? 0),
+  const sortedImages = (images ?? []).sort(
+    (a, b) => (a?.sort_order_bim ?? 0) - (b?.sort_order_bim ?? 0),
   );
 
   // sort_order=0 es logo, sort_order=1 es cover, >1 es gallery
-  const logoImage = sortedImages.find((img: any) => img.sort_order_bim === 0);
-  const coverImage = sortedImages.find((img: any) => img.sort_order_bim === 1);
-  const galleryImages = sortedImages.filter((img: any) => img.sort_order_bim > 1);
+  const logoImage = sortedImages.find((img) => img.sort_order_bim === 0);
+  const coverImage = sortedImages.find((img) => img.sort_order_bim === 1);
+  const galleryImages = sortedImages.filter((img) => (img.sort_order_bim ?? 0) > 1);
 
   const logoUrl = logoImage?.path_bim ? getImageUrl(logoImage.path_bim) : null;
   const coverUrl = coverImage?.path_bim ? getImageUrl(coverImage.path_bim) : null;
-  const galleryUrls = galleryImages.map((img: any) => getImageUrl(img.path_bim));
+  const galleryUrls = galleryImages.map((img) => getImageUrl(img.path_bim));
 
   const categoryIds = (categoryMaps ?? [])
-    .map((bcm: any) => bcm.category_id_bcm)
+    .map((bcm) => bcm.category_id_bcm)
     .filter((id: string) => !!id);
 
-  const socialLinks = (businessData as any).social_links_bus || {};
+  const socialLinks = (businessData.social_links_bus ?? {}) as {
+    facebook?: string | null;
+    instagram?: string | null;
+    tiktok?: string | null;
+  };
 
   return {
-    id: (businessData as any).id_bus,
-    name: (businessData as any).name_bus,
-    description: (businessData as any).description_bus,
+    id: businessData.id_bus,
+    name: businessData.name_bus ?? '',
+    description: businessData.description_bus,
     categoryIds,
     districtId,
     country: countryName,
     province: provinceName,
     canton: cantonName,
     district: districtName,
-    address: (locationData as any)?.address_loc ?? null,
-    latitude: (locationData as any)?.latitude_loc ?? 0,
-    longitude: (locationData as any)?.longitude_loc ?? 0,
-    phone: (businessData as any).contact_phone_bus,
-    email: (businessData as any).contact_email_bus,
-    website: (businessData as any).website_bus,
-    facebook: (socialLinks as any).facebook ?? null,
-    instagram: (socialLinks as any).instagram ?? null,
-    tiktok: (socialLinks as any).tiktok ?? null,
+    address: locationData?.address_loc ?? null,
+    latitude: locationData?.latitude_loc ?? 0,
+    longitude: locationData?.longitude_loc ?? 0,
+    phone: businessData.contact_phone_bus,
+    email: businessData.contact_email_bus,
+    website: businessData.website_bus,
+    facebook: socialLinks.facebook ?? null,
+    instagram: socialLinks.instagram ?? null,
+    tiktok: socialLinks.tiktok ?? null,
     logoUrl,
     coverUrl,
     galleryUrls,

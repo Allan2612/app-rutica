@@ -136,7 +136,7 @@ export async function updatePromotionComplete(
 
     // Insertar nuevos items de combo
     if (data.comboItems.length > 0) {
-      const comboItemMaps = data.comboItems.map((item: any) => ({
+      const comboItemMaps = data.comboItems.map((item) => ({
         promotion_id_pci: promotionId,
         product_id_pci: item.productId,
         quantity_pci: item.quantity,
@@ -162,7 +162,7 @@ export async function updatePromotionComplete(
       .eq('promotion_id_pim', promotionId);
 
     const currentCover =
-      allImages?.find((img: any) => {
+      allImages?.find((img) => {
         const prefix = img.path_pim.split('/').pop()?.split('-')[0];
         return prefix === 'flyer';
       }) ?? null;
@@ -200,7 +200,7 @@ export async function updatePromotionComplete(
       .select('id_pim, path_pim')
       .eq('promotion_id_pim', promotionId);
 
-    const currentPaths = currentGallery?.map((img: any) => img.path_pim) ?? [];
+    const currentPaths = currentGallery?.map((img) => img.path_pim) ?? [];
     const newUris = data.galleryUris;
 
     // Determinar qué imágenes eliminar (las que no están en newUris como URL)

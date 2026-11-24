@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { useCategories } from '@/hooks/useCategories';
 import { useCreateBusiness } from './useCreateBusiness';
 import type { CreateBusinessData } from '../services';
+import type { LocationData } from '@/components/maps/LocationPicker';
 
 interface FormData {
   name: string;
@@ -84,7 +85,7 @@ export function useCreateBusinessForm() {
   );
 
   const handleLocationSelect = useCallback(
-    (location: any) => {
+    (location: LocationData) => {
       // Validar que la ubicación tenga país y sea Costa Rica
       const country = location.country?.toLowerCase() || '';
       const isCostaRica = country.includes('costa rica') || country === 'cr';

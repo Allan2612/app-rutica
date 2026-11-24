@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { useCategories } from '@/hooks/useCategories';
 import { useBusinessById, useUpdateBusiness } from '@/features/business/hooks/useUserBusinesses';
 import type { UpdateBusinessData } from '@/features/business/services/updateBusiness.service';
+import type { LocationData } from '@/components/maps/LocationPicker';
 
 interface UseBusinessFormProps {
   businessId: string;
@@ -176,7 +177,7 @@ export function useBusinessForm(businessId: string) {
     }
   };
 
-  const handleLocationSelect = (location: any) => {
+  const handleLocationSelect = (location: LocationData) => {
     // Actualizar nombres de ubicación, coordenadas y dirección
     if (location.country) {
       updateField('country', location.country);

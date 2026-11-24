@@ -37,7 +37,7 @@ export async function getBusinessProducts(
     }
 
     // Obtener IDs de productos
-    const productIds = products.map((p: any) => p.id_prd);
+    const productIds = products.map((p) => p.id_prd);
 
     // Obtener categorías de productos
     const { data: categoryMaps, error: categoryError } = await supabase
@@ -69,35 +69,31 @@ export async function getBusinessProducts(
     }
 
     // Mapear productos con sus relaciones
-    const result: ProductListItem[] = products.map((product: any) => {
+    const result: ProductListItem[] = products.map((product) => {
       // Categorías del producto
       const productCategories = (categoryMaps || [])
-        .filter((cm: any) => cm.product_id_pcm === product.id_prd)
-        .map((cm: any) => cm.categories);
+        .filter((cm) => cm.product_id_pcm === product.id_prd)
+        .map((cm) => cm.categories);
 
-      const categoryNames = productCategories
-        .map((cat: any) => cat?.name_cat || '')
-        .filter(Boolean);
-      const categoryIds = productCategories.map((cat: any) => cat?.id_cat || '').filter(Boolean);
+      const categoryNames = productCategories.map((cat) => cat?.name_cat || '').filter(Boolean);
+      const categoryIds = productCategories.map((cat) => cat?.id_cat || '').filter(Boolean);
 
       // Todas las imágenes del producto
-      const productImages = (images || []).filter(
-        (img: any) => img.product_id_pim === product.id_prd,
-      );
-      const imageUrls = productImages.map((img: any) => getImageUrl(BUCKET_NAME, img.path_pim));
+      const productImages = (images || []).filter((img) => img.product_id_pim === product.id_prd);
+      const imageUrls = productImages.map((img) => getImageUrl(BUCKET_NAME, img.path_pim));
       const mainImageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
 
       return {
         id: product.id_prd,
-        name: product.name_prd,
+        name: product.name_prd ?? '',
         description: product.description_prd,
-        price: product.price_prd,
+        price: product.price_prd ?? 0,
         currency: product.currency_prd || 'CRC',
         categoryNames,
         categoryIds,
         mainImageUrl,
         imageUrls,
-        isActive: product.is_active_prd,
+        isActive: product.is_active_prd ?? true,
         rating: product.avg_rating_prd ?? 0,
         reviewCount: product.reviews_count_prd ?? 0,
       };
@@ -159,15 +155,11 @@ export async function getProduct(productId: string): Promise<any> {
     }
 
     // Mapear categorías
-    const categoryNames = (categoryMaps || [])
-      .map((cm: any) => cm.categories?.name_cat)
-      .filter(Boolean);
-    const categoryIds = (categoryMaps || [])
-      .map((cm: any) => cm.categories?.id_cat)
-      .filter(Boolean);
+    const categoryNames = (categoryMaps || []).map((cm) => cm.categories?.name_cat).filter(Boolean);
+    const categoryIds = (categoryMaps || []).map((cm) => cm.categories?.id_cat).filter(Boolean);
 
     // Mapear imágenes
-    const imageUrls = (images || []).map((img: any) => getImageUrl(BUCKET_NAME, img.path_pim));
+    const imageUrls = (images || []).map((img) => getImageUrl(BUCKET_NAME, img.path_pim));
 
     const result = {
       id: product.id_prd,
@@ -268,7 +260,7 @@ export async function updateProduct(
       .select('id_pim, path_pim')
       .eq('product_id_pim', productId);
 
-    const existingUrls = (existingImages || []).map((img: any) =>
+    const existingUrls = (existingImages || []).map((img) =>
       getImageUrl(BUCKET_NAME, img.path_pim),
     );
 

@@ -54,7 +54,7 @@ async function getAttractionReviewsForAdmin(
     return [];
   }
 
-  return data.map((review: any) => {
+  return data.map((review) => {
     const profile = review.profiles;
     const firstName = profile?.first_name_prf ?? '';
     const lastName = profile?.last_name1_prf ?? '';
@@ -70,7 +70,7 @@ async function getAttractionReviewsForAdmin(
       authorName,
       rating: review.rating_arv ?? 0,
       comment: review.comment_arv,
-      createdAt: review.created_at_arv,
+      createdAt: review.created_at_arv ?? '',
     };
   });
 }
@@ -107,7 +107,7 @@ async function getBusinessReviewsForAdmin(filters?: ReviewFilters): Promise<Admi
     return [];
   }
 
-  return data.map((review: any) => {
+  return data.map((review) => {
     const profile = review.profiles;
     const firstName = profile?.first_name_prf ?? '';
     const lastName = profile?.last_name1_prf ?? '';
@@ -123,7 +123,7 @@ async function getBusinessReviewsForAdmin(filters?: ReviewFilters): Promise<Admi
       authorName,
       rating: review.rating_brv ?? 0,
       comment: review.comment_brv,
-      createdAt: review.created_at_brv,
+      createdAt: review.created_at_brv ?? '',
     };
   });
 }
@@ -160,7 +160,7 @@ async function getEventReviewsForAdmin(filters?: ReviewFilters): Promise<AdminRe
     return [];
   }
 
-  return data.map((review: any) => {
+  return data.map((review) => {
     const profile = review.profiles;
     const firstName = profile?.first_name_prf ?? '';
     const lastName = profile?.last_name1_prf ?? '';
@@ -176,7 +176,7 @@ async function getEventReviewsForAdmin(filters?: ReviewFilters): Promise<AdminRe
       authorName,
       rating: review.rating_erv ?? 0,
       comment: review.comment_erv,
-      createdAt: review.created_at_erv,
+      createdAt: review.created_at_erv ?? '',
     };
   });
 }
@@ -213,7 +213,7 @@ async function getProductReviewsForAdmin(filters?: ReviewFilters): Promise<Admin
     return [];
   }
 
-  return data.map((review: any) => {
+  return data.map((review) => {
     const profile = review.profiles;
     const firstName = profile?.first_name_prf ?? '';
     const lastName = profile?.last_name1_prf ?? '';
@@ -229,7 +229,7 @@ async function getProductReviewsForAdmin(filters?: ReviewFilters): Promise<Admin
       authorName,
       rating: review.rating_prv ?? 0,
       comment: review.comment_prv,
-      createdAt: review.created_at_prv,
+      createdAt: review.created_at_prv ?? '',
     };
   });
 }
@@ -500,10 +500,10 @@ export async function getReviewsStats(): Promise<{
 
   // Calcular promedio general de ratings
   const allRatings = [
-    ...(attractions.data?.map((r: any) => r.rating_arv) ?? []),
-    ...(businesses.data?.map((r: any) => r.rating_brv) ?? []),
-    ...(events.data?.map((r: any) => r.rating_erv) ?? []),
-    ...(products.data?.map((r: any) => r.rating_prv) ?? []),
+    ...(attractions.data?.map((r) => r.rating_arv) ?? []),
+    ...(businesses.data?.map((r) => r.rating_brv) ?? []),
+    ...(events.data?.map((r) => r.rating_erv) ?? []),
+    ...(products.data?.map((r) => r.rating_prv) ?? []),
   ].filter((r) => r != null);
 
   const averageRating =
