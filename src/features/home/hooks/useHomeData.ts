@@ -135,34 +135,22 @@ export function useHomeData() {
   const businesses = useFeaturedBusinesses();
   const events = useFeaturedEvents();
   const attractions = useFeaturedAttractions();
-  const stats = useHomeStats();
 
   const refetch = useCallback(() => {
     promotions.refetch();
     businesses.refetch();
     events.refetch();
     attractions.refetch();
-    stats.refetch();
-  }, [promotions.refetch, businesses.refetch, events.refetch, attractions.refetch, stats.refetch]);
+  }, [promotions.refetch, businesses.refetch, events.refetch, attractions.refetch]);
 
   return {
     promotions,
     businesses,
     events,
     attractions,
-    stats,
     isLoading:
-      promotions.isLoading ||
-      businesses.isLoading ||
-      events.isLoading ||
-      attractions.isLoading ||
-      stats.isLoading,
-    isError:
-      promotions.isError ||
-      businesses.isError ||
-      events.isError ||
-      attractions.isError ||
-      stats.isError,
+      promotions.isLoading || businesses.isLoading || events.isLoading || attractions.isLoading,
+    isError: promotions.isError || businesses.isError || events.isError || attractions.isError,
     refetch,
   };
 }

@@ -1,17 +1,15 @@
 /**
- * HomeScreen
- * Main landing screen of the Rutica app
- * Features: Hero welcome, quick actions, promotions carousel, featured business
+ * HomeScreen — inicio "buscar primero": saludo, buscador y categorías arriba, y carruseles
+ * con contenido real (comercios, lugares, ofertas, eventos). Las secciones vacías no se muestran.
  */
 
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { View, ScrollView, RefreshControl, ActivityIndicator, Text, Pressable } from 'react-native';
 import { AlertTriangle } from 'lucide-react-native';
 import { useThemedColors, useRefreshOnFocus } from '@/hooks';
 import { useHomeData } from '../../hooks/useHomeData';
 import {
-  HeroWelcome,
-  QuickActions,
+  HomeSearchHeader,
   FeaturedPromotions,
   FeaturedBusinesses,
   FeaturedEvents,
@@ -22,8 +20,22 @@ import { styles } from './styles';
 
 export const HomeScreen = memo(function HomeScreen() {
   const colors = useThemedColors();
-  const { promotions, businesses, events, attractions, stats, isLoading, isError, refetch } =
+  const { promotions, businesses, events, attractions, isLoading, isError, refetch } =
     useHomeData();
+
+  // Accesos por categoría: solo las que tienen comercios destacados (nunca llevan a una lista vacía)
+  const categoryChips = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const b of businesses.data ?? []) {
+      b.categoryIds.forEach((id, i) => {
+        const name = b.categoryNames[i];
+        if (id && name && !seen.has(id)) seen.set(id, name);
+      });
+    }
+    return [...seen].slice(0, 10).map(([id, name]) => ({ id, name }));
+  }, [businesses.data]);
+  const hasPromotions = (promotions.data?.length ?? 0) > 0;
+  const hasEvents = (events.data?.length ?? 0) > 0;
 
   // Refrescar datos cuando la pantalla recibe foco
   useRefreshOnFocus(refetch);
@@ -33,14 +45,10 @@ export const HomeScreen = memo(function HomeScreen() {
   }, [refetch]);
 
   const isRefreshing =
-    promotions.isFetching ||
-    businesses.isFetching ||
-    events.isFetching ||
-    attractions.isFetching ||
-    stats.isFetching;
+    promotions.isFetching || businesses.isFetching || events.isFetching || attractions.isFetching;
 
   // Initial loading state
-  if (isLoading && !promotions.data && !stats.data) {
+  if (isLoading && !businesses.data && !attractions.data) {
     return (
       <View
         style={[
@@ -55,7 +63,7 @@ export const HomeScreen = memo(function HomeScreen() {
   }
 
   // Error state
-  if (isError && !promotions.data && !stats.data) {
+  if (isError && !businesses.data && !attractions.data) {
     return (
       <View
         style={[
@@ -78,13 +86,6 @@ export const HomeScreen = memo(function HomeScreen() {
     );
   }
 
-  const statsData = stats.data ?? {
-    businessCount: 0,
-    eventCount: 0,
-    attractionCount: 0,
-    promotionCount: 0,
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background.secondary }]}>
       <ScrollView
@@ -99,31 +100,22 @@ export const HomeScreen = memo(function HomeScreen() {
           />
         }
       >
-        {/* Hero Welcome Section */}
-        <HeroWelcome
-          businessCount={statsData.businessCount}
-          eventCount={statsData.eventCount}
-          attractionCount={statsData.attractionCount}
-          promotionCount={statsData.promotionCount}
-        />
+        <HomeSearchHeader categories={categoryChips} />
 
-        {/* Quick Navigation Actions */}
-        <QuickActions />
-
-        {/* Featured Promotions Carousel */}
-        <FeaturedPromotions promotions={promotions.data ?? []} isLoading={promotions.isLoading} />
-
-        {/* Featured Businesses Section */}
         <FeaturedBusinesses businesses={businesses.data ?? []} isLoading={businesses.isLoading} />
 
-        {/* Featured Attractions Section */}
         <FeaturedAttractions
           attractions={attractions.data ?? []}
           isLoading={attractions.isLoading}
         />
 
-        {/* Featured Events Section */}
-        <FeaturedEvents events={events.data ?? []} isLoading={events.isLoading} />
+        {(promotions.isLoading || hasPromotions) && (
+          <FeaturedPromotions promotions={promotions.data ?? []} isLoading={promotions.isLoading} />
+        )}
+
+        {(events.isLoading || hasEvents) && (
+          <FeaturedEvents events={events.data ?? []} isLoading={events.isLoading} />
+        )}
 
         {/* Call to Action for Non-Sellers */}
         <CallToAction />

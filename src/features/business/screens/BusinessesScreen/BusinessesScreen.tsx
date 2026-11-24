@@ -40,7 +40,7 @@ const BUSINESS_TABS: TabOption[] = [
 ];
 
 export const BusinessesScreen = memo(function BusinessesScreen() {
-  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const { tab, q, cat } = useLocalSearchParams<{ tab?: string; q?: string; cat?: string }>();
   const [activeTab, setActiveTab] = useState(tab === 'promotions' ? 'promotions' : 'commerces');
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const location = useLocationStore((s) => s.location);
@@ -58,6 +58,17 @@ export const BusinessesScreen = memo(function BusinessesScreen() {
     categoryIds: [],
     location: null,
   });
+
+  // Búsqueda o categoría que llegan desde el inicio (?q=…, ?cat=…)
+  useEffect(() => {
+    if (q === undefined && cat === undefined) return;
+    setActiveTab('commerces');
+    setCommerceFilters((prev) => ({
+      ...prev,
+      searchText: typeof q === 'string' ? q : '',
+      categoryIds: typeof cat === 'string' && cat ? [cat] : [],
+    }));
+  }, [q, cat]);
 
   // Filtros para promociones
   const [promotionFilters, setPromotionFilters] = useState<SearchFilters>({

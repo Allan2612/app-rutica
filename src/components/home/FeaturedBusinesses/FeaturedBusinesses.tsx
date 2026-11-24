@@ -84,7 +84,7 @@ export const FeaturedBusinesses = memo(function FeaturedBusinesses({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
-              Comercios Destacados
+              Comercios destacados
             </Text>
             <Text style={[styles.sectionSubtitle, { color: colors.text.secondary }]}>
               Los mejores negocios para ti
