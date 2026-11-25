@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   textContainerMobile: {
-    flex: 0,
+    alignSelf: 'stretch',
   },
   title: {
     fontSize: typography.sizes.lg,

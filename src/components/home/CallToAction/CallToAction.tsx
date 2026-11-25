@@ -65,20 +65,21 @@ export const CallToAction = memo(function CallToAction() {
               </View>
             </View>
 
-            <View style={[styles.textContainer, isMobile && styles.textContainerMobile]}>
+            {/* En móvil sin flex: Safari trataba flex 0 (base 0%) como alto cero y el botón tapaba el texto */}
+            <View style={isMobile ? styles.textContainerMobile : styles.textContainer}>
               <Text style={styles.title}>
-                {isAuthenticated ? 'Publica tu negocio' : 'Tienes un negocio?'}
+                {isAuthenticated ? 'Publica tu negocio' : '¿Tienes un negocio?'}
               </Text>
               <Text style={styles.subtitle}>
                 {isAuthenticated
                   ? 'Llega a miles de clientes en tu zona'
-                  : 'Unete a Rutica y promociona tu comercio'}
+                  : 'Únete a Rutica y promociona tu comercio'}
               </Text>
             </View>
 
             <View style={styles.buttonContainer}>
               <View style={styles.button}>
-                <Text style={styles.buttonText}>{isAuthenticated ? 'Comenzar' : 'Saber mas'}</Text>
+                <Text style={styles.buttonText}>{isAuthenticated ? 'Comenzar' : 'Saber más'}</Text>
                 <ArrowRight size={18} color="#059669" strokeWidth={2.5} />
               </View>
             </View>

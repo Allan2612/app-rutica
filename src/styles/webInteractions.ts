@@ -71,6 +71,12 @@ ${INTERACTIVE.split(',')
   outline: 2px solid #10b981;
   outline-offset: 2px;
 }
+
+/* Safari de iPhone hace zoom al enfocar un campo con letra menor a 16px y la vista queda corrida.
+   -webkit-touch-callout solo existe en iOS, así que en el resto de navegadores no cambia nada. */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select { font-size: 16px !important; }
+}
 `;
 
 export function installWebInteractions() {

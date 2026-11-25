@@ -34,7 +34,10 @@ export const EventContactSection = memo(function EventContactSection({
   return (
     <View style={styles.contactSection}>
       {contactPhone && (
-        <Pressable style={styles.contactRow} onPress={() => openSafeUrl(toSafeTelUrl(contactPhone))}>
+        <Pressable
+          style={styles.contactRow}
+          onPress={() => openSafeUrl(toSafeTelUrl(contactPhone))}
+        >
           <Phone size={14} color={colors.primary[500]} />
           <Text style={[styles.contactText, { color: colors.primary[500] }]}>{contactPhone}</Text>
         </Pressable>
@@ -42,9 +45,7 @@ export const EventContactSection = memo(function EventContactSection({
       {socialLinks?.facebook && (
         <Pressable
           style={styles.contactRow}
-          onPress={() =>
-            openSafeUrl(toSafeSocialUrl(socialLinks.facebook, 'facebook'))
-          }
+          onPress={() => openSafeUrl(toSafeSocialUrl(socialLinks.facebook, 'facebook'))}
         >
           <Facebook size={14} color="#1877F2" />
           <Text style={[styles.contactText, { color: '#1877F2' }]} numberOfLines={1}>
@@ -53,12 +54,7 @@ export const EventContactSection = memo(function EventContactSection({
         </Pressable>
       )}
       {website && (
-        <Pressable
-          style={styles.contactRow}
-          onPress={() =>
-            openSafeUrl(toSafeWebsiteUrl(website))
-          }
-        >
+        <Pressable style={styles.contactRow} onPress={() => openSafeUrl(toSafeWebsiteUrl(website))}>
           <Globe size={14} color={colors.primary[500]} />
           <Text style={[styles.contactText, { color: colors.primary[500] }]} numberOfLines={1}>
             {website.replace(/^https?:\/\//, '')}
@@ -68,9 +64,7 @@ export const EventContactSection = memo(function EventContactSection({
       {socialLinks?.instagram && (
         <Pressable
           style={styles.contactRow}
-          onPress={() =>
-            openSafeUrl(toSafeSocialUrl(socialLinks.instagram, 'instagram'))
-          }
+          onPress={() => openSafeUrl(toSafeSocialUrl(socialLinks.instagram, 'instagram'))}
         >
           <Instagram size={14} color="#E4405F" />
           <Text style={[styles.contactText, { color: '#E4405F' }]} numberOfLines={1}>
@@ -90,9 +84,7 @@ export const EventContactSection = memo(function EventContactSection({
       {socialLinks?.tiktok && (
         <Pressable
           style={styles.contactRow}
-          onPress={() =>
-            openSafeUrl(toSafeSocialUrl(socialLinks.tiktok, 'tiktok'))
-          }
+          onPress={() => openSafeUrl(toSafeSocialUrl(socialLinks.tiktok, 'tiktok'))}
         >
           <TikTokIcon size={14} color={colors.text.primary} />
           <Text style={[styles.contactText, { color: colors.text.primary }]} numberOfLines={1}>
