@@ -13,6 +13,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { setupReanimatedConfig } from '@/lib/reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { installWebInteractions } from '@/styles/webInteractions';
+import { WebAnalytics } from '@/lib/analytics/WebAnalytics';
 
 // Configurar Reanimated una sola vez al inicio
 setupReanimatedConfig();
@@ -125,6 +126,7 @@ export default function RootLayout() {
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(app)" />
           </Stack>
+          <WebAnalytics />
           <Toast
             config={{
               success: (props) => (
