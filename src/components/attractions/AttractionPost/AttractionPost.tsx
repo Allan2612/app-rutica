@@ -140,7 +140,7 @@ export function AttractionPost({
             renderItem={(image) => (
               <Image
                 source={{ uri: image }}
-                style={{ width: carouselWidth, aspectRatio: 16 / 9 }}
+                style={{ width: carouselWidth, height: '100%' }} // llena el alto fijo del carrusel
                 contentFit="cover"
               />
             )}

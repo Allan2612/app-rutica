@@ -7,6 +7,8 @@
  * 3. Copiar el valor de artifacts.buildUrl y pegarlo en ANDROID_APK_URL
  */
 
+import Toast from 'react-native-toast-message';
+
 // URL del APK para Android (URL pública de EAS Artifacts)
 export const ANDROID_APK_URL =
   'https://expo.dev/artifacts/eas/n7WoSyn-vZUfbnzgWTPAgrvYJn5BKkD0cYmardSFU4M.apk';
@@ -81,5 +83,15 @@ export function triggerDownload(): void {
 
   if (typeof window !== 'undefined') {
     window.open(download.url, '_blank');
+  }
+  // Chrome retiene los APK al 100% hasta que se confirma en Descargas, y el aviso queda escondido
+  if (download.platform !== 'ios') {
+    Toast.show({
+      type: 'info',
+      text1: 'Descargando la app',
+      text2:
+        'Si la descarga se queda en 100%, abre Descargas en tu navegador y elige "Descargar de todas formas", o prueba con otro navegador.',
+      visibilityTime: 9000,
+    });
   }
 }

@@ -63,7 +63,7 @@ export const ReviewsSectionControls = memo(function ReviewsSectionControls({
       // Construir el URL de detalles de la atracción
       const detailUrl =
         Platform.OS === 'web'
-          ? `${window.location.origin}/(app)/(tabs)/attractions/${attractionId}`
+          ? `${window.location.origin}/attractions/${attractionId}`
           : `rutica://attractions/${attractionId}`;
 
       if (Platform.OS === 'web') {

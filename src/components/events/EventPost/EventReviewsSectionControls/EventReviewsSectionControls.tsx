@@ -60,7 +60,7 @@ export const EventReviewsSectionControls = memo(function EventReviewsSectionCont
       // Construir el URL de detalles del evento
       const detailUrl =
         Platform.OS === 'web'
-          ? `${window.location.origin}/(app)/(tabs)/events/${eventId}`
+          ? `${window.location.origin}/events/${eventId}`
           : `rutica://events/${eventId}`;
 
       if (Platform.OS === 'web') {
